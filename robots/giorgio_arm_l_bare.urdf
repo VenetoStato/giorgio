@@ -1,0 +1,35 @@
+<robot name="giorgio_arm_l">
+<link name="base_link"/>
+<link name="link1"><inertial><origin xyz="0 0 -0.05"/><mass value="0.8"/><inertia ixx="0.004" iyy="0.004" izz="0.002" ixy="0" ixz="0" iyz="0"/></inertial>
+<visual><origin xyz="0 0 0"/><geometry><sphere radius="0.065"/></geometry></visual>
+</link>
+<joint name="l_shoulder_pitch" type="revolute"><parent link="base_link"/><child link="link1"/><origin xyz="0 0 0"/><axis xyz="0 1 0"/><limit lower="-3.0" upper="1.0" effort="120.0" velocity="3.0"/></joint>
+<link name="link2"><inertial><origin xyz="0 0 -0.05"/><mass value="0.9"/><inertia ixx="0.004" iyy="0.004" izz="0.002" ixy="0" ixz="0" iyz="0"/></inertial>
+<visual><origin xyz="0 0.01 -0.02"/><geometry><box size="0.11 0.13 0.09"/></geometry></visual>
+</link>
+<joint name="l_shoulder_roll" type="revolute"><parent link="link1"/><child link="link2"/><origin xyz="0 0 0"/><axis xyz="1 0 0"/><limit lower="-0.35" upper="1.7" effort="120.0" velocity="3.0"/></joint>
+<link name="link3"><inertial><origin xyz="0 0 -0.05"/><mass value="1.6"/><inertia ixx="0.004" iyy="0.004" izz="0.002" ixy="0" ixz="0" iyz="0"/></inertial>
+<visual><origin xyz="0 0 -0.15"/><geometry><cylinder radius="0.042" length="0.24"/></geometry></visual>
+<visual><origin xyz="0.01 0 -0.13999999999999999"/><geometry><box size="0.075 0.07 0.17"/></geometry></visual>
+</link>
+<joint name="l_shoulder_yaw" type="revolute"><parent link="link2"/><child link="link3"/><origin xyz="0 0 0"/><axis xyz="0 0 1"/><limit lower="-2.2" upper="2.2" effort="60.0" velocity="3.0"/></joint>
+<link name="link4"><inertial><origin xyz="0 0 -0.05"/><mass value="0.4"/><inertia ixx="0.004" iyy="0.004" izz="0.002" ixy="0" ixz="0" iyz="0"/></inertial>
+<visual><origin xyz="0 0 0"/><geometry><sphere radius="0.05"/></geometry></visual>
+</link>
+<joint name="l_elbow" type="revolute"><parent link="link3"/><child link="link4"/><origin xyz="0 0 -0.3"/><axis xyz="0 1 0"/><limit lower="-2.6" upper="0.0" effort="60.0" velocity="3.0"/></joint>
+<link name="link5"><inertial><origin xyz="0 0 -0.05"/><mass value="1.1"/><inertia ixx="0.004" iyy="0.004" izz="0.002" ixy="0" ixz="0" iyz="0"/></inertial>
+<visual><origin xyz="0 0 -0.13"/><geometry><cylinder radius="0.036" length="0.20"/></geometry></visual>
+<visual><origin xyz="0.012 0 -0.11"/><geometry><box size="0.06 0.065 0.13"/></geometry></visual>
+</link>
+<joint name="l_wrist_yaw" type="revolute"><parent link="link4"/><child link="link5"/><origin xyz="0 0 0"/><axis xyz="0 0 1"/><limit lower="-2.6" upper="2.6" effort="20.0" velocity="3.0"/></joint>
+<link name="link6"><inertial><origin xyz="0 0 -0.05"/><mass value="0.3"/><inertia ixx="0.004" iyy="0.004" izz="0.002" ixy="0" ixz="0" iyz="0"/></inertial>
+<visual><origin xyz="0 0 0"/><geometry><sphere radius="0.038"/></geometry></visual>
+</link>
+<joint name="l_wrist_pitch" type="revolute"><parent link="link5"/><child link="link6"/><origin xyz="0 0 -0.26"/><axis xyz="0 1 0"/><limit lower="-1.7" upper="1.7" effort="20.0" velocity="3.0"/></joint>
+<link name="link7"><inertial><origin xyz="0 0 -0.05"/><mass value="0.25"/><inertia ixx="0.004" iyy="0.004" izz="0.002" ixy="0" ixz="0" iyz="0"/></inertial>
+<visual><origin xyz="0 0 -0.015"/><geometry><cylinder radius="0.034" length="0.03"/></geometry></visual>
+</link>
+<joint name="l_wrist_roll" type="revolute"><parent link="link6"/><child link="link7"/><origin xyz="0 0 -0.02"/><axis xyz="0 0 1"/><limit lower="-2.9" upper="2.9" effort="15.0" velocity="3.0"/></joint>
+<link name="tool0"/>
+<joint name="l_tool" type="fixed"><parent link="link7"/><child link="tool0"/><origin xyz="0 0 -0.030000000000000002" rpy="3.14159265 0 0"/></joint>
+</robot>

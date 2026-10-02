@@ -1,0 +1,447 @@
+{
+ "fps": 30,
+ "size": [
+  1920,
+  1080
+ ],
+ "music": "music_v7.wav",
+ "xfade": 0.5,
+ "segments": [
+  {
+   "type": "card",
+   "dur": 4.0,
+   "texts": [
+    {
+     "t0": 0.4,
+     "t1": 4.0,
+     "text": "GIORGIO",
+     "pos": "center",
+     "size": 150,
+     "weight": "L"
+    },
+    {
+     "t0": 1.6,
+     "t1": 4.0,
+     "text": "il collega open",
+     "pos": "sub",
+     "size": 40,
+     "weight": "L"
+    }
+   ]
+  },
+  {
+   "type": "frames",
+   "glob": "v7/p_hero/f_*.png",
+   "tag": "RENDER",
+   "texts": [
+    {
+     "t0": 0.8,
+     "t1": 4.8,
+     "text": "Fatto di parti che esistono già.",
+     "pos": "lower",
+     "size": 54,
+     "weight": "L"
+    }
+   ]
+  },
+  {
+   "type": "frames",
+   "glob": "v7/p_volto/f_*.png",
+   "tag": "RENDER",
+   "texts": [
+    {
+     "t0": 0.3,
+     "t1": 3.0,
+     "text": "Occhi che ti guardano. Baffi che si accendono.",
+     "pos": "lower",
+     "size": 54,
+     "weight": "L"
+    }
+   ]
+  },
+  {
+   "type": "frames",
+   "glob": "v7/p_expl/f_*.png",
+   "tag": "RENDER",
+   "labels": "lab_expl.json",
+   "lab_t0": 3.2,
+   "names": {
+    "testa": [
+     "Testa",
+     "Gemini 336L RGB-D · Insta360 X4 · occhi GC9A01"
+    ],
+    "braccio_sx": [
+     "Enactic OpenArm 2.0",
+     "7+7 DOF · open source (Apache-2.0)"
+    ],
+    "braccio_dx": [
+     "Pinze OpenArm",
+     "+ telecamere di polso"
+    ],
+    "busto": [
+     "Gusci",
+     "stampa SLS · file aperti"
+    ],
+    "vassoio": [
+     "Vassoio di bordo",
+     "6 alloggi svasati"
+    ],
+    "caffe": [
+     "Zaino caffè",
+     "De'Longhi Inissia. Sì, davvero."
+    ],
+    "scanner": [
+     "Sicurezza",
+     "2× SICK nanoScan3 · ISO 13855"
+    ],
+    "base": [
+     "AgileX Tracer 2.0",
+     "AMR commerciale"
+    ]
+   },
+   "texts": [
+    {
+     "t0": 0.3,
+     "t1": 3.0,
+     "text": "Niente segreti. Parti vere, assemblate.",
+     "pos": "upper",
+     "size": 54,
+     "weight": "L"
+    }
+   ]
+  },
+  {
+   "type": "frames",
+   "glob": "v7/l_carico/f_*.png",
+   "tag": "SIMULAZIONE MuJoCo · 4×",
+   "texts": [
+    {
+     "t0": 0.3,
+     "t1": 7.0,
+     "text": "Si carica da solo.\nVede i flaconi, li prende, li sistema.",
+     "pos": "lower",
+     "size": 54,
+     "weight": "L"
+    }
+   ]
+  },
+  {
+   "type": "frames",
+   "glob": "v7/l_cross/f_*.png",
+   "tag": "SIMULAZIONE MuJoCo",
+   "texts": [
+    {
+     "t0": 0.3,
+     "t1": 3.4,
+     "text": "Lidar di sicurezza e camera 360°.",
+     "pos": "lower",
+     "size": 54,
+     "weight": "L"
+    },
+    {
+     "t0": 3.6,
+     "t1": 7.0,
+     "text": "Se passi, rallenta. Se ti avvicini troppo, si ferma.",
+     "pos": "lower",
+     "size": 54,
+     "weight": "L"
+    }
+   ]
+  },
+  {
+   "type": "frames",
+   "glob": "v7/l_drive/f_*.png",
+   "tag": "SIMULAZIONE MuJoCo · 2×",
+   "texts": [
+    {
+     "t0": 0.3,
+     "t1": 4.8,
+     "text": "Da A a B. Senza scossoni.",
+     "pos": "lower",
+     "size": 54,
+     "weight": "L"
+    }
+   ]
+  },
+  {
+   "type": "frames",
+   "glob": "v7/l_ins/f_*.png",
+   "slow": 2,
+   "tag": "SIMULAZIONE MuJoCo · 0,5×",
+   "texts": [
+    {
+     "t0": 0.4,
+     "t1": 5.5,
+     "text": "Visione 3D: centra il foro a ±2 mm.",
+     "pos": "lower",
+     "size": 54,
+     "weight": "L"
+    }
+   ]
+  },
+  {
+   "type": "frames",
+   "glob": "v7/l_unload/f_*.png",
+   "tag": "SIMULAZIONE MuJoCo · 5×",
+   "texts": [
+    {
+     "t0": 0.3,
+     "t1": 4.6,
+     "text": "Otto su otto.",
+     "pos": "lower",
+     "size": 54,
+     "weight": "L"
+    }
+   ]
+  },
+  {
+   "type": "frames",
+   "glob": "v7/l_oper/f_*.png",
+   "tag": "SIMULAZIONE MuJoCo · 6×",
+   "texts": [
+    {
+     "t0": 0.4,
+     "t1": 7.5,
+     "text": "Lavora accanto alle persone.\nNon al posto loro.",
+     "pos": "lower",
+     "size": 54,
+     "weight": "L"
+    }
+   ]
+  },
+  {
+   "type": "frames",
+   "glob": "v7/l_dock/f_*.png",
+   "tag": "SIMULAZIONE MuJoCo · 2×",
+   "texts": [
+    {
+     "t0": 0.3,
+     "t1": 3.2,
+     "text": "E ricomincia.",
+     "pos": "lower",
+     "size": 54,
+     "weight": "L"
+    }
+   ]
+  },
+  {
+   "type": "card",
+   "dur": 6.5,
+   "bg": "stills_v7/01_hero.png",
+   "dim": 0.72,
+   "blur": 14,
+   "chat": [
+    {
+     "t": 0.4,
+     "who": "user",
+     "text": "Giorgio, fammi un caffè e portalo a Marco."
+    },
+    {
+     "t": 1.8,
+     "who": "sys",
+     "text": "Sistema 1 · router locale · 0,3 ms"
+    },
+    {
+     "t": 2.4,
+     "who": "giorgio",
+     "text": "fai_caffe()  →  porta_caffe(Marco)"
+    },
+    {
+     "t": 3.8,
+     "who": "sys",
+     "text": "Sistema 2 · Claude, per le richieste complesse"
+    }
+   ],
+   "texts": [
+    {
+     "t0": 0.2,
+     "t1": 6.5,
+     "text": "Gli parli. Lui pianifica con le sue abilità reali.",
+     "pos": "upper",
+     "size": 44,
+     "weight": "L"
+    }
+   ]
+  },
+  {
+   "type": "frames",
+   "glob": "v7/c_caffe1/f_*.png",
+   "tag": "SIMULAZIONE MuJoCo · 4×",
+   "texts": [
+    {
+     "t0": 0.3,
+     "t1": 4.0,
+     "text": "E poi c'è il caffè.",
+     "pos": "lower",
+     "size": 54,
+     "weight": "L"
+    }
+   ]
+  },
+  {
+   "type": "frames",
+   "glob": "v7/c_caffe2/f_*.png",
+   "tag": "SIMULAZIONE MuJoCo · 2×",
+   "texts": [
+    {
+     "t0": 0.3,
+     "t1": 4.5,
+     "text": "Una De'Longhi a capsule, integrata nella schiena.\nIl caffè lo fa lui.",
+     "pos": "lower",
+     "size": 54,
+     "weight": "L"
+    }
+   ]
+  },
+  {
+   "type": "frames",
+   "glob": "v7/c_caffe3/f_*.png",
+   "tag": "SIMULAZIONE MuJoCo · 3×"
+  },
+  {
+   "type": "frames",
+   "glob": "v7/c_consegna/f_*.png",
+   "tag": "SIMULAZIONE MuJoCo · 2×",
+   "texts": [
+    {
+     "t0": 0.4,
+     "t1": 4.4,
+     "text": "Te lo porta.",
+     "pos": "lower",
+     "size": 54,
+     "weight": "L"
+    },
+    {
+     "t0": 4.8,
+     "t1": 9.0,
+     "text": "Te lo porge.",
+     "pos": "lower",
+     "size": 54,
+     "weight": "L"
+    }
+   ]
+  },
+  {
+   "type": "card",
+   "dur": 4.0,
+   "bg": "stills_v7/01_hero.png",
+   "dim": 0.55,
+   "zoom": 0.04,
+   "texts": [
+    {
+     "t0": 0.3,
+     "t1": 4.0,
+     "text": "La tua piattaforma open\nper le attività in azienda.",
+     "pos": "center",
+     "size": 72,
+     "weight": "L"
+    }
+   ]
+  },
+  {
+   "type": "card",
+   "dur": 4.5,
+   "bg": "stills_v7/02_volto.png",
+   "dim": 0.62,
+   "zoom": 0.04,
+   "texts": [
+    {
+     "t0": 0.3,
+     "t1": 4.5,
+     "text": "Lidar + camera 360°  ·  presa di oggetti  ·  interazione",
+     "pos": "center",
+     "size": 50,
+     "weight": "L"
+    },
+    {
+     "t0": 1.2,
+     "t1": 4.5,
+     "text": "Oggi pinze affidabili. Mani articolate: in sviluppo, come opzione.",
+     "pos": "sub",
+     "size": 30,
+     "weight": "L"
+    }
+   ]
+  },
+  {
+   "type": "card",
+   "dur": 4.5,
+   "bg": "stills_v7/04_zaino_dettaglio.png",
+   "dim": 0.6,
+   "zoom": 0.05,
+   "texts": [
+    {
+     "t0": 0.3,
+     "t1": 4.5,
+     "text": "E alla peggio…",
+     "pos": "center",
+     "size": 64,
+     "weight": "L"
+    },
+    {
+     "t0": 1.6,
+     "t1": 4.5,
+     "text": "è una costosa macchinetta del caffè.",
+     "pos": "sub",
+     "size": 64,
+     "weight": "L"
+    }
+   ]
+  },
+  {
+   "type": "card",
+   "dur": 4.5,
+   "bg": "stills_v7/01_hero.png",
+   "dim": 0.7,
+   "zoom": 0.03,
+   "texts": [
+    {
+     "t0": 0.3,
+     "t1": 4.5,
+     "text": "Giorgio",
+     "pos": "center",
+     "size": 110,
+     "weight": "L"
+    },
+    {
+     "t0": 1.0,
+     "t1": 4.5,
+     "text": "da € 39.900 + IVA",
+     "pos": "sub",
+     "size": 56,
+     "weight": "R"
+    },
+    {
+     "t0": 1.8,
+     "t1": 4.5,
+     "text": "prezzo indicativo · componenti ≈ € 28.000 + montaggio · margine 30%",
+     "pos": "sub",
+     "size": 26,
+     "weight": "L"
+    }
+   ]
+  },
+  {
+   "type": "card",
+   "dur": 4.0,
+   "texts": [
+    {
+     "t0": 0.3,
+     "t1": 4.0,
+     "text": "GIORGIO",
+     "pos": "center",
+     "size": 150,
+     "weight": "L"
+    },
+    {
+     "t0": 1.0,
+     "t1": 4.0,
+     "text": "open · utile · simpatico",
+     "pos": "sub",
+     "size": 40,
+     "weight": "L"
+    }
+   ]
+  }
+ ]
+}
