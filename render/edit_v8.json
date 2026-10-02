@@ -1,0 +1,641 @@
+{
+ "fps": 30,
+ "size": [
+  1920,
+  1080
+ ],
+ "music": "music_v8.wav",
+ "xfade": 0.5,
+ "segments": [
+  {
+   "type": "card",
+   "dur": 4.0,
+   "texts": [
+    {
+     "t0": 0.4,
+     "t1": 4.0,
+     "text": "GIORGIO",
+     "pos": "center",
+     "size": 150,
+     "weight": "L"
+    },
+    {
+     "t0": 1.6,
+     "t1": 4.0,
+     "text": "il collega open",
+     "pos": "sub",
+     "size": 40,
+     "weight": "L"
+    }
+   ]
+  },
+  {
+   "type": "frames",
+   "glob": "v8/p_hero/f_*.jpg",
+   "tag": "RENDER",
+   "texts": [
+    {
+     "t0": 0.6,
+     "t1": 4.8,
+     "text": "Una composizione di progetti open e componenti di serie.",
+     "pos": "lower",
+     "size": 54,
+     "weight": "L"
+    }
+   ]
+  },
+  {
+   "type": "frames",
+   "glob": "v8/p_espr/f_*.jpg",
+   "tag": "RENDER",
+   "texts": [
+    {
+     "t0": 0.2,
+     "t1": 6.0,
+     "text": "Volto a matrice LED RGB 32×16: baffoni all'italiana e cappellino con la G.",
+     "pos": "upper",
+     "size": 42,
+     "weight": "L"
+    },
+    {
+     "t0": 0.5,
+     "t1": 1.7,
+     "text": "contento",
+     "pos": "lower",
+     "size": 54,
+     "weight": "L"
+    },
+    {
+     "t0": 1.8,
+     "t1": 3.2,
+     "text": "modalità caffè",
+     "pos": "lower",
+     "size": 54,
+     "weight": "L"
+    },
+    {
+     "t0": 3.3,
+     "t1": 4.6,
+     "text": "si ferma per te",
+     "pos": "lower",
+     "size": 54,
+     "weight": "L"
+    },
+    {
+     "t0": 4.7,
+     "t1": 6.0,
+     "text": "di nuovo contento",
+     "pos": "lower",
+     "size": 54,
+     "weight": "L"
+    }
+   ]
+  },
+  {
+   "type": "frames",
+   "glob": "v8/p_expl/f_*.jpg",
+   "tag": "RENDER",
+   "labels": "lab_expl.json",
+   "lab_t0": 3.2,
+   "names": {
+    "testa": [
+     "Testa",
+     "matrice LED 32×16 · Insta360 X4 (camera 360°)"
+    ],
+    "braccio_sx": [
+     "Enactic OpenArm 2.0",
+     "open hardware CERN-OHL-S-2.0 · software Apache-2.0"
+    ],
+    "braccio_dx": [
+     "Pinze OpenArm",
+     "oppure mani open ORCA / AmazingHand"
+    ],
+    "busto": [
+     "Busto",
+     "Orbbec Gemini 336L sul petto · gusci SLS aperti"
+    ],
+    "vassoio": [
+     "Vassoio di bordo",
+     "6 alloggi svasati"
+    ],
+    "caffe": [
+     "Zaino caffè",
+     "De'Longhi Inissia (commerciale)"
+    ],
+    "scanner": [
+     "Sicurezza",
+     "2× SICK nanoScan3 + Pilz (certificati)"
+    ],
+    "base": [
+     "AgileX Tracer 2.0",
+     "AMR commerciale · carenatura tricolore"
+    ]
+   },
+   "texts": [
+    {
+     "t0": 0.3,
+     "t1": 3.0,
+     "text": "Cosa c'è dentro: progetti open + componenti commerciali.",
+     "pos": "upper",
+     "size": 46,
+     "weight": "L"
+    }
+   ]
+  },
+  {
+   "type": "card",
+   "dur": 4.5,
+   "bg": "stills_v8/01_hero.png",
+   "dim": 0.78,
+   "blur": 6,
+   "texts": [
+    {
+     "t0": 0.3,
+     "t1": 4.5,
+     "text": "Software open",
+     "pos": "center",
+     "size": 64,
+     "weight": "L"
+    },
+    {
+     "t0": 0.9,
+     "t1": 4.5,
+     "text": "ROS 2 · MoveIt 2 · Nav2 · LeRobot · MuJoCo",
+     "pos": "sub",
+     "size": 44,
+     "weight": "R"
+    },
+    {
+     "t0": 1.6,
+     "t1": 4.5,
+     "text": "driver AgileX e SICK Apache-2.0 · Orbbec SDK MIT",
+     "pos": "sub2",
+     "size": 28,
+     "weight": "L"
+    }
+   ]
+  },
+  {
+   "type": "frames",
+   "glob": "v8/l_carico/f_*.jpg",
+   "tag": "SIMULAZIONE · 4×",
+   "texts": [
+    {
+     "t0": 0.3,
+     "t1": 7.0,
+     "text": "Si carica da solo.\nVede i flaconi e li sistema nel vassoio.",
+     "pos": "lower",
+     "size": 54,
+     "weight": "L"
+    }
+   ]
+  },
+  {
+   "type": "frames",
+   "glob": "v8/l_cross/f_*.jpg",
+   "tag": "SIMULAZIONE",
+   "texts": [
+    {
+     "t0": 0.3,
+     "t1": 3.4,
+     "text": "Laser scanner di sicurezza + camera 360°.",
+     "pos": "lower",
+     "size": 54,
+     "weight": "L"
+    },
+    {
+     "t0": 3.6,
+     "t1": 7.0,
+     "text": "Se passi, rallenta. Se ti avvicini troppo, si ferma.",
+     "pos": "lower",
+     "size": 54,
+     "weight": "L"
+    }
+   ]
+  },
+  {
+   "type": "frames",
+   "glob": "v8/l_drive/f_*.jpg",
+   "tag": "SIMULAZIONE · 2×",
+   "texts": [
+    {
+     "t0": 0.3,
+     "t1": 4.8,
+     "text": "Da A a B, senza scossoni.",
+     "pos": "lower",
+     "size": 54,
+     "weight": "L"
+    }
+   ]
+  },
+  {
+   "type": "frames",
+   "glob": "v8/l_ins/f_*.jpg",
+   "slow": 2,
+   "tag": "SIMULAZIONE · 0,5×",
+   "texts": [
+    {
+     "t0": 0.4,
+     "t1": 5.6,
+     "text": "Inserimento guidato dalla visione 3D:\nerrore medio 2,2 mm dal centro del foro (max 3,1).",
+     "pos": "lower",
+     "size": 54,
+     "weight": "L"
+    }
+   ]
+  },
+  {
+   "type": "frames",
+   "glob": "v8/l_unload/f_*.jpg",
+   "tag": "SIMULAZIONE · 5×",
+   "texts": [
+    {
+     "t0": 0.3,
+     "t1": 4.6,
+     "text": "8 flaconi su 8 inseriti.",
+     "pos": "lower",
+     "size": 54,
+     "weight": "L"
+    }
+   ]
+  },
+  {
+   "type": "frames",
+   "glob": "v8/l_oper/f_*.jpg",
+   "tag": "SIMULAZIONE · 6×",
+   "texts": [
+    {
+     "t0": 0.4,
+     "t1": 7.5,
+     "text": "Lavora accanto alle persone.\nNon al posto loro.",
+     "pos": "lower",
+     "size": 54,
+     "weight": "L"
+    }
+   ]
+  },
+  {
+   "type": "frames",
+   "glob": "v8/l_dock/f_*.jpg",
+   "tag": "SIMULAZIONE · 2×",
+   "texts": [
+    {
+     "t0": 0.3,
+     "t1": 3.2,
+     "text": "E ricomincia.",
+     "pos": "lower",
+     "size": 54,
+     "weight": "L"
+    }
+   ]
+  },
+  {
+   "type": "frames",
+   "glob": "v8/s_smista/f_*.jpg",
+   "tag": "SIMULAZIONE · 4×",
+   "texts": [
+    {
+     "t0": 0.4,
+     "t1": 5.0,
+     "text": "Un'altra attività: smista i pezzi per colore.",
+     "pos": "lower",
+     "size": 54,
+     "weight": "L"
+    },
+    {
+     "t0": 5.3,
+     "t1": 10.0,
+     "text": "6 su 6 nel contenitore giusto.",
+     "pos": "lower",
+     "size": 54,
+     "weight": "L"
+    }
+   ]
+  },
+  {
+   "type": "frames",
+   "glob": "v8/m_mani/f_*.jpg",
+   "tag": "SIMULAZIONE · 2×",
+   "texts": [
+    {
+     "t0": 0.3,
+     "t1": 3.4,
+     "text": "Mani intercambiabili, entrambe open:\nORCA Hand (CC BY 4.0) · AmazingHand (CC BY 4.0).",
+     "pos": "lower",
+     "size": 54,
+     "weight": "L"
+    },
+    {
+     "t0": 3.6,
+     "t1": 6.4,
+     "text": "Salutano, contano, premono un pulsante.",
+     "pos": "lower",
+     "size": 54,
+     "weight": "L"
+    },
+    {
+     "t0": 6.6,
+     "t1": 9.4,
+     "text": "Le prese più difficili si insegnano:\nteleoperazione + LeRobot.",
+     "pos": "lower",
+     "size": 54,
+     "weight": "L"
+    }
+   ]
+  },
+  {
+   "type": "card",
+   "dur": 6.5,
+   "bg": "stills_v8/01_hero.png",
+   "dim": 0.72,
+   "blur": 14,
+   "chat": [
+    {
+     "t": 0.4,
+     "who": "user",
+     "text": "Giorgio, fammi un caffè e portalo a Marco."
+    },
+    {
+     "t": 1.8,
+     "who": "sys",
+     "text": "Sistema 1 · router locale · 0,3 ms"
+    },
+    {
+     "t": 2.4,
+     "who": "giorgio",
+     "text": "fai_caffe()  ›  porta_caffe(Marco)"
+    },
+    {
+     "t": 3.8,
+     "who": "sys",
+     "text": "Sistema 2 · Claude, per le richieste complesse"
+    }
+   ],
+   "texts": [
+    {
+     "t0": 0.2,
+     "t1": 6.5,
+     "text": "Gli parli. Lui pianifica con le sue abilità reali.",
+     "pos": "upper",
+     "size": 44,
+     "weight": "L"
+    }
+   ]
+  },
+  {
+   "type": "frames",
+   "glob": "v8/c_xray/f_*.jpg",
+   "tag": "SIMULAZIONE · 3× · ZAINO IN TRASPARENZA",
+   "labels": "lab_caffe.json",
+   "lab_t0": 0.6,
+   "names": {
+    "cm_body": [
+     "De'Longhi Inissia",
+     "macchina a capsule di serie"
+    ],
+    "cm_head": [
+     "Testa erogatrice",
+     "capsula + erogatore"
+    ],
+    "cm_btn1": [
+     "Pulsante",
+     "lo preme la pinza"
+    ],
+    "cm_plate": [
+     "Navetta",
+     "attuatore lineare 150 mm"
+    ],
+    "cup_stack2": [
+     "Pila di bicchieri",
+     ""
+    ],
+    "cm_tank": [
+     "Serbatoio acqua",
+     ""
+    ]
+   },
+   "texts": [
+    {
+     "t0": 0.0,
+     "t1": 2.9,
+     "text": "1 · prende un bicchiere e lo posa sulla navetta",
+     "pos": "upper",
+     "size": 44,
+     "weight": "L"
+    },
+    {
+     "t0": 3.0,
+     "t1": 4.2,
+     "text": "2 · preme il pulsante",
+     "pos": "upper",
+     "size": 44,
+     "weight": "L"
+    },
+    {
+     "t0": 4.3,
+     "t1": 5.2,
+     "text": "3 · la navetta porta il bicchiere sotto l'erogatore",
+     "pos": "upper",
+     "size": 44,
+     "weight": "L"
+    },
+    {
+     "t0": 5.2,
+     "t1": 7.6,
+     "text": "4 · erogazione",
+     "pos": "upper",
+     "size": 44,
+     "weight": "L"
+    },
+    {
+     "t0": 7.7,
+     "t1": 8.5,
+     "text": "5 · la navetta torna fuori",
+     "pos": "upper",
+     "size": 44,
+     "weight": "L"
+    },
+    {
+     "t0": 8.6,
+     "t1": 10.8,
+     "text": "6 · prende il caffè pieno e parte",
+     "pos": "upper",
+     "size": 44,
+     "weight": "L"
+    }
+   ]
+  },
+  {
+   "type": "frames",
+   "glob": "v8/c_caffe2/f_*.jpg",
+   "tag": "SIMULAZIONE · 2×",
+   "texts": [
+    {
+     "t0": 0.3,
+     "t1": 4.6,
+     "text": "La De'Longhi è dentro lo zaino.\nIl caffè lo fa lui.",
+     "pos": "lower",
+     "size": 54,
+     "weight": "L"
+    }
+   ]
+  },
+  {
+   "type": "frames",
+   "glob": "v8/c_consegna/f_*.jpg",
+   "tag": "SIMULAZIONE · 2×",
+   "texts": [
+    {
+     "t0": 0.3,
+     "t1": 2.0,
+     "text": "Te lo porta.",
+     "pos": "lower",
+     "size": 54,
+     "weight": "L"
+    },
+    {
+     "t0": 2.1,
+     "t1": 4.4,
+     "text": "Te lo porge.",
+     "pos": "lower",
+     "size": 54,
+     "weight": "L"
+    },
+    {
+     "t0": 4.6,
+     "t1": 7.2,
+     "text": "Buon caffè, Marco.",
+     "pos": "lower",
+     "size": 54,
+     "weight": "L"
+    }
+   ]
+  },
+  {
+   "type": "card",
+   "dur": 4.0,
+   "bg": "stills_v8/01_hero.png",
+   "dim": 0.74,
+   "blur": 5,
+   "zoom": 0.04,
+   "texts": [
+    {
+     "t0": 0.3,
+     "t1": 4.0,
+     "text": "La tua piattaforma open\nper le attività in azienda.",
+     "pos": "center",
+     "size": 72,
+     "weight": "L"
+    }
+   ]
+  },
+  {
+   "type": "card",
+   "dur": 4.5,
+   "bg": "stills_v8/02_volto.png",
+   "dim": 0.74,
+   "blur": 5,
+   "zoom": 0.04,
+   "texts": [
+    {
+     "t0": 0.3,
+     "t1": 4.5,
+     "text": "Lidar + camera 360°  ·  presa di oggetti  ·  interazione",
+     "pos": "center",
+     "size": 50,
+     "weight": "L"
+    },
+    {
+     "t0": 1.2,
+     "t1": 4.5,
+     "text": "Oggi pinze affidabili. Mani articolate open: gesti oggi, prese con l'apprendimento.",
+     "pos": "sub2",
+     "size": 28,
+     "weight": "L"
+    }
+   ]
+  },
+  {
+   "type": "card",
+   "dur": 4.5,
+   "bg": "stills_v8/04_zaino.png",
+   "dim": 0.74,
+   "blur": 5,
+   "zoom": 0.05,
+   "texts": [
+    {
+     "t0": 0.3,
+     "t1": 4.5,
+     "text": "E alla peggio…",
+     "pos": "center",
+     "size": 64,
+     "weight": "L"
+    },
+    {
+     "t0": 1.6,
+     "t1": 4.5,
+     "text": "è una costosa macchinetta del caffè.",
+     "pos": "sub",
+     "size": 64,
+     "weight": "L"
+    }
+   ]
+  },
+  {
+   "type": "card",
+   "dur": 4.5,
+   "bg": "stills_v8/01_hero.png",
+   "dim": 0.74,
+   "blur": 5,
+   "zoom": 0.03,
+   "texts": [
+    {
+     "t0": 0.3,
+     "t1": 4.5,
+     "text": "Giorgio",
+     "pos": "center",
+     "size": 110,
+     "weight": "L"
+    },
+    {
+     "t0": 1.0,
+     "t1": 4.5,
+     "text": "da € 39.900 + IVA",
+     "pos": "sub",
+     "size": 56,
+     "weight": "R"
+    },
+    {
+     "t0": 1.8,
+     "t1": 4.5,
+     "text": "prezzo indicativo · componenti ≈ € 28.000 + montaggio · margine 30%",
+     "pos": "sub2",
+     "size": 26,
+     "weight": "L"
+    }
+   ]
+  },
+  {
+   "type": "card",
+   "dur": 4.0,
+   "texts": [
+    {
+     "t0": 0.3,
+     "t1": 4.0,
+     "text": "GIORGIO",
+     "pos": "center",
+     "size": 150,
+     "weight": "L"
+    },
+    {
+     "t0": 1.0,
+     "t1": 4.0,
+     "text": "open · utile · simpatico",
+     "pos": "sub",
+     "size": 40,
+     "weight": "L"
+    }
+   ]
+  }
+ ]
+}

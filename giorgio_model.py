@@ -59,7 +59,7 @@ CART_MASS = 45.0                              # carrello: telaio alluminio + bat
 FOOT_X, FOOT_Y = 0.42, 0.40
 WHEEL_R = 0.085
 COF_SH = 0.61                                 # mensola dello zaino caffe'
-COF_X = -0.205
+COF_X = -0.225
 COF_Y_IN, COF_Y_OUT = -0.10, -0.24             # navetta: sotto l'erogatore / fuori, presa dall'alto
 COF_STACK = (-0.105, -0.27)                    # pila bicchieri
 COF_LIFT = 0.09                                # supporto tazzina ribaltabile della Inissia: navetta 9 cm sopra la vaschetta
@@ -152,13 +152,27 @@ def build(look="gb", hands="gripper", humans=2, fixed_base=True, base="cart", bu
                       material="dark", mass=base_mass, group=GROUP_ROBOT)
     if fixed_base:
         ch.contype = ch.conaffinity = 0
-    for k_, (px, py, hx, hy) in enumerate(((AMR_L / 2 + 0.004, 0, 0.002, AMR_W / 2 - 0.05), (-AMR_L / 2 - 0.004, 0, 0.002, AMR_W / 2 - 0.05),
-                                           (0, AMR_W / 2 + 0.004, AMR_L / 2 - 0.05, 0.002), (0, -AMR_W / 2 - 0.004, AMR_L / 2 - 0.05, 0.002))):
-        amr.add_geom(name=f"status_led{k_}", type=mujoco.mjtGeom.mjGEOM_BOX, pos=[px, py, 0.20], size=[hx, hy, 0.012],
-                     rgba=[0.2, 1.0, 0.45, 1], contype=0, conaffinity=0, group=GROUP_ROBOT, mass=0)
-    sp.add_mesh(name="base_cover", file=SHELL_DIR + "/base_cover.obj")
-    amr.add_geom(name="base_cover", type=mujoco.mjtGeom.mjGEOM_MESH, meshname="base_cover", pos=[0, 0, 0.19], material="armor",
+    # carenatura della base (guscio unico, Tracer nascosto): fascia scura degli scanner, striscia LED di stato, paraurti in gomma
+    for nm_ in ("base_skirt", "scan_band", "led_band", "bumper"):
+        sp.add_mesh(name=nm_, file=SHELL_DIR + f"/{nm_}.obj")
+    amr.add_geom(name="base_cover", type=mujoco.mjtGeom.mjGEOM_MESH, meshname="base_skirt", pos=[0, 0, 0.165], material="armor",
                  contype=0, conaffinity=0, group=GROUP_ROBOT, mass=0)
+    amr.add_geom(name="scan_window", type=mujoco.mjtGeom.mjGEOM_MESH, meshname="scan_band", pos=[0, 0, SCAN_Z], material="visor",
+                 contype=0, conaffinity=0, group=GROUP_ROBOT, mass=0)
+    amr.add_geom(name="bumper", type=mujoco.mjtGeom.mjGEOM_MESH, meshname="bumper", pos=[0, 0, 0.058], material="dark",
+                 contype=0, conaffinity=0, group=GROUP_ROBOT, mass=0)
+    sp.add_mesh(name="tricolor_band", file=SHELL_DIR + "/tricolor_band.obj")
+    for k_, (col_, z_) in enumerate((((0.0, 0.55, 0.27), 0.132), ((0.97, 0.97, 0.95), 0.108), ((0.80, 0.09, 0.12), 0.084))):   # tricolore attorno alla base
+        amr.add_geom(name=f"tricolore{k_}", type=mujoco.mjtGeom.mjGEOM_MESH, meshname="tricolor_band", pos=[0, 0, z_],
+                     rgba=list(col_) + [1], contype=0, conaffinity=0, group=GROUP_ROBOT, mass=0)
+    for k_, sy_ in enumerate((-0.06, 0.06)):          # pattini di ricarica (rame) sul paraurti frontale: 48 V verso la stazione
+        amr.add_geom(name=f"charge_pad{k_}", type=mujoco.mjtGeom.mjGEOM_BOX, pos=[0.378, sy_, 0.14], size=[0.004, 0.025, 0.012],
+                     rgba=[0.72, 0.45, 0.2, 1], contype=0, conaffinity=0, group=GROUP_ROBOT, mass=0)
+    amr.add_geom(name="status_led0", type=mujoco.mjtGeom.mjGEOM_MESH, meshname="led_band", pos=[0, 0, 0.262],
+                 rgba=[0.2, 1.0, 0.45, 1], contype=0, conaffinity=0, group=GROUP_ROBOT, mass=0)
+    for k_ in (1, 2, 3):                                   # compatibilita': una sola striscia continua
+        amr.add_geom(name=f"status_led{k_}", type=mujoco.mjtGeom.mjGEOM_BOX, pos=[0, 0, 0.2], size=[1e-4, 1e-4, 1e-4],
+                     rgba=[0.2, 1.0, 0.45, 0], contype=0, conaffinity=0, group=GROUP_ROBOT, mass=0)
     if cart:   # 4 ruote piroettanti + 4 piedini stabilizzatori a vite su bracci sporgenti (appoggio da fermo)
         for sx in (-1, 1):
             for sy in (-1, 1):
@@ -199,7 +213,7 @@ def build(look="gb", hands="gripper", humans=2, fixed_base=True, base="cart", bu
                     cb.add_geom(name=f"caster_{sx}_{sy}_g", type=mujoco.mjtGeom.mjGEOM_SPHERE, size=[0.035, 0, 0], mass=0.3,
                                 friction=[0.02, 0.001, 0.001], condim=1, material="dark", group=GROUP_ROBOT)
     for k, ((sx, sy), h) in enumerate(SCANNERS):      # SICK nanoScan3: 80 x 80 x 85 mm, giallo
-        vbox(amr, f"scanner{k}_body", (sx, sy, SCAN_Z), (0.04, 0.04, 0.0425), "scanner")
+        vbox(amr, f"scanner{k}_body", (sx, sy, SCAN_Z), (0.035, 0.035, 0.04), "dark")      # dentro la carenatura, dietro la fascia scura
         amr.add_site(name=f"scanner{k}", pos=[sx + 0.045 * math.cos(h), sy + 0.045 * math.sin(h), SCAN_Z],
                      euler=[0, 0, h], size=[0.01, 0, 0], group=4)
     # vassoio frontale (buffer a bordo): ripiano davanti al petto, tra le braccia, 6 alloggi profondi 90 mm
@@ -252,8 +266,11 @@ def build(look="gb", hands="gripper", humans=2, fixed_base=True, base="cart", bu
         for nm_ in ("inissia_body", "inissia_head", "inissia_tank"):
             sp.add_mesh(name=nm_, file=SHELL_DIR + f"/{nm_}.obj")
         mx = COF_X
-        cg("cm_mount", B, (-0.215, -0.10, sh - 0.008), (0.085, 0.235, 0.008), "dark", mass=1.2)              # mensola in alluminio
-        cg("cm_bracket", B, (-0.16, 0, sh - 0.12), (0.012, 0.06, 0.11), "dark")                               # staffa sulla colonna
+        cg("cm_mount", B, (-0.235, -0.17, sh - 0.008), (0.085, 0.135, 0.008), "armor", mass=1.2)            # mensola (sotto navetta e pila)
+        sp.add_mesh(name="coffee_housing", file=SHELL_DIR + "/coffee_housing.obj")
+        cg("cm_housing", MSH, (-0.255, 0.058, 0.615), (0, 0, 0), "armor", mesh="coffee_housing")              # guscio dello zaino
+        cg("cm_band", B, (-0.255, -0.0635, 0.80), (0.07, 0.0015, 0.012), rgba=[0.62, 0.05, 0.07, 1])          # fascia rossa De'Longhi
+        cg("cm_vent", B, (-0.255, -0.0635, 0.45), (0.05, 0.0015, 0.03), "dark")                              # griglia di aerazione
         cg("cm_body", MSH, (mx, 0.035, sh + 0.135), (0, 0, 0), rgba=[0.62, 0.08, 0.10, 1], mesh="inissia_body", mass=2.4)   # rosso De'Longhi
         cg("cm_head", MSH, (mx, -0.075, sh + 0.255), (0, 0, 0), rgba=[0.08, 0.08, 0.09, 1], mesh="inissia_head")
         cg("cm_tank", MSH, (mx, 0.155, sh + 0.115), (0, 0, 0), rgba=[0.65, 0.8, 0.95, 0.45], mesh="inissia_tank")
@@ -279,14 +296,14 @@ def build(look="gb", hands="gripper", humans=2, fixed_base=True, base="cart", bu
         # pila di bicchieri impilati (aperta in alto: si prende il bicchiere di cima), anello di contenimento
         sx_, sy_ = COF_STACK
         zs = sh + COF_STACK_Z
-        cg("cup_post", CY, (sx_, sy_, sh + COF_STACK_Z / 2), (0.012, COF_STACK_Z / 2, 0), "dark")
+        cg("cup_post", CY, (sx_, sy_, sh + COF_STACK_Z / 2), (0.03, COF_STACK_Z / 2, 0), "armor")
         cg("cup_ring", CY, (sx_, sy_, zs + 0.035), (0.038, 0.035, 0), rgba=[0.75, 0.85, 0.95, 0.25])
         for i in range(5):
             cg(f"cup_stack{i}", CY, (sx_, sy_, zs + 0.04 + 0.012 * i), (0.029, 0.04, 0), rgba=[0.97, 0.96, 0.93, 1])
         cg("cup_rest", CY, (sx_, sy_, zs + 0.006 + 0.012 * 5 - 0.002), (0.02, 0.002, 0), rgba=[0, 0, 0, 0], collide=True)
     # colonna: profilo alluminio 80x80 con slitta e morsetti (regolazione manuale), carter di design
-    sp.add_mesh(name="column_cover", file=SHELL_DIR + "/column_cover.obj")
-    amr.add_geom(name="column_cover", type=mujoco.mjtGeom.mjGEOM_MESH, meshname="column_cover", pos=[-0.06, 0, AMR_H + 0.22],
+    sp.add_mesh(name="column_cover", file=SHELL_DIR + "/column_neck.obj")
+    amr.add_geom(name="column_cover", type=mujoco.mjtGeom.mjGEOM_MESH, meshname="column_cover", pos=[-0.06, 0, AMR_H + 0.335],
                  material="armor", contype=0, conaffinity=0, group=GROUP_ROBOT, mass=0)
     col = amr.add_body(name="column", pos=[-0.06, 0, AMR_H + 0.05])
     col.add_joint(name="lift", type=mujoco.mjtJoint.mjJNT_SLIDE, axis=[0, 0, 1], range=[0, COLUMN_STROKE], damping=200, armature=5)
@@ -300,6 +317,21 @@ def build(look="gb", hands="gripper", humans=2, fixed_base=True, base="cart", bu
     torso = col.add_body(name="torso", pos=[0.06, 0, 0.28])
     torso.add_geom(name="torso_coll", type=mujoco.mjtGeom.mjGEOM_BOX, pos=[-0.005, 0, PED_TOP - 0.17], size=[0.095, 0.15, 0.2],
                    group=3, mass=0, rgba=[1, 0, 0, 0.3], contype=2, conaffinity=0)
+    # Orbbec Gemini 336L (124 x 29 x 27 mm) sulla parte alta del petto, tra le spalle, inclinata di 45 gradi verso il banco: ben visibile
+    GT = math.radians(50)
+    gp = np.array([0.108, 0.0, 0.665]); qg = [math.cos(GT / 2), 0, math.sin(GT / 2), 0]
+    Rg = np.array([[math.cos(GT), 0, math.sin(GT)], [0, 1, 0], [-math.sin(GT), 0, math.cos(GT)]])
+    torso.add_geom(name="gemini_body", type=mujoco.mjtGeom.mjGEOM_BOX, pos=list(gp), quat=qg, size=[0.0135, 0.062, 0.0145],
+                   material="cam", contype=0, conaffinity=0, group=GROUP_ROBOT, mass=0.3)
+    torso.add_geom(name="gemini_glass", type=mujoco.mjtGeom.mjGEOM_BOX, pos=list(gp + Rg @ [0.0137, 0, 0]), quat=qg, size=[0.0006, 0.058, 0.011],
+                   material="visor", contype=0, conaffinity=0, group=GROUP_ROBOT, mass=0)
+    for k_, yy in enumerate((-0.047, -0.016, 0.016, 0.047)):          # stereo sx, RGB, proiettore IR, stereo dx
+        torso.add_geom(name=f"gemini_lens{k_}", type=mujoco.mjtGeom.mjGEOM_CYLINDER, pos=list(gp + Rg @ [0.0145, yy, 0]),
+                       quat=[math.cos((GT + math.pi / 2) / 2), 0, math.sin((GT + math.pi / 2) / 2), 0],
+                       size=[0.0065 if k_ != 2 else 0.004, 0.0012, 0], rgba=[0.02, 0.02, 0.03, 1] if k_ != 2 else [0.35, 0.05, 0.05, 1],
+                       contype=0, conaffinity=0, group=GROUP_ROBOT, mass=0)
+    up = np.array([math.sin(GT), 0, math.cos(GT)])
+    torso.add_camera(name="gemini", pos=list(gp + Rg @ [0.016, 0, 0]), xyaxes=list(np.r_[[0, -1.0, 0], up]), fovy=65.0, resolution=[1280, 800])
     oa = mujoco.MjSpec.from_file(str(OA / "openarm_bimanual.xml"))
     for mname in ("pale_silver", "metal_silver", "matte_black"):   # vernice: unico intervento sulle parti vere
         m_ = oa.material(mname)
@@ -309,8 +341,9 @@ def build(look="gb", hands="gripper", humans=2, fixed_base=True, base="cart", bu
             m_.rgba = list(LK["metal"]) + [1]; m_.reflectance = 0.3
         else:
             m_.rgba = list(LK["dark"]) + [1]
+    HAND = {"right": hands.split("+")[0], "left": hands.split("+")[-1]}
     if hands != "gripper":
-        for s in ("left", "right"):          # via la pinza originale: al suo posto la mano
+        for s in [s_ for s_ in ("left", "right") if HAND[s_] != "gripper"]:          # via la pinza originale: al suo posto la mano
             for fb in (f"openarm_{s}_ee_inner_finger", f"openarm_{s}_ee_outer_finger"):
                 oa.delete(oa.body(fb))
             for g in list(oa.body(f"openarm_{s}_ee_base_link").geoms):
@@ -330,7 +363,7 @@ def build(look="gb", hands="gripper", humans=2, fixed_base=True, base="cart", bu
     # gusci di design (mesh da shells.py)
     for nm in ("torso", "crown", "crown_glass", "pauldron"):
         sp.add_mesh(name=f"shell_{nm}", file=SHELL_DIR + f"/{nm}.obj")
-    torso.add_geom(name="shell_torso", type=mujoco.mjtGeom.mjGEOM_MESH, meshname="shell_torso", pos=[-0.005, 0, PED_TOP - 0.17],
+    torso.add_geom(name="shell_torso", type=mujoco.mjtGeom.mjGEOM_MESH, meshname="shell_torso", pos=[-0.03, 0, PED_TOP - 0.195],
                    material="armor", contype=0, conaffinity=0, group=GROUP_ROBOT, mass=0)
     vbox(torso, "torso_accent", (0.087, 0, PED_TOP - 0.07), (0.002, 0.06, 0.003), "accent")
     for s, sy in (("left", 1), ("right", -1)):
@@ -359,7 +392,7 @@ def build(look="gb", hands="gripper", humans=2, fixed_base=True, base="cart", bu
     # Orbbec Gemini 336L dietro il frontale, sotto gli occhi, inclinata di 45 gradi verso il banco
     pitch = math.radians(45)
     up = np.array([math.sin(pitch), 0, math.cos(pitch)])
-    crown.add_camera(name="gemini", pos=[0.085, 0, -0.03], xyaxes=list(np.r_[[0, -1.0, 0], up]), fovy=65.0, resolution=[1280, 800])
+    # (spostata sul petto: vedi "barra sensori" sul busto)
     # Insta360 X4 sopra la testa ("antenna"): 46 x 38 x 124 mm, due fisheye -> 360 gradi
     crown.add_geom(name="mast", type=mujoco.mjtGeom.mjGEOM_CYLINDER, pos=[-0.01, 0, 0.1], size=[0.007, 0.03, 0],
                    material="dark", contype=0, conaffinity=0, group=GROUP_ROBOT, mass=0.05)
@@ -379,6 +412,31 @@ def build(look="gb", hands="gripper", humans=2, fixed_base=True, base="cart", bu
         # flangia + RealSense D405 (42 x 42 x 23 mm) sul dorso del polso
         ee.add_geom(name=f"{s}_flange", type=mujoco.mjtGeom.mjGEOM_CYLINDER, pos=[0, 0, -0.012], size=[0.032, 0.012, 0],
                     material="dark", mass=0.15, contype=0, conaffinity=0, group=GROUP_ROBOT)
+        if HAND[s] in ("orca", "amazing"):
+            # mani open intercambiabili sulla flangia OpenArm: ORCA Hand (CC BY 4.0, MJCF MIT) / Pollen AmazingHand (CC BY 4.0, Apache-2.0)
+            side_ = "right" if s == "right" else "left"
+            if HAND[s] == "orca":
+                hsp = mujoco.MjSpec.from_file(str(HERE / f"third_party/orcahand_description/v2/giorgio_orca_{side_}.xml"))
+            else:
+                tag = "AH_Right" if s == "right" else "AH_Left"
+                hsp = mujoco.MjSpec.from_file(str(HERE / f"third_party/AmazingHand/Demo/AHSimulation/AHSimulation/{tag}/mjcf/robot.xml"))
+            for g in hsp.geoms:
+                g.group = GROUP_ROBOT
+                if g.contype or g.conaffinity:
+                    g.contype, g.conaffinity = 2, 0
+                    g.friction = [1.2, 0.02, 0.002]; g.condim = 4
+            for b_ in hsp.bodies:
+                b_.gravcomp = 1.0
+            # la mano cresce lungo +z del suo file: la giro perche' cresca lungo -z del polso (verso le dita della pinza)
+            f = ee.add_frame(pos=[0, 0, -0.024], quat=[0, 1, 0, 0])
+            sp.attach(hsp, frame=f, prefix=f"{s}_")
+            if HAND[s] == "orca":
+                ee.add_site(name=f"{s}_grasp", pos=[0, -0.03, -0.20], size=[0.008, 0, 0], group=4)
+                tipb = next(b_ for b_ in sp.bodies if b_.name.startswith(f"{s}_") and "I-FingerTipAssembly" in b_.name)
+                tipb.add_site(name=f"{s}_index_tip", pos=[0, 0, 0], size=[0.006, 0, 0], group=4)
+            else:                                            # AmazingHand: palmo verso +x del polso, pollice di fronte
+                ee.add_site(name=f"{s}_grasp", pos=[0.035, 0.0, -0.135], size=[0.008, 0, 0], group=4)
+            continue
         if hands == "leap":
             hsp = mujoco.MjSpec.from_file(str(LEAP / f"{s}_hand.xml"))
             for a in hsp.actuators:   # Dynamixel XC330-M288: coppia di stallo ~0.9 Nm, uso 0.5 Nm continuativi
@@ -402,7 +460,7 @@ def build(look="gb", hands="gripper", humans=2, fixed_base=True, base="cart", bu
             hb = sp.body(f"{s}_palm")
             hb.add_site(name=f"{s}_grasp", pos=list(base + RpH @ np.array(LEAP_CENTER)), quat=list(_q(RpH)), size=[0.008, 0, 0], group=4)
             continue
-        if hands == "gripper":
+        if HAND[s] == "gripper":
             ee.add_site(name=f"{s}_grasp", pos=[0, 0, -0.15], size=[0.008, 0, 0], group=4)   # centro polpastrelli pinza OpenArm
             continue
         hs, mimic = _hand_spec(s)

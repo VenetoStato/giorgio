@@ -8,7 +8,8 @@ import numpy as np
 
 out = sys.argv[1] if len(sys.argv) > 1 else "render/rec_pose.pkl"
 MODE = sys.argv[2] if len(sys.argv) > 2 else "lavoro"
-sys.argv = ["giorgio_v5.py", "--record", out, "--seconds", "3.0", "--no_humans"]
+EXPR = MODE == "espressioni"                     # sequenza di espressioni per il primo piano dei baffi
+sys.argv = ["giorgio_v5.py", "--record", out, "--seconds", "13.0" if MODE == "espressioni" else "3.0", "--no_humans"]
 src = open(__file__.replace("pose_record.py", "giorgio_v5.py")).read()
 pre, post = src.split("# ---------------------------------------------------------------- uscite")
 exec(compile(pre, "giorgio_v5", "exec"))
@@ -48,6 +49,21 @@ for i in range(3):
     m.geom_rgba[m.geom(f"cup_steam{i}").id][3] = 0.25
 arms["right"].grip = 0.0
 arms["left"].grip = 0.6
-AG["mode"] = MODE
+AG["mode"] = "lavoro" if EXPR else MODE
 mujoco.mj_forward(m, d)
+if EXPR:
+    args.agent = "espressioni"; AG["pending"] = []
+    _safety = safety
+
+    def safety():
+        z, h = _safety()
+        t = d.time
+        zf = 2 if 7.5 <= t < 10.0 else 0                   # stop: una persona troppo vicina
+        AG["mode"] = "caffe" if 4.5 <= t < 7.5 else "lavoro"
+        if 2.2 <= t < 2.3 or 10.2 <= t < 10.3:
+            expr["happy_t"] = t
+        return zf, h
+
+    def agent_step(k):
+        pass
 exec(compile(post, "giorgio_v5_out", "exec"))

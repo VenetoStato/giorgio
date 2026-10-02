@@ -114,7 +114,7 @@ Diciamo "open" solo dove lo è davvero.
 
 | Parte | Componente | Stato |
 |---|---|---|
-| Braccia + busto | Enactic OpenArm 2.0 (7+7 DOF) | **Open source** — hardware e software Apache-2.0 |
+| Braccia + busto | Enactic OpenArm 2.0 (7+7 DOF) | **Open source** — hardware CERN-OHL-S-2.0, software Apache-2.0 |
 | Pinze + telecamere polso | kit OpenArm 2.0 | **Open source** (parte di OpenArm) |
 | Motori | Damiao QDD | commerciali (dentro OpenArm) |
 | Base mobile | AgileX Tracer 2.0 | **Commerciale off-the-shelf**, supporto ROS — non è open hardware |
@@ -129,7 +129,7 @@ Diciamo "open" solo dove lo è davvero.
 | **Volto: occhi + baffi + LED** | progetto Giorgio | **Open** — schemi e firmware (licenza proposta: CERN-OHL-W 2.0 / Apache-2.0) |
 | **Zaino-caffè: navetta + supporti** | progetto Giorgio | **Open** — CAD + firmware |
 | **Software: abilità, router, agente, simulazione** | progetto Giorgio | **Open** — Apache-2.0 (proposta) |
-| Mani abili (opzione) | LEAP Hand / ORCA Hand | open, ma con licenze diverse: ORCA CC BY 4.0, LEAP con CAD per uso non commerciale. **Sperimentali.** |
+| Mani abili (opzione) | ORCA Hand / Pollen AmazingHand | **Open, uso commerciale consentito**: ORCA CC BY 4.0 (software MIT), AmazingHand CC BY 4.0 (software Apache-2.0). Montate e provate in simulazione su gesti e pulsanti; le prese si insegnano. (LEAP Hand e Aero Hand: CAD solo non commerciale, quindi escluse.) |
 
 In pratica: **la parte che costruiamo noi è tutta open.** Quello che compriamo, lo compriamo da chi lo fa meglio — e te lo diciamo.
 
@@ -168,7 +168,7 @@ Giorgio nasce come alternativa ai grandi umanoidi chiusi — pensiamo a progetti
 |---|---|
 | Braccia | OpenArm 2.0 bimanuale, 7+7 DOF, QDD Damiao |
 | Pinze | pinze parallele OpenArm (default) |
-| Mani abili | LEAP Hand / ORCA — **opzione sperimentale** |
+| Mani abili | ORCA Hand / AmazingHand — **opzione**, prese da addestrare |
 | Base | AgileX Tracer 2.0, differenziale, 702 × 610 mm, 55 kg (sola base) |
 | Ingombro / altezza / massa totale | [da misurare sul prototipo] |
 | Sicurezza | 2× SICK nanoScan3, Pilz PNOZmulti 2, e-stop; campi ISO 13855 (protezione 1,72 m da fermo) |
@@ -271,7 +271,7 @@ Le ricompense fisiche (Face, zaino-caffè, Body Kit, Giorgio completi) hanno un 
 
 ## Obiettivi aggiuntivi (stretch goals)
 
-- **€ 150.000 — Mani abili, sul serio.** Pubblichiamo un dataset open di dimostrazioni teleoperate e le politiche addestrate per LEAP/ORCA sulle abilità di Giorgio.
+- **€ 150.000 — Mani abili, sul serio.** Pubblichiamo un dataset open di dimostrazioni teleoperate e le politiche addestrate per ORCA e AmazingHand sulle abilità di Giorgio.
 - **€ 200.000 — Colonna motorizzata.** Opzione colonna elevabile (corsa 400 mm) per lavorare dal pavimento al bancone.
 - **€ 250.000 — Pacchetto abilità "accoglienza".** Riconoscimento e saluto delle persone a 360°, accompagnamento ospiti, consegna oggetti in reception.
 - **€ 300.000 — Un Giorgio per la comunità.** Un terzo Giorgio dato in uso a un'università o a un makerspace italiano, aperto a chi vuole sviluppare abilità.
@@ -302,7 +302,7 @@ Le ricompense fisiche (Face, zaino-caffè, Body Kit, Giorgio completi) hanno un 
 Ti diciamo dove può andare storto.
 
 - **Simulazione ≠ realtà.** I risultati di questa pagina vengono da una simulazione fisica accurata, con i modelli ufficiali dei fornitori. Ma la realtà ha attriti, cavi, luce, pavimenti sporchi. Ci aspettiamo settimane di messa a punto: errore di visione, presa, frenata, aggancio alla ricarica. Abbiamo messo a budget tempo per questo, e lo racconteremo negli aggiornamenti, anche quando non va bene.
-- **Mani abili.** Le mani a cinque dita (LEAP, ORCA) sono montabili, ma **oggi le prese programmate a script non sono affidabili**: serve raccogliere dati in teleoperazione e addestrare per imitazione. Per questo il Giorgio di serie usa le pinze parallele. Le mani sono un'opzione sperimentale, non una promessa.
+- **Mani abili.** Le mani articolate open (ORCA, AmazingHand) sono montabili, ma **oggi le prese programmate a script non sono affidabili**: serve raccogliere dati in teleoperazione e addestrare per imitazione. Per questo il Giorgio di serie usa le pinze parallele. Le mani sono un'opzione sperimentale, non una promessa.
 - **Marcatura CE.** La valutazione dei rischi può richiedere modifiche (velocità più basse, campi più grandi, protezioni aggiuntive). Se la marcatura richiede più tempo, le consegne del Giorgio completo slittano: preferiamo così.
 - **Fornitura OpenArm e altri componenti.** OpenArm 2.0 si ordina da Enactic, con tempi e prezzi in dollari che possono cambiare; lo stesso vale per Tracer, Jetson e scanner. Abbiamo margine per le oscillazioni, non per una crisi di fornitura: in quel caso ritarderemo e lo comunicheremo subito.
 - **Dipendenza dal cloud.** Il planner del Sistema 2 oggi usa un modello linguistico via API: senza rete Giorgio esegue i comandi diretti del Sistema 1, ma non pianifica frasi complesse. Stiamo valutando planner locali sulla Jetson.

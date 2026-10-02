@@ -11,6 +11,7 @@ uso: python giorgio_v5.py [--video out.mp4] [--record out.pkl] [--cycles 1] [--n
 import argparse
 import itertools
 import math
+import os
 import time
 
 import mujoco
@@ -30,6 +31,9 @@ ap.add_argument("--seconds", type=float, default=1e9)
 ap.add_argument("--no_humans", action="store_true")
 ap.add_argument("--seed", type=int, default=3)
 ap.add_argument("--agent", default="", help="comandi a tempo per l'agente: 't:testo|t:testo'")
+ap.add_argument("--soc", type=float, default=0.85, help="stato di carica iniziale della batteria (0-1)")
+ap.add_argument("--bat_wh", type=float, default=2400.0, help="capacita' batteria di sistema [Wh] (48 V LiFePO4)")
+ap.add_argument("--hands", default="gripper", help="gripper | orca+amazing | ... (destra+sinistra)")
 ap.add_argument("--speedup", type=int, default=1, help="video: un fotogramma ogni N/30 s (timelapse)")
 args = ap.parse_args()
 LK = LOOKS[args.look]
@@ -58,7 +62,7 @@ def local_to_world(dock, xl, yl):
     return np.array([x + c * xl - s * yl, y + s * xl + c * yl])
 
 
-sp = build(args.look, hands="gripper", base="amr", fixed_base=False, buffer=True, coffee=True)
+sp = build(args.look, hands=args.hands, base="amr", fixed_base=False, buffer=True, coffee=True)
 wb = sp.worldbody
 
 
@@ -142,10 +146,14 @@ for i, y in enumerate(np.arange(-3.0, 3.01, 0.5)):          # segnaletica: corsi
     box(f"aisle{i}", (-1.6, y, 0.002), (0.04, 0.18, 0.002), "yellow", collide=False)
 # stazione di ricarica C: piastra di contatto + colonnina con LED
 CHG = np.array([-3.0, -2.6, -math.pi / 2])
-pc = local_to_world(CHG, 0.42, 0.0)
+pc = local_to_world(CHG, 0.475, 0.0)                     # colonnina 20 mm dietro le lamelle: il paraurti non la tocca prima dei contatti
 box("charger_post", (pc[0], pc[1], 0.35), (0.06, 0.12, 0.35), "armor", yaw=CHG[2])
-pl = local_to_world(CHG, 0.355, 0.0)
-box("charger_plate", (pl[0], pl[1], 0.14), (0.008, 0.08, 0.03), "steel", collide=False, yaw=CHG[2])
+pl = local_to_world(CHG, 0.395, 0.0)                     # piastra a molla con due lamelle di contatto, all'altezza dei pattini del robot
+box("charger_plate", (pl[0], pl[1], 0.14), (0.012, 0.09, 0.035), "dark", collide=False, yaw=CHG[2])
+for k_, sy_ in enumerate((-0.06, 0.06)):
+    q_ = local_to_world(CHG, 0.383, sy_)
+    g_ = box(f"charger_lamella{k_}", (q_[0], q_[1], 0.14), (0.002, 0.03, 0.015), "steel", collide=False, yaw=CHG[2])
+    g_.material = ""; g_.rgba = [0.75, 0.48, 0.22, 1]
 box("charger_led", (pc[0], pc[1], 0.66), (0.062, 0.1, 0.01), "accent", collide=False, yaw=CHG[2])
 
 # 12 flaconi alla stazione A (griglia con piccolo gioco casuale)
@@ -250,6 +258,7 @@ class Person:
         if not self.active:
             return
         self.cb = min(1.0, getattr(self, "cb", 0.0) + dt / 1.2) if self.carry else 0.0
+        self.sb = float(np.clip(getattr(self, "sb", 0.0) + (dt / 0.9 if getattr(self, "sip", False) else -dt / 0.9), 0.0, 1.0))
         goal_r = 1.0 if self.reach_tgt is not None else 0.0
         self.r_reach += float(np.clip(goal_r - self.r_reach, -dt / 0.8, dt / 0.8))
         at_end = self.stop_at_end and self.i == len(self.path) - 1
@@ -271,7 +280,7 @@ class Person:
         try:                                             # cede il passo al robot (nessuno attraversa Giorgio)
             rb = base_pose()[:2]
             ahead = self.pos + (dv / max(dist, 1e-9)) * min(0.35, dist)
-            if not getattr(self, "near_ok", False) and np.linalg.norm(ahead - rb) < 0.72 and np.linalg.norm(ahead - rb) < np.linalg.norm(self.pos - rb) + 1e-3:
+            if not getattr(self, "near_ok", False) and np.linalg.norm(ahead - rb) < 0.62 and np.linalg.norm(ahead - rb) < np.linalg.norm(self.pos - rb) + 1e-3:
                 self.blocked = getattr(self, "blocked", 0.0) + dt
                 self.moving = False; self.v_s = max(0.0, self.v_s - dt * 3.0)
                 if self.blocked > 2.5:                   # aggira: ripianifica fino al prossimo punto chiave
@@ -366,12 +375,15 @@ class Person:
             elif k < 0 and (self.r_reach > 1e-3 or self.carry):
                 if self.carry:
                     Tc = sh + f * 0.32 - u * 0.36 + l * 0.10
+                    Ts = head + f * 0.13 - u * 0.13 + l * 0.03           # sorso: bicchiere alla bocca
+                    Tc = Tc + (Ts - Tc) * (0.5 - 0.5 * math.cos(math.pi * getattr(self, "sb", 0.0)))
                     cf = getattr(self, "carry_from", Tc)
                     T = cf + (Tc - cf) * (0.5 - 0.5 * math.cos(math.pi * self.cb))
                 else:
                     T = np.asarray(self.reach_tgt, float) - f * 0.05 if self.reach_tgt is not None else W
                 r = 1.0 if self.carry else self.r_reach
                 Tb = (1 - r) * W + r * T
+                Tb = Tb - (Tb - sh) / max(np.linalg.norm(Tb - sh), 1e-6) * 0.075 * r   # il bersaglio e' il centro della mano, non il polso
                 E, W = _ik2(sh, Tb, 0.29, 0.27, -u + l * 0.5 * k)
                 a1 = (E - sh) / np.linalg.norm(E - sh); a2 = (W - E) / np.linalg.norm(W - E)
             arms.append((k, sh, E, W, a1, a2))
@@ -381,7 +393,7 @@ class Person:
             out.append(((E + W) / 2, _frame(a2, f), (0.039, 0.115, 0), L["shirt"]))                  # 7,8 avambraccio (maniche lunghe)
         for k, sh, E, W, a1, a2 in arms:
             hc = W + a2 * 0.075
-            out.append((hc, _frame(a2, l * k), (0.022, 0.044, 0.08), L["skin"]))                      # 9,10 mani
+            out.append((hc, _frame(a2, l * k), (0.022, 0.044, 0.07), L["skin"]))                      # 9,10 mani
             if k < 0:
                 self.hand_r = hc
         for k, d1, d2, fa in legs:
@@ -575,9 +587,17 @@ class Vision:
             q = tcam + (p - tcam) * ((z0 - tcam[2]) / (p[:, 2] - tcam[2]))[:, None]
             ctr = 0.5 * (q[:, :2].min(0) + q[:, :2].max(0))
             ext = q[:, :2].max(0) - q[:, :2].min(0)
+            ql = np.array([local_rel(pt_) for pt_ in q[:, :2]])         # nel frame del robot: x = verso il banco
+            qlx = (ql[:, 0].min(), ql[:, 0].max(), 0.5 * (ql[:, 1].min() + ql[:, 1].max()))
             if not (np.all(ctr > lo_ + 0.02) and np.all(ctr < hi_ - 0.02)) or ext.min() < 0.03 or ext.max() > HOLE + 0.02:
                 continue
-            dets.append(dict(xy=ctr, box=(xx.min(), yy.min(), xx.max(), yy.max()), kind="foro"))
+            dets.append(dict(xy=ctr, box=(xx.min(), yy.min(), xx.max(), yy.max()), kind="foro", qlx=qlx))
+        if len(dets) >= 3:                                   # fori col bordo vicino coperto dal vassoio: centro dal bordo lontano
+            med = float(np.median([dt["qlx"][1] - dt["qlx"][0] for dt in dets]))
+            for dt in dets:
+                x0_, x1_, yc_ = dt["qlx"]
+                if x1_ - x0_ < med - 0.004:
+                    dt["xy"] = local_to_world(base_pose(), x1_ - med / 2, yc_)[:2]
         self.dets, self.title = dets, "VISIONE: fori liberi (profondita' Gemini 336L)"
         return dets
 
@@ -607,7 +627,51 @@ vision = Vision()
 
 # ---------------------------------------------------------------- braccia
 ARM_ACT = {s: [m.actuator(f"{s}_joint{k}_ctrl").id for k in range(1, 8)] for s in ("right", "left")}
-GRIP = {s: m.actuator(f"{s}_finger1_ctrl").id for s in ("right", "left")}
+# ---------------------------------------------------------------- energia: batteria di sistema 48 V, consumi, ricarica automatica
+BAT = {"E": args.soc * args.bat_wh, "cap": args.bat_wh, "P": 0.0, "charging": False, "heater": False, "Pavg": 0.0, "log_t": 0.0}
+P_ELEC = 40 + 2 * 4.5 + 5 + 4 + 5 + 6 + 8 + 15         # Jetson, 2 scanner, PNOZ, Gemini, Insta360, LED volto+base, elettronica base [W]
+P_ARM_IDLE, K_CU, ETA_DRIVE, P_HEATER, P_CHARGE, CHARGE_X, BREW_X = 10.0, 0.04, 0.85, 1260.0 / 0.92, 960.0, 30.0, 30.0 / 8.0   # inverter 92%
+ARM_DOFS = [m.jnt_dofadr[m.actuator_trnid[a_, 0]] for s_ in ("right", "left") for a_ in [m.actuator(f"{s_}_joint{k}_ctrl").id for k in range(1, 8)]]
+DRIVE_ACT = [m.actuator("drive_left_vel").id, m.actuator("drive_right_vel").id]
+
+
+def soc():
+    return BAT["E"] / BAT["cap"]
+
+
+def dock_error():
+    """posizione dei pattini rispetto alle lamelle, nel frame della stazione: (spazio frontale, scarto laterale, angolo)"""
+    x, y, th = base_pose()
+    c, s_ = math.cos(CHG[2]), math.sin(CHG[2])
+    dx, dy = x - CHG[0], y - CHG[1]
+    lx, ly = c * dx + s_ * dy, -s_ * dx + c * dy
+    gap = 0.381 - (lx + 0.382)                           # faccia lamelle (0.381) - punta pattini (centro robot + 0.382)
+    return gap, ly, wrap(th - CHG[2])
+
+
+def docked_at_charger():
+    """contatti chiusi: pattini a contatto (molla 10 mm), allineati entro 20 mm e 3 gradi"""
+    gap, ly, dth = dock_error()
+    return -0.010 < gap < 0.004 and abs(ly) < 0.020 and abs(dth) < math.radians(3)
+
+
+def energy_step():
+    """consumo istantaneo: motori dei bracci (meccanica + perdite rame), ruote, elettronica, caffettiera; ricarica ai contatti"""
+    tau = d.qfrc_actuator[ARM_DOFS] + d.qfrc_applied[ARM_DOFS]
+    p_arm = float(np.sum(np.maximum(tau * d.qvel[ARM_DOFS], 0.0)) + K_CU * np.sum(tau ** 2)) + 2 * P_ARM_IDLE
+    p_drv = 0.0
+    for a_ in DRIVE_ACT:
+        p_drv += abs(float(d.actuator_force[a_] * d.qvel[m.jnt_dofadr[m.actuator_trnid[a_, 0]]]))
+    p = P_ELEC + p_arm + p_drv / ETA_DRIVE + (P_HEATER if BAT["heater"] else 0.0)
+    p_e = p + (P_HEATER * (BREW_X - 1.0) if BAT["heater"] else 0.0)    # erogazione compressa nel video: energia reale (~30 s a 1260 W)
+    BAT["charging"] = docked_at_charger()
+    e_in = P_CHARGE * 0.92 * CHARGE_X if BAT["charging"] and soc() < 0.995 else 0.0      # tempo di ricarica accelerato nel video
+    BAT["E"] = float(np.clip(BAT["E"] + (e_in - p_e) * DT / 3600.0, 0.0, BAT["cap"]))
+    BAT["P"] = p; BAT["Pavg"] += 0.002 * (p - BAT["Pavg"])
+
+
+GRIP = {s: (m.actuator(f"{s}_finger1_ctrl").id if mujoco.mj_name2id(m, mujoco.mjtObj.mjOBJ_ACTUATOR, f"{s}_finger1_ctrl") >= 0 else None)
+        for s in ("right", "left")}
 SGN = {"right": -1, "left": 1}
 IK = {s: ArmIK(m, s, f"{s}_grasp") for s in ("right", "left")}
 YAW_HAND = {"right": math.pi / 2, "left": -math.pi / 2}      # pinza simmetrica: il braccio sinistro usa l'orientazione speculare
@@ -626,6 +690,14 @@ def smooth(u):
     return u * u * u * (10 - 15 * u + 6 * u * u)
 
 
+STATS_CLASH = {"evitati": 0, "non_risolti": 0}
+DEBUG_CLASH = bool(os.environ.get("DEBUG_CLASH"))
+OBJ_GEOMS = [g for g in range(m.ngeom) if m.body(m.geom_bodyid[g]).name.startswith(("part_", "pz", "cup")) and m.geom_contype[g] + m.geom_conaffinity[g] > 0
+             and m.body(m.geom_bodyid[g]).name != "cup_rest"]
+ARM_GEOMS = {s_: [g for g in range(m.ngeom) if m.body(m.geom_bodyid[g]).name.startswith(f"openarm_{s_}_") and m.geom_contype[g] + m.geom_conaffinity[g] > 0
+                  and m.body(m.geom_bodyid[g]).name not in (f"openarm_{s_}_base_link", f"openarm_{s_}_link1")] for s_ in ("right", "left")}
+
+
 class Seg:
     def __init__(self, kind, qa=None, qb=None, dur=0.5, grip=None, ev=None):
         self.kind, self.qa, self.qb, self.dur, self.grip, self.ev = kind, qa, qb, dur, grip, ev
@@ -641,7 +713,16 @@ class Arm:
         return Rot.from_euler("z", yaw_of("amr") + YAW_HAND[self.s]).as_matrix()
 
     def solve(self, p, q0):
+        qc, _, _ = self.ik.solve1(d.qpos.copy(), q0, np.asarray(p, float), self.R())       # prima: stesso ramo della posa attuale
+        pc, Rc = self.ik.fk(d.qpos, qc)
+        if np.linalg.norm(pc - p) < 0.002 and np.linalg.norm(self.ik.err(pc, Rc, np.asarray(p, float), self.R())[3:]) < 0.02:
+            return qc
         q, ok, ep, er = self.ik.solve(d.qpos.copy(), q0, np.asarray(p, float), self.R())
+        if not ok:                                       # secondo tentativo: semi piu' lontani (altro ramo del braccio)
+            q2, ok2, ep2, er2 = self.ik.solve(d.qpos.copy(), q0, np.asarray(p, float), self.R(), seeds=96, noise=1.3,
+                                              rng=np.random.default_rng(7))
+            if ep2 + 0.1 * er2 < ep + 0.1 * er:
+                q, ok, ep, er = q2, ok2, ep2, er2
         if not ok:
             print(f"[{self.s}] IK imprecisa su {np.round(p, 3)}: {ep * 1000:.1f} mm", flush=True)
         return q
@@ -655,8 +736,98 @@ class Arm:
             segs.append(Seg("lin", qp, qn, dur / n)); qp = qn
         return segs, qp
 
-    def jmove(self, qa, qb):
+    def _jseg(self, qa, qb):
         return Seg("joint", qa, qb, max(0.7, float(np.max(np.abs(qb - qa))) / 1.4 * 1.9))
+
+    def held_len(self):
+        """quanto sporge sotto la pinza l'oggetto tenuto (0 se la pinza e' vuota)"""
+        if not self.held:
+            return 0.0
+        g = m.body(self.held).id
+        gs = [k for k in range(m.ngeom) if m.geom_bodyid[k] == g and m.geom_type[k] == mujoco.mjtGeom.mjGEOM_CYLINDER]
+        bottom = min(d.geom_xpos[k][2] - m.geom_size[k][1] for k in gs) if gs else d.body(self.held).xpos[2]
+        return max(0.0, d.site(f"{self.s}_grasp").xpos[2] - bottom), (max(m.geom_size[k][0] for k in gs) if gs else 0.03)
+
+    def clash(self, qa, qb, n=14, margin=0.012):
+        """il percorso in giunti qa->qb tocca un oggetto gia' posato? bracci (geometrie di collisione) e oggetto tenuto"""
+        objs = [g for g in OBJ_GEOMS if m.body(m.geom_bodyid[g]).name != self.held]
+        if not objs:
+            return False
+        arm = ARM_GEOMS[self.s]; ik = self.ik; ft = np.zeros(6)
+        hl = self.held_len() if self.held else None
+        for u in np.linspace(0, 1, n + 1)[1:-1]:
+            ps, _ = ik.fk(d.qpos, qa + (qb - qa) * smooth(u))
+            for e in objs:
+                if hl:                                   # oggetto tenuto: cilindro verticale sotto la pinza
+                    L, r = hl; c = ik.d.geom_xpos[e]; re, he = m.geom_size[e][0], m.geom_size[e][1]
+                    if np.linalg.norm(ps[:2] - c[:2]) < r + re + margin and ps[2] - L < c[2] + he + margin and ps[2] > c[2] - he:
+                        return True
+                for g in arm:
+                    if np.linalg.norm(ik.d.geom_xpos[g] - ik.d.geom_xpos[e]) < 0.25 and \
+                            mujoco.mj_geomDistance(m, ik.d, g, e, margin + 0.01, ft) < margin:
+                        return True
+        return False
+
+    def jmove(self, qa, qb):
+        """movimento in giunti; se spazzerebbe un oggetto gia' posato (col braccio o con l'oggetto in mano) passa sopra"""
+        self._alt_end = None
+        mg = 0.012
+        while mg > 0.002 and (self.clash(qa, qa, n=2, margin=mg) or self.clash(qb, qb, n=2, margin=mg)):
+            mg -= 0.004                                  # partenza/arrivo obbligati vicino a un oggetto: margine ridotto
+        self._mg = mg
+        if not self.clash(qa, qb, margin=mg):
+            if DEBUG_CLASH:
+                print(f"      [jmove {self.s} t={d.time:.1f}] libero: {np.round(self.ik.fk(d.qpos, qa)[0], 3)} -> {np.round(self.ik.fk(d.qpos, qb)[0], 3)}", flush=True)
+            return self._jseg(qa, qb)
+        R = self.R()
+        objs = [g for g in OBJ_GEOMS if m.body(m.geom_bodyid[g]).name != self.held]
+        z_top = max([d.geom_xpos[g][2] + m.geom_size[g][1] for g in objs] + [0.0])
+        below = (self.held_len()[0] if self.held else 0.0) + 0.05      # oggetto tenuto + dita
+        pa, _ = self.ik.fk(d.qpos, qa); pb, _ = self.ik.fk(d.qpos, qb)
+        dist = float(np.linalg.norm(pb - pa))                   # 1) linea retta tra i due punti (entrambi gia' alti)
+        mid, qm = self.line(pa, pb, qa, max(0.6, dist / 0.35), n=max(4, int(dist / 0.03)))
+        if np.linalg.norm(self.ik.fk(d.qpos, qm)[0] - pb) < 0.01 and all(not self.clash(sg_.qa, sg_.qb, n=3, margin=mg) for sg_ in mid):
+            STATS_CLASH["evitati"] += 1
+            if self.clash(qm, qb, margin=mg):            # arrivo su un'altra configurazione: chi chiama prosegue da qm (niente ribaltamento)
+                self._alt_end = qm
+            return mid + [self._jseg(qm, qb)]
+        for lift in (0.03, 0.08, 0.14, 0.22):                   # 2) salita, tratto alto, discesa: tutti in linea retta sullo stesso ramo
+            zc = z_top + below + lift
+            p1 = np.array([pa[0], pa[1], max(pa[2], zc)]); p2 = np.array([pb[0], pb[1], max(pb[2], zc)])
+            segs, q = [], qa
+            for u_, v_ in ((pa, p1), (p1, p2), (p2, pb)):
+                L_ = float(np.linalg.norm(v_ - u_))
+                if L_ < 1e-3:
+                    continue
+                part_, q = self.line(u_, v_, q, max(0.4, L_ / 0.35), n=max(3, int(L_ / 0.03)))
+                segs += part_
+            err = float(np.linalg.norm(self.ik.fk(d.qpos, q)[0] - pb))
+            ok = err < 0.01 and all(not self.clash(sg_.qa, sg_.qb, n=3, margin=mg) for sg_ in segs)
+            if DEBUG_CLASH:
+                bad = [i_ for i_, sg_ in enumerate(segs) if self.clash(sg_.qa, sg_.qb, n=3, margin=mg)]
+                print(f"      [via {lift}] arrivo a {1000 * err:.0f} mm, tratti {len(segs)} urtano {bad} finale {self.clash(q, qb, margin=mg)} mg {mg} | da {np.round(pa, 3)} a {np.round(pb, 3)} tenuto {self.held}", flush=True)
+            if ok:
+                STATS_CLASH["evitati"] += 1
+                if self.clash(q, qb, margin=mg):
+                    self._alt_end = q
+                return segs + [self._jseg(q, qb)]
+        STATS_CLASH["non_risolti"] += 1
+        print(f"[{self.s}] percorso vicino a oggetti posati: nessun passaggio alto trovato", flush=True)
+        return self._jseg(qa, qb)
+
+    def approach(self, q0, q_t, p_t, p_end):
+        """jmove verso q_t (sopra p_end); se si arriva su un'altra configurazione che sa scendere in linea fino a p_end, si resta su quella"""
+        mv = self.jmove(q0, q_t)
+        alt = getattr(self, "_alt_end", None)
+        if isinstance(mv, list) and alt is not None:
+            s_, q_ = self.line(p_t, p_end, alt, 1.1)
+            _, q_ref = self.line(p_t, p_end, q_t, 1.1)
+            e_alt = np.linalg.norm(self.ik.fk(d.qpos, q_)[0] - p_end); e_ref = np.linalg.norm(self.ik.fk(d.qpos, q_ref)[0] - p_end)
+            if DEBUG_CLASH:
+                print(f"      [arrivo alternativo] discesa {1000 * e_alt:.0f} mm (riferimento {1000 * e_ref:.0f} mm)", flush=True)
+            if e_alt < max(0.003, e_ref + 0.002) and not any(self.clash(g_.qa, g_.qb, n=2, margin=0.004) for g_ in s_):
+                return mv[:-1], alt
+        return (mv if isinstance(mv, list) else [mv]), q_t
 
     def robot_pt(self, xl, yl, z):
         p = local_to_world(base_pose(), xl, yl)
@@ -670,14 +841,21 @@ class Arm:
         q = self.solve(self.robot_pt(xl, self.sg * yl, Z_GRASP + dz), q0)
         return [self.jmove(q0, q)]
 
-    def pick(self, a, part, q0, z_base, h=None):
+    def pick(self, a, part, q0, z_base, h=None, down_first=False, wide=None):
         """presa verticale vicino alla sommita' di un oggetto (flacone o bicchiere) il cui fondo e' a z_base"""
         h = PH if h is None else h
-        zg = z_base + h - (0.035 if h > 0.1 else 0.03)
+        zg = z_base + h - (0.028 if h > 0.1 else 0.03)
         a = np.array([a[0], a[1], zg]); up = np.array([0, 0, 0.12])
-        q_pre = self.solve(a + up, q0)
-        g_open = (0.785 if self.s == "left" else -0.785) if (abs(z_base - BUF_Z) < 1e-6 or h < 0.1) else GRIP_PART[self.s]   # vassoio: apertura piena
-        segs = [Seg("grip", dur=0.25, grip=g_open), self.jmove(q0, q_pre), Seg("wait", dur=0.45)]   # assestamento polso
+        if down_first:                                   # oggetti bassi: prima la posa di presa, poi l'avvicinamento sullo stesso ramo
+            q_dn = self.solve(a, q0)
+            q_pre, _, _ = self.ik.solve1(d.qpos.copy(), q_dn, a + up, self.R())
+        else:
+            q_pre = self.solve(a + up, q0)
+        if wide is None:
+            wide = abs(z_base - BUF_Z) < 1e-6 or h < 0.1
+        g_open = (0.785 if self.s == "left" else -0.785) if wide else GRIP_PART[self.s]   # vassoio: apertura piena
+        mv, q_pre = self.approach(q0, q_pre, a + up, a)
+        segs = [Seg("grip", dur=0.25, grip=g_open)] + mv + [Seg("wait", dur=0.45)]   # assestamento polso
         s1, q_g = self.line(a + up, a, q_pre, 1.1); segs += s1
         pf, _ = self.ik.fk(d.qpos.copy(), q_g)
         if np.linalg.norm(pf - a) > 0.003:
@@ -687,21 +865,30 @@ class Arm:
         s2, q_up = self.line(a, a + np.array([0, 0, 0.20]), q_g, 0.8); segs += s2     # alto: sopra i flaconi gia' posati
         return segs, q_up
 
-    def place(self, b, part, q0, z_base, ev, drop=0.0, h=None):
+    def place(self, b, part, q0, z_base, ev, drop=0.0, h=None, down_first=False):
         """deposito: fondo dell'oggetto a z_base + drop, apertura parziale"""
         h = PH if h is None else h
-        zg = z_base + drop + h - (0.035 if h > 0.1 else 0.03)
+        zg = z_base + drop + h - (0.028 if h > 0.1 else 0.03)
+        if self.held == part and part.startswith("pz"):  # pezzo scivolato nella presa: rilascio con il fondo 5 mm sopra il piano (telecamera di polso)
+            bp = d.body(part); ax = bp.xmat.reshape(3, 3)[:, 2]
+            bottom_z = bp.xpos[2] - abs(ax[2]) * h / 2 - (1 - abs(ax[2])) * SR_
+            zg = z_base + 0.005 + (d.site(f"{self.s}_grasp").xpos[2] - bottom_z)
         b = np.array([b[0], b[1], zg]); up = np.array([0, 0, 0.17])
         if self.held == part and part in PARTS:          # posa in mano stimata (telecamera di polso): compenso offset e inclinazione
             bp = d.body(part); ax = bp.xmat.reshape(3, 3)[:, 2]
-            bottom = bp.xpos - ax * PH / 2
+            bottom = bp.xpos - ax * h / 2
             Rs = d.site(f"{self.s}_grasp").xmat.reshape(3, 3)
             v = Rs.T @ (bottom - d.site(f"{self.s}_grasp").xpos)
             off = (self.R() @ v)[:2]
             b[:2] = np.asarray(b[:2]) - off
-            self.inhand_mm = 1000 * np.linalg.norm(off - (self.R() @ np.array([0, 0, -(PH - 0.035)]))[:2])
-        q_bu = self.solve(b + up, q0)
-        segs = [self.jmove(q0, q_bu), Seg("wait", dur=0.45)]
+            self.inhand_mm = 1000 * np.linalg.norm(off - (self.R() @ np.array([0, 0, -(h - 0.035)]))[:2])
+        if down_first:                                   # come nella presa: posa di deposito, poi l'avvicinamento sullo stesso ramo
+            q_dn = self.solve(b, q0)
+            q_bu, _, _ = self.ik.solve1(d.qpos.copy(), q_dn, b + up, self.R())
+        else:
+            q_bu = self.solve(b + up, q0)
+        mv, q_bu = self.approach(q0, q_bu, b + up, b)
+        segs = mv + [Seg("wait", dur=0.45)]
         s3, q_b = self.line(b + up, b, q_bu, 1.1); segs += s3
         pf, _ = self.ik.fk(d.qpos.copy(), q_b)
         if np.linalg.norm(pf - b) > 0.003:
@@ -712,7 +899,10 @@ class Arm:
         return segs, q_r
 
     def start(self, segs):
-        self.segs, self.i, self.t, self._g0 = segs, 0, 0.0, self.grip
+        flat = []                                        # jmove puo' restituire piu' tratti (passaggio alto sopra gli oggetti)
+        for sg_ in segs:
+            flat += sg_ if isinstance(sg_, list) else [sg_]
+        self.segs, self.i, self.t, self._g0 = flat, 0, 0.0, self.grip
 
     @property
     def busy(self):
@@ -739,7 +929,8 @@ class Arm:
 
     def apply(self):
         d.ctrl[ARM_ACT[self.s]] = self.q
-        d.ctrl[GRIP[self.s]] = self.grip
+        if GRIP[self.s] is not None:
+            d.ctrl[GRIP[self.s]] = self.grip
 
 
 # posa "pronto" (base nell'origine), poi robot agganciato in A
@@ -781,6 +972,7 @@ Q_HOME = {s: a.q.copy() for s, a in arms.items()}
 stats = {"inserted": 0, "lost": 0, "loaded": 0, "cycles": 0, "stops": 0, "slows": 0, "vis_err": []}
 mission = {"state": "settle", "t": 0.0, "log": [], "route": None}
 expr = {"happy_t": -10.0}
+FACE = [0, 0.0, 0.0, 0.0, 0.0]
 
 
 def log(msg):
@@ -952,7 +1144,7 @@ def hold_step():
 # ---------------------------------------------------------------- occhi e baffi
 EYES = {"l": m.geom("eye_l").id, "r": m.geom("eye_r").id}
 MUS = {n: m.geom(n).id for n in ("mus_l", "mus_r")}
-MUS_SERVO = False                                        # True = versione con 2 micro-servo (opzionale)
+MUS_SERVO = True                                         # True = versione con 2 micro-servo (opzionale)
 LEDS = [m.geom(f"status_led{k}").id for k in range(4)]
 EYE_POS0 = {k: m.geom_pos[g].copy() for k, g in EYES.items()}
 MUS0 = {n: (m.geom_pos[g].copy(), m.geom_quat[g].copy()) for n, g in MUS.items()}
@@ -986,7 +1178,7 @@ def face_step():
         m.geom_size[gid] = [0.004, 0.0125, 0.017 * (1 - 0.85 * blink)]
         m.geom_rgba[gid] = list((1.0, 0.62, 0.25) if (coffee and state["zone"] == 0) else EYE_COL[state["zone"]]) + [1]
     # baffi: angolo (rad, + = in su) secondo l'espressione
-    happy = t - expr["happy_t"] < 0.8
+    happy = t - expr["happy_t"] < 1.6
     if state["zone"] == 2:
         target = -0.30                                   # triste: fermo per una persona
     elif happy:
@@ -1001,6 +1193,7 @@ def face_step():
         target = 0.22 + 0.05 * math.sin(t * 5)          # modalita' barista: baffi su e un po' vivaci
     if not MUS_SERVO:
         target = 0.0                                     # baffi fissi (retroilluminati): esprimono solo con il colore
+    target *= 0.42                                       # corsa reale dei micro-servo: circa +-8 gradi
     eye["mus"] += 0.25 * (target - eye["mus"])
     for n, gid in MUS.items():
         p0, q0 = MUS0[n]
@@ -1013,6 +1206,25 @@ def face_step():
         m.geom_rgba[gid] = m.geom_rgba[EYES["l"]]
     for gid in LEDS:                                     # striscia LED di stato sulla base: verde / giallo / rosso
         m.geom_rgba[gid] = list(((0.2, 1.0, 0.45), (1.0, 0.75, 0.1), (1.0, 0.12, 0.1))[state["zone"]]) + [1]
+    if BAT["charging"]:                                  # in carica: la striscia "respira" in verde
+        m.geom_rgba[LEDS[0]] = [0.1, 0.4 + 0.6 * (0.5 + 0.5 * math.sin(t * 2.5)), 0.25, 1]
+    # stato del volto a matrice LED (64 x 32): espressione, sguardo, palpebre -> registrato per il render
+    code = 0                                             # 0 neutro, 1 contento, 2 caffe', 3 stop, 4 pensa, 5 cuori, 6 attento
+    if state["zone"] == 2:
+        code = 3
+    elif t - expr.get("love_t", -10) < 2.5:
+        code = 5
+    elif t - expr["happy_t"] < 1.6:
+        code = 1
+    elif t < AG.get("think_until", -1):
+        code = 4
+    elif coffee:
+        code = 2
+    elif state["zone"] == 1:
+        code = 6
+    if BAT["charging"] and code in (0, 6):
+        code = 7
+    FACE[:] = [code, float(eye["gaze"][0]), float(eye["gaze"][1]), float(blink), t]
 
 
 # ---------------------------------------------------------------- missione (ciclo)
@@ -1076,7 +1288,7 @@ def plan_load(side, dets):
             return s1
 
         def job2(part=part, k=k, a=a):
-            s2, _ = a.place(buffer_xy(a.s, k), part, a.q, BUF_Z, "loaded", drop=0.060 - 0.016 - 0.008)   # rilascio dentro l'imbocco svasato
+            s2, _ = a.place(buffer_xy(a.s, k), part, a.q, BUF_Z, "loaded", drop=0.060 - 0.016 - 0.020)   # rilascio dentro l'imbocco svasato
             return s2
         jobs += [job, job2]
     if len(mine) > len(LOAD_ORDER):              # il quarto resta in mano (trasporto)
@@ -1086,7 +1298,7 @@ def plan_load(side, dets):
 
         def hold(dt=dt, part=part, a=a):
             s1, q1 = a.pick(dt["xy"], part, a.q, BENCH_Z)
-            return s1 + a.plan_pose_from(q1, 0.26, 0.26, 0.20)
+            return s1 + a.plan_pose_from(q1, 0.22, 0.36, 0.26)
         jobs.append(hold)
     else:
         jobs.append(lambda a=a: [a.jmove(a.q, Q_HOME[a.s])])
@@ -1339,7 +1551,9 @@ def passer_step():
 def agent_people():
     for i, (nm_, pp) in enumerate(PEOPLE_NAMED.items()):
         if not any(q.idx == 1 + i for q in people) and not (AG.get("taker") == nm_ and any(q.idx == 3 for q in people)):
-            spawn(1 + i, [pp, pp], 0.5, (0.85, 0.95, 0.1) if i == 0 else (0.9, 0.3, 0.6), look=nm_)
+            q_ = spawn(1 + i, [pp, pp], 0.5, (0.85, 0.95, 0.1) if i == 0 else (0.9, 0.3, 0.6), look=nm_)
+            if AG.get("taker") != nm_:
+                q_.yaw = q_.face_yaw = PEOPLE_FACE[nm_]
         elif AG.get("taker") == nm_ and any(q.idx == 3 for q in people):
             people[:] = [q for q in people if q.idx != 1 + i]
 
@@ -1407,7 +1621,8 @@ import re
 import subprocess
 
 AG = {"queue": [], "cur": None, "mode": "lavoro", "chat": [], "pending": [], "say": "", "say_t": -10.0, "busy_llm": False}
-PEOPLE_NAMED = {"Marco": np.array([1.6, -2.2]), "Sara": np.array([-4.6, 3.4])}
+PEOPLE_NAMED = {"Marco": np.array([1.6, -1.92]), "Sara": np.array([-4.6, 3.12])}      # in piedi a 35 cm dalla scrivania
+PEOPLE_FACE = {"Marco": -math.pi / 2, "Sara": math.pi / 2}                            # rivolti verso la scrivania
 DESK = {"Marco": (1.6, -2.55), "Sara": (-4.6, 3.75)}
 PEOPLE_IDX = {"Marco": 1, "Sara": 2}
 SKILLS_DOC = """Sei il pianificatore di GIORGIO, robot collaborativo (AMR AgileX Tracer 2.0 + 2 braccia Enactic OpenArm 2.0 con pinze,
@@ -1474,6 +1689,7 @@ def system2(text):
 
 def ag_command(text):
     AG["chat"] = (AG["chat"] + [f"> {text}"])[-6:]
+    AG["think_until"] = d.time + 1.4                  # volto: "sto pensando"
     t0 = time.perf_counter()
     plan = system1(text)
     if plan is not None:
@@ -1516,8 +1732,9 @@ def pose_near(target):
 
 
 VIA = {}
-GRID_RES, GX0, GY0, GNX, GNY = 0.1, -6.0, -4.0, 100, 100
-OBST = [(0.16, 0.80, -0.85, 0.85), (1.2, 2.0, -2.85, -2.25), (-5.0, -4.2, 3.45, 4.05), (-3.15, -2.85, -3.1, -2.9)]   # banco B, scrivanie, colonnina
+GRID_RES, GX0, GY0, GNX, GNY = 0.1, -6.5, -5.0, 115, 115
+OBST = [(0.16, 0.80, -0.85, 0.85), (1.2, 2.0, -2.85, -2.25), (-5.0, -4.2, 3.45, 4.05), (-3.15, -2.85, -3.1, -2.9),   # banco B, scrivanie, colonnina
+        (-3.27, -1.53, 1.59, 2.27), (3.34, 4.02, 0.33, 2.07)]                                                             # banco A, banco D
 
 
 def clearance(p_):
@@ -1605,6 +1822,8 @@ class Skill:
             if self.phase == 0:
                 ag_say(self.s.get("text", "")); self.phase = 1
             return self.t > 2.0
+        if sk == "ricarica":
+            return dock_skill(self, k)
         if sk in ("vai_a", "ricarica"):
             tg = "C" if sk == "ricarica" else tg
             if self.phase == 0:
@@ -1619,6 +1838,10 @@ class Skill:
                 return True
             return False
         if sk == "fai_caffe":
+            if self.phase == 0 and self.t <= DT * 1.5 and soc() < 0.20 and not BAT["charging"]:
+                ag_say(f"Batteria al {100 * soc():.0f}%: prima mi ricarico, poi faccio il caffe'.")
+                AG["queue"][:0] = [{"skill": "ricarica"}, dict(self.s)]
+                return True
             return coffee_skill(self, k)
         if sk == "porta_caffe":
             return deliver_skill(self, k, tg)
@@ -1643,13 +1866,17 @@ class Skill:
 
 
 def cup_hold_follow():
-    """bicchiere in mano alla persona: segue la mano destra (mano chiusa a meta' bicchiere)"""
+    """bicchiere in mano alla persona: segue la mano destra; l'offset misurato alla presa converge a una presa naturale"""
     if AG.get("cup_in_hand") is None:
         return
     op = next((q for q in people if q.idx == 3), None)
     if op is None or op.hand_r is None:
         return
-    set_part_xyz("cup", op.hand_r + np.array([math.cos(op.yaw), math.sin(op.yaw), 0]) * 0.035)
+    rel = AG.get("cup_rel", np.array([0.035, 0.0, 0.0]))
+    if AG.get("hand") not in ("release", "lift"):         # finche' la pinza non si e' ritirata il bicchiere resta fermo nella mano
+        rel = rel + 0.01 * (np.array([0.035, 0.0, -0.03]) - rel); AG["cup_rel"] = rel   # impugnato vicino al bordo
+    c, s_ = math.cos(op.yaw), math.sin(op.yaw)
+    set_part_xyz("cup", op.hand_r + np.array([c * rel[0] - s_ * rel[1], s_ * rel[0] + c * rel[1], rel[2]]))
 
 
 SHUTTLE = m.actuator("cm_shuttle").id
@@ -1668,12 +1895,14 @@ def coffee_skill(sk_, k):
         s3, q4 = a.line(btn + [0, 0, 0.025], btn - [0, 0, 0.004], q3, 0.6)
         s4, q5 = a.line(btn - [0, 0, 0.004], btn + [0, 0, 0.03], q4, 0.4)
         a.start(s1 + s2 + [Seg("grip", dur=0.3, grip=0.0), a.jmove(q2, q3)] + s3 + [Seg("wait", dur=0.25, ev=("button", "cup"))] + s4)
+        sk_.q_after = q5
         sk_.q_wait = q5; sk_.phase = 1; ag_say("Preparo il caffe': bicchiere sulla navetta, premo il pulsante.")
     elif sk_.phase == 1 and not a.busy:
         d.ctrl[SHUTTLE] = COF_Y_IN - COF_Y_OUT; sk_.phase = 2; sk_.t = 0.0
     elif sk_.phase == 2 and sk_.t > 2.2:                     # navetta sotto l'erogatore
         sk_.phase = 3; sk_.t = 0.0
     elif sk_.phase == 3:                                     # erogazione (8 s nel video, ~25 s reali)
+        BAT["heater"] = True                                 # resistenza della De'Longhi accesa durante l'erogazione
         u = min(1.0, sk_.t / 8.0)
         g = m.geom("cup_coffee").id; m.geom_size[g][1] = 0.0005 + 0.028 * u; m.geom_pos[g][2] = -CUP_H / 2 + 0.002 + 0.028 * u
         m.geom_rgba[m.geom("cm_stream").id][3] = 1.0 if 0.03 < u < 0.97 else 0.0
@@ -1682,11 +1911,15 @@ def coffee_skill(sk_, k):
             m.geom_rgba[m.geom(f"cup_steam{i}").id][3] = 0.3 * u * (0.5 + 0.5 * math.sin(sk_.t * 4 + i))
         if u >= 1.0:
             m.geom_rgba[m.geom("cm_btn1").id] = [1.0, 0.55, 0.2, 1]
-            d.ctrl[SHUTTLE] = 0.0; sk_.phase = 4; sk_.t = 0.0
+            d.ctrl[SHUTTLE] = 0.0; sk_.phase = 4; sk_.t = 0.0; BAT["heater"] = False
     elif sk_.phase == 4 and sk_.t > 2.4 and not a.busy:      # navetta fuori: presa dall'alto
         cp = d.body("cup").xpos.copy()
-        s1, q1 = a.pick(cp[:2], "cup", a.q, cp[2] - CUP_H / 2, h=CUP_H)
-        a.start(s1 + [a.jmove(q1, carry_q(a, q1))])
+        qv = a.solve(np.array([cp[0], cp[1], cp[2] + 0.30]), a.q)      # passaggio in quota: lontano da pila e busto
+        s1, q1 = a.pick(cp[:2], "cup", qv, cp[2] - CUP_H / 2, h=CUP_H)
+        s1 = [a.jmove(a.q, qv)] + s1
+        qa_ = a.solve(a.robot_pt(COF_X + 0.02, -0.33, 1.06), q1)          # su e fuori dalla navetta
+        qb_ = a.solve(a.robot_pt(0.02, -0.40, 1.16), qa_)                   # lungo il fianco, lontano dal vassoio
+        a.start(s1 + [a.jmove(q1, qa_), a.jmove(qa_, qb_), a.jmove(qb_, carry_q(a, qb_))])
         sk_.phase = 5; ag_say("Caffe' pronto!")
     elif sk_.phase == 5 and not a.busy:
         return True
@@ -1694,7 +1927,8 @@ def coffee_skill(sk_, k):
 
 
 def carry_q(a, q0):
-    return a.solve(a.robot_pt(0.30, -0.16, 1.05), q0)
+    """posa di trasporto del caffe': di lato e sopra il vassoio dei flaconi (che sta davanti al petto)"""
+    return a.solve(a.robot_pt(0.28, -0.34, 1.18), q0)
 
 
 def deliver_skill(sk_, k, who):
@@ -1707,14 +1941,22 @@ def deliver_skill(sk_, k, who):
     elif sk_.phase == 1 and drive_step(k):
         mission["state"] = "agente"
         FIELDS.update(prot=0.35, warn=0.9, mode="servizio")
-        offer = a.robot_pt(0.40, -0.06, 1.12)                       # braccio teso verso la persona
+        offer = a.robot_pt(0.36, -0.36, 1.15)                       # braccio teso verso la persona, fuori dal vassoio
         a.start([a.jmove(a.q, a.solve(offer, a.q))]); sk_.phase = 2
     elif sk_.phase == 2 and not a.busy:
-        th = base_pose()[2]; fr, lr = np.array([math.cos(th), math.sin(th)]), np.array([-math.sin(th), math.cos(th)])
-        grab = d.body("cup").xpos[:2] + 0.44 * fr - 0.2 * lr      # la persona si ferma col bicchiere davanti alla mano destra
+        cp_ = d.body("cup").xpos[:2]; rb_ = base_pose()[:2]; pp_ = PEOPLE_NAMED[who]
+        best_ = None                                          # dove fermarsi: a 44 cm dal bicchiere, lontano da mobili e robot, vicino al posto della persona
+        for ang_ in np.linspace(0, 2 * math.pi, 48, endpoint=False):
+            g_ = cp_ + 0.44 * np.array([math.cos(ang_), math.sin(ang_)])
+            if clearance(g_) < 0.32 or np.linalg.norm(g_ - rb_) < 0.62:
+                continue
+            c_ = np.linalg.norm(g_ - pp_)
+            if best_ is None or c_ < best_[0]:
+                best_ = (c_, g_)
+        grab = best_[1] if best_ else cp_ + 0.44 * (pp_ - cp_) / max(np.linalg.norm(pp_ - cp_), 1e-6)
         pp = PEOPLE_NAMED[who]
         old = next((q for q in people if q.idx == PEOPLE_IDX[who]), None)
-        tk = spawn(3, [pp, grab, grab, pp], 0.7, (0.3, 0.6, 1.0), waits={2: 4.0}, look=who); AG["taker"] = who
+        tk = spawn(3, [pp, grab, grab, pp], 0.7, (0.3, 0.6, 1.0), waits={2: 8.0}, look=who); AG["taker"] = who
         tk.near_ok = True                                 # la persona servita si avvicina apposta (campo di servizio)
         if old is not None:
             tk.yaw = old.yaw
@@ -1727,14 +1969,25 @@ def deliver_skill(sk_, k, who):
         if st_ == "walk" and getattr(op, "ki", 0) == 2:          # davanti al robot: allunga la mano verso il bicchiere
             cp = d.body("cup").xpos; op.reach_tgt = cp.copy()
             op.face_yaw = math.atan2(cp[1] - op.pos[1], cp[0] - op.pos[0]); AG["hand"] = "reach"
-        elif st_ == "reach" and op.r_reach > 0.97:               # la mano e' sul bicchiere: la pinza si apre
-            a.start([Seg("grip", dur=0.3, grip=-0.785)]); AG["cup_in_hand"] = who; a.held = None
+        elif st_ == "reach" and op.r_reach > 0.97 and op.hand_r is not None:   # la mano stringe il bicchiere: la pinza si apre
+            c_, s2_ = math.cos(op.yaw), math.sin(op.yaw); dv = d.body("cup").xpos - op.hand_r
+            AG["cup_rel"] = np.array([c_ * dv[0] + s2_ * dv[1], -s2_ * dv[0] + c_ * dv[1], dv[2]])
+            a.start([Seg("wait", dur=0.25), Seg("grip", dur=0.45, grip=-0.785)]); AG["cup_in_hand"] = who; a.held = None
+            expr["love_t"] = d.time; ag_say("Ecco a te!"); AG["hand"] = "release"; AG["hand_t"] = d.time
+        elif st_ == "release" and d.time - AG["hand_t"] > 0.9 and not a.busy:     # il braccio di Giorgio si ritira
+            back = a.robot_pt(0.20, -0.34, 1.20)
+            a.start([a.jmove(a.q, a.solve(back, a.q))]); AG["hand"] = "lift"; AG["hand_t"] = d.time
+        elif st_ == "lift" and d.time - AG["hand_t"] > 0.6:      # Marco porta a se' il bicchiere...
             op.carry = True; op.carry_from = op.reach_tgt.copy(); op.reach_tgt = None; op.r_reach = 1.0
-            expr["happy_t"] = d.time; ag_say("Buon caffe'!"); AG["hand"] = "carry"
+            AG["hand"] = "sip"; AG["hand_t"] = d.time
+        elif st_ == "sip" and d.time - AG["hand_t"] > 1.3 and not getattr(op, "sip", False) and d.time - AG["hand_t"] < 1.4:
+            op.sip = True                                        # ...e assaggia
+        elif st_ == "sip" and d.time - AG["hand_t"] > 3.2:
+            op.sip = False; expr["happy_t"] = d.time; ag_say("Buon caffe', Marco!"); AG["hand"] = "carry"
         elif st_ == "carry" and getattr(op, "ki", 0) == 3 and np.linalg.norm(op.pos - PEOPLE_NAMED[who]) < 0.05:
             dk = DESK.get(who, PEOPLE_NAMED[who]); spot = np.array([dk[0] + 0.12, dk[1] + 0.20, 0.74 + CUP_H / 2 + 0.002])
             op.tw = 4.0; op.face_yaw = math.atan2(spot[1] - op.pos[1], spot[0] - op.pos[0])
-            op.carry = False; op.reach_tgt = spot; op.r_reach = 1.0; AG["hand"] = "place"; AG["spot"] = spot
+            op.carry = False; op.reach_tgt = spot + np.array([0, 0, 0.03]); op.r_reach = 1.0; AG["hand"] = "place"; AG["spot"] = spot
             if not a.busy:
                 a.start([a.jmove(a.q, Q_HOME["right"])])
         elif st_ == "place" and op.tw < 2.6:                     # appoggiato sulla scrivania
@@ -1757,7 +2010,61 @@ def deliver_skill(sk_, k, who):
     return False
 
 
+DOCK_RNG = np.random.default_rng(11)
+
+
+def dock_sense():
+    """riconoscimento della stazione (ICP sul profilo laser della piastra / AprilTag): posa relativa con rumore di misura"""
+    gap, ly, dth = dock_error()
+    return gap + DOCK_RNG.normal(0, 0.003), ly + DOCK_RNG.normal(0, 0.003), dth + DOCK_RNG.normal(0, math.radians(0.3))
+
+
+def dock_skill(sk_, k):
+    """aggancio alla stazione di ricarica: punto di attesa 60 cm davanti, poi avvicinamento lento in anello chiuso fino a contatti chiusi"""
+    if sk_.phase == 0:
+        stage = np.array([*(CHG[:2] - 0.60 * np.array([math.cos(CHG[2]), math.sin(CHG[2])])), CHG[2]])
+        mission["route"] = route_pose(stage); FIELDS["mode"] = "marcia"; mission["state"] = "drive_ag"; sk_.phase = 1; sk_.n_ok = 0
+        if hasattr(sk_, "gf"):
+            del sk_.gf
+        ag_say("Vado alla stazione di ricarica.")
+    elif sk_.phase == 1 and drive_step(k):
+        mission["state"] = "drive_dock"; FIELDS.update(prot=0.30, warn=0.36, mode="aggancio"); sk_.phase = 2; sk_.t = 0.0   # campo di aggancio: la stazione e' esclusa
+    elif sk_.phase == 2:                                  # avvicinamento finale (velocita' di aggancio <= 0,08 m/s)
+        g_m, ly, dth = dock_sense()
+        sk_.gf = g_m if not hasattr(sk_, "gf") else 0.8 * sk_.gf + 0.2 * g_m      # misura filtrata (rumore 3 mm)
+        gap = sk_.gf
+        v = float(np.clip(0.9 * (gap + 0.006), 0.012, 0.08)) * k
+        w = float(np.clip(-2.5 * dth - 6.0 * ly * (1 if v > 0 else 0), -0.25, 0.25)) * k
+        sk_.n_ok = getattr(sk_, "n_ok", 0) + 1 if gap < -0.004 else 0
+        if sk_.n_ok >= 10:                                # molla compressa ~5 mm per 10 letture di fila: contatti chiusi, fermo
+            v = w = 0.0; sk_.phase = 3; sk_.t = 0.0
+        drive["v"], drive["w"] = v, w
+        d.ctrl[WL] = (v - w * B_HALF) / WHEEL_R; d.ctrl[WR] = (v + w * B_HALF) / WHEEL_R
+        if sk_.t > 25:                                    # non riesce: torna indietro e riprova una volta
+            sk_.phase = 0 if not getattr(sk_, "retry", False) else 3; sk_.retry = True
+    elif sk_.phase == 3:
+        drive["v"] = drive["w"] = 0.0; d.ctrl[WL] = d.ctrl[WR] = 0.0
+        if sk_.t > 0.6:
+            teach_contour(); mission["state"] = "agente"
+            if BAT["charging"]:
+                ag_say("In carica: contatti chiusi, 48 V."); m.geom_rgba[m.geom("charger_led").id] = [0.2, 1.0, 0.4, 1]
+            else:
+                ag_say("Aggancio non riuscito: chiamo assistenza.")
+            return True
+    return False
+
+
+def auto_charge():
+    """ricarica automatica: sotto il 30% e senza compiti in corso va alla stazione C da solo"""
+    if AG["cur"] is None and not AG["queue"] and not BAT["charging"] and soc() < 0.30 and not AG.get("going_charge"):
+        AG["queue"].append({"skill": "ricarica"}); AG["going_charge"] = True
+        ag_say(f"Batteria al {100 * soc():.0f}%: vado a ricaricarmi.")
+    if BAT["charging"]:
+        AG["going_charge"] = False
+
+
 def agent_step(k):
+    auto_charge()
     cup_hold_follow()
     if mission["state"] == "settle":
         teach_contour(); mission["state"] = "agente"
@@ -1818,6 +2125,7 @@ def control_step():
         a.step(DT, k); a.apply()
     clips_step(); handover_step()
     mujoco.mj_step(m, d)
+    energy_step()
 
 
 # ---------------------------------------------------------------- uscite
@@ -1834,11 +2142,16 @@ def onboard():
     return onboard_count() + sum(1 for a in arms.values() if a.held)
 
 
+def bat_line():
+    st_ = "IN CARICA 960 W (tempo x30)" if BAT["charging"] else f"{BAT['P']:.0f} W"
+    return f"batteria 48 V LiFePO4: {100 * soc():.0f}%   {st_}"
+
+
 def hud_lines():
     if args.agent:
         return [f"GIORGIO  //  agente: Sistema 1 (router locale) + Sistema 2 (Claude)   modalita': {AG['mode']}",
                 f"abilita' in corso: {fmt(AG['cur'].s) if AG['cur'] else '-'}   in coda: {len(AG['queue'])}",
-                f"scanner ({FIELDS['mode']}): {ZN[state['zone']]}"] + AG["chat"][-4:] + ([f'GIORGIO: "{AG["say"]}"'] if d.time - AG["say_t"] < 4 else [])
+                f"scanner ({FIELDS['mode']}): {ZN[state['zone']]}   |   " + bat_line()] + AG["chat"][-4:] + ([f'GIORGIO: "{AG["say"]}"'] if d.time - AG["say_t"] < 4 else [])
     return _hud_lines()
 
 
@@ -1846,7 +2159,7 @@ def _hud_lines():
     ve = stats["vis_err"]
     return [f"GIORGIO  //  OpenArm 2.0 + AgileX Tracer 2.0 + Gemini 336L + Insta360 X4",
             f"missione: {STATE_TXT.get(mission['state'], mission['state'])}" + (f"   v = {drive['v']:.2f} m/s" if mission['state'].startswith('drive') else ""),
-            f"scanner ({FIELDS['mode']}): {ZN[state['zone']]}   campi {FIELDS['prot']:.2f} / {FIELDS['warn']:.2f} m",
+            f"scanner ({FIELDS['mode']}): {ZN[state['zone']]}   campi {FIELDS['prot']:.2f} / {FIELDS['warn']:.2f} m   |   " + bat_line(),
             f"a bordo {onboard()}/{len(PARTS)}   inseriti {stats['inserted']}   falliti {stats['lost']}   arresti {stats['stops']}   rallentamenti {stats['slows']}"
             + (f"   visione {np.mean(ve):.1f} mm" if ve else "")]
 
@@ -1913,7 +2226,10 @@ if args.video:
         if d.time >= t_next:
             t_next += args.speedup / 30
             b = d.body("amr").xpos
-            cam.lookat[:] = 0.97 * np.array(cam.lookat) + 0.03 * np.array([b[0] * 0.7 - 0.5, b[1] * 0.7 + 0.3, 0.8])
+            if globals().get("CAM_FIXED"):                 # scene dimostrative: inquadratura fissa
+                cam.lookat[:], cam.distance, cam.azimuth, cam.elevation = CAM_FIXED
+            else:
+                cam.lookat[:] = 0.97 * np.array(cam.lookat) + 0.03 * np.array([b[0] * 0.7 - 0.5, b[1] * 0.7 + 0.3, 0.8])
             r.update_scene(d, cam); draw(r.scene)
             img = r.render().copy()
             vis = vision.render_overlay()
@@ -1960,7 +2276,7 @@ elif args.record:
               "charger_led", "status_led0", "status_led1", "status_led2", "status_led3"]
     ANIM = [m.geom(n).id for n in ANIM_N]
     hum = [m.geom(f"h{h}_{k}_g").id for h in range(NH) for k in range(N_SEG)]
-    XP, XQ, ZONE, SIZES, AN, ST, HRGB = [], [], [], [], [], [], []
+    XP, XQ, ZONE, SIZES, AN, ST, HRGB, FC = [], [], [], [], [], [], [], []
     t_next = 0.0
     while not finished():
         control_step()
@@ -1969,10 +2285,11 @@ elif args.record:
             XP.append(d.xpos.copy()); XQ.append(d.xquat.copy()); ZONE.append(state["zone"]); ST.append(mission["state"])
             SIZES.append(np.array([m.geom_size[g] for g in hum]) if hum else np.zeros((0, 3)))
             HRGB.append(np.array([m.geom_rgba[g] for g in hum]) if hum else np.zeros((0, 4)))
+            FC.append(list(FACE))
             AN.append(np.array([np.r_[m.geom_pos[g], m.geom_quat[g], m.geom_size[g],
                                 (m.geom_rgba[g] if m.geom_matid[g] < 0 else np.r_[m.mat_rgba[m.geom_matid[g]][:3], m.geom_rgba[g][3]])] for g in ANIM]))
     pickle.dump(dict(geoms=geoms, xpos=np.array(XP), xquat=np.array(XQ), zone=np.array(ZONE), hum=hum, hum_sizes=np.array(SIZES),
-                     hum_rgba=np.array(HRGB), n_seg=N_SEG,
+                     hum_rgba=np.array(HRGB), n_seg=N_SEG, face=np.array(FC),
                      anim=np.array(AN), anim_names=ANIM_N, states=ST,
                      body_names=[m.body(i).name for i in range(m.nbody)], r_prot=R_PROT, r_warn=R_WARN, stats=stats), open(args.record, "wb"))
     print(f"registrati {len(XP)} fotogrammi -> {args.record}", flush=True)

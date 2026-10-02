@@ -33,8 +33,13 @@ ap.add_argument("--explode", type=int, default=0, help="vista esplosa: N fotogra
 ap.add_argument("--amt", type=float, default=1.0, help="ampiezza dell'esploso (0 = solo giro di camera)")
 ap.add_argument("--labels", default="", help="json con le posizioni 2D delle etichette (vista esplosa)")
 ap.add_argument("--debug_py", default="")
+ap.add_argument("--jpg", action="store_true", help="fotogrammi in JPEG (molto piu' leggeri)")
 ap.add_argument("--fast", action="store_true", help="denoiser OptiX + dati persistenti (animazioni)")
 ap.add_argument("--lc", type=float, nargs=2, default=[0.0, 0.0], help="centro del set luci (x y)")
+ap.add_argument("--xray", action="store_true", help="zaino caffe' trasparente: si vede la macchina dentro")
+ap.add_argument("--objlabels", default="", help="oggetti da etichettare (nomi separati da virgola) -> json in --labels")
+ap.add_argument("--no_cap", action="store_true", help="senza cappellino")
+ap.add_argument("--no_ledface", action="store_true", help="volto con gli occhi/baffi 3D invece della matrice LED")
 ap.add_argument("--solo", action="store_true", help="solo il robot (niente banco, flaconi, persone): foto prodotto")
 args = ap.parse_args(argv)
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -322,14 +327,20 @@ sc.frame_start, sc.frame_end = 0, len(F) - 1
 # ---------------------------------------------------------------- geom animati (occhi, baffi, tazzina, vapore, LED)
 AN = A["anim"] if "anim" in A.files else np.zeros((NF, 0, 14))
 GEO = {g["name"]: g for g in J["geoms"]}
+LEDFACE = (not args.no_ledface) and "face" in A.files and A["face"].shape[0] == NF
 for k, nm in enumerate(J.get("anim_names", [])):
     o = bpy.data.objects.get(nm)
     if o is None or AN.shape[1] <= k:
+        continue
+    if LEDFACE and nm.startswith(("eye_", "mus_")):      # sostituiti dalla matrice LED
+        o.hide_render = True
         continue
     glow = nm.startswith(("eye", "mus", "coffee_led", "charger_led", "status_led", "cm_btn1"))
     base = AN[F[0], k, 10:13]
     mt = principled(nm + "_m", tuple(base) if not glow else (0.02, 0.02, 0.02), 0.25 if "steam" not in nm else 0.5,
                     emit=tuple(base), emit_str=6.0 if glow else 0.0)
+    if nm.startswith("mus"):                          # baffi in silicone morbido lattiginoso, retroilluminati dal LED
+        mt = principled(nm + "_m", (0.9, 0.88, 0.84), 0.45, sss=0.6, emit=tuple(base), emit_str=2.2)
     if "steam" in nm:
         mt.node_tree.nodes["Principled BSDF"].inputs["Alpha"].default_value = 0.35
     o.data.materials.clear(); o.data.materials.append(mt)
@@ -347,6 +358,152 @@ for k, nm in enumerate(J.get("anim_names", [])):
             o.keyframe_insert("location", frame=i); o.keyframe_insert("rotation_quaternion", frame=i); o.keyframe_insert("scale", frame=i)
             o.keyframe_insert("hide_render", frame=i)
             (bsdf.inputs["Emission Color"] if glow else bsdf.inputs["Base Color"]).keyframe_insert("default_value", frame=i)
+
+# ---------------------------------------------------------------- cappellino rosso con la G (italianita' in chiave comica)
+def add_cap():
+    hs_ = bpy.data.objects.get("head_shell")
+    if hs_ is None or hs_.parent is None:
+        return
+    par = hs_.parent; c0 = Vector(hs_.location)
+    def child(o_):
+        o_.parent = par
+        return o_
+    # calotta: mezza sfera morbida un filo piu' grande della testa
+    bpy.ops.mesh.primitive_uv_sphere_add(radius=1, segments=64, ring_count=32)
+    dome = bpy.context.object; dome.name = "cap_dome"
+    bm_ = bmesh.new(); bm_.from_mesh(dome.data)
+    bmesh.ops.delete(bm_, geom=[v for v in bm_.verts if v.co.z < -0.05], context="VERTS")
+    bm_.to_mesh(dome.data); bm_.free()
+    dome.scale = (0.094, 0.103, 0.064); bpy.ops.object.transform_apply(scale=True)
+    for p_ in dome.data.polygons:
+        p_.use_smooth = True
+    sol = dome.modifiers.new("sol", "SOLIDIFY"); sol.thickness = 0.004
+    child(dome); dome.location = c0 + Vector((-0.004, 0, 0.042))
+    # visiera: mezzaluna piena davanti, leggermente inclinata in giu'
+    verts_ = [(0.0, 0.0, 0.0)] + [(0.078 * math.cos(t_), 0.095 * math.sin(t_), 0.0) for t_ in np.linspace(-math.pi / 2, math.pi / 2, 48)]
+    faces_ = [(0, i_, i_ + 1) for i_ in range(1, 48)]
+    me_ = bpy.data.meshes.new("cap_brim"); me_.from_pydata(verts_, [], faces_); me_.update()
+    brim = bpy.data.objects.new("cap_brim", me_); bpy.context.collection.objects.link(brim)
+    sol2 = brim.modifiers.new("sol", "SOLIDIFY"); sol2.thickness = 0.005
+    bv = brim.modifiers.new("bev", "BEVEL"); bv.width = 0.0015; bv.segments = 3
+    child(brim); brim.location = c0 + Vector((0.035, 0, 0.040)); brim.rotation_euler = Euler((0, math.radians(10), 0))
+    # tondo bianco con la G verde
+    bpy.ops.mesh.primitive_cylinder_add(radius=0.021, depth=0.002, vertices=64)
+    disc = bpy.context.object; disc.name = "cap_disc"; child(disc)
+    nrm = Vector((0.80, 0, 0.60)).normalized()
+    disc.location = c0 + Vector((-0.004, 0, 0.042)) + Vector((0.094 * nrm.x * 0.98, 0, 0.064 * nrm.z * 0.98)) + nrm * 0.002
+    disc.rotation_mode = "QUATERNION"; disc.rotation_quaternion = Vector((0, 0, 1)).rotation_difference(nrm)
+    cu = bpy.data.curves.new("capG", "FONT"); cu.body = "G"; cu.size = 0.036; cu.extrude = 0.0012; cu.align_x = "CENTER"; cu.align_y = "CENTER"
+    try:
+        cu.font = bpy.data.fonts.load("/usr/share/fonts/truetype/ubuntu/Ubuntu-B.ttf")
+    except Exception:
+        pass
+    gtxt = bpy.data.objects.new("cap_G", cu); bpy.context.collection.objects.link(gtxt); child(gtxt)
+    gtxt.location = disc.location + nrm * 0.0016
+    gtxt.rotation_mode = "QUATERNION"
+    gtxt.rotation_quaternion = Vector((0, 0, 1)).rotation_difference(nrm) @ Quaternion(Vector((0, 0, 1)), math.radians(90))
+    red = principled("cap_red", (0.16, 0.0015, 0.003), 0.5, coat=0.05)
+    try:
+        red.node_tree.nodes["Principled BSDF"].inputs["Sheen Weight"].default_value = 0.6
+    except Exception:
+        pass
+    for o_ in (dome, brim):
+        o_.data.materials.append(red)
+    disc.data.materials.append(principled("cap_white", (0.9, 0.9, 0.88), 0.4))
+    gtxt.data.materials.append(principled("cap_green", (0.0, 0.2, 0.05), 0.35))
+
+
+if not args.no_cap:
+    add_cap()
+
+# ---------------------------------------------------------------- tricolore: tre fasce alte 22 mm attorno alla base (ben visibili)
+for k_, (z_, col_, rough_) in enumerate(((0.132, (0.0, 0.16, 0.035), 0.35), (0.108, (0.85, 0.85, 0.82), 0.3), (0.084, (0.42, 0.0, 0.008), 0.35))):
+    o_ = bpy.data.objects.get(f"tricolore{k_}")
+    if o_ is None:
+        continue
+    vv_ = np.array([v.co[:] for v in o_.data.vertices]); ext_ = vv_.max(0) - vv_.min(0)
+    ax_ = int(np.argmin(ext_))                          # asse sottile della fascia (MuJoCo riallinea le mesh)
+    sc_ = [1.004, 1.004, 1.004]; sc_[ax_] = 0.022 / max(ext_[ax_], 1e-4)
+    o_.scale = tuple(sc_)
+    o_.location.z = z_
+    mt_ = principled(f"tricolore_m{k_}", col_, rough_, coat=0.15)
+    o_.data.materials.clear(); o_.data.materials.append(mt_)
+
+# ---------------------------------------------------------------- volto: matrice LED RGB 64 x 32 dietro la visiera
+if LEDFACE:
+    sys.path.insert(0, HERE)
+    import ledface
+    from mathutils import kdtree
+    fg = bpy.data.objects.get("face_glass")
+    if fg is not None:
+        vv = np.array([v.co[:] for v in fg.data.vertices])
+        front = vv[vv[:, 0] > 0]
+        kd = kdtree.KDTree(len(front))
+        for i_, p_ in enumerate(front):
+            kd.insert((0.0, p_[1], p_[2]), i_)
+        kd.balance()
+        NYG, NZG = 64, 32
+        ys, zs = np.linspace(-0.064, 0.064, NYG + 1), np.linspace(-0.032, 0.032, NZG + 1)
+        verts, faces, uvs = [], [], []
+        # il frame locale della mesh e' ruotato (MuJoCo la riallinea): passo da (y, z) "del volto" alle coordinate locali
+        qn = fg.rotation_quaternion.to_matrix()
+        def to_local(yw, zw):
+            v_ = qn.inverted() @ Vector((0.0, yw, zw))
+            return v_[1], v_[2]
+        for iz, z_ in enumerate(zs):
+            for iy, y_ in enumerate(ys):
+                ly, lz = to_local(y_, z_)
+                near = kd.find_n((0.0, ly, lz), 4)
+                x_ = float(np.mean([front[n_[1]][0] for n_ in near])) + 0.0012
+                verts.append((x_, ly, lz))
+        for iz in range(NZG):
+            for iy in range(NYG):
+                a_ = iz * (NYG + 1) + iy
+                faces.append((a_, a_ + 1, a_ + NYG + 2, a_ + NYG + 1))
+        me = bpy.data.meshes.new("led_panel"); me.from_pydata(verts, [], faces); me.update()
+        uvl = me.uv_layers.new(name="UV")
+        for poly in me.polygons:
+            for li in poly.loop_indices:
+                vi = me.loops[li].vertex_index; iz, iy = divmod(vi, NYG + 1)
+                uvl.data[li].uv = (iy / NYG, iz / NZG)       # +y del robot = destra di chi guarda
+            poly.use_smooth = True
+        led = bpy.data.objects.new("led_panel", me); bpy.context.collection.objects.link(led)
+        led.parent = fg.parent; led.rotation_mode = "QUATERNION"
+        led.location = fg.location.copy(); led.rotation_quaternion = fg.rotation_quaternion.copy()
+        # una PNG per fotogramma, dallo stato del volto registrato
+        FC = A["face"]
+        tdir = os.path.join(HERE, "ledtex", args.out.replace("/", "_").replace("#", "").replace(".png", "").strip("_") or "led")
+        os.makedirs(tdir, exist_ok=True)
+        img = None
+        for i_, f_ in enumerate(F):
+            code, gx, gy, blink, tt = [float(v) for v in FC[f_]]
+            im = ledface.led_image_big(ledface.draw_px(code, gx, gy, blink, tt))[::-1]   # matrice 32 x 16, LED grandi
+            if img is None:
+                img = bpy.data.images.new("ledtmp", im.shape[1], im.shape[0], alpha=False)
+            img.pixels.foreach_set(im.ravel())
+            img.filepath_raw = os.path.join(tdir, f"led_{i_ + 1:04d}.png"); img.file_format = "PNG"; img.save()
+        mt = bpy.data.materials.new("led_mat"); mt.use_nodes = True
+        nt = mt.node_tree; bs = nt.nodes["Principled BSDF"]
+        bs.inputs["Base Color"].default_value = (0.004, 0.004, 0.005, 1); bs.inputs["Roughness"].default_value = 0.25
+        bs.inputs["Coat Weight"].default_value = 1.0; bs.inputs["Coat Roughness"].default_value = 0.03
+        tx = nt.nodes.new("ShaderNodeTexImage")
+        tx.image = bpy.data.images.load(os.path.join(tdir, "led_0001.png"))
+        tx.image.source = "SEQUENCE"
+        tx.image_user.frame_duration = len(F); tx.image_user.frame_start = 0; tx.image_user.frame_offset = 0
+        tx.image_user.use_auto_refresh = True
+        tx.interpolation = "Cubic"
+        nt.links.new(tx.outputs["Color"], bs.inputs["Emission Color"]); bs.inputs["Emission Strength"].default_value = 7.0
+        led.data.materials.append(mt)
+        bpy.data.images.remove(img)
+
+if args.xray:                                           # guscio dello zaino in vetro: si vede la De'Longhi dentro
+    for nm_ in ("cm_housing", "cm_band", "cm_vent"):
+        o_ = bpy.data.objects.get(nm_)
+        if o_ is not None:
+            mt_ = principled(nm_ + "_xray", (0.85, 0.9, 1.0), 0.05, trans=0.0)
+            b_ = mt_.node_tree.nodes["Principled BSDF"]; b_.inputs["Alpha"].default_value = 0.12 if nm_ == "cm_housing" else 0.3
+            b_.inputs["Emission Color"].default_value = (0.5, 0.75, 1.0, 1); b_.inputs["Emission Strength"].default_value = 0.08
+            o_.data.materials.clear(); o_.data.materials.append(mt_)
 
 # ---------------------------------------------------------------- vista esplosa: gruppi che si separano (riferimento robot)
 EXPL = {}
@@ -506,10 +663,40 @@ if args.cam == "orbit" and len(F) > 1:
         aim(cam, tgt)
         cam.keyframe_insert("location", frame=i); cam.keyframe_insert("rotation_euler", frame=i)
 
+# ---------------------------------------------------------------- bagliore dei LED (compositor)
+sc.use_nodes = True
+ntc = sc.node_tree
+for n_ in list(ntc.nodes):
+    ntc.nodes.remove(n_)
+rl_ = ntc.nodes.new("CompositorNodeRLayers"); gl_ = ntc.nodes.new("CompositorNodeGlare"); co_ = ntc.nodes.new("CompositorNodeComposite")
+gl_.glare_type = "FOG_GLOW"; gl_.quality = "HIGH"; gl_.threshold = 1.2; gl_.size = 7
+try:
+    gl_.mix = -0.55
+except Exception:
+    pass
+ntc.links.new(rl_.outputs["Image"], gl_.inputs["Image"]); ntc.links.new(gl_.outputs["Image"], co_.inputs["Image"])
+
 # ---------------------------------------------------------------- render
 if args.debug_py:
     exec(open(args.debug_py).read()); sys.exit(0)
-if args.labels and EXPL:
+if args.labels and args.objlabels:
+    from bpy_extras.object_utils import world_to_camera_view
+    names_ = [n_.strip() for n_ in args.objlabels.split(",")]
+    out = []
+    for i in range(len(F)):
+        sc.frame_set(i)
+        row = {}
+        for n_ in names_:
+            o_ = bpy.data.objects.get(n_)
+            if o_ is None:
+                continue
+            bb = [o_.matrix_world @ Vector(c_) for c_ in o_.bound_box]
+            c_ = sum(bb, Vector((0, 0, 0))) / 8
+            v = world_to_camera_view(sc, cam, c_)
+            row[n_] = [v.x, 1 - v.y]
+        out.append(row)
+    json.dump(out, open(os.path.join(HERE, args.labels), "w"))
+elif args.labels and EXPL:
     from bpy_extras.object_utils import world_to_camera_view
     out = []
     for i in range(len(F)):
@@ -525,7 +712,10 @@ if args.labels and EXPL:
     json.dump(out, open(os.path.join(HERE, args.labels), "w"))
 if args.frames or args.explode:
     sc.render.filepath = os.path.join(HERE, args.out)
-    sc.render.image_settings.file_format = "PNG"
+    if args.jpg:
+        sc.render.image_settings.file_format = "JPEG"; sc.render.image_settings.quality = 93
+    else:
+        sc.render.image_settings.file_format = "PNG"
     bpy.ops.render.render(animation=True)
 else:
     sc.frame_set(0)

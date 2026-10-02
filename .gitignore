@@ -19,3 +19,12 @@ render/tst*/
 !render/edit_v7.json
 *.pkl
 *.npz
+*.bak
+*.bak_*
+MUJOCO_LOG.TXT
+render/v8/
+render/v7/
+render/ledtex/
+render/stills_*/
+render/*.log
+*.log

@@ -43,11 +43,11 @@ class ArmIK:
         e = self.err(p, R, pt, Rt)
         return q, float(np.linalg.norm(e[:3])), float(np.linalg.norm(e[3:]))
 
-    def solve(self, qfull, q0, pt, Rt, seeds=16, rng=None):
+    def solve(self, qfull, q0, pt, Rt, seeds=16, rng=None, noise=0.6):
         rng = rng or np.random.default_rng(0)
         best = None
         for k in range(seeds):
-            s = q0 if k == 0 else np.clip(q0 + rng.normal(0, 0.6, 7), self.lo, self.hi)
+            s = q0 if k == 0 else np.clip(q0 + rng.normal(0, noise, 7), self.lo, self.hi)
             q, ep, er = self.solve1(qfull, s, pt, Rt)
             ok = ep < 2e-3 and er < 2e-2
             cost = (0 if ok else 100 + 100 * ep + 10 * er) + float(np.sum(np.abs(q - q0)))

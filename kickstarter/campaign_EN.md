@@ -114,7 +114,7 @@ We say "open" only where it truly is.
 
 | Part | Component | Status |
 |---|---|---|
-| Arms + torso | Enactic OpenArm 2.0 (7+7 DOF) | **Open source** — Apache-2.0 hardware and software |
+| Arms + torso | Enactic OpenArm 2.0 (7+7 DOF) | **Open source** — hardware CERN-OHL-S-2.0, software Apache-2.0 |
 | Grippers + wrist cameras | OpenArm 2.0 kit | **Open source** (part of OpenArm) |
 | Motors | Damiao QDD | commercial (inside OpenArm) |
 | Mobile base | AgileX Tracer 2.0 | **Commercial off-the-shelf**, ROS support — not open hardware |
@@ -129,7 +129,7 @@ We say "open" only where it truly is.
 | **Face: eyes + moustache + LEDs** | Giorgio project | **Open** — schematics and firmware (proposed: CERN-OHL-W 2.0 / Apache-2.0) |
 | **Coffee backpack: shuttle + mounts** | Giorgio project | **Open** — CAD + firmware |
 | **Software: skills, router, agent, simulation** | Giorgio project | **Open** — Apache-2.0 (proposed) |
-| Dexterous hands (option) | LEAP Hand / ORCA Hand | open, with different licences: ORCA CC BY 4.0, LEAP CAD non-commercial. **Experimental.** |
+| Dexterous hands (option) | ORCA Hand / Pollen AmazingHand | **Open, commercial use allowed**: ORCA CC BY 4.0 (software MIT), AmazingHand CC BY 4.0 (software Apache-2.0). Mounted and tested in simulation on gestures and buttons; grasps are taught. (LEAP and Aero Hand: non-commercial CAD, excluded.) |
 
 In short: **everything we build ourselves is open.** What we buy, we buy from those who make it best — and we tell you.
 
@@ -168,7 +168,7 @@ Giorgio is an alternative to the big closed humanoids — think of projects like
 |---|---|
 | Arms | OpenArm 2.0 bimanual, 7+7 DOF, Damiao QDD |
 | End effectors | OpenArm parallel grippers (default) |
-| Dexterous hands | LEAP Hand / ORCA — **experimental option** |
+| Dexterous hands | ORCA Hand / AmazingHand — **option**, grasps to be trained |
 | Base | AgileX Tracer 2.0, differential drive, 702 × 610 mm, 55 kg (base only) |
 | Overall footprint / height / mass | [to be measured on the prototype] |
 | Safety | 2× SICK nanoScan3, Pilz PNOZmulti 2, e-stop; ISO 13855 fields (1.72 m protective at standstill) |
@@ -271,7 +271,7 @@ Physical rewards (Face, coffee backpack, Body Kit, complete Giorgios) carry thei
 
 ## Stretch goals
 
-- **€150,000 — Dexterous hands, for real.** We publish an open dataset of teleoperated demonstrations and trained policies for LEAP/ORCA on Giorgio's skills.
+- **€150,000 — Dexterous hands, for real.** We publish an open dataset of teleoperated demonstrations and trained policies for ORCA and AmazingHand on Giorgio's skills.
 - **€200,000 — Motorised column.** Lifting-column option (400 mm stroke) to work from floor to counter.
 - **€250,000 — "Reception" skill pack.** 360° people recognition and greeting, guest escort, object hand-off at reception.
 - **€300,000 — A Giorgio for the community.** A third Giorgio loaned to an Italian university or makerspace, open to anyone who wants to develop skills.
@@ -302,7 +302,7 @@ Physical rewards (Face, coffee backpack, Body Kit, complete Giorgios) carry thei
 Here's where things can go wrong.
 
 - **Simulation ≠ reality.** The results on this page come from an accurate physics simulation with the vendors' official models. But reality has friction, cables, lighting, dirty floors. We expect weeks of tuning: vision error, grasping, braking, docking. We've budgeted time for it, and we'll report it in updates — including when it doesn't go well.
-- **Dexterous hands.** Five-finger hands (LEAP, ORCA) can be mounted, but **scripted grasps are not reliable today**: they need teleoperation data and imitation learning. That's why the standard Giorgio uses parallel grippers. Hands are an experimental option, not a promise.
+- **Dexterous hands.** Open articulated hands (ORCA, AmazingHand) can be mounted, but **scripted grasps are not reliable today**: they need teleoperation data and imitation learning. That's why the standard Giorgio uses parallel grippers. Hands are an experimental option, not a promise.
 - **CE marking.** The risk assessment may require changes (lower speeds, larger fields, extra guarding). If marking takes longer, complete-Giorgio deliveries slip. We prefer it that way.
 - **Supply of OpenArm and other parts.** OpenArm 2.0 is ordered from Enactic, with lead times and USD prices that can change; the same applies to Tracer, Jetson and scanners. We have margin for price swings, not for a supply crisis: in that case we'll delay and tell you immediately.
 - **Cloud dependency.** The System 2 planner currently uses a language model via API: without network Giorgio still runs direct System 1 commands but can't plan complex sentences. We're evaluating local planners on the Jetson.

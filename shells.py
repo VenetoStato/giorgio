@@ -53,7 +53,7 @@ def moustache(side=1, n=60, m=16):
     y = 0.003 + 0.050 * t
     z = -0.004 * np.sin(np.pi * np.minimum(t / 0.7, 1.0)) + 0.016 * np.clip((t - 0.7) / 0.3, 0, 1) ** 2
     y = y - 0.006 * np.clip((t - 0.85) / 0.15, 0, 1) ** 2            # ricciolo: la punta torna un po' indietro
-    r = 0.0016 + 0.0062 * (1 - t) ** 0.7
+    r = 0.0022 + 0.0085 * (1 - t) ** 0.7             # silicone morbido: piu' corposo
     C = np.stack([np.zeros(n), side * y, z], 1)
     T = np.gradient(C, axis=0); T /= np.linalg.norm(T, axis=1, keepdims=True)
     X = np.array([1.0, 0, 0])
@@ -62,7 +62,7 @@ def moustache(side=1, n=60, m=16):
         b = np.cross(T[i], X); b /= np.linalg.norm(b)
         for j in range(m):
             a = 2 * np.pi * j / m
-            P.append(C[i] + r[i] * (0.55 * np.cos(a) * X + np.sin(a) * b))
+            P.append(C[i] + r[i] * (0.8 * np.cos(a) * X + np.sin(a) * b))
     for i in range(n - 1):
         for j in range(m):
             a0, a1, b0, b1 = i * m + j, i * m + (j + 1) % m, (i + 1) * m + j, (i + 1) * m + (j + 1) % m
@@ -78,7 +78,7 @@ SHELLS = {
     "moustache_l": lambda: moustache(1),
     "moustache_r": lambda: moustache(-1),
     # busto a V: vita stretta, petto largo, profilo morbido (centro a meta' altezza)
-    "torso": lambda: superellipsoid(0.105, 0.17, 0.20, e1=0.45, e2=0.5, taper=lambda t: 0.72 + 0.28 * np.clip((t + 1) / 1.6, 0, 1) ** 0.8),
+    "torso": lambda: superellipsoid(0.135, 0.17, 0.235, e1=0.45, e2=0.5, taper=lambda t: 0.80 + 0.20 * np.clip((t + 1) / 1.6, 0, 1) ** 0.8),
     # corona sensori: fascia bassa e larga che ospita la Gemini 336L (vetro scuro davanti)
     "crown": lambda: superellipsoid(0.07, 0.095, 0.045, e1=0.4, e2=0.45),
     "crown_glass": lambda: superellipsoid(0.02, 0.085, 0.026, e1=0.3, e2=0.3),
@@ -90,6 +90,16 @@ SHELLS = {
     "inissia_body": lambda: superellipsoid(0.060, 0.088, 0.135, e1=0.25, e2=0.35),
     "inissia_head": lambda: superellipsoid(0.058, 0.055, 0.045, e1=0.35, e2=0.45),
     "inissia_tank": lambda: superellipsoid(0.045, 0.045, 0.11, e1=0.2, e2=0.3),
+    # base carenata: un unico guscio sopra il Tracer fino a 4 cm da terra, fascia scanner, LED, paraurti
+    "base_skirt": lambda: superellipsoid(0.375, 0.33, 0.125, e1=0.28, e2=0.3),
+    "scan_band": lambda: superellipsoid(0.379, 0.334, 0.028, e1=0.12, e2=0.3),
+    "led_band": lambda: superellipsoid(0.377, 0.332, 0.005, e1=0.1, e2=0.3),
+    "tricolor_band": lambda: superellipsoid(0.3785, 0.3335, 0.011, e1=0.1, e2=0.3),
+    "bumper": lambda: superellipsoid(0.381, 0.336, 0.018, e1=0.35, e2=0.3),
+    # colonna: raccordo rastremato base -> busto
+    "column_neck": lambda: superellipsoid(0.085, 0.10, 0.30, e1=0.3, e2=0.4, taper=lambda t: 1.0 + 0.75 * np.clip((0.2 - t) / 1.2, 0, 1) ** 1.5),
+    # zaino caffe': guscio che racchiude la De'Longhi Inissia (resta fuori solo la testa erogatrice e la navetta)
+    "coffee_housing": lambda: superellipsoid(0.112, 0.12, 0.31, e1=0.22, e2=0.3),
     # spallacci
     "pauldron": lambda: superellipsoid(0.07, 0.055, 0.055, e1=0.55, e2=0.6),
     # carter del carrello e della colonna
