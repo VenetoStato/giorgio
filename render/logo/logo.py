@@ -1,57 +1,45 @@
-"""Logo di Giorgio: tazzina di espresso vista dall'alto che E' la G (bordo = corpo della G, manico = barra della G),
-crema con cuore di latte. Uscite: logo.png (emblema), logo_chiaro.png (per sfondi scuri), logo_full.png (emblema + scritta)."""
+"""Logo di Giorgio (minimal): tazzina vista dall'alto che e' una G. Anello = corpo della G, manico = barra, disco pieno = caffe'.
+Due colori, niente sfumature. Uscite: logo.png, logo_chiaro.png (su scuro), logo_full.png, logo_full_chiaro.png."""
 import math
-from PIL import Image, ImageDraw, ImageFont, ImageFilter
+from PIL import Image, ImageDraw, ImageFont
 
-GRAF = (35, 38, 43, 255)
-CREMA, CREMA2, LATTE = (196, 128, 62, 255), (168, 98, 44, 255), (246, 232, 212, 255)
+INK = (28, 30, 34, 255); PAPER = (240, 240, 237, 255); ACC = (255, 122, 26, 255)
 S = 4096
 
 
-def emblem(col=GRAF, S=S):
+def mark(col, acc=ACC, S=S):
     im = Image.new("RGBA", (S, S), (0, 0, 0, 0)); dr = ImageDraw.Draw(im)
-    u = S / 100.0; cx, cy = 46 * u, 50 * u
-    R_out, R_in = 36 * u, 27 * u
-    # piattino: anello sottile, appena accennato
-    dr.ellipse([cx - 44 * u, cy - 44 * u, cx + 44 * u, cy + 44 * u], outline=col[:3] + (60,), width=int(2.2 * u))
-    # crema con sfumatura (cerchi concentrici) e cuore di latte
-    for k in range(40):
-        r = R_in + 0.6 * u - k * (R_in / 40)
-        t = k / 39
-        c = tuple(int(CREMA2[i] + (CREMA[i] - CREMA2[i]) * t) for i in range(3)) + (255,)
-        dr.ellipse([cx - r, cy - r, cx + r, cy + r], fill=c)
-    hx, hy, hs = cx - 2.0 * u, cy + 0.5 * u, 0.62 * u              # cuore di latte (curva parametrica)
-    pts = []
-    for k in range(200):
-        t = 2 * math.pi * k / 200
-        x = 16 * math.sin(t) ** 3
-        y = 13 * math.cos(t) - 5 * math.cos(2 * t) - 2 * math.cos(3 * t) - math.cos(4 * t)
-        pts.append((hx + x * hs, hy - y * hs))
-    dr.polygon(pts, fill=LATTE)
-    # bordo della tazzina = corpo della G (aperto in alto a destra)
-    a0, a1 = 0, 318                                                 # gradi, in senso orario da ore 3
-    dr.arc([cx - R_out, cy - R_out, cx + R_out, cy + R_out], start=a0, end=a1, fill=col, width=int(R_out - R_in))
-    rm = (R_out + R_in) / 2; w = R_out - R_in
-    for a in (a1,):                                                 # estremita' arrotondata in alto
-        x, y = cx + rm * math.cos(math.radians(a)), cy + rm * math.sin(math.radians(a))
-        dr.ellipse([x - w / 2, y - w / 2, x + w / 2, y + w / 2], fill=col)
-    # manico = barra della G: parte dal bordo a ore 3 ed esce a destra
-    hb = w * 0.92; yb = cy - hb * 0.5 + 0.2 * u
-    dr.rounded_rectangle([cx + R_in - 9 * u, yb - hb / 2, cx + R_out + 15 * u, yb + hb / 2], radius=hb / 2, fill=col)
-    dr.ellipse([cx + R_in - 9 * u - hb * 0.1, yb - hb / 2, cx + R_in - 9 * u + hb * 0.9, yb + hb / 2], fill=col)
+    u = S / 100.0; cx, cy = 45 * u, 50 * u
+    R_out, w = 38 * u, 10 * u; R_in = R_out - w
+    dr.ellipse([cx - R_in + 5 * u, cy - R_in + 5 * u, cx + R_in - 5 * u, cy + R_in - 5 * u], fill=acc)    # caffe'
+    a1 = 312
+    dr.arc([cx - R_out, cy - R_out, cx + R_out, cy + R_out], start=0, end=a1, fill=col, width=int(w))
+    rm = R_out - w / 2
+    x, y = cx + rm * math.cos(math.radians(a1)), cy + rm * math.sin(math.radians(a1))
+    dr.ellipse([x - w / 2, y - w / 2, x + w / 2, y + w / 2], fill=col)                                  # estremita' tonda
+    dr.rectangle([cx + R_in - 6 * u, cy - w, cx + R_out + 12 * u, cy], fill=col)                       # barra = manico
+    dr.ellipse([cx + R_out + 12 * u - w / 2, cy - w, cx + R_out + 12 * u + w / 2, cy], fill=col)
     return im
 
 
-em = emblem()
-em.resize((1024, 1024), Image.LANCZOS).save("logo.png")
-emblem(col=(240, 240, 238, 255)).resize((1024, 1024), Image.LANCZOS).save("logo_chiaro.png")
-W, H = 2600, 900
-full = Image.new("RGBA", (W, H), (0, 0, 0, 0))
-e = em.resize((820, 820), Image.LANCZOS); full.alpha_composite(e, (30, 40))
-dr = ImageDraw.Draw(full)
-f = ImageFont.truetype("/usr/share/fonts/truetype/ubuntu/Ubuntu-M.ttf", 330)
-f2 = ImageFont.truetype("/usr/share/fonts/truetype/ubuntu/Ubuntu-L.ttf", 84)
-dr.text((900, 170), "giorgio", font=f, fill=GRAF)
-dr.text((915, 600), "robot di servizio  ·  fa anche il caffè", font=f2, fill=(120, 122, 128, 255))
-full.save("logo_full.png")
+def wordmark(col, sub_col):
+    W, H = 3000, 900
+    im = Image.new("RGBA", (W, H), (0, 0, 0, 0))
+    m = mark(col).resize((780, 780), Image.LANCZOS); im.alpha_composite(m, (20, 60))
+    dr = ImageDraw.Draw(im)
+    f = ImageFont.truetype("/usr/share/fonts/opentype/urw-base35/NimbusSans-Bold.otf", 300)
+    f2 = ImageFont.truetype("/usr/share/fonts/opentype/urw-base35/NimbusSans-Regular.otf", 78)
+    x = 900
+    for ch in "GIORGIO":                                  # spaziatura larga
+        dr.text((x, 230), ch, font=f, fill=col); x += dr.textlength(ch, font=f) + 46
+    x2 = 906
+    for ch in "SERVICE ROBOT  /  ALSO MAKES COFFEE":
+        dr.text((x2, 600), ch, font=f2, fill=sub_col); x2 += dr.textlength(ch, font=f2) + 9
+    return im.crop((0, 0, max(x, x2) + 40, H))
+
+
+mark(INK).resize((1024, 1024), Image.LANCZOS).save("logo.png")
+mark(PAPER).resize((1024, 1024), Image.LANCZOS).save("logo_chiaro.png")
+wordmark(INK, (110, 113, 120, 255)).save("logo_full.png")
+wordmark(PAPER, (170, 172, 178, 255)).save("logo_full_chiaro.png")
 print("ok")

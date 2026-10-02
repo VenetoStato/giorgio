@@ -39,6 +39,8 @@ ap.add_argument("--lc", type=float, nargs=2, default=[0.0, 0.0], help="centro de
 ap.add_argument("--xray", action="store_true", help="zaino caffe' trasparente: si vede la macchina dentro")
 ap.add_argument("--xray_base", action="store_true", help="carenatura della base trasparente: batteria, convertitori, contattori, cavi")
 ap.add_argument("--hide", default="", help="prefissi di oggetti da nascondere (virgole)")
+ap.add_argument("--dark", action="store_true", help="studio scuro (stile prodotto): fondale nero, luci di taglio")
+ap.add_argument("--no_rings", action="store_true", help="niente anelli dei campi di sicurezza sul pavimento")
 ap.add_argument("--objlabels", default="", help="oggetti da etichettare (nomi separati da virgola) -> json in --labels")
 ap.add_argument("--no_cap", action="store_true", help="senza cappellino")
 ap.add_argument("--no_ledface", action="store_true", help="volto con gli occhi/baffi 3D invece della matrice LED")
@@ -419,16 +421,16 @@ if not args.no_cap:
     add_cap()
 
 # ---------------------------------------------------------------- tricolore: tre fasce alte 22 mm attorno alla base (ben visibili)
-for k_, (z_, col_, rough_) in enumerate(((0.132, (0.0, 0.16, 0.035), 0.35), (0.108, (0.85, 0.85, 0.82), 0.3), (0.084, (0.42, 0.0, 0.008), 0.35))):
+for k_, (z_, col_, rough_) in enumerate(((0.1395, (0.0, 0.287, 0.061), 0.3), (0.114, (0.88, 0.885, 0.88), 0.25), (0.0885, (0.617, 0.024, 0.038), 0.3))):
     o_ = bpy.data.objects.get(f"tricolore{k_}")
     if o_ is None:
         continue
     vv_ = np.array([v.co[:] for v in o_.data.vertices]); ext_ = vv_.max(0) - vv_.min(0)
     ax_ = int(np.argmin(ext_))                          # asse sottile della fascia (MuJoCo riallinea le mesh)
-    sc_ = [1.004, 1.004, 1.004]; sc_[ax_] = 0.022 / max(ext_[ax_], 1e-4)
+    sc_ = [1.012, 1.012, 1.012]; sc_[ax_] = 0.0255 / max(ext_[ax_], 1e-4)       # fasce contigue da 25 mm, appena sporgenti
     o_.scale = tuple(sc_)
     o_.location.z = z_
-    mt_ = principled(f"tricolore_m{k_}", col_, rough_, coat=0.15)
+    mt_ = principled(f"tricolore_m{k_}", col_, rough_, coat=0.3, emit=col_, emit_str=0.35 if not args.dark else 1.2)
     o_.data.materials.clear(); o_.data.materials.append(mt_)
 
 # ---------------------------------------------------------------- volto: matrice LED RGB 64 x 32 dietro la visiera
@@ -505,9 +507,8 @@ for o_ in [o for o in bpy.data.objects if o.name.startswith("logo_")]:     # log
     tc_ = nt_.nodes.new("ShaderNodeTexCoord"); sx_ = nt_.nodes.new("ShaderNodeSeparateXYZ"); cb_ = nt_.nodes.new("ShaderNodeCombineXYZ")
     nt_.links.new(tc_.outputs["Generated"], sx_.inputs[0])
     thin_x = o_.dimensions.x < min(o_.dimensions.y, o_.dimensions.z)
-    if thin_x:                                      # petto: normale +x, u lungo -y (vista frontale), v lungo z
-        inv_ = nt_.nodes.new("ShaderNodeMath"); inv_.operation = "SUBTRACT"; inv_.inputs[0].default_value = 1.0
-        nt_.links.new(sx_.outputs["Y"], inv_.inputs[1]); nt_.links.new(inv_.outputs[0], cb_.inputs["X"])
+    if thin_x:                                      # petto: normale +x; chi guarda il robot ha +y a destra -> u lungo +y
+        nt_.links.new(sx_.outputs["Y"], cb_.inputs["X"])
     else:                                           # zaino: normale -y, u lungo x
         nt_.links.new(sx_.outputs["X"], cb_.inputs["X"])
     nt_.links.new(sx_.outputs["Z"], cb_.inputs["Y"])
@@ -639,6 +640,14 @@ L3 = area("rim", (-1.8, -1.2, 2.8), (0, 0, 0), 1.5, 600 * k, (1.0, 0.98, 0.95));
 L4 = area("top", (0.3, 0, 4.0), (0, 0, 0), 4.0, 500 * k, shape="RECTANGLE", size_y=2.0); aim(L4, (0.3, 0, 0))
 for L_ in (L1, L2, L3, L4):
     L_.location.x += args.lc[0]; L_.location.y += args.lc[1]
+if args.dark:                                           # studio scuro: fondale quasi nero, due luci di taglio fredde, chiave morbida
+    WALL.node_tree.nodes["Principled BSDF"].inputs["Base Color"].default_value = (0.012, 0.012, 0.014, 1)
+    WALL.node_tree.nodes["Principled BSDF"].inputs["Roughness"].default_value = 0.35
+    world_col, world_str = (0.01, 0.01, 0.012), 0.05
+    L1.data.energy *= 0.38; L2.data.energy *= 0.12; L4.data.energy *= 0.06
+    for nm_, loc_ in (("rimL", (-1.2, 2.2, 2.4)), ("rimR", (-1.4, -2.3, 2.2))):
+        Lr = area(nm_, (loc_[0] + args.lc[0], loc_[1] + args.lc[1], loc_[2]), (0, 0, 0), 0.6, 900, (0.85, 0.92, 1.0), size_y=2.4)
+        aim(Lr, (args.lc[0], args.lc[1], 1.0))
 w = bpy.data.worlds.new("w"); sc.world = w; w.use_nodes = True
 bg = w.node_tree.nodes["Background"]; bg.inputs[0].default_value = (*world_col, 1); bg.inputs[1].default_value = world_str
 
@@ -652,7 +661,11 @@ def ring(name, r, col):
 
 
 ring_w, mw = ring("ring_warn", J["r_warn"], (1.0, 0.75, 0.15))
+if args.no_rings:
+    ring_w.hide_render = True
 ring_p, mp = ring("ring_prot", J["r_prot"], (1.0, 0.18, 0.12))
+if args.no_rings:
+    ring_p.hide_render = True
 for i, f in enumerate(F):        # intensita' secondo lo stato dello scanner
     z = int(ZONE[f])
     for m_, lvl in ((mw, 1), (mp, 2)):

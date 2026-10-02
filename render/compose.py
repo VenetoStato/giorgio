@@ -22,7 +22,10 @@ OUT = sys.argv[2]
 FPS = E.get("fps", 30)
 W, H = E.get("size", [1920, 1080])
 FONTS = {"L": "/usr/share/fonts/truetype/ubuntu/Ubuntu-L.ttf", "R": "/usr/share/fonts/truetype/ubuntu/Ubuntu-R.ttf",
-         "M": "/usr/share/fonts/truetype/ubuntu/Ubuntu-M.ttf", "B": "/usr/share/fonts/truetype/ubuntu/Ubuntu-B.ttf"}
+         "M": "/usr/share/fonts/truetype/ubuntu/Ubuntu-M.ttf", "B": "/usr/share/fonts/truetype/ubuntu/Ubuntu-B.ttf",
+         "H": "/usr/share/fonts/opentype/urw-base35/NimbusSans-Bold.otf", "N": "/usr/share/fonts/opentype/urw-base35/NimbusSans-Regular.otf",
+         "X": "/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf"}
+UI = E.get("ui")                              # cornice "tecnica": angoli, intestazione e contatore in monospazio
 _fc = {}
 XF = int(E.get("xfade", 0.5) * FPS)
 
@@ -67,8 +70,19 @@ def draw_texts(img, texts, t):
             x, y = (W - tw) / 2, H / 2 + 160
         elif pos == "left":
             x, y = 120, (H - th) / 2
+        elif pos == "ll":                        # in basso a sinistra (stile titolo tecnico)
+            x, y = 120, H - th - 130
+        elif pos == "kick":                      # occhiello sopra al titolo in basso a sinistra
+            x, y = 122, H - 130 - tx.get("above", 120) - th
         else:
             x, y = pos
+        if pos == "ll" and tx.get("band", True):        # sfumatura scura dal basso, solo a sinistra
+            band = Image.new("L", (W, H), 0); bd = ImageDraw.Draw(band)
+            for yy in range(int(H * 0.45), H, 2):
+                k_ = (yy - H * 0.45) / (H * 0.55)
+                bd.line((0, yy, W, yy), fill=int(165 * a * k_ ** 1.4))
+            blk = Image.new("RGBA", (W, H), (0, 0, 0, 255)); blk.putalpha(band)
+            layer.alpha_composite(blk)
         if pos in ("lower", "upper") and tx.get("band", True):   # fascia scura morbida dietro ai sottotitoli (leggibili sul bianco)
             band = Image.new("L", (W, int(th + 220)), 0); bd = ImageDraw.Draw(band)
             for yy in range(band.size[1]):
@@ -76,8 +90,17 @@ def draw_texts(img, texts, t):
                 bd.line((0, yy, W, yy), fill=int(150 * a * min(1, k_ * 1.6)))
             blk = Image.new("RGBA", band.size, (0, 0, 0, 255)); blk.putalpha(band)
             layer.alpha_composite(blk, (0, max(0, int(y - 110))))
+        trk = tx.get("track", 0)
         for i, l in enumerate(lines):
             lx = x + (tw - dr.textlength(l, font=f)) / 2 if tx.get("align", "center") == "center" else x
+            if trk:
+                cxp = lx
+                for ch in l:
+                    if tx.get("shadow", True):
+                        dr.text((cxp + 2, y + i * lh + dy + 2), ch, font=f, fill=(0, 0, 0, int(110 * a)))
+                    dr.text((cxp, y + i * lh + dy), ch, font=f, fill=col + (int(255 * a),))
+                    cxp += dr.textlength(ch, font=f) + trk
+                continue
             if tx.get("shadow", True):
                 dr.text((lx + 2, y + i * lh + dy + 2), l, font=f, fill=(0, 0, 0, int(110 * a)))
             dr.text((lx, y + i * lh + dy), l, font=f, fill=col + (int(255 * a),))
@@ -91,10 +114,27 @@ def draw_texts(img, texts, t):
 def draw_tag(img, tag):
     if not tag:
         return img
-    dr = ImageDraw.Draw(img); f = font("M", 22)
+    dr = ImageDraw.Draw(img)
+    if UI:
+        f = font("X", 20); t_ = f"[ {tag} ]"
+        tw = dr.textlength(t_, font=f)
+        dr.text((W - tw - 62, 52), t_, font=f, fill=(255, 255, 255))
+        return img
+    f = font("M", 22)
     tw = dr.textlength(tag, font=f)
     dr.rounded_rectangle((W - tw - 70, 40, W - 40, 80), radius=8, fill=(0, 0, 0))
     dr.text((W - tw - 55, 46), tag, font=f, fill=(255, 255, 255))
+    return img
+
+
+def draw_ui(img, sg, t, k_glob):
+    """cornice tecnica: angoli sottili, intestazione e tempo in monospazio"""
+    dr = ImageDraw.Draw(img); c = (255, 255, 255); L = 34; m = 40
+    for (x0, y0, sx, sy) in ((m, m, 1, 1), (W - m, m, -1, 1), (m, H - m, 1, -1), (W - m, H - m, -1, -1)):
+        dr.line((x0, y0, x0 + sx * L, y0), fill=c, width=2); dr.line((x0, y0, x0, y0 + sy * L), fill=c, width=2)
+    f = font("X", 20)
+    dr.text((62, 52), UI.get("head", "GIORGIO // REV.10"), font=f, fill=c)
+    dr.text((62, H - 76), f"T+{k_glob / FPS:06.2f}", font=f, fill=(200, 200, 200))
     return img
 
 
@@ -235,6 +275,8 @@ def seg_frames(sg):
                 hb = sg["battery"]
                 img = draw_battery(img, hb, hb.get("src0", 0) + (fi * sg.get("step", 1) + sg.get("start", 0)) * hb.get("src_step", 1), t)
             img = draw_images(img, sg.get("images"), t)
+            if UI and sg.get("ui", True):
+                img = draw_ui(img, sg, t, k)
             img = draw_texts(img, sg.get("texts", []), t)
             yield draw_tag(img, sg.get("tag"))
             k += 1
