@@ -715,7 +715,89 @@
    ]
   },
   {
-   "_RL": true
+   "type": "card",
+   "dur": 3.2,
+   "color": [
+    244,
+    244,
+    242
+   ],
+   "texts": [
+    {
+     "t0": 0.2,
+     "t1": 3.2,
+     "text": "Mani abili: si allenano,\nnon si programmano a mano.",
+     "pos": "center",
+     "size": 74,
+     "weight": "M",
+     "color": [
+      30,
+      32,
+      36
+     ],
+     "shadow": false
+    }
+   ]
+  },
+  {
+   "type": "frames",
+   "glob": "v9/rl_prima/f_*.jpg",
+   "tag": "SIMULAZIONE · APPRENDIMENTO PER RINFORZO",
+   "texts": [
+    {
+     "t0": 0.3,
+     "t1": 4.3,
+     "text": "Mano ORCA (open) prima dell'allenamento: il cubo non gira.",
+     "pos": "lower",
+     "size": 46,
+     "weight": "R"
+    }
+   ]
+  },
+  {
+   "type": "card",
+   "dur": 6.0,
+   "bg": "stills_v9/rl_curva.png",
+   "dim": 0.0,
+   "texts": [
+    {
+     "t0": 0.2,
+     "t1": 6.0,
+     "text": "81 minuti su una GPU: 236 milioni di tentativi in 4096 simulazioni parallele",
+     "pos": "upper",
+     "size": 38,
+     "weight": "R",
+     "color": [
+      30,
+      32,
+      36
+     ],
+     "shadow": false
+    }
+   ]
+  },
+  {
+   "type": "frames",
+   "glob": "v9/rl_dopo/f_*.jpg",
+   "tag": "SIMULAZIONE · APPRENDIMENTO PER RINFORZO",
+   "texts": [
+    {
+     "t0": 0.4,
+     "t1": 5.0,
+     "text": "Dopo: gira il cubo con le dita, circa 2 giri ogni 10 secondi,\nlo fa cadere nel 2-3% dei casi.",
+     "pos": "lower",
+     "size": 46,
+     "weight": "R"
+    },
+    {
+     "t0": 5.2,
+     "t1": 9.8,
+     "text": "Prossimo passo: dalla simulazione alla mano vera\n(stima della posa con la camera, modelli dei tendini).",
+     "pos": "lower",
+     "size": 46,
+     "weight": "R"
+    }
+   ]
   },
   {
    "type": "card",

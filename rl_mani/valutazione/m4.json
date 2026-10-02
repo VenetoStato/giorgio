@@ -1,0 +1,13 @@
+{
+ "checkpoint": "runs/r1/modello_iniziale.pt",
+ "passi_addestramento": 0,
+ "episodi": 50,
+ "secondi": 10.0,
+ "randomizzazione": true,
+ "stocastica": false,
+ "rad_per_10s_media": 0.03579464927315712,
+ "rad_per_10s_mediana": 0.0077555058524012566,
+ "rad_per_10s_senza_cadute": 0.08606527000665665,
+ "frac_cadute": 0.16000000000000003,
+ "giri_per_10s_media": 0.005696895066648722
+}

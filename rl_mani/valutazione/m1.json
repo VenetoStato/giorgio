@@ -1,0 +1,13 @@
+{
+ "checkpoint": "politica_orca_cubo.pt",
+ "passi_addestramento": 235929600,
+ "episodi": 50,
+ "secondi": 10.0,
+ "randomizzazione": true,
+ "stocastica": false,
+ "rad_per_10s_media": 12.735060691833496,
+ "rad_per_10s_mediana": 13.686437606811523,
+ "rad_per_10s_senza_cadute": 12.985516548156738,
+ "frac_cadute": 0.020000000000000018,
+ "giri_per_10s_media": 2.0268478393554688
+}
