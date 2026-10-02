@@ -36,7 +36,7 @@ Immagini referenziate (da `../render/stills/`): `hero.png`, `exploded.png`, `cof
 - [ ] Preventivi reali: consulente CE / valutazione dei rischi, gusci SLS in piccola serie, tempi di consegna OpenArm (Enactic) e Tracer (AgileX)
 - [ ] Licenze open definitive per gusci/volto/software (proposte: CERN-OHL-W 2.0 e Apache-2.0) e repository pubblico
 - [ ] Verifica licenza LEAP Hand (CAD solo uso non commerciale) prima di offrirla in qualsiasi kit
-- [ ] Revisione marchi: Nespresso/De'Longhi, Generative Bionics/GENE.01 citati solo a confronto con disclaimer di non affiliazione
+- [ ] Revisione marchi: macchina del caffè generica (nessuna marca); Generative Bionics/GENE.01 citati solo a confronto con disclaimer di non affiliazione
 - [ ] Costi di spedizione per Face kit, zaino-caffè e Body Kit (UE / extra UE)
 - [ ] Pagina pre-lancio "Notify me" + lista email
 - [ ] Montaggio video secondo `video_script.md` (versione Kickstarter solo con riprese reali)

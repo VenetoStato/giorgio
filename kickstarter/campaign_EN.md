@@ -80,7 +80,7 @@ At the workstation Giorgio uses the stereo camera to locate parts and insert the
 
 ![Coffee — render/simulation](../render/stills/coffee.png)
 
-On Giorgio's back is a coffee backpack: a stock **De'Longhi Nespresso Inissia (EN80)**, a stack of cups and a small linear-actuator shuttle on the flip-up cup support.
+On Giorgio's back is a coffee backpack: a stock **commercial capsule machine** (brand-agnostic: any compact model with a button on top works), a stack of cups and a small linear-actuator shuttle on the flip-up cup support.
 
 - the right arm takes a cup and places it on the shuttle;
 - it presses the machine's button (we don't modify the machine — Giorgio uses it like you would);
@@ -123,7 +123,7 @@ We say "open" only where it truly is.
 | Manipulation vision | Orbbec Gemini 336L | commercial, public SDK |
 | 360° vision | Insta360 X4 | commercial |
 | Compute | NVIDIA Jetson AGX Orin | commercial |
-| Coffee machine | De'Longhi Nespresso Inissia EN80 | commercial, stock, unmodified |
+| Coffee machine | compact capsule machine, brand of your choice | commercial, stock, unmodified |
 | LLM planner | Claude (Anthropic), cloud API | commercial service, replaceable |
 | **Shells, column, mounts, head** | Giorgio project | **Open** — CAD/STL released (proposed licence: CERN-OHL-W 2.0) |
 | **Face: eyes + moustache + LEDs** | Giorgio project | **Open** — schematics and firmware (proposed: CERN-OHL-W 2.0 / Apache-2.0) |
@@ -175,7 +175,7 @@ Giorgio is an alternative to the big closed humanoids — think of projects like
 | Vision | Orbbec Gemini 336L (head), OpenArm wrist cameras, Insta360 X4 360° on mast |
 | Compute | NVIDIA Jetson AGX Orin |
 | Face | 2× round 1.28" GC9A01 displays, backlit LED moustache, status LED strip |
-| Coffee | De'Longhi Nespresso Inissia EN80, linear-actuator shuttle, cup stack |
+| Coffee | compact capsule machine (brand of your choice), linear-actuator shuttle, cup stack |
 | Control | System 1 (router < 1 ms, offline) + System 2 (LLM planner, cloud) |
 | Charging | automatic docking station |
 | Runtime, max working speed | [to be defined with the prototype and the risk assessment] |
@@ -199,7 +199,7 @@ Here are the numbers. Euros, excluding VAT.
 | Tray, column, mounts | 500 |
 | Painted SLS PA12 shells | 1,800 |
 | Eyes + LEDs | 40 |
-| Coffee backpack (Inissia + shuttle actuator + cup holder) | ~250 |
+| Coffee backpack (capsule machine + shuttle actuator + cup holder) | ~250 |
 | Charging dock | 900 |
 | Cabling and power | 600 |
 | Assembly and test (35 h) | 1,750 |
@@ -229,7 +229,7 @@ The **face kit**: two round 1.28" GC9A01 displays, controller board, backlit LED
 *Estimated delivery: September 2027.*
 
 ### €1,190 — Coffee backpack for OpenArm
-For **OpenArm 2.0** owners: stock Nespresso Inissia, linear-actuator shuttle with electronics, cup holder, mounting plate, open `fai_caffe` skill and calibration guide. Arm and base not included.
+For **OpenArm 2.0** owners: mount for a compact capsule machine (you pick the machine), linear-actuator shuttle with electronics, cup holder, mounting plate, open `fai_caffe` skill and calibration guide. Arm and base not included.
 *Estimated delivery: December 2027.*
 
 ### €4,900 — Adopt Giorgio for a week (limited: 6)
@@ -306,7 +306,7 @@ Here's where things can go wrong.
 - **CE marking.** The risk assessment may require changes (lower speeds, larger fields, extra guarding). If marking takes longer, complete-Giorgio deliveries slip. We prefer it that way.
 - **Supply of OpenArm and other parts.** OpenArm 2.0 is ordered from Enactic, with lead times and USD prices that can change; the same applies to Tracer, Jetson and scanners. We have margin for price swings, not for a supply crisis: in that case we'll delay and tell you immediately.
 - **Cloud dependency.** The System 2 planner currently uses a language model via API: without network Giorgio still runs direct System 1 commands but can't plan complex sentences. We're evaluating local planners on the Jetson.
-- **The coffee machine.** We use a stock, unmodified Inissia in a way it wasn't designed for (a robot presses it): the manufacturer's warranty may not cover this use.
+- **The coffee machine.** We use a stock, unmodified capsule machine in a way it wasn't designed for (a robot presses it): the manufacturer's warranty may not cover this use.
 - **We're a small team.** [to be completed: team's hardware-building track record]
 
 ---
@@ -326,10 +326,10 @@ As a development platform, in a controlled area with trained staff, yes. As a CE
 We haven't found a mature open one with the same reliability and ROS support. The Tracer 2.0 is commercial and we say so. If a good open one appears, Giorgio will adopt it.
 
 **Does it really make coffee?**
-Yes, with a real Nespresso Inissia on its back. And worst case, it's a very expensive coffee machine.
+Yes, with a real capsule machine on its back. And worst case, it's a very expensive coffee machine.
 
 **Which coffee?**
-Capsules compatible with the Inissia. We're not affiliated with Nespresso or De'Longhi; trademarks belong to their owners.
+Whatever capsules your machine takes. Giorgio isn't tied to any machine or capsule brand.
 
 **Are dexterous hands included?**
 No. They're an experimental option that will become reliable with teleoperation data (see the €150,000 stretch goal).

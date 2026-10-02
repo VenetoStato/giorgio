@@ -1,0 +1,839 @@
+{
+ "fps": 30,
+ "size": [
+  1920,
+  1080
+ ],
+ "music": "music_v9.wav",
+ "xfade": 0.5,
+ "segments": [
+  {
+   "type": "card",
+   "dur": 5.0,
+   "color": [
+    244,
+    244,
+    242
+   ],
+   "images": [
+    {
+     "path": "logo/logo_full.png",
+     "t0": 0.2,
+     "t1": 5.0,
+     "pos": [
+      960,
+      470
+     ],
+     "w": 1150
+    }
+   ],
+   "texts": [
+    {
+     "t0": 1.2,
+     "t1": 5.0,
+     "text": "una piattaforma robotica di servizio · aperta · modulare",
+     "pos": "sub2",
+     "size": 38,
+     "weight": "L",
+     "color": [
+      110,
+      112,
+      118
+     ],
+     "shadow": false
+    }
+   ]
+  },
+  {
+   "type": "frames",
+   "glob": "v9/p_logo/f_*.jpg",
+   "tag": "RENDER",
+   "texts": [
+    {
+     "t0": 0.6,
+     "t1": 4.0,
+     "text": "Giorgio. Il logo è una tazzina di caffè: la G è il vapore.",
+     "pos": "lower",
+     "size": 46,
+     "weight": "R"
+    }
+   ]
+  },
+  {
+   "type": "frames",
+   "glob": "v9/p_espr/f_*.jpg",
+   "tag": "RENDER",
+   "texts": [
+    {
+     "t0": 0.4,
+     "t1": 5.6,
+     "text": "Il volto è uno schermo LED: espressioni, attenzione, stato.",
+     "pos": "lower",
+     "size": 46,
+     "weight": "R"
+    }
+   ]
+  },
+  {
+   "type": "card",
+   "dur": 3.2,
+   "color": [
+    244,
+    244,
+    242
+   ],
+   "texts": [
+    {
+     "t0": 0.2,
+     "t1": 3.2,
+     "text": "Una piattaforma,\ntante configurazioni",
+     "pos": "center",
+     "size": 80,
+     "weight": "M",
+     "color": [
+      30,
+      32,
+      36
+     ],
+     "shadow": false
+    }
+   ]
+  },
+  {
+   "type": "card",
+   "dur": 3.4,
+   "bg": "stills_v9/cfg1_barista.png",
+   "dim": 0.0,
+   "zoom": 0.04,
+   "xfade": 0.35,
+   "texts": [
+    {
+     "t0": 0.2,
+     "t1": 3.4,
+     "text": "Barista",
+     "pos": [
+      110,
+      790
+     ],
+     "size": 74,
+     "weight": "M",
+     "color": [
+      30,
+      32,
+      36
+     ],
+     "shadow": false,
+     "align": "left"
+    },
+    {
+     "t0": 0.35,
+     "t1": 3.4,
+     "text": "pinze + modulo caffè sulla schiena",
+     "pos": [
+      112,
+      885
+     ],
+     "size": 40,
+     "weight": "L",
+     "color": [
+      110,
+      112,
+      118
+     ],
+     "shadow": false,
+     "align": "left"
+    },
+    {
+     "t0": 0.2,
+     "t1": 3.4,
+     "text": "stessa base, stesso busto: cambiano mani e modulo",
+     "pos": [
+      110,
+      90
+     ],
+     "size": 34,
+     "weight": "R",
+     "color": [
+      30,
+      32,
+      36
+     ],
+     "shadow": false,
+     "align": "left"
+    }
+   ]
+  },
+  {
+   "type": "card",
+   "dur": 3.4,
+   "bg": "stills_v9/cfg2_logistica.png",
+   "dim": 0.0,
+   "zoom": 0.04,
+   "xfade": 0.35,
+   "texts": [
+    {
+     "t0": 0.2,
+     "t1": 3.4,
+     "text": "Logistica",
+     "pos": [
+      110,
+      790
+     ],
+     "size": 74,
+     "weight": "M",
+     "color": [
+      30,
+      32,
+      36
+     ],
+     "shadow": false,
+     "align": "left"
+    },
+    {
+     "t0": 0.35,
+     "t1": 3.4,
+     "text": "pinze + vassoio di carico sul petto",
+     "pos": [
+      112,
+      885
+     ],
+     "size": 40,
+     "weight": "L",
+     "color": [
+      110,
+      112,
+      118
+     ],
+     "shadow": false,
+     "align": "left"
+    },
+    {
+     "t0": 0.2,
+     "t1": 3.4,
+     "text": "stessa base, stesso busto: cambiano mani e modulo",
+     "pos": [
+      110,
+      90
+     ],
+     "size": 34,
+     "weight": "R",
+     "color": [
+      30,
+      32,
+      36
+     ],
+     "shadow": false,
+     "align": "left"
+    }
+   ]
+  },
+  {
+   "type": "card",
+   "dur": 3.4,
+   "bg": "stills_v9/cfg3_mani_orca.png",
+   "dim": 0.0,
+   "zoom": 0.04,
+   "xfade": 0.35,
+   "texts": [
+    {
+     "t0": 0.2,
+     "t1": 3.4,
+     "text": "Mani abili",
+     "pos": [
+      110,
+      790
+     ],
+     "size": 74,
+     "weight": "M",
+     "color": [
+      30,
+      32,
+      36
+     ],
+     "shadow": false,
+     "align": "left"
+    },
+    {
+     "t0": 0.35,
+     "t1": 3.4,
+     "text": "ORCA Hand · open (CC BY 4.0)",
+     "pos": [
+      112,
+      885
+     ],
+     "size": 40,
+     "weight": "L",
+     "color": [
+      110,
+      112,
+      118
+     ],
+     "shadow": false,
+     "align": "left"
+    },
+    {
+     "t0": 0.2,
+     "t1": 3.4,
+     "text": "stessa base, stesso busto: cambiano mani e modulo",
+     "pos": [
+      110,
+      90
+     ],
+     "size": 34,
+     "weight": "R",
+     "color": [
+      30,
+      32,
+      36
+     ],
+     "shadow": false,
+     "align": "left"
+    }
+   ]
+  },
+  {
+   "type": "card",
+   "dur": 3.4,
+   "bg": "stills_v9/cfg4_lowcost.png",
+   "dim": 0.0,
+   "zoom": 0.04,
+   "xfade": 0.35,
+   "texts": [
+    {
+     "t0": 0.2,
+     "t1": 3.4,
+     "text": "Low-cost",
+     "pos": [
+      110,
+      790
+     ],
+     "size": 74,
+     "weight": "M",
+     "color": [
+      30,
+      32,
+      36
+     ],
+     "shadow": false,
+     "align": "left"
+    },
+    {
+     "t0": 0.35,
+     "t1": 3.4,
+     "text": "AmazingHand · open · senza zaino",
+     "pos": [
+      112,
+      885
+     ],
+     "size": 40,
+     "weight": "L",
+     "color": [
+      110,
+      112,
+      118
+     ],
+     "shadow": false,
+     "align": "left"
+    },
+    {
+     "t0": 0.2,
+     "t1": 3.4,
+     "text": "stessa base, stesso busto: cambiano mani e modulo",
+     "pos": [
+      110,
+      90
+     ],
+     "size": 34,
+     "weight": "R",
+     "color": [
+      30,
+      32,
+      36
+     ],
+     "shadow": false,
+     "align": "left"
+    }
+   ]
+  },
+  {
+   "type": "frames",
+   "glob": "v9/p_expl/f_*.jpg",
+   "tag": "RENDER",
+   "labels": "lab_expl.json",
+   "names": {
+    "testa": [
+     "Testa",
+     "matrice LED 32×16 · Insta360 X4 (camera 360°)"
+    ],
+    "braccio_sx": [
+     "Enactic OpenArm 2.0",
+     "open hardware CERN-OHL-S-2.0 · software Apache-2.0"
+    ],
+    "braccio_dx": [
+     "Pinze OpenArm",
+     "oppure mani open ORCA / AmazingHand"
+    ],
+    "busto": [
+     "Busto",
+     "Orbbec Gemini 336L sul petto · gusci SLS aperti"
+    ],
+    "vassoio": [
+     "Vassoio di bordo",
+     "6 alloggi svasati"
+    ],
+    "caffe": [
+     "Modulo caffè",
+     "macchina a capsule commerciale, marca a scelta"
+    ],
+    "scanner": [
+     "Sicurezza",
+     "2× SICK nanoScan3 + Pilz (certificati)"
+    ],
+    "base": [
+     "AgileX Tracer 2.0",
+     "base commerciale, programmabile con ROS 2"
+    ]
+   },
+   "texts": [
+    {
+     "t0": 0.4,
+     "t1": 4.0,
+     "text": "Cosa c'è dentro: progetti open e componenti commerciali.",
+     "pos": "lower",
+     "size": 46,
+     "weight": "R"
+    }
+   ],
+   "lab_t0": 3.2
+  },
+  {
+   "type": "card",
+   "dur": 8.0,
+   "bg": "stills_v9/codice.png",
+   "dim": 0.0
+  },
+  {
+   "type": "frames",
+   "glob": "v9/l_drive/f_*.jpg",
+   "tag": "SIMULAZIONE · 2×",
+   "texts": [
+    {
+     "t0": 0.4,
+     "t1": 5.0,
+     "text": "La base è una AgileX Tracer 2.0, di serie:\nla comandi con ROS 2 e Nav2, come ogni robot mobile.",
+     "pos": "lower",
+     "size": 46,
+     "weight": "R"
+    }
+   ]
+  },
+  {
+   "type": "frames",
+   "glob": "v9/d_energia/f_*.jpg"
+  },
+  {
+   "type": "frames",
+   "glob": "v9/b_xray/f_*.jpg",
+   "tag": "RENDER · BASE IN TRASPARENZA",
+   "labels": "lab_base.json",
+   "lab_t0": 0.8,
+   "names": {
+    "pw_battery": [
+     "Batteria 48 V LiFePO4",
+     "1,92 kWh · BMS"
+    ],
+    "pw_dcdc0": [
+     "Convertitori DC-DC",
+     "48 V / 24 · 19 · 5 V"
+    ],
+    "pw_contactor": [
+     "Contattori di sicurezza",
+     "staccano i bracci"
+    ],
+    "pw_pnoz": [
+     "Relè di sicurezza",
+     "Pilz PNOZ"
+    ],
+    "pw_charger": [
+     "Caricatore 24 V",
+     "per la batteria della base"
+    ],
+    "pw_jetson": [
+     "Computer",
+     "NVIDIA Jetson AGX Orin"
+    ],
+    "charge_pad1": [
+     "Contatti di ricarica",
+     "rame, a molla"
+    ],
+    "pw_tracer": [
+     "Base AgileX Tracer 2.0",
+     "commerciale · ROS 2"
+    ]
+   },
+   "texts": [
+    {
+     "t0": 0.3,
+     "t1": 5.5,
+     "text": "Dentro la base: batteria, convertitori, sicurezza.",
+     "pos": "upper",
+     "size": 46,
+     "weight": "R"
+    }
+   ]
+  },
+  {
+   "type": "frames",
+   "glob": "v9/r_wide/f_*.jpg",
+   "tag": "SIMULAZIONE · 2×",
+   "battery": {
+    "json": "ricarica_energia.json",
+    "src_step": 2
+   },
+   "texts": [
+    {
+     "t0": 0.5,
+     "t1": 6.0,
+     "text": "Batteria bassa? Va da solo alla stazione di ricarica.",
+     "pos": "lower",
+     "size": 46,
+     "weight": "R"
+    }
+   ]
+  },
+  {
+   "type": "frames",
+   "glob": "v9/r_close/f_*.jpg",
+   "tag": "SIMULAZIONE",
+   "battery": {
+    "json": "ricarica_energia.json",
+    "src0": 600,
+    "src_step": 1
+   },
+   "texts": [
+    {
+     "t0": 0.4,
+     "t1": 4.2,
+     "text": "Aggancio in anello chiuso: si ferma quando le molle dei contatti sono compresse.",
+     "pos": "lower",
+     "size": 46,
+     "weight": "R"
+    },
+    {
+     "t0": 4.4,
+     "t1": 8.0,
+     "text": "Provato da 10 punti di partenza casuali: 10 agganci su 10.\n(nel video la ricarica è accelerata)",
+     "pos": "lower",
+     "size": 46,
+     "weight": "R"
+    }
+   ]
+  },
+  {
+   "type": "card",
+   "dur": 3.0,
+   "color": [
+    244,
+    244,
+    242
+   ],
+   "texts": [
+    {
+     "t0": 0.2,
+     "t1": 3.0,
+     "text": "Non una macchina per un compito:\nun collega per tanti.",
+     "pos": "center",
+     "size": 72,
+     "weight": "M",
+     "color": [
+      30,
+      32,
+      36
+     ],
+     "shadow": false
+    }
+   ]
+  },
+  {
+   "type": "frames",
+   "glob": "v9/l_carico/f_*.jpg",
+   "tag": "SIMULAZIONE · 4×",
+   "texts": [
+    {
+     "t0": 0.4,
+     "t1": 4.5,
+     "text": "Logistica: vede i flaconi e si carica da solo.",
+     "pos": "lower",
+     "size": 46,
+     "weight": "R"
+    }
+   ]
+  },
+  {
+   "type": "frames",
+   "glob": "v9/l_cross/f_*.jpg",
+   "tag": "SIMULAZIONE",
+   "texts": [
+    {
+     "t0": 0.4,
+     "t1": 3.4,
+     "text": "Laser scanner di sicurezza: se passi rallenta, se ti avvicini si ferma.",
+     "pos": "lower",
+     "size": 46,
+     "weight": "R"
+    }
+   ]
+  },
+  {
+   "type": "frames",
+   "glob": "v9/l_ins/f_*.jpg",
+   "slow": 2,
+   "tag": "SIMULAZIONE · 0,5×",
+   "texts": [
+    {
+     "t0": 0.3,
+     "t1": 5.5,
+     "text": "Precisione: inserisce i flaconi guidato dalla visione 3D.",
+     "pos": "lower",
+     "size": 46,
+     "weight": "R"
+    }
+   ]
+  },
+  {
+   "type": "frames",
+   "glob": "v9/l_oper/f_*.jpg",
+   "tag": "SIMULAZIONE · 6×",
+   "texts": [
+    {
+     "t0": 0.4,
+     "t1": 4.5,
+     "text": "Lavora accanto alle persone, non al posto loro.",
+     "pos": "lower",
+     "size": 46,
+     "weight": "R"
+    }
+   ]
+  },
+  {
+   "type": "frames",
+   "glob": "v9/s_smista/f_*.jpg",
+   "tag": "SIMULAZIONE · 4×",
+   "texts": [
+    {
+     "t0": 0.4,
+     "t1": 4.5,
+     "text": "Smista pezzi per colore, senza urtare quelli già messi via.",
+     "pos": "lower",
+     "size": 46,
+     "weight": "R"
+    }
+   ]
+  },
+  {
+   "type": "frames",
+   "glob": "v9/c_bicchiere/f_*.jpg",
+   "tag": "SIMULAZIONE",
+   "texts": [
+    {
+     "t0": 0.3,
+     "t1": 5.3,
+     "text": "Il caffè, passo per passo.\n1 · prende un bicchiere dalla pila e lo mette sulla navetta",
+     "pos": "lower",
+     "size": 46,
+     "weight": "R"
+    }
+   ]
+  },
+  {
+   "type": "frames",
+   "glob": "v9/c_eroga/f_*.jpg",
+   "tag": "SIMULAZIONE · 3×",
+   "texts": [
+    {
+     "t0": 0.2,
+     "t1": 1.9,
+     "text": "2 · avvia la macchina: una qualsiasi a capsule",
+     "pos": "lower",
+     "size": 46,
+     "weight": "R"
+    },
+    {
+     "t0": 2.0,
+     "t1": 3.6,
+     "text": "3 · la navetta porta il bicchiere sotto l'erogatore",
+     "pos": "lower",
+     "size": 46,
+     "weight": "R"
+    },
+    {
+     "t0": 3.7,
+     "t1": 7.6,
+     "text": "4 · erogazione  ·  5 · la navetta riporta fuori il bicchiere",
+     "pos": "lower",
+     "size": 46,
+     "weight": "R"
+    }
+   ]
+  },
+  {
+   "type": "frames",
+   "glob": "v9/c_prende/f_*.jpg",
+   "tag": "SIMULAZIONE",
+   "texts": [
+    {
+     "t0": 0.3,
+     "t1": 5.5,
+     "text": "6 · prende il caffè pieno…",
+     "pos": "lower",
+     "size": 46,
+     "weight": "R"
+    }
+   ]
+  },
+  {
+   "type": "frames",
+   "glob": "v9/c_consegna/f_*.jpg",
+   "tag": "SIMULAZIONE · 2×",
+   "texts": [
+    {
+     "t0": 0.4,
+     "t1": 3.0,
+     "text": "…e te lo porta.",
+     "pos": "lower",
+     "size": 46,
+     "weight": "R"
+    },
+    {
+     "t0": 3.2,
+     "t1": 7.5,
+     "text": "Buon caffè, Marco.",
+     "pos": "lower",
+     "size": 46,
+     "weight": "R"
+    }
+   ]
+  },
+  {
+   "_RL": true
+  },
+  {
+   "type": "card",
+   "dur": 6.5,
+   "bg": "stills_v9/cfg1_barista.png",
+   "dim": 0.72,
+   "blur": 14,
+   "chat": [
+    {
+     "t": 0.4,
+     "who": "user",
+     "text": "Giorgio, fammi un caffè e portalo a Marco."
+    },
+    {
+     "t": 1.8,
+     "who": "sys",
+     "text": "Sistema 1 · router locale · 0,3 ms"
+    },
+    {
+     "t": 2.4,
+     "who": "giorgio",
+     "text": "fai_caffe()  ›  porta_caffe(Marco)"
+    },
+    {
+     "t": 3.8,
+     "who": "sys",
+     "text": "Sistema 2 · Claude, per le richieste complesse"
+    }
+   ],
+   "texts": [
+    {
+     "t0": 0.2,
+     "t1": 6.5,
+     "text": "Gli parli. Lui pianifica con le sue abilità reali.",
+     "pos": "upper",
+     "size": 44,
+     "weight": "L"
+    }
+   ]
+  },
+  {
+   "type": "card",
+   "dur": 4.5,
+   "bg": "stills_v9/cfg1_barista.png",
+   "dim": 0.55,
+   "texts": [
+    {
+     "t0": 0.3,
+     "t1": 4.5,
+     "text": "E alla peggio…",
+     "pos": "center",
+     "size": 70,
+     "weight": "L"
+    },
+    {
+     "t0": 1.5,
+     "t1": 4.5,
+     "text": "è una costosa macchinetta del caffè.",
+     "pos": "sub",
+     "size": 56,
+     "weight": "M"
+    }
+   ]
+  },
+  {
+   "type": "card",
+   "dur": 4.5,
+   "bg": "stills_v9/cfg1_barista.png",
+   "dim": 0.74,
+   "blur": 5,
+   "zoom": 0.03,
+   "texts": [
+    {
+     "t0": 0.3,
+     "t1": 4.5,
+     "text": "Giorgio",
+     "pos": "center",
+     "size": 110,
+     "weight": "L"
+    },
+    {
+     "t0": 1.0,
+     "t1": 4.5,
+     "text": "da € 39.900 + IVA",
+     "pos": "sub",
+     "size": 56,
+     "weight": "R"
+    },
+    {
+     "t0": 1.8,
+     "t1": 4.5,
+     "text": "prezzo indicativo · componenti ≈ € 28.000 + montaggio · margine 30%",
+     "pos": "sub2",
+     "size": 26,
+     "weight": "L"
+    }
+   ]
+  },
+  {
+   "type": "card",
+   "dur": 5.0,
+   "color": [
+    244,
+    244,
+    242
+   ],
+   "images": [
+    {
+     "path": "logo/logo_full.png",
+     "t0": 0.2,
+     "t1": 5.0,
+     "pos": [
+      960,
+      500
+     ],
+     "w": 1050
+    }
+   ]
+  }
+ ]
+}

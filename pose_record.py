@@ -9,7 +9,8 @@ import numpy as np
 out = sys.argv[1] if len(sys.argv) > 1 else "render/rec_pose.pkl"
 MODE = sys.argv[2] if len(sys.argv) > 2 else "lavoro"
 EXPR = MODE == "espressioni"                     # sequenza di espressioni per il primo piano dei baffi
-sys.argv = ["giorgio_v5.py", "--record", out, "--seconds", "13.0" if MODE == "espressioni" else "3.0", "--no_humans"]
+HANDS = sys.argv[3] if len(sys.argv) > 3 else "gripper"   # configurazione delle mani: gripper | orca | amazing
+sys.argv = ["giorgio_v5.py", "--record", out, "--seconds", "13.0" if MODE == "espressioni" else "3.0", "--no_humans", "--hands", HANDS]
 src = open(__file__.replace("pose_record.py", "giorgio_v5.py")).read()
 pre, post = src.split("# ---------------------------------------------------------------- uscite")
 exec(compile(pre, "giorgio_v5", "exec"))

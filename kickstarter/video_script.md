@@ -59,5 +59,5 @@ Stile: essenziale, emotivo, "Apple/Figure". Sfondo studio bianco/grigio caldo, l
 - Voce: maschile o femminile, calda, ritmo lento; nella battuta del caffè un sorriso nella voce, non una risata.
 - Versione EN: stessa base video, sottotitoli IT/EN bruciati separati.
 - Formati: 16:9 (Kickstarter, YouTube), tagli 9:16 da 30 s per Instagram/LinkedIn (scene 2, 5, 7, 10).
-- Il pulsante della Inissia viene premuto dalla pinza: inquadrarlo bene, è il momento che la gente ricorda.
-- Marchi: nessun logo Nespresso/De'Longhi in primo piano; nessun riferimento a GENE.01 nel video.
+- Il pulsante della macchina viene premuto dalla pinza: inquadrarlo bene, è il momento che la gente ricorda.
+- Marchi: macchina del caffè senza marca (generica); nessun riferimento a GENE.01 nel video.

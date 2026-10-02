@@ -1631,7 +1631,7 @@ Abilita' disponibili (usa SOLO queste):
 - vai_a(target): target = A (baia di carico), B (banco di inserimento), C (stazione di ricarica) oppure il nome di una persona.
 - carica(): in A Giorgio carica da solo i flaconi dal vassoio di kitting con la visione (6 sul vassoio frontale, 2 nelle pinze). Va prima in A se serve.
 - scarica_e_inserisci(): in B, la visione trova i fori e Giorgio inserisce i flaconi che ha a bordo.
-- fai_caffe(): prepara un caffe' con la De'Longhi a capsule integrata sulla schiena (bicchiere -> navetta -> pulsante -> erogazione, ~40 s). Modalita' caffe'.
+- fai_caffe(): prepara un caffe' con la macchina a capsule integrata sulla schiena (bicchiere -> navetta -> pulsante -> erogazione, ~40 s). Modalita' caffe'.
 - porta_caffe(target): va dalla persona con il bicchiere in mano e glielo porge (la persona lo prende).
 - ricarica(): va alla stazione C e si mette in carica.
 - di(testo): dice una frase breve.
@@ -1884,7 +1884,7 @@ PLATE_Z = COF_SH + COF_LIFT + 0.006 + 0.004                       # piano della 
 
 
 def coffee_skill(sk_, k):
-    """caffe' con la Inissia sullo zaino: bicchiere dalla pila -> navetta -> pulsante -> erogazione -> bicchiere pieno in mano"""
+    """caffe' con la macchina a capsule sullo zaino: bicchiere dalla pila -> navetta -> pulsante -> erogazione -> bicchiere pieno in mano"""
     a = arms["right"]; AG["mode"] = "caffe"
     if sk_.phase == 0 and not a.busy:
         cp = d.body("cup").xpos.copy()
@@ -1902,7 +1902,7 @@ def coffee_skill(sk_, k):
     elif sk_.phase == 2 and sk_.t > 2.2:                     # navetta sotto l'erogatore
         sk_.phase = 3; sk_.t = 0.0
     elif sk_.phase == 3:                                     # erogazione (8 s nel video, ~25 s reali)
-        BAT["heater"] = True                                 # resistenza della De'Longhi accesa durante l'erogazione
+        BAT["heater"] = True                                 # resistenza della macchina accesa durante l'erogazione
         u = min(1.0, sk_.t / 8.0)
         g = m.geom("cup_coffee").id; m.geom_size[g][1] = 0.0005 + 0.028 * u; m.geom_pos[g][2] = -CUP_H / 2 + 0.002 + 0.028 * u
         m.geom_rgba[m.geom("cm_stream").id][3] = 1.0 if 0.03 < u < 0.97 else 0.0
@@ -2276,7 +2276,7 @@ elif args.record:
               "charger_led", "status_led0", "status_led1", "status_led2", "status_led3"]
     ANIM = [m.geom(n).id for n in ANIM_N]
     hum = [m.geom(f"h{h}_{k}_g").id for h in range(NH) for k in range(N_SEG)]
-    XP, XQ, ZONE, SIZES, AN, ST, HRGB, FC = [], [], [], [], [], [], [], []
+    XP, XQ, ZONE, SIZES, AN, ST, HRGB, FC, EN = [], [], [], [], [], [], [], [], []
     t_next = 0.0
     while not finished():
         control_step()
@@ -2285,12 +2285,12 @@ elif args.record:
             XP.append(d.xpos.copy()); XQ.append(d.xquat.copy()); ZONE.append(state["zone"]); ST.append(mission["state"])
             SIZES.append(np.array([m.geom_size[g] for g in hum]) if hum else np.zeros((0, 3)))
             HRGB.append(np.array([m.geom_rgba[g] for g in hum]) if hum else np.zeros((0, 4)))
-            FC.append(list(FACE))
+            FC.append(list(FACE)); EN.append([soc(), float(BAT["charging"]), BAT["P"]])
             AN.append(np.array([np.r_[m.geom_pos[g], m.geom_quat[g], m.geom_size[g],
                                 (m.geom_rgba[g] if m.geom_matid[g] < 0 else np.r_[m.mat_rgba[m.geom_matid[g]][:3], m.geom_rgba[g][3]])] for g in ANIM]))
     pickle.dump(dict(geoms=geoms, xpos=np.array(XP), xquat=np.array(XQ), zone=np.array(ZONE), hum=hum, hum_sizes=np.array(SIZES),
                      hum_rgba=np.array(HRGB), n_seg=N_SEG, face=np.array(FC),
-                     anim=np.array(AN), anim_names=ANIM_N, states=ST,
+                     anim=np.array(AN), anim_names=ANIM_N, states=ST, energy=np.array(EN),
                      body_names=[m.body(i).name for i in range(m.nbody)], r_prot=R_PROT, r_warn=R_WARN, stats=stats), open(args.record, "wb"))
     print(f"registrati {len(XP)} fotogrammi -> {args.record}", flush=True)
 else:

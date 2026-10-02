@@ -168,6 +168,26 @@ def build(look="gb", hands="gripper", humans=2, fixed_base=True, base="cart", bu
     for k_, sy_ in enumerate((-0.06, 0.06)):          # pattini di ricarica (rame) sul paraurti frontale: 48 V verso la stazione
         amr.add_geom(name=f"charge_pad{k_}", type=mujoco.mjtGeom.mjGEOM_BOX, pos=[0.378, sy_, 0.14], size=[0.004, 0.025, 0.012],
                      rgba=[0.72, 0.45, 0.2, 1], contype=0, conaffinity=0, group=GROUP_ROBOT, mass=0)
+    # impianto elettrico sotto la carenatura (visibile nei render in trasparenza): 48 V SELV, un solo punto di ricarica
+    PW = [("pw_battery", (-0.10, 0.0, 0.245), (0.20, 0.11, 0.040), (0.15, 0.32, 0.62)),      # pacco LiFePO4 48 V 40 Ah (1,92 kWh) + BMS
+          ("pw_bms", (0.13, 0.0, 0.232), (0.035, 0.07, 0.012), (0.10, 0.45, 0.20)),
+          ("pw_dcdc0", (0.19, 0.12, 0.235), (0.035, 0.045, 0.022), (0.75, 0.75, 0.78)),        # DC-DC 48 -> 24 V bracci
+          ("pw_dcdc1", (0.19, -0.12, 0.235), (0.035, 0.045, 0.022), (0.75, 0.75, 0.78)),       # DC-DC 48 -> 24 V sensori / 19 V Jetson / 5 V
+          ("pw_contactor", (0.27, 0.0, 0.235), (0.025, 0.05, 0.022), (0.85, 0.12, 0.10)),      # contattori DC di sicurezza (PNOZ)
+          ("pw_pnoz", (0.27, 0.17, 0.235), (0.02, 0.045, 0.022), (0.95, 0.80, 0.10)),          # relè di sicurezza Pilz PNOZmulti
+          ("pw_charger", (-0.26, 0.15, 0.235), (0.05, 0.05, 0.022), (0.25, 0.25, 0.27)),       # caricatore 48 -> 24 V della batteria Tracer
+          ("pw_jetson", (-0.26, -0.15, 0.235), (0.05, 0.05, 0.020), (0.12, 0.12, 0.13)),       # NVIDIA Jetson AGX Orin
+          ("pw_tracer", (0.0, 0.0, 0.135), (0.33, 0.28, 0.07), (0.10, 0.10, 0.11))]            # base AgileX Tracer 2.0 (commerciale, SDK ROS 2 aperto)
+    for nm_, p_, h_, c_ in PW:
+        amr.add_geom(name=nm_, type=mujoco.mjtGeom.mjGEOM_BOX, pos=list(p_), size=list(h_), rgba=list(c_) + [1],
+                     contype=0, conaffinity=0, group=GROUP_ROBOT, mass=0)
+    for k_, (a_, b_) in enumerate((((0.37, -0.06, 0.14), (0.27, -0.03, 0.235)), ((0.37, 0.06, 0.14), (0.27, 0.03, 0.235)),   # pattini -> contattori
+                                   ((0.25, 0.0, 0.235), (0.10, 0.0, 0.245)),                                                 # contattori -> batteria
+                                   ((0.10, 0.04, 0.27), (0.19, 0.12, 0.25)), ((0.10, -0.04, 0.27), (0.19, -0.12, 0.25)),     # batteria -> DC-DC
+                                   ((0.19, 0.12, 0.257), (-0.06, 0.03, 0.29)), ((0.19, -0.12, 0.257), (-0.06, -0.03, 0.29)))):   # DC-DC -> colonna
+        a_, b_ = np.array(a_), np.array(b_)
+        amr.add_geom(name=f"pw_cable{k_}", type=mujoco.mjtGeom.mjGEOM_CAPSULE, fromto=list(a_) + list(b_), size=[0.005, 0, 0],
+                     rgba=[0.95, 0.45, 0.1, 1], contype=0, conaffinity=0, group=GROUP_ROBOT, mass=0)
     amr.add_geom(name="status_led0", type=mujoco.mjtGeom.mjGEOM_MESH, meshname="led_band", pos=[0, 0, 0.262],
                  rgba=[0.2, 1.0, 0.45, 1], contype=0, conaffinity=0, group=GROUP_ROBOT, mass=0)
     for k_ in (1, 2, 3):                                   # compatibilita': una sola striscia continua
@@ -249,7 +269,7 @@ def build(look="gb", hands="gripper", humans=2, fixed_base=True, base="cart", bu
         for sy in (-1, 1):                                   # bracci di sostegno dal busto
             amr.add_geom(name=f"tray_arm{sy}", type=mujoco.mjtGeom.mjGEOM_BOX, pos=[(x0 + 0.02) / 2, sy * 0.06, BUF_Z - 0.03],
                          size=[(x0 + 0.02) / 2 + 0.03, 0.012, 0.015], material="dark", contype=0, conaffinity=0, group=GROUP_ROBOT, mass=0.3)
-    # zaino caffe' sul retro: De'Longhi Nespresso Inissia EN80 (120 x 230 x 320 mm, 2.4 kg, ~90 EUR) su mensola dietro la colonna,
+    # zaino caffe' sul retro: macchina a capsule commerciale qualsiasi (classe 120 x 230 x 320 mm, ~2.4 kg) su mensola dietro la colonna,
     # frontale verso il lato destro del robot. Il braccio destro: prende un bicchiere dalla pila, lo posa sulla navetta,
     # preme il pulsante sulla testa; la navetta (attuatore lineare 150 mm) porta il bicchiere sotto l'erogatore e lo riporta fuori.
     if coffee:
@@ -269,9 +289,10 @@ def build(look="gb", hands="gripper", humans=2, fixed_base=True, base="cart", bu
         cg("cm_mount", B, (-0.235, -0.17, sh - 0.008), (0.085, 0.135, 0.008), "armor", mass=1.2)            # mensola (sotto navetta e pila)
         sp.add_mesh(name="coffee_housing", file=SHELL_DIR + "/coffee_housing.obj")
         cg("cm_housing", MSH, (-0.255, 0.058, 0.615), (0, 0, 0), "armor", mesh="coffee_housing")              # guscio dello zaino
-        cg("cm_band", B, (-0.255, -0.0635, 0.80), (0.07, 0.0015, 0.012), rgba=[0.62, 0.05, 0.07, 1])          # fascia rossa De'Longhi
+        cg("cm_band", B, (-0.255, -0.0635, 0.80), (0.07, 0.0015, 0.012), "accent")                            # fascia accento Giorgio
+        cg("logo_back", B, (-0.255, -0.0640, 0.665), (0.055, 0.0012, 0.055), rgba=[1, 1, 1, 1])               # logo Giorgio (tazzina) sullo zaino
         cg("cm_vent", B, (-0.255, -0.0635, 0.45), (0.05, 0.0015, 0.03), "dark")                              # griglia di aerazione
-        cg("cm_body", MSH, (mx, 0.035, sh + 0.135), (0, 0, 0), rgba=[0.62, 0.08, 0.10, 1], mesh="inissia_body", mass=2.4)   # rosso De'Longhi
+        cg("cm_body", MSH, (mx, 0.035, sh + 0.135), (0, 0, 0), rgba=[0.20, 0.21, 0.22, 1], mesh="inissia_body", mass=2.4)   # macchina generica, grafite
         cg("cm_head", MSH, (mx, -0.075, sh + 0.255), (0, 0, 0), rgba=[0.08, 0.08, 0.09, 1], mesh="inissia_head")
         cg("cm_tank", MSH, (mx, 0.155, sh + 0.115), (0, 0, 0), rgba=[0.65, 0.8, 0.95, 0.45], mesh="inissia_tank")
         cg("cm_lever", B, (mx, -0.055, sh + 0.302), (0.045, 0.04, 0.004), rgba=[0.10, 0.10, 0.11, 1])
@@ -366,6 +387,8 @@ def build(look="gb", hands="gripper", humans=2, fixed_base=True, base="cart", bu
     torso.add_geom(name="shell_torso", type=mujoco.mjtGeom.mjGEOM_MESH, meshname="shell_torso", pos=[-0.03, 0, PED_TOP - 0.195],
                    material="armor", contype=0, conaffinity=0, group=GROUP_ROBOT, mass=0)
     vbox(torso, "torso_accent", (0.087, 0, PED_TOP - 0.07), (0.002, 0.06, 0.003), "accent")
+    torso.add_geom(name="logo_chest", type=mujoco.mjtGeom.mjGEOM_BOX, pos=[0.0975, 0, PED_TOP - 0.20], size=[0.0012, 0.07, 0.07],
+                   rgba=[1, 1, 1, 1], contype=0, conaffinity=0, group=GROUP_ROBOT, mass=0)   # logo Giorgio (tazzina) sul petto
     for s, sy in (("left", 1), ("right", -1)):
         sp.body(f"openarm_{s}_link2").add_geom(name=f"pauldron_{s}", type=mujoco.mjtGeom.mjGEOM_MESH, meshname="shell_pauldron",
                                                pos=[0, sy * 0.012, 0.0], material="armor", contype=0, conaffinity=0, group=GROUP_ROBOT, mass=0)

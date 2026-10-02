@@ -17,7 +17,7 @@ La base AgileX Tracer 2.0 **non può alimentare la sovrastruttura**: batteria 24
 | Orbbec Gemini 336L + Insta360 X4 | 5 V USB | ~7 W | ~20 W |
 | Volto LED 32×16 P4 + striscia | 5 V | 2–4 W | 5–8 W |
 | Trazione Tracer (95 kg, piano) — batteria propria | 24 V | 40–80 W | 800 W |
-| Caffè: Nespresso Inissia (230 V) | inverter | ~20–25 Wh a tazzina | 1260 W (~1340 W lato DC) |
+| Caffè: macchina a capsule commerciale (230 V) | inverter | ~20–25 Wh a tazzina | 1260 W (~1340 W lato DC) |
 | Caffè: alternativa capsule 24 V DC | 24 V | ~ stesso Wh, piu' lento | ~300 W |
 
 **Totale tipico senza caffè ≈ 250 W.** Picco teorico ≈ 3 kW → interlock software: niente erogazione mentre bracci o trazione lavorano.
@@ -57,7 +57,7 @@ La base AgileX Tracer 2.0 **non può alimentare la sovrastruttura**: batteria 24
 ## 5. Decisioni aperte (le più importanti per i tempi)
 
 1. **Bracci**: OpenArm (open, economico, ma va validato come parte della nostra macchina: monitoraggio forze PL d, arresto sicuro, prove PFL) oppure bracci cobot già certificati per la prima versione (es. UFactory xArm 6 ~9,5 k$ cad., Kinova Gen3, Doosan A0509, UR3e/UR5e).
-2. **Caffè**: De'Longhi 230 V con inverter a bordo (allunga la certificazione) · macchina a capsule 24 V DC a bordo (SELV, più lenta) · caffè erogato solo alla stazione.
+2. **Caffè**: macchina a capsule 230 V con inverter a bordo (allunga la certificazione) · macchina a capsule 24 V DC a bordo (SELV, più lenta) · caffè erogato solo alla stazione.
 3. **Base**: Tracer 2.0 + pacco dedicato, oppure Ranger Mini 3.0 (48 V, stazione ufficiale, € 12,5k) — in entrambi i casi chiedere dichiarazione di incorporazione e conformità ISO 3691-4.
 
 ## 6. Verifiche in simulazione

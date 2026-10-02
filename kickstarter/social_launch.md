@@ -56,7 +56,7 @@ Worst case, it's a very expensive coffee machine. [LINK]
 "Giorgio, make a coffee and bring it to Marco."
 
 → takes a cup from its backpack
-→ presses the button on a stock Nespresso Inissia
+→ presses the button on a stock capsule machine
 → shuttle under the spout and back
 → drives over, hands it to you
 

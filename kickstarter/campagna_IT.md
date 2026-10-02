@@ -80,7 +80,7 @@ Alla stazione di lavoro Giorgio usa la telecamera stereo per localizzare i pezzi
 
 ![Il caffè — render/simulazione](../render/stills/coffee.png)
 
-Sulla schiena di Giorgio c'è uno zaino-caffè: una **De'Longhi Nespresso Inissia (EN80)** di serie, una pila di bicchierini e una piccola navetta con attuatore lineare sul supporto tazza ribaltabile.
+Sulla schiena di Giorgio c'è uno zaino-caffè: una **macchina a capsule commerciale** di serie (non vincolata a una marca: va bene qualsiasi modello compatto con pulsante sulla testa), una pila di bicchierini e una piccola navetta con attuatore lineare sul supporto tazza ribaltabile.
 
 - il braccio destro prende un bicchiere e lo appoggia sulla navetta;
 - preme il pulsante della macchina (non la modifichiamo: la usa come la useresti tu);
@@ -123,7 +123,7 @@ Diciamo "open" solo dove lo è davvero.
 | Visione manipolazione | Orbbec Gemini 336L | commerciale, SDK pubblico |
 | Visione 360° | Insta360 X4 | commerciale |
 | Calcolo | NVIDIA Jetson AGX Orin | commerciale |
-| Macchina del caffè | De'Longhi Nespresso Inissia EN80 | commerciale, di serie, non modificata |
+| Macchina del caffè | macchina a capsule compatta, marca a scelta | commerciale, di serie, non modificata |
 | Planner LLM | Claude (Anthropic), API cloud | servizio commerciale, sostituibile |
 | **Gusci, colonna, supporti, testa** | progetto Giorgio | **Open** — CAD/STL rilasciati (licenza proposta: CERN-OHL-W 2.0) |
 | **Volto: occhi + baffi + LED** | progetto Giorgio | **Open** — schemi e firmware (licenza proposta: CERN-OHL-W 2.0 / Apache-2.0) |
@@ -175,7 +175,7 @@ Giorgio nasce come alternativa ai grandi umanoidi chiusi — pensiamo a progetti
 | Visione | Orbbec Gemini 336L (testa), telecamere polso OpenArm, Insta360 X4 360° su asta |
 | Calcolo | NVIDIA Jetson AGX Orin |
 | Volto | 2× display rotondi GC9A01 1,28", baffi LED retroilluminati, striscia LED di stato |
-| Caffè | De'Longhi Nespresso Inissia EN80, navetta ad attuatore lineare, pila di bicchierini |
+| Caffè | macchina a capsule compatta (marca a scelta), navetta ad attuatore lineare, pila di bicchierini |
 | Controllo | Sistema 1 (router < 1 ms, offline) + Sistema 2 (planner LLM, cloud) |
 | Ricarica | stazione di aggancio automatica |
 | Autonomia, velocità massima di lavoro | [da definire con il prototipo e la valutazione dei rischi] |
@@ -199,7 +199,7 @@ Ti mostriamo i conti. Prezzi in euro, IVA esclusa.
 | Piano, colonna, supporti | 500 |
 | Gusci SLS PA12 verniciati | 1.800 |
 | Occhi + LED | 40 |
-| Zaino-caffè (Inissia + attuatore navetta + porta-bicchieri) | ~250 |
+| Zaino-caffè (macchina a capsule + attuatore navetta + porta-bicchieri) | ~250 |
 | Stazione di ricarica | 900 |
 | Cablaggi e alimentazione | 600 |
 | Montaggio e collaudo (35 h) | 1.750 |
@@ -229,7 +229,7 @@ Il **kit volto**: due display rotondi GC9A01 1,28", scheda di controllo, baffi L
 *Consegna stimata: settembre 2027.*
 
 ### € 1.190 — Zaino-caffè per OpenArm
-Per chi ha già un **OpenArm 2.0**: Nespresso Inissia di serie, navetta ad attuatore lineare con elettronica, porta-bicchieri, piastra di montaggio, abilità `fai_caffe` open e guida di taratura. Non include braccio né base.
+Per chi ha già un **OpenArm 2.0**: supporto per macchina a capsule compatta (la macchina la scegli tu), navetta ad attuatore lineare con elettronica, porta-bicchieri, piastra di montaggio, abilità `fai_caffe` open e guida di taratura. Non include braccio né base.
 *Consegna stimata: dicembre 2027.*
 
 ### € 4.900 — Adotta Giorgio per una settimana (limitato: 6)
@@ -306,7 +306,7 @@ Ti diciamo dove può andare storto.
 - **Marcatura CE.** La valutazione dei rischi può richiedere modifiche (velocità più basse, campi più grandi, protezioni aggiuntive). Se la marcatura richiede più tempo, le consegne del Giorgio completo slittano: preferiamo così.
 - **Fornitura OpenArm e altri componenti.** OpenArm 2.0 si ordina da Enactic, con tempi e prezzi in dollari che possono cambiare; lo stesso vale per Tracer, Jetson e scanner. Abbiamo margine per le oscillazioni, non per una crisi di fornitura: in quel caso ritarderemo e lo comunicheremo subito.
 - **Dipendenza dal cloud.** Il planner del Sistema 2 oggi usa un modello linguistico via API: senza rete Giorgio esegue i comandi diretti del Sistema 1, ma non pianifica frasi complesse. Stiamo valutando planner locali sulla Jetson.
-- **Macchina del caffè.** Usiamo una Inissia di serie, non modificata, in un modo per cui non è stata progettata (la preme un robot): la garanzia del produttore potrebbe non coprire questo uso.
+- **Macchina del caffè.** Usiamo una macchina a capsule di serie, non modificata, in un modo per cui non è stata progettata (la preme un robot): la garanzia del produttore potrebbe non coprire questo uso.
 - **Siamo una squadra piccola.** [da completare: esperienza del team nella costruzione di hardware]
 
 ---
@@ -326,10 +326,10 @@ Come piattaforma di sviluppo, in un'area controllata e con personale formato, s�
 Perché non ne abbiamo trovata una matura con la stessa affidabilità e supporto ROS. La Tracer 2.0 è commerciale e lo diciamo. Se ne nascerà una open all'altezza, Giorgio la adotterà.
 
 **Fa davvero il caffè?**
-Sì, con una vera Nespresso Inissia sulla schiena. E alla peggio, è una costosa macchinetta del caffè.
+Sì, con una vera macchina a capsule sulla schiena. E alla peggio, è una costosa macchinetta del caffè.
 
 **Che caffè usa?**
-Capsule compatibili con la Inissia. Non siamo affiliati con Nespresso né con De'Longhi; i marchi appartengono ai rispettivi proprietari.
+Le capsule della macchina che scegli. Giorgio non è legato a nessuna marca di macchine o capsule.
 
 **Le mani abili sono incluse?**
 No. Sono un'opzione sperimentale, che diventerà affidabile con dati di teleoperazione (vedi obiettivo aggiuntivo a € 150.000).

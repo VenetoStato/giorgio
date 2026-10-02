@@ -120,6 +120,57 @@ def draw_labels(img, lab_row, names, a):
     return Image.alpha_composite(img.convert("RGBA"), layer).convert("RGB")
 
 
+_imc = {}
+
+
+def draw_images(img, ims, t):
+    """immagini sovrapposte (logo): {"path", "t0", "t1", "pos": [x, y] centro, "w": larghezza px}"""
+    if not ims:
+        return img
+    out = img.convert("RGBA")
+    for im in ims:
+        t0, t1 = im.get("t0", 0), im.get("t1", 1e9)
+        if not (t0 <= t < t1):
+            continue
+        a = min(ease((t - t0) / 0.45), ease((t1 - t) / 0.45))
+        k = (im["path"], im["w"])
+        if k not in _imc:
+            src = Image.open(os.path.join(HERE, im["path"])).convert("RGBA")
+            _imc[k] = src.resize((im["w"], int(src.size[1] * im["w"] / src.size[0])), Image.LANCZOS)
+        lg = _imc[k].copy()
+        lg.putalpha(lg.getchannel("A").point(lambda v: int(v * a)))
+        x, y = im.get("pos", [W // 2, H // 2])
+        out.alpha_composite(lg, (int(x - lg.size[0] / 2), int(y - lg.size[1] / 2)))
+    return out.convert("RGB")
+
+
+_enc = {}
+
+
+def draw_battery(img, hud, src_i, t):
+    """indicatore batteria dalla registrazione: livello, stato (in viaggio / contatti chiusi, in carica)"""
+    if hud["json"] not in _enc:
+        _enc[hud["json"]] = json.load(open(os.path.join(HERE, hud["json"])))
+    E_ = _enc[hud["json"]]
+    socv, chg, pw = E_[min(src_i, len(E_) - 1)]
+    a = ease(t / 0.5)
+    layer = Image.new("RGBA", img.size, (0, 0, 0, 0)); dr = ImageDraw.Draw(layer)
+    x0, y0 = 70, 60
+    dr.rounded_rectangle((x0 - 25, y0 - 22, x0 + 560, y0 + 150), radius=22, fill=(0, 0, 0, int(150 * a)))
+    bw, bh = 170, 74
+    dr.rounded_rectangle((x0, y0, x0 + bw, y0 + bh), radius=10, outline=(255, 255, 255, int(255 * a)), width=5)
+    dr.rectangle((x0 + bw + 2, y0 + 22, x0 + bw + 12, y0 + bh - 22), fill=(255, 255, 255, int(255 * a)))
+    col = (60, 220, 110) if chg else ((255, 140, 60) if socv < 0.30 else (240, 240, 240))
+    dr.rectangle((x0 + 9, y0 + 9, x0 + 9 + int((bw - 18) * socv), y0 + bh - 9), fill=col + (int(255 * a),))
+    if chg:
+        cx, cy = x0 + bw / 2, y0 + bh / 2
+        dr.polygon([(cx + 8, cy - 28), (cx - 14, cy + 4), (cx, cy + 4), (cx - 8, cy + 28), (cx + 14, cy - 4), (cx, cy - 4)], fill=(255, 255, 255, int(255 * a)))
+    dr.text((x0 + bw + 32, y0 - 4), f"{100 * socv:.0f} %", font=font("M", 64), fill=(255, 255, 255, int(255 * a)))
+    st = hud.get("charging_text", "contatti chiusi · in carica a 48 V") if chg else hud.get("travel_text", "batteria bassa: va da solo alla stazione")
+    dr.text((x0, y0 + bh + 18), st, font=font("R", 30), fill=col + (int(255 * a),))
+    return Image.alpha_composite(img.convert("RGBA"), layer).convert("RGB")
+
+
 def seg_frames(sg):
     """genera i fotogrammi PIL del segmento"""
     if sg["type"] == "card":
@@ -138,6 +189,7 @@ def seg_frames(sg):
                 z = 1 + sg["zoom"] * i / max(1, n - 1)
                 cw, ch = int(W / z), int(H / z)
                 img = bg.crop(((W - cw) // 2, (H - ch) // 2, (W - cw) // 2 + cw, (H - ch) // 2 + ch)).resize((W, H))
+            img = draw_images(img, sg.get("images"), t)
             img = draw_texts(img, sg.get("texts", []), t)
             if sg.get("chat"):
                 img = draw_chat(img, sg["chat"], t)
@@ -160,6 +212,10 @@ def seg_frames(sg):
                 row = lab[min(fi * sg.get("step", 1) + sg.get("start", 0), len(lab) - 1)]
                 a = ease((t - sg.get("lab_t0", 1.5)) / 0.8)
                 img = draw_labels(img, row, sg["names"], a)
+            if sg.get("battery"):
+                hb = sg["battery"]
+                img = draw_battery(img, hb, hb.get("src0", 0) + (fi * sg.get("step", 1) + sg.get("start", 0)) * hb.get("src_step", 1), t)
+            img = draw_images(img, sg.get("images"), t)
             img = draw_texts(img, sg.get("texts", []), t)
             yield draw_tag(img, sg.get("tag"))
             k += 1

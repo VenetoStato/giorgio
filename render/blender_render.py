@@ -37,6 +37,8 @@ ap.add_argument("--jpg", action="store_true", help="fotogrammi in JPEG (molto pi
 ap.add_argument("--fast", action="store_true", help="denoiser OptiX + dati persistenti (animazioni)")
 ap.add_argument("--lc", type=float, nargs=2, default=[0.0, 0.0], help="centro del set luci (x y)")
 ap.add_argument("--xray", action="store_true", help="zaino caffe' trasparente: si vede la macchina dentro")
+ap.add_argument("--xray_base", action="store_true", help="carenatura della base trasparente: batteria, convertitori, contattori, cavi")
+ap.add_argument("--hide", default="", help="prefissi di oggetti da nascondere (virgole)")
 ap.add_argument("--objlabels", default="", help="oggetti da etichettare (nomi separati da virgola) -> json in --labels")
 ap.add_argument("--no_cap", action="store_true", help="senza cappellino")
 ap.add_argument("--no_ledface", action="store_true", help="volto con gli occhi/baffi 3D invece della matrice LED")
@@ -283,14 +285,14 @@ for i, g in enumerate(J["geoms"]):
     mat = MATMAP.get(g["mat"])
     if nm in hum_names:
         mat = human_mat(nm, hum_names[nm])
-    SPECIAL = {"cm_body": lambda: principled("delonghi_red", (0.30, 0.008, 0.012), 0.2, coat=0.8),
-               "cm_head": lambda: principled("delonghi_black", (0.015, 0.015, 0.017), 0.25, coat=0.6),
-               "cm_lever": lambda: principled("delonghi_black2", (0.02, 0.02, 0.022), 0.3, coat=0.4),
+    SPECIAL = {"cm_body": lambda: principled("macchina_grafite", (0.035, 0.036, 0.040), 0.3, coat=0.5),
+               "cm_head": lambda: principled("macchina_nero", (0.015, 0.015, 0.017), 0.25, coat=0.6),
+               "cm_lever": lambda: principled("macchina_nero2", (0.02, 0.02, 0.022), 0.3, coat=0.4),
                "cm_tank": lambda: principled("tank_glass", (0.85, 0.92, 1.0), 0.05, trans=1.0, ior=1.49),
                "cup_ring": lambda: principled("ring_glass", (0.85, 0.92, 1.0), 0.08, trans=1.0, ior=1.49),
                "cm_logo": lambda: principled("logo", (0.85, 0.85, 0.85), 0.3, metal=0.8),
                "cup_g": lambda: principled("paper_cup", (0.94, 0.93, 0.90), 0.55, sss=0.1),
-               "cm_bin": lambda: principled("delonghi_black3", (0.02, 0.02, 0.022), 0.35)}
+               "cm_bin": lambda: principled("macchina_nero3", (0.02, 0.02, 0.022), 0.35)}
     if nm in SPECIAL:
         mat = SPECIAL[nm]()
     if nm.startswith("cup_stack"):
@@ -496,7 +498,43 @@ if LEDFACE:
         led.data.materials.append(mt)
         bpy.data.images.remove(img)
 
-if args.xray:                                           # guscio dello zaino in vetro: si vede la De'Longhi dentro
+LOGO = os.path.join(HERE, "logo", "logo.png")
+for o_ in [o for o in bpy.data.objects if o.name.startswith("logo_")]:     # logo (tazzina con la G) come decalcomania sul guscio
+    mt_ = bpy.data.materials.new("logo_" + o_.name); mt_.use_nodes = True; nt_ = mt_.node_tree
+    bs_ = nt_.nodes["Principled BSDF"]; bs_.inputs["Roughness"].default_value = 0.35
+    tc_ = nt_.nodes.new("ShaderNodeTexCoord"); sx_ = nt_.nodes.new("ShaderNodeSeparateXYZ"); cb_ = nt_.nodes.new("ShaderNodeCombineXYZ")
+    nt_.links.new(tc_.outputs["Generated"], sx_.inputs[0])
+    thin_x = o_.dimensions.x < min(o_.dimensions.y, o_.dimensions.z)
+    if thin_x:                                      # petto: normale +x, u lungo -y (vista frontale), v lungo z
+        inv_ = nt_.nodes.new("ShaderNodeMath"); inv_.operation = "SUBTRACT"; inv_.inputs[0].default_value = 1.0
+        nt_.links.new(sx_.outputs["Y"], inv_.inputs[1]); nt_.links.new(inv_.outputs[0], cb_.inputs["X"])
+    else:                                           # zaino: normale -y, u lungo x
+        nt_.links.new(sx_.outputs["X"], cb_.inputs["X"])
+    nt_.links.new(sx_.outputs["Z"], cb_.inputs["Y"])
+    im_ = nt_.nodes.new("ShaderNodeTexImage"); im_.image = bpy.data.images.load(LOGO, check_existing=True); im_.extension = "CLIP"
+    nt_.links.new(cb_.outputs[0], im_.inputs["Vector"])
+    nt_.links.new(im_.outputs["Color"], bs_.inputs["Base Color"]); nt_.links.new(im_.outputs["Alpha"], bs_.inputs["Alpha"])
+    mt_.blend_method = "BLEND" if hasattr(mt_, "blend_method") else None
+    o_.data.materials.clear(); o_.data.materials.append(mt_)
+
+if args.hide:
+    for o_ in list(bpy.data.objects):
+        if o_.name.startswith(tuple(h_.strip() for h_ in args.hide.split(","))):
+            o_.hide_render = True
+if args.xray_base:                                      # carenatura della base in vetro: si vede l'impianto elettrico
+    for o_ in list(bpy.data.objects):
+        if o_.name in ("base_cover", "scan_window", "bumper", "status_led0") or o_.name.startswith("tricolore"):
+            mt_ = principled(o_.name + "_xray", (0.85, 0.9, 1.0), 0.05, trans=0.0)
+            b_ = mt_.node_tree.nodes["Principled BSDF"]; b_.inputs["Alpha"].default_value = 0.10 if o_.name == "base_cover" else 0.22
+            b_.inputs["Emission Color"].default_value = (0.5, 0.75, 1.0, 1); b_.inputs["Emission Strength"].default_value = 0.06
+            o_.data.materials.clear(); o_.data.materials.append(mt_)
+        if o_.name.startswith("pw_cable"):
+            mt_ = principled(o_.name + "_glow", (1.0, 0.45, 0.1), 0.3)
+            b_ = mt_.node_tree.nodes["Principled BSDF"]; b_.inputs["Emission Color"].default_value = (1.0, 0.45, 0.1, 1)
+            b_.inputs["Emission Strength"].default_value = 4.0
+            o_.data.materials.clear(); o_.data.materials.append(mt_)
+
+if args.xray:                                           # guscio dello zaino in vetro: si vede la macchina dentro
     for nm_ in ("cm_housing", "cm_band", "cm_vent"):
         o_ = bpy.data.objects.get(nm_)
         if o_ is not None:

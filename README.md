@@ -74,7 +74,7 @@ render/run_stills_v7.sh ; render/run_video_v7.sh ; python render/compose.py rend
 ```
 - **Niente pezzi dal nulla**: i flaconi stanno in un vassoio di kitting sul banco A; Giorgio li trova con la Gemini 336L e li carica da solo (6 nel vassoio frontale con imbocchi svasati da 16 mm, 2 nelle pinze). La posa del flacone in pinza viene stimata (telecamera di polso) e compensata al rilascio: 6/6 nel vassoio entro 7 mm.
 - **Ciclo chiuso**: B → visione 8/8 fori (errore 1,8 mm) → 8/8 inseriti → Giorgio torna al punto di attesa davanti ad A; l'operatore con la cassetta svuota B a mano, porta i flaconi in A e li rimette nel vassoio; Giorgio riaggancia. Stato finale = iniziale (video in loop), ~160 s.
-- **Caffè vero, integrato sulla schiena**: De'Longhi Nespresso Inissia EN80 su mensola dietro la colonna. Il braccio destro prende un bicchiere dalla pila, lo posa sulla navetta (attuatore lineare 150 mm sul supporto tazzina ribaltabile della Inissia), preme il pulsante sulla testa della macchina; la navetta porta il bicchiere sotto l'erogatore e lo riporta fuori; il braccio prende il caffè pieno e lo porta alla persona. Tutte le pose verificate con IK (una presa laterale sotto la testa NON è raggiungibile: per questo la navetta).
+- **Caffè vero, integrato sulla schiena**: macchina a capsule commerciale (qualsiasi marca, formato compatto) su mensola dietro la colonna. Il braccio destro prende un bicchiere dalla pila, lo posa sulla navetta (attuatore lineare 150 mm sul supporto tazzina ribaltabile della macchina), preme il pulsante sulla testa della macchina; la navetta porta il bicchiere sotto l'erogatore e lo riporta fuori; il braccio prende il caffè pieno e lo porta alla persona. Tutte le pose verificate con IK (una presa laterale sotto la testa NON è raggiungibile: per questo la navetta).
 - **Consegna**: Giorgio si ferma davanti a Marco, allunga il braccio; Marco si avvicina, allunga la mano, prende il bicchiere (la pinza si apre), lo porta alla scrivania e lo appoggia.
 - **Persone articolate** (17 pezzi: ginocchia, gomiti, mani, capelli/casco, gilet): camminata con avvio/arresto morbidi, testa che guarda il robot, cassetta, presa con IK a 2 segmenti; cedono il passo al robot (distanza minima persona-robot nel ciclo 0,76 m dal centro base) e ripianificano se bloccate.
 - **Frenata**: la velocità in arrivo è limitata dallo spazio di arresto con strappo limitato e ritardo; tolto l'azzeramento brusco dei motori (era la causa dell'"imbarcata"). Beccheggio dinamico in frenata ≈ 0,35° (prima 2,4°); i picchi a ~0,9° sono statici, da bracci in avanti con carico, a robot fermo.
@@ -93,7 +93,7 @@ render/run_stills_v7.sh ; render/run_video_v7.sh ; python render/compose.py rend
 | Vassoio, colonna, staffe | 500 |
 | Gusci SLS PA12 verniciati | 1.800 |
 | Occhi GC9A01 + LED baffi + striscia LED | 40 |
-| Zaino caffè: De'Longhi Inissia + navetta lineare + porta-bicchieri | 250 |
+| Zaino caffè: macchina a capsule + navetta lineare + porta-bicchieri | 250 |
 | Stazione di ricarica | 900 |
 | Cablaggi e alimentazione | 600 |
 | Montaggio e collaudo (35 h) | 1.750 |
