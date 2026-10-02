@@ -11,6 +11,11 @@ Simulazione MuJoCo 3.8 (stesso motore del SolverMuJoCo di Newton), modelli uffic
 | Visione | RealSense D435i (testa, collo 2 assi) + D405 (polsi) | camere MuJoCo con FOV/risoluzione reali |
 | Sicurezza | 2× SICK nanoScan3 (275°) + Pilz PNOZmulti 2 | `mj_multiRay` sulla scena, contorno appreso, campi ISO 13855 |
 
+## Dipendenze esterne (non nel repository)
+- `third_party/openarm_mujoco/` = MJCF ufficiale Enactic OpenArm 2.0 (github.com/enactic/openarm_mujoco, Apache-2.0)
+- mani LEAP da mujoco_menagerie, Inspire da unitree_ros (solo opzioni)
+- Blender 4.5 in `~/tools/blender-4.5.9-linux-x64/` per i render
+
 ## Comandi
 ```
 cd ~/giorgio_sim

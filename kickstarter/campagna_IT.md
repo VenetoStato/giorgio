@@ -129,7 +129,7 @@ Diciamo "open" solo dove lo è davvero.
 | **Volto: occhi + baffi + LED** | progetto Giorgio | **Open** — schemi e firmware (licenza proposta: CERN-OHL-W 2.0 / Apache-2.0) |
 | **Zaino-caffè: navetta + supporti** | progetto Giorgio | **Open** — CAD + firmware |
 | **Software: abilità, router, agente, simulazione** | progetto Giorgio | **Open** — Apache-2.0 (proposta) |
-| Mani destre (opzione) | LEAP Hand / ORCA Hand | open, ma con licenze diverse: ORCA CC BY 4.0, LEAP con CAD per uso non commerciale. **Sperimentali.** |
+| Mani abili (opzione) | LEAP Hand / ORCA Hand | open, ma con licenze diverse: ORCA CC BY 4.0, LEAP con CAD per uso non commerciale. **Sperimentali.** |
 
 In pratica: **la parte che costruiamo noi è tutta open.** Quello che compriamo, lo compriamo da chi lo fa meglio — e te lo diciamo.
 
@@ -168,7 +168,7 @@ Giorgio nasce come alternativa ai grandi umanoidi chiusi — pensiamo a progetti
 |---|---|
 | Braccia | OpenArm 2.0 bimanuale, 7+7 DOF, QDD Damiao |
 | Pinze | pinze parallele OpenArm (default) |
-| Mani destre | LEAP Hand / ORCA — **opzione sperimentale** |
+| Mani abili | LEAP Hand / ORCA — **opzione sperimentale** |
 | Base | AgileX Tracer 2.0, differenziale, 702 × 610 mm, 55 kg (sola base) |
 | Ingombro / altezza / massa totale | [da misurare sul prototipo] |
 | Sicurezza | 2× SICK nanoScan3, Pilz PNOZmulti 2, e-stop; campi ISO 13855 (protezione 1,72 m da fermo) |
@@ -259,7 +259,7 @@ Prenota un **Giorgio completo** al prezzo di **42.900 € + IVA**, con acconto d
 | Due Giorgio fisici completi (uno per collaudo e valutazione CE, uno per i piloti) | 56.200 |
 | Valutazione dei rischi, validazione funzioni di sicurezza, consulenza CE (Reg. UE 2023/1230) | 18.000 |
 | Attrezzature: setup gusci in piccola serie, maschere di montaggio e verniciatura | 8.000 |
-| Raccolta dati per le mani destre (teleoperazione, una coppia di mani) | 6.000 |
+| Raccolta dati per le mani abili (teleoperazione, una coppia di mani) | 6.000 |
 | Team: 6 mesi di integrazione e passaggio simulazione → realtà | 20.000 |
 | Commissioni Kickstarter e pagamenti (~8%) | 9.600 |
 | Imprevisti | 2.200 |
@@ -271,7 +271,7 @@ Le ricompense fisiche (Face, zaino-caffè, Body Kit, Giorgio completi) hanno un 
 
 ## Obiettivi aggiuntivi (stretch goals)
 
-- **€ 150.000 — Mani destre, sul serio.** Pubblichiamo un dataset open di dimostrazioni teleoperate e le politiche addestrate per LEAP/ORCA sulle abilità di Giorgio.
+- **€ 150.000 — Mani abili, sul serio.** Pubblichiamo un dataset open di dimostrazioni teleoperate e le politiche addestrate per LEAP/ORCA sulle abilità di Giorgio.
 - **€ 200.000 — Colonna motorizzata.** Opzione colonna elevabile (corsa 400 mm) per lavorare dal pavimento al bancone.
 - **€ 250.000 — Pacchetto abilità "accoglienza".** Riconoscimento e saluto delle persone a 360°, accompagnamento ospiti, consegna oggetti in reception.
 - **€ 300.000 — Un Giorgio per la comunità.** Un terzo Giorgio dato in uso a un'università o a un makerspace italiano, aperto a chi vuole sviluppare abilità.
@@ -302,7 +302,7 @@ Le ricompense fisiche (Face, zaino-caffè, Body Kit, Giorgio completi) hanno un 
 Ti diciamo dove può andare storto.
 
 - **Simulazione ≠ realtà.** I risultati di questa pagina vengono da una simulazione fisica accurata, con i modelli ufficiali dei fornitori. Ma la realtà ha attriti, cavi, luce, pavimenti sporchi. Ci aspettiamo settimane di messa a punto: errore di visione, presa, frenata, aggancio alla ricarica. Abbiamo messo a budget tempo per questo, e lo racconteremo negli aggiornamenti, anche quando non va bene.
-- **Mani destre.** Le mani a cinque dita (LEAP, ORCA) sono montabili, ma **oggi le prese programmate a script non sono affidabili**: serve raccogliere dati in teleoperazione e addestrare per imitazione. Per questo il Giorgio di serie usa le pinze parallele. Le mani sono un'opzione sperimentale, non una promessa.
+- **Mani abili.** Le mani a cinque dita (LEAP, ORCA) sono montabili, ma **oggi le prese programmate a script non sono affidabili**: serve raccogliere dati in teleoperazione e addestrare per imitazione. Per questo il Giorgio di serie usa le pinze parallele. Le mani sono un'opzione sperimentale, non una promessa.
 - **Marcatura CE.** La valutazione dei rischi può richiedere modifiche (velocità più basse, campi più grandi, protezioni aggiuntive). Se la marcatura richiede più tempo, le consegne del Giorgio completo slittano: preferiamo così.
 - **Fornitura OpenArm e altri componenti.** OpenArm 2.0 si ordina da Enactic, con tempi e prezzi in dollari che possono cambiare; lo stesso vale per Tracer, Jetson e scanner. Abbiamo margine per le oscillazioni, non per una crisi di fornitura: in quel caso ritarderemo e lo comunicheremo subito.
 - **Dipendenza dal cloud.** Il planner del Sistema 2 oggi usa un modello linguistico via API: senza rete Giorgio esegue i comandi diretti del Sistema 1, ma non pianifica frasi complesse. Stiamo valutando planner locali sulla Jetson.
@@ -331,7 +331,7 @@ Sì, con una vera Nespresso Inissia sulla schiena. E alla peggio, è una costosa
 **Che caffè usa?**
 Capsule compatibili con la Inissia. Non siamo affiliati con Nespresso né con De'Longhi; i marchi appartengono ai rispettivi proprietari.
 
-**Le mani destre sono incluse?**
+**Le mani abili sono incluse?**
 No. Sono un'opzione sperimentale, che diventerà affidabile con dati di teleoperazione (vedi obiettivo aggiuntivo a € 150.000).
 
 **Devo usare Claude?**
