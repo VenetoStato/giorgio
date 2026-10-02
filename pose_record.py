@@ -42,9 +42,53 @@ for s_, (xl, yl, z) in targets.items():
     print(s_, "posa", "ok" if best else "IK di riserva")
     a.q = q; d.qpos[a.ik.qadr] = q
 mujoco.mj_forward(m, d)
+if HANDS != "gripper":
+    # mani articolate: posa di presentazione. Avambracci in avanti all'altezza della vita, mani ai lati del busto
+    # (non davanti al petto), dita in avanti e un po' in basso, palmi rivolti verso l'interno.
+    from scipy.spatial.transform import Rotation as _R
+    yaw_b = base_pose()[2]
+    for s_, a in arms.items():
+        sg = a.sg
+        fwd = np.array([1.0, 0.0, -0.35]); fwd /= np.linalg.norm(fwd)
+        inward = np.array([0.0, -sg, 0.25]); inward -= (inward @ fwd) * fwd; inward /= np.linalg.norm(inward)
+        Rb = _R.from_euler("z", yaw_b).as_matrix()
+        gl = m.site_pos[m.site(f"{s_}_grasp").id].copy()          # centro presa nel frame del polso: dice da che parte e' il palmo
+        palm_l = np.array([gl[0], gl[1], 0.0]); palm_l /= np.linalg.norm(palm_l) + 1e-9
+        best = None
+        for roll in np.linspace(0, 2 * math.pi, 24, endpoint=False):
+            z_ee = -fwd                                         # la mano cresce lungo -z del polso
+            x0 = np.cross([0, 0, 1.0], z_ee); x0 /= np.linalg.norm(x0); y0 = np.cross(z_ee, x0)
+            x_ee = math.cos(roll) * x0 + math.sin(roll) * y0; y_ee = np.cross(z_ee, x_ee)
+            R_ee = np.stack([x_ee, y_ee, z_ee], 1)
+            palm_w = R_ee @ palm_l
+            score = palm_w @ inward
+            if best is None or score > best[0]:
+                best = (score, Rb @ R_ee)
+        Rt = best[1] @ m.site(f"{s_}_grasp").id * 0 if False else best[1]
+        tgt = a.robot_pt(0.36, sg * 0.30, 0.98)
+        cand = None
+        for sg_ in itertools.product((1, -1), repeat=7):
+            sd = np.clip(np.array([-0.59, 2.38, 0.36, 1.63, 0.79, 0.3, 1.19]) * np.array(sg_), a.ik.lo, a.ik.hi)
+            q, ep, er = a.ik.solve1(d.qpos.copy(), sd, tgt, Rt, 250)
+            if ep > 0.01 or er > 0.08:
+                continue
+            qf = d.qpos.copy(); qf[a.ik.qadr] = q; d2 = mujoco.MjData(m); d2.qpos[:] = qf; mujoco.mj_kinematics(m, d2)
+            el = d2.body(f"openarm_{s_}_link4").xpos
+            cost = el[2] - 2.0 * abs(el[1]) + 0.2 * er
+            if cand is None or cost < cand[0]:
+                cand = (cost, q, ep, er)
+        if cand:
+            a.q = cand[1]; d.qpos[a.ik.qadr] = cand[1]
+            print(s_, f"posa mani: errore {1000 * cand[2]:.0f} mm, {math.degrees(cand[3]):.0f} gradi, palmo {best[0]:.2f}")
+        else:
+            print(s_, "posa mani: nessuna soluzione")
+    mujoco.mj_forward(m, d)
 # caffe' pieno nella pinza destra
 gs = d.site("right_grasp").xpos.copy()
-set_part_xyz("cup", gs + np.array([0, 0, -(CUP_H - 0.03) + CUP_H / 2]))
+if HANDS == "gripper":
+    set_part_xyz("cup", gs + np.array([0, 0, -(CUP_H - 0.03) + CUP_H / 2]))
+else:
+    set_part_xyz("cup", np.array([-7.0, 4.5, 0.05]))          # mani articolate: bicchiere fuori scena
 g = m.geom("cup_coffee").id; m.geom_size[g][1] = 0.028; m.geom_pos[g][2] = -CUP_H / 2 + 0.03
 for i in range(3):
     m.geom_rgba[m.geom(f"cup_steam{i}").id][3] = 0.25
