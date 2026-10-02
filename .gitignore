@@ -28,3 +28,4 @@ render/ledtex/
 render/stills_*/
 render/*.log
 *.log
+rl_mani/runs/

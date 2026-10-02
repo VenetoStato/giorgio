@@ -69,7 +69,7 @@ def draw_texts(img, texts, t):
             x, y = 120, (H - th) / 2
         else:
             x, y = pos
-        if pos in ("lower", "upper"):                    # fascia scura morbida dietro ai sottotitoli (leggibili sul bianco)
+        if pos in ("lower", "upper") and tx.get("band", True):   # fascia scura morbida dietro ai sottotitoli (leggibili sul bianco)
             band = Image.new("L", (W, int(th + 220)), 0); bd = ImageDraw.Draw(band)
             for yy in range(band.size[1]):
                 k_ = 1 - abs(yy - band.size[1] / 2) / (band.size[1] / 2)
@@ -98,19 +98,39 @@ def draw_tag(img, tag):
     return img
 
 
-def draw_labels(img, lab_row, names, a):
-    """etichette dell'esploso: punto + linea + testo, ancorati ai gruppi di parti"""
+def draw_labels(img, lab_row, names, a, style=None):
+    """etichette ancorate alle parti: punto + linea + testo. style "colonne": testi in due colonne ai lati, senza sovrapposizioni,
+    su cartellino bianco (leggibili su sfondi chiari)"""
     if a <= 0.01:
         return img
     layer = Image.new("RGBA", img.size, (0, 0, 0, 0)); dr = ImageDraw.Draw(layer)
     f1, f2 = font("M", 26), font("L", 21)
+    al = int(255 * a)
+    if style == "colonne":
+        items = [(g, uv[0] * W, uv[1] * H) for g, uv in lab_row.items() if g in names]
+        for side in (-1, 1):
+            col = sorted([it for it in items if (it[1] >= W * 0.5) == (side > 0)], key=lambda it: it[2])
+            if not col:
+                continue
+            gap = 92; y0 = max(200, min(H - 160 - gap * (len(col) - 1), sum(it[2] for it in col) / len(col) - gap * (len(col) - 1) / 2))
+            for k, (g, x, y) in enumerate(col):
+                t1, t2 = names[g]
+                tw = max(dr.textlength(t1, font=f1), dr.textlength(t2, font=f2))
+                ty = y0 + k * gap
+                bx = W - 90 - tw - 36 if side > 0 else 90
+                ax = bx if side > 0 else bx + tw + 36
+                dr.line((x, y, ax, ty + 30), fill=(40, 42, 46, al), width=2)
+                dr.ellipse((x - 7, y - 7, x + 7, y + 7), fill=(255, 140, 60, al), outline=(255, 255, 255, al), width=2)
+                dr.rounded_rectangle((bx, ty, bx + tw + 36, ty + 72), radius=14, fill=(255, 255, 255, int(235 * a)), outline=(215, 215, 215, al))
+                dr.text((bx + 18, ty + 8), t1, font=f1, fill=(30, 32, 36, al))
+                dr.text((bx + 18, ty + 40), t2, font=f2, fill=(105, 108, 115, al))
+        return Image.alpha_composite(img.convert("RGBA"), layer).convert("RGB")
     for g, (u, v) in lab_row.items():
         if g not in names:
             continue
         x, y = u * W, v * H
         side = 1 if x > W * 0.5 else -1
         x2, y2 = x + side * 140, y - 40
-        al = int(255 * a)
         dr.ellipse((x - 6, y - 6, x + 6, y + 6), fill=(255, 140, 60, al))
         dr.line((x, y, x2, y2, x2 + side * 30, y2), fill=(255, 255, 255, al), width=2)
         t1, t2 = names[g]
@@ -118,7 +138,6 @@ def draw_labels(img, lab_row, names, a):
         dr.text((tx + 1, y2 - 30 + 1), t1, font=f1, fill=(0, 0, 0, al // 2)); dr.text((tx, y2 - 30), t1, font=f1, fill=(255, 255, 255, al))
         dr.text((tx, y2 + 2), t2, font=f2, fill=(235, 235, 235, al))
     return Image.alpha_composite(img.convert("RGBA"), layer).convert("RGB")
-
 
 _imc = {}
 
@@ -211,7 +230,7 @@ def seg_frames(sg):
             if lab is not None:
                 row = lab[min(fi * sg.get("step", 1) + sg.get("start", 0), len(lab) - 1)]
                 a = ease((t - sg.get("lab_t0", 1.5)) / 0.8)
-                img = draw_labels(img, row, sg["names"], a)
+                img = draw_labels(img, row, sg["names"], a, sg.get("label_style"))
             if sg.get("battery"):
                 hb = sg["battery"]
                 img = draw_battery(img, hb, hb.get("src0", 0) + (fi * sg.get("step", 1) + sg.get("start", 0)) * hb.get("src_step", 1), t)

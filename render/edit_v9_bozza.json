@@ -480,7 +480,8 @@
      "size": 46,
      "weight": "R"
     }
-   ]
+   ],
+   "label_style": "colonne"
   },
   {
    "type": "frames",
@@ -772,7 +773,8 @@
       32,
       36
      ],
-     "shadow": false
+     "shadow": false,
+     "band": false
     }
    ]
   },
