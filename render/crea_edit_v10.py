@@ -54,7 +54,9 @@ for f, a, b in (("cfg1_barista", "BARISTA", "Grippers + coffee module"), ("cfg2_
                          T(0.4, 2.6, b, [1084, 850], 34, "N", color=GREY, band=False, shadow=False, align="left")]))
 # --- energia
 S.append(card(2.6, big(0.2, 2.6, "POWER."), mono(0.8, 2.6, "48 V · ONE BATTERY · ONE PLUG")))
-S.append(dict(_ELEC=True))
+S.append(dict(type="frames", glob="v10/d_energia/f_*.jpg", ui=False))
+S.append(dict(type="card", dur=5.5, bg="stills_v10/schema_elettrico.png", dim=0.0, zoom=0.10,
+              texts=[kick(0.3, 5.5, "ELECTRICAL"), T(0.3, 5.5, "EVERY WIRE, FUSE AND\nCONTACTOR: SIZED AND CHECKED.".replace("\\n", "\n"), size=56)]))
 S.append(shot("v10/b_xray/f_*.jpg", "RENDER // X-RAY", kick(0.3, 5.8, "INSIDE THE BASE"), T(0.3, 5.8, "BATTERY · DC-DC · SAFETY", size=60),
               labels="lab_base.json", label_style="colonne", lab_t0=1.0,
               names={"pw_battery": ["48 V LiFePO4", "1.92 kWh · BMS"], "pw_dcdc0": ["DC-DC", "48 V in · 24 / 19 / 5 V out"],

@@ -1,0 +1,394 @@
+# Giorgio - electrical netlist / BOM (machine-readable, single source of truth)
+# Read by calc.py (checks) and diagram.py (drawing).
+# Conventions:
+#   source:   URL of the datasheet/manual the value was taken from
+#   assumed:  true  -> engineering estimate or recalled value NOT verified against a primary source
+#   price_eur: indicative unit price excl. VAT (estimate unless 'price_source' given)
+meta:
+  project: Giorgio mobile bimanual service robot
+  revision: E1.0 (2026-10-03)
+  author: electrical design (generated with Claude, to be reviewed by a qualified engineer)
+  isc_ka_note: "5.8"
+
+sources:
+  openarm_motor: https://docs.openarm.dev/hardware/openarm-2.0/motor
+  openarm_safety: https://docs.openarm.dev/overview/safety-guide
+  openarm_v1_psu: https://docs.openarm.dev/1.0/hardware/bill-of-materials/procuring-components
+  openarm_v1_wiring: https://docs.openarm.dev/1.0/hardware/wiring-and-casing-guide/4-power-can
+  openarm_cell: https://docs.openarm.dev/hardware/openarm-cell/general
+  dm_j8009p: https://damiao.enactic.ai/en/products/hardware/dm-j8009p-2ec-v1.0
+  dm_j8009p_manual: https://github.com/dmBots/DM-J8009P-2EC/tree/HEAD/manual
+  dm_j4340p: https://damiao.enactic.ai/en/products/hardware/dm-j4340p-2ec-v1.0
+  dm_j4310: https://damiao.enactic.ai/en/products/hardware/dm-j4310-2ec-v1.1/
+  mw_ddr480: https://www.meanwell.com/Upload/PDF/DDR-480/DDR-480-SPEC.PDF
+  mw_ddr240: https://www.meanwell.com/Upload/PDF/DDR-240/DDR-240-SPEC.PDF
+  mw_ddr120: https://www.meanwell.com/Upload/PDF/DDR-120/DDR-120-SPEC.PDF
+  mw_ddr60: https://www.meanwell.com/Upload/PDF/DDR-60/DDR-60-SPEC.PDF
+  lf_jlln: https://littelfusesales.com/assets/content/vendorAssets/pdf/littelfuse_fuse_jlln_jlls_datasheet.pdf
+  lf_tac58: https://www.mouser.com/datasheet/2/240/Littelfuse-Automotive-Blade-Fuse-TAC-ATO-58V-23798.pdf
+  sick_nanoscan3: https://www.sick.com/media/pdf/0/80/980/dataSheet_NANS3-CAAZ30AN1_1100334_en.pdf
+  tracer_manual: https://static.generation-robots.com/media/user-manual-tracer-2-0-agilex-robotics.pdf
+  jetson_agx_orin_ds: https://static.generation-robots.com/media/Jetson-AGX-Orin-Data-Sheet.pdf
+  orbbec_336l: https://www.orbbec.com/products/stereo-vision-camera/gemini-336l/
+  insta360_x4_power: https://onlinemanual.insta360.com/x4/en-us/faq/specs/battery
+  waveshare_p4: https://www.waveshare.com/wiki/RGB-Matrix-P4-64x32
+  victron_inverter_smart: https://www.victronenergy.com/upload/documents/Datasheet-Inverter-Smart-1600VA-5000VA-EN.pdf
+  nespresso_essenza_mini: https://www.nespresso.com/shared_res/manuals/essenza-mini/2018/UM_ESSENZA_MINI_EN_FNL.pdf
+  truck_24v_capsule: https://www.truckstyler-shop.de/Suitable-for-Nespresso-Truck-24V-coffee-capsule-machine?slotID=2
+  handpresso_auto: https://www.handpresso.com/en/handpresso-auto-capsule-353.html
+  ur_oem_dc: https://www.universal-robots.com/manuals/EN/HTML/SW5_19/Content/prod_oem_cb_all/oem_cb_all_specs_root.htm
+  ur_datasheet: https://www.universal-robots.com/media/1826690/01_2023_collective_data_sheet-1.pdf
+  elite_cs63: https://www.eliterobots.com/cobots/cs63
+  uf850: https://docs.850.ufactory.cc/8.technical_specifications.html
+  kinova_gen3: https://www.kinovarobotics.com/uploads/User-Guide-Gen3-R07.pdf
+  eu_battery_reg: https://eur-lex.europa.eu/eli/reg/2023/1542/oj
+  schaltbau_c195: https://www.schaltbau.com/en/products/contactors/c195/
+
+# ------------------------------------------------------------------------------------------- battery
+battery:
+  chemistry: LiFePO4
+  series: 15                 # 15s keeps V_max 54.75 V < 60 V and nominal energy < 2 kWh at 40 Ah
+  parallel: 1
+  cell:
+    ref: "CALB CA40 class 40 Ah prismatic (reference; final cell chosen by pack integrator)"
+    v_nom: 3.2
+    v_max: 3.65
+    v_min_cutoff: 2.5
+    ah: 40
+    r_ac_mohm: 0.5           # assumed: lowest plausible ACIR for 40-50 Ah prismatic (worst case for Isc)
+    r_dc_mohm: 1.2           # assumed: DC-IR incl. ageing (worst case for sag)
+    c_cont: 1.0              # assumed (typical datasheet), continuous discharge C-rate
+    c_pulse: 2.0             # assumed, <=10 s, conservative vs typical 3C
+    c_charge: 1.0            # assumed max charge C-rate at 15-35 C (0.5C standard)
+    assumed: true
+  r_interconnect_mohm: 1.5   # assumed: 14 busbars + terminals
+  r_bms_path_mohm: 1.0       # assumed: MOSFET BMS + shunt, hot (max)
+  r_bms_path_min_mohm: 0.5   # assumed: cold (min) - used for Isc
+  usable_dod: 0.90
+  bms_component: BMS
+
+tracer:                      # AgileX Tracer 2.0 own battery (separate island)
+  v_nom: 25.6
+  ah: 30
+  usable_dod: 0.85
+  charger_component: CHG_TRACER
+  source: tracer_manual
+
+# ------------------------------------------------------------------------------------------- buses
+buses:
+  - {id: B48, desc: "48 V battery bus (15s LFP)", v_nom: 48.0, v_min: 37.5, v_max: 54.75}
+  - {id: A24L, desc: "24 V left arm bus (safety-switched upstream)", v_nom: 24.0, v_min: 23.0, v_max: 27.5}
+  - {id: A24R, desc: "24 V right arm bus (safety-switched upstream)", v_nom: 24.0, v_min: 23.0, v_max: 27.5}
+  - {id: S24, desc: "24 V safety + sensors, always on", v_nom: 24.0, v_min: 23.5, v_max: 24.5}
+  - {id: C12, desc: "12 V compute (Jetson + USB devices)", v_nom: 12.0, v_min: 11.8, v_max: 12.2}
+  - {id: L5, desc: "5 V UI (LED face, eyes, ESP32)", v_nom: 5.1, v_min: 5.0, v_max: 5.2}
+  - {id: T24, desc: "Tracer 24 V battery domain (galvanically isolated)", v_nom: 25.6, v_min: 22.0, v_max: 29.2}
+  - {id: COF24, desc: "24 V coffee module (OPTION B only)", v_nom: 24.0, v_min: 23.5, v_max: 24.5}
+
+# ------------------------------------------------------------------------------------------- loads
+# p_typ: typical average when active (autonomy); p_cont: max sustained (sizing); p_peak: <= peak_s seconds
+loads:
+  - {id: ARM_L, desc: "OpenArm 2.0 left: 2x DM-J8009P, 2x DM-J4340P, 4x DM-J4310 (J8 = gripper)", bus: A24L,
+     p_typ_w: 70, p_cont_w: 360, p_peak_w: 720, peak_s: 5, source: openarm_v1_psu,
+     note: "cont = OpenArm reference PSU 24 V 15 A per arm; peak = OpenArm heavy-payload advice (2 PSUs per arm, J1-J2 + J3-J8). p_typ from copper-loss model (assumed)."}
+  - {id: ARM_R, desc: "OpenArm 2.0 right (same as left)", bus: A24R, p_typ_w: 70, p_cont_w: 360, p_peak_w: 720, peak_s: 5, source: openarm_v1_psu}
+  - {id: SCAN_F, desc: "SICK nanoScan3 front (3.9 W typ + OSSD load)", bus: S24, p_typ_w: 3.9, p_cont_w: 6, p_peak_w: 8, peak_s: 1, source: sick_nanoscan3}
+  - {id: SCAN_R, desc: "SICK nanoScan3 rear", bus: S24, p_typ_w: 3.9, p_cont_w: 6, p_peak_w: 8, peak_s: 1, source: sick_nanoscan3}
+  - {id: PNOZ_L, desc: "Pilz PNOZ m B0 + PNOZ m EF 4DI4DOR", bus: S24, p_typ_w: 5, p_cont_w: 7, p_peak_w: 9, peak_s: 1, assumed: true}
+  - {id: KCOIL, desc: "K1 + K2 contactor coils (3RT2036 DC coil) + K3 precharge relay", bus: S24, p_typ_w: 27, p_cont_w: 27, p_peak_w: 30, peak_s: 1, assumed: true,
+     note: "13 W per S2 DC coil assumed; electronic-coil variant would cut this to a few W"}
+  - {id: BEACON, desc: "Status light / buzzer, dock IR/Wi-Fi handshake MCU", bus: S24, p_typ_w: 2, p_cont_w: 4, p_peak_w: 5, peak_s: 1, assumed: true}
+  - {id: JETSON, desc: "Jetson AGX Orin 64 GB module + carrier (7-20 V input, 15-60 W modes)", bus: C12, p_typ_w: 35, p_cont_w: 75, p_peak_w: 100, peak_s: 3, source: jetson_agx_orin_ds,
+     note: "60 W MAXN module + carrier/NVMe/Wi-Fi; carrier peak assumed"}
+  - {id: GEMINI, desc: "Orbbec Gemini 336L via USB (<3 W avg, <6 W peak)", bus: C12, p_typ_w: 3, p_cont_w: 3, p_peak_w: 6, peak_s: 1, source: orbbec_336l}
+  - {id: INSTA, desc: "Insta360 X4 webcam mode via USB 5 V 3 A", bus: C12, p_typ_w: 6, p_cont_w: 8, p_peak_w: 15, peak_s: 3, source: insta360_x4_power, assumed: true,
+     note: "webcam-mode draw not published; 5 V/3 A recommended for shooting while charging"}
+  - {id: LEDFACE, desc: "32x16 P4 HUB75 LED face", bus: L5, p_typ_w: 3, p_cont_w: 10, p_peak_w: 10, peak_s: 1, source: waveshare_p4, assumed: true,
+     note: "scaled from 64x32 P4 (5 V 4 A max): 1/4 pixels -> 2 A budget"}
+  - {id: EYES, desc: "2x GC9A01 round displays + ESP32", bus: L5, p_typ_w: 1.5, p_cont_w: 2, p_peak_w: 3, peak_s: 1, assumed: true}
+  - {id: LEDSTRIP, desc: "Mustache / base status LED strips", bus: L5, p_typ_w: 2, p_cont_w: 6, p_peak_w: 6, peak_s: 1, assumed: true}
+  - {id: TRACER_CHG_IN, desc: "Tracer battery charger input (Orion-Tr 48/24-16 set to 10 A)", bus: B48, p_typ_w: 0, p_cont_w: 330, p_peak_w: 330, peak_s: 3600,
+     assumed: true, note: "284 W out (28.4 V x 10 A) / 0.87. Energy balancing is handled by the autonomy model, not by p_typ."}
+  - {id: TRACER_DRIVE, desc: "Tracer 2.0 traction (2x 400 W BLDC), own battery", bus: T24, p_typ_w: 60, p_cont_w: 400, p_peak_w: 800, peak_s: 3, source: tracer_manual,
+     note: "40-80 W typical on flat floor (docs/alimentazione); peak = 2x motor rating"}
+  - {id: TRACER_ELEC, desc: "Tracer controller, lights", bus: T24, p_typ_w: 15, p_cont_w: 15, p_peak_w: 20, peak_s: 1, assumed: true}
+
+# ------------------------------------------------------------------------------------------- converters
+converters:
+  - {id: DCDC_ARM_L, component: DCDC_ARM, out_bus: A24L, iout_a: 20, peak_factor: 1.5, peak_s: 5, eta: 0.92, vin_min: 33.6, vin_max: 67.2,
+     peak_note: "150 % for 5 s, then constant current 105-135 % (auto-recovery) - no shutdown"}
+  - {id: DCDC_ARM_R, component: DCDC_ARM, out_bus: A24R, iout_a: 20, peak_factor: 1.5, peak_s: 5, eta: 0.92, vin_min: 33.6, vin_max: 67.2,
+     peak_note: "150 % for 5 s"}
+  - {id: DCDC_S24, component: DCDC_S24, out_bus: S24, iout_a: 5, peak_factor: 1.5, peak_s: 3, eta: 0.91, vin_min: 33.6, vin_max: 67.2}
+  - {id: DCDC_CPU, component: DCDC_CPU, out_bus: C12, iout_a: 10, peak_factor: 1.5, peak_s: 3, eta: 0.895, vin_min: 33.6, vin_max: 67.2}
+  - {id: DCDC_5V, component: DCDC_5V, out_bus: L5, iout_a: 12, peak_factor: 1.0, peak_s: 0, eta: 0.875, vin_min: 18, vin_max: 75}
+
+# ------------------------------------------------------------------------------------------- wiring rules
+wiring:
+  # IEC 60204-1:2016 Table 6 style base ampacity, copper, PVC 70 C, 40 C ambient, installation method B1
+  # (conductors in conduit/duct - the conservative case for a robot harness). Values as recalled -> verify. (assumed)
+  ampacity_table:
+    B1: {0.75: 7.6, 1.0: 10.4, 1.5: 13.5, 2.5: 18.3, 4.0: 25, 6.0: 32, 10.0: 44, 16.0: 60, 25.0: 77, 35.0: 97}
+  ambient_correction: {30: 1.15, 35: 1.08, 40: 1.00, 45: 0.91, 50: 0.82, 55: 0.71, 60: 0.58}   # PVC 70 C
+  grouping_correction: {1: 1.0, 2: 0.80, 3: 0.70, 4: 0.65, 6: 0.57, 9: 0.50}
+  conductor: "flexible tinned Cu class 5, PVC 70 C min (prefer 90-105 C insulation e.g. H07Z-K / silicone for the base)"
+
+# ------------------------------------------------------------------------------------------- branches
+# current.from: conv_in (DC-DC input at V_min), conv_out (DC-DC output to loads), load, sum, fixed
+branches:
+  - {id: W01, desc: "Pack -> F0 -> Q0 (MSD) -> B48 busbar", bus: B48, current: {from: sum, branches: [W02, W05, W06, W07, W08]},
+     csa_mm2: 16, length_m: 0.6, method: B1, ambient_c: 40, grouped: 1, fuse: F0, vdrop_limit_pct: 3,
+     upstream_r_mohm: []}
+  - {id: W02, desc: "B48 -> F1 -> K1/K2 -> arm DC-DC pair", bus: B48, current: {from: conv_in, convs: [DCDC_ARM_L, DCDC_ARM_R]},
+     csa_mm2: 10, length_m: 0.5, method: B1, ambient_c: 45, grouped: 1, fuse: F1, vdrop_limit_pct: 3, upstream_r_mohm: [0.3, 0.2, 0.75]}
+  - {id: W03L, desc: "K2 -> F1L -> DDR-480C-24 left input", bus: B48, current: {from: conv_in, convs: [DCDC_ARM_L]},
+     csa_mm2: 6, length_m: 0.3, method: B1, ambient_c: 45, grouped: 2, fuse: F1L, vdrop_limit_pct: 3, upstream_r_mohm: [0.3, 0.2, 0.75, 0.6, 0.4]}
+  - {id: W03R, desc: "K2 -> F1R -> DDR-480C-24 right input", bus: B48, current: {from: conv_in, convs: [DCDC_ARM_R]},
+     csa_mm2: 6, length_m: 0.3, method: B1, ambient_c: 45, grouped: 2, fuse: F1R, vdrop_limit_pct: 3, upstream_r_mohm: [0.3, 0.2, 0.75, 0.6, 0.4]}
+  - {id: W04L, desc: "DDR-480C left -> ORing -> F10 -> left arm hub (through column)", bus: A24L, current: {from: conv_out, conv: DCDC_ARM_L},
+     csa_mm2: 6, length_m: 1.8, method: B1, ambient_c: 40, grouped: 1, fuse: F10, vdrop_limit_pct: 3, isc_override_a: 40}
+  - {id: W04R, desc: "DDR-480C right -> ORing -> F11 -> right arm hub (through column)", bus: A24R, current: {from: conv_out, conv: DCDC_ARM_R},
+     csa_mm2: 6, length_m: 1.8, method: B1, ambient_c: 40, grouped: 1, fuse: F11, vdrop_limit_pct: 3, isc_override_a: 40}
+  - {id: W05, desc: "B48 -> F2 -> DDR-120C-24 (safety 24 V)", bus: B48, current: {from: conv_in, convs: [DCDC_S24]},
+     csa_mm2: 1.5, length_m: 0.4, method: B1, ambient_c: 45, grouped: 4, fuse: F2, vdrop_limit_pct: 5, upstream_r_mohm: [0.3, 0.2, 0.75]}
+  - {id: W06, desc: "B48 -> F3 -> DDR-120C-12 (compute)", bus: B48, current: {from: conv_in, convs: [DCDC_CPU]},
+     csa_mm2: 1.5, length_m: 0.4, method: B1, ambient_c: 45, grouped: 4, fuse: F3, vdrop_limit_pct: 5, upstream_r_mohm: [0.3, 0.2, 0.75]}
+  - {id: W07, desc: "B48 -> F4 -> DDR-60L-5 (UI)", bus: B48, current: {from: conv_in, convs: [DCDC_5V]},
+     csa_mm2: 1.5, length_m: 0.4, method: B1, ambient_c: 45, grouped: 4, fuse: F4, vdrop_limit_pct: 5, upstream_r_mohm: [0.3, 0.2, 0.75]}
+  - {id: W08, desc: "B48 -> F5 -> Orion-Tr 48/24-16 (Tracer charger)", bus: B48, current: {from: load, load: TRACER_CHG_IN},
+     csa_mm2: 4, length_m: 0.5, method: B1, ambient_c: 45, grouped: 4, fuse: F5, vdrop_limit_pct: 3, upstream_r_mohm: [0.3, 0.2, 0.75]}
+  - {id: W09, desc: "Orion-Tr out -> F7 -> Tracer charge port (fuse at Tracer battery end)", bus: T24, current: {from: fixed, i_cont_a: 10, i_peak_a: 10, peak_s: 3600},
+     csa_mm2: 2.5, length_m: 0.8, method: B1, ambient_c: 45, grouped: 1, fuse: F7, vdrop_limit_pct: 3, isc_override_a: 3000,
+     note: "Tracer battery prospective Isc unknown; 3 kA assumed"}
+  - {id: W10, desc: "S24 -> F20 -> front scanner + PNOZ + coils (distribution)", bus: S24, current: {from: conv_out, conv: DCDC_S24},
+     csa_mm2: 1.0, length_m: 1.0, method: B1, ambient_c: 45, grouped: 4, fuse: F20, vdrop_limit_pct: 5, isc_override_a: 8}
+  - {id: W11, desc: "C12 -> F30 -> Jetson AGX Orin", bus: C12, current: {from: conv_out, conv: DCDC_CPU},
+     csa_mm2: 2.5, length_m: 0.6, method: B1, ambient_c: 50, grouped: 2, fuse: F30, vdrop_limit_pct: 5, isc_override_a: 15}
+  - {id: W12, desc: "L5 -> F40 -> head (LED face, eyes, ESP32) up the column", bus: L5, current: {from: conv_out, conv: DCDC_5V},
+     csa_mm2: 1.5, length_m: 1.4, method: B1, ambient_c: 40, grouped: 2, fuse: F40, vdrop_limit_pct: 5, isc_override_a: 13}
+  - {id: W13, desc: "Dock contacts -> ideal diode -> F9 (at pack) -> BMS charge input", bus: B48, current: {from: fixed, i_cont_a: 21, i_peak_a: 21, peak_s: 7200},
+     csa_mm2: 10, length_m: 0.7, method: B1, ambient_c: 45, grouped: 1, fuse: F9, vdrop_limit_pct: 3, upstream_r_mohm: [0.3]}
+
+fuses:
+  - {id: F0, component: FUSE_JLLN060}
+  - {id: F1, component: FUSE_JLLN035}
+  - {id: F1L, component: FUSE_SPF020}
+  - {id: F1R, component: FUSE_SPF020}
+  - {id: F2, component: FUSE_SPF006}
+  - {id: F3, component: FUSE_SPF006}
+  - {id: F4, component: FUSE_SPF003}
+  - {id: F5, component: FUSE_SPF012}
+  - {id: F7, component: FUSE_SPF015}
+  - {id: F9, component: FUSE_SPF030}
+  - {id: F10, component: FUSE_ATO25}
+  - {id: F11, component: FUSE_ATO25}
+  - {id: F20, component: FUSE_ATO5}
+  - {id: F30, component: FUSE_ATO10}
+  - {id: F40, component: FUSE_ATO5}
+
+contactors:
+  - {id: K1, component: K_ARM, i_cont_a: 22.0, i_break_a: 45.0, v_dc: 54.75,
+     note: "worst-case break = both arm DC-DCs at 150 % peak at V_min (SS1 failed). Normal break after SS1 < 3 A."}
+  - {id: K2, component: K_ARM, i_cont_a: 22.0, i_break_a: 45.0, v_dc: 54.75}
+
+precharge:
+  - {id: PC_ARM, resistor: R_PRE, c_total_uf: 3000, c_note: "2x DDR-480C input caps (unknown, 2x470 uF assumed) + 2x1000 uF added input bulk",
+     done_fraction: 0.95, t_max_s: 1.0, r_contactor_path_ohm: 0.02, repeat_per_min: 2, dcdc_inhibit: true}
+
+regen:
+  v_dcdc_set: 24.0
+  v_dcdc_ovp_min: 28.8          # DDR-480C-24 OVP 28.8-35 V (datasheet)
+  v_motor_ovp: 32.0             # DM-J4310 / DM-J4340P 24 V version, recommended OVP (datasheet)
+  v_clamp_on: 27.5
+  c_bus_uf_per_arm: 2500        # assumed: DC-DC output caps + 8 Damiao drivers
+  e_regen_j_per_arm: 50         # assumed: controlled stop from max speed with 4 kg payload, lowering 0.3 m
+  p_regen_peak_w_per_arm: 250   # assumed
+  stops_per_min: 6
+  clamp_component: CLAMP
+  oring: "Mean Well DRDN40-24 ideal-diode redundancy module per arm keeps regen off the DC-DC output (no OVP trip)"
+
+# ------------------------------------------------------------------------------------------- duty profiles
+# p_avg: average W per load over the profile; loads not listed use p_typ_w
+profiles:
+  - id: P1
+    desc: "Logistics kitting, continuous (arms active 100 %, driving 30 %)"
+    target_h: 4
+    p_avg: {ARM_L: 70, ARM_R: 70, JETSON: 45, TRACER_DRIVE: 18, TRACER_CHG_IN: 0}
+  - id: P2
+    desc: "Service / coffee runs (coffee brewed at dock), arms active 25 %, driving 20 %"
+    target_h: 6
+    p_avg: {ARM_L: 30, ARM_R: 30, JETSON: 35, TRACER_DRIVE: 12, TRACER_CHG_IN: 0}
+  - id: P3
+    desc: "Reception / standby, arms parked and powered, no driving, face on"
+    target_h: 8
+    p_avg: {ARM_L: 10, ARM_R: 10, JETSON: 25, TRACER_DRIVE: 0, TRACER_CHG_IN: 0, INSTA: 6}
+
+# ------------------------------------------------------------------------------------------- charging
+charging:
+  cv_v: 54.0                     # 3.60 V/cell
+  dock_charger_component: CHG_DOCK
+  dock_contact_component: DOCK_CONTACTS
+  hotel_load_w: 120              # robot awake on the dock (Jetson idle, scanners, PNOZ, coils)
+  tracer_charge_w: 284           # 28.4 V x 10 A
+  tracer_priority_soc: 0.80      # Tracer charged on the dock only once the pack is above 80 % (or when Tracer < 30 %)
+  cv_start_soc: 0.95
+  cv_tail_h: 0.3
+  target_20_80_min: 90
+  target_full_h: 4.0
+
+# ------------------------------------------------------------------------------------------- coffee options
+coffee:
+  cups_per_hour_service: 8
+  options:
+    - id: A
+      desc: "230 V commercial capsule machine on board via 48 V inverter"
+      machine_w: 1310            # Essenza Mini EU 1200-1310 W
+      eta_conv: 0.93             # Phoenix Inverter Smart 48/2000 (94 % max)
+      idle_w: 2.1                # inverter ECO mode (11 W without)
+      wh_per_cup: 15             # assumed 10-15 Wh incl. heat-up (machine side)
+      brew_min: 1.0
+      source: [nespresso_essenza_mini, victron_inverter_smart]
+    - id: B
+      desc: "24 V DC capsule machine on board (truck type, 300 W) via DDR-480C-24"
+      machine_w: 300
+      eta_conv: 0.92
+      idle_w: 1.0
+      wh_per_cup: 15             # assumed: same water heating, longer heat-up losses
+      brew_min: 3.0
+      source: [truck_24v_capsule, handpresso_auto]
+    - id: C
+      desc: "230 V commercial capsule machine fixed at the docking station (robot carries the cup)"
+      machine_w: 0
+      eta_conv: 1.0
+      idle_w: 0
+      wh_per_cup: 0
+      brew_min: 1.0
+      source: [nespresso_essenza_mini]
+  default: C
+
+# ------------------------------------------------------------------------------------------- safety functions
+safety:
+  pl_target: d
+  functions:
+    - id: SF1
+      desc: "E-stop -> SS1-t -> arm power removed by K1+K2"
+      plr: d
+      cat: 3
+      chain:
+        - {name: "E-stop 2NC (B10D 100k, nop 500/y, DC high via cross-monitoring)", pfhd: 1.0e-7, assumed: true}
+        - {name: "PNOZ m B0", pfhd: 3.0e-9, assumed: true}
+        - {name: "K1+K2 3RT2 mirror contacts + EDM (B10D 1.3M)", pfhd: 1.0e-7, assumed: true}
+    - id: SF2
+      desc: "Protective field violated -> SS1-t -> arm power removed"
+      plr: d
+      cat: 3
+      chain:
+        - {name: "nanoScan3 (datasheet PFHd)", pfhd: 8.0e-8, source: sick_nanoscan3}
+        - {name: "PNOZ m B0", pfhd: 3.0e-9, assumed: true}
+        - {name: "K1+K2 + EDM", pfhd: 1.0e-7, assumed: true}
+    - id: SF3
+      desc: "Protective field / E-stop -> base stop (Tracer)"
+      plr: d
+      cat: 3
+      chain:
+        - {name: "nanoScan3", pfhd: 8.0e-8, source: sick_nanoscan3}
+        - {name: "PNOZ m B0 + EF 4DI4DOR relay output", pfhd: 1.3e-8, assumed: true}
+        - {name: "Tracer 2.0 power cut via its E-stop loop (no documented safety input, not rated)", pfhd: null}
+
+# ------------------------------------------------------------------------------------------- components / BOM
+# ratings used by calc.py; 'short' = label used in the diagram
+components:
+  # --- energy storage
+  - {id: PACK, short: "15s LFP 40 Ah", category: battery, qty: 1, manufacturer: "pack integrator (TBD)", mpn: "GIO-BAT-15S40 (spec), cells CALB CA40-class",
+     desc: "15s1p LiFePO4 48 V 40 Ah 1.92 kWh, IP54 case, CAN BMS, IEC 62619 + UN 38.3 + CE/EMC test reports required", price_eur: 1400, assumed: true,
+     certs: "required: IEC 62619, UN 38.3, IEC 61000-6-2/-6-3, EU 2023/1542 labelling"}
+  - {id: BMS, short: "BMS", category: battery, qty: 1, manufacturer: "integrated in pack", mpn: "pack BMS, MOSFET, CAN 2.0B, with precharge",
+     ratings: {i_cont_a: 100, i_peak_a: 200, t_peak_s: 10, i_charge_a: 40}, price_eur: 0, assumed: true,
+     desc: "cell V/T monitoring, SoC/SoH, charge/discharge FETs, bus precharge on wake, CAN to Jetson and dock charger, key/enable input"}
+  # --- protection
+  - {id: FUSE_JLLN060, short: "60 A class T", category: fuse, qty: 1, manufacturer: Littelfuse, mpn: JLLN060.T, price_eur: 30,
+     ratings: {in_a: 60, v_dc: 160, ir_dc_a: 20000, no_blow_ratio: 1.5, no_blow_note: "fast-acting class T; 150 % for <= 5 s assumed from TCC"}, source: lf_jlln,
+     certs: "UL 248-15 class T, DC UL listed 35-1200 A"}
+  - {id: FUSE_JLLN035, short: "35 A class T", category: fuse, qty: 1, manufacturer: Littelfuse, mpn: JLLN035.T, price_eur: 25,
+     ratings: {in_a: 35, v_dc: 160, ir_dc_a: 20000, no_blow_ratio: 1.5, no_blow_note: "150 % <= 5 s assumed"}, source: lf_jlln}
+  - {id: FUSE_SPF020, short: "20 A gPV", category: fuse, qty: 2, manufacturer: Littelfuse, mpn: SPF020 (10x38 gPV), price_eur: 6,
+     ratings: {in_a: 20, v_dc: 1000, ir_dc_a: 20000, no_blow_ratio: 1.3, no_blow_note: "gPV 1.13/1.45 In conventional currents"}, assumed: true,
+     note: "DC interrupting rating recalled (20 kA) - Littelfuse site blocked, verify"}
+  - {id: FUSE_SPF030, short: "30 A gPV", category: fuse, qty: 1, manufacturer: Littelfuse, mpn: SPF030, price_eur: 6,
+     ratings: {in_a: 30, v_dc: 1000, ir_dc_a: 20000, no_blow_ratio: 1.3}, assumed: true}
+  - {id: FUSE_SPF015, short: "15 A gPV", category: fuse, qty: 1, manufacturer: Littelfuse, mpn: SPF015, price_eur: 6,
+     ratings: {in_a: 15, v_dc: 1000, ir_dc_a: 20000, no_blow_ratio: 1.3}, assumed: true}
+  - {id: FUSE_SPF012, short: "12 A gPV", category: fuse, qty: 1, manufacturer: Littelfuse, mpn: SPF012, price_eur: 6,
+     ratings: {in_a: 12, v_dc: 1000, ir_dc_a: 20000, no_blow_ratio: 1.3}, assumed: true}
+  - {id: FUSE_SPF006, short: "6 A gPV", category: fuse, qty: 2, manufacturer: Littelfuse, mpn: SPF006, price_eur: 6,
+     ratings: {in_a: 6, v_dc: 1000, ir_dc_a: 20000, no_blow_ratio: 1.3}, assumed: true}
+  - {id: FUSE_SPF003, short: "3 A gPV", category: fuse, qty: 1, manufacturer: Littelfuse, mpn: SPF003, price_eur: 6,
+     ratings: {in_a: 3, v_dc: 1000, ir_dc_a: 20000, no_blow_ratio: 1.3}, assumed: true}
+  - {id: FUSEHOLDER_10x38, short: "", category: fuse, qty: 8, manufacturer: Littelfuse, mpn: "LPXV series 10x38 DIN holder (1-pole)", price_eur: 9, assumed: true}
+  - {id: FUSEHOLDER_T, short: "", category: fuse, qty: 2, manufacturer: Littelfuse, mpn: "LFT60 class T holder (35-60 A)", price_eur: 35, source: lf_jlln}
+  - {id: FUSE_ATO25, short: "25 A ATO", category: fuse, qty: 2, manufacturer: Littelfuse, mpn: "0257025 (ATO 32 V)", price_eur: 1,
+     ratings: {in_a: 25, v_dc: 32, ir_dc_a: 1000, no_blow_ratio: 1.3, no_blow_note: "ATO: 110 % 100 h, 135 % 0.75-120 s"}, assumed: true}
+  - {id: FUSE_ATO10, short: "10 A ATO", category: fuse, qty: 1, manufacturer: Littelfuse, mpn: "0257010", price_eur: 1,
+     ratings: {in_a: 10, v_dc: 32, ir_dc_a: 1000, no_blow_ratio: 1.3}, assumed: true}
+  - {id: FUSE_ATO5, short: "5 A ATO", category: fuse, qty: 2, manufacturer: Littelfuse, mpn: "0257005", price_eur: 1,
+     ratings: {in_a: 5, v_dc: 32, ir_dc_a: 1000, no_blow_ratio: 1.3}, assumed: true}
+  - {id: MSD, short: "SB120", category: disconnect, qty: 1, manufacturer: Anderson Power Products, mpn: "SB120 grey + lockout cover (service disconnect, open only after key-off)",
+     ratings: {i_cont_a: 120, v_dc: 600}, price_eur: 25, assumed: true}
+  - {id: KEYSW, short: "", category: control, qty: 1, manufacturer: "Schneider / Eaton", mpn: "key selector 2-pos (BMS enable)", price_eur: 30, assumed: true}
+  - {id: IDEAL_DIODE_CHG, short: "", category: protection, qty: 1, manufacturer: "Mean Well", mpn: "DRDN40-48 (ideal-diode / ORing, charge path backfeed block)", price_eur: 60, assumed: true,
+     note: "robot dock contacts dead when undocked"}
+  - {id: ORING_ARM, short: "", category: protection, qty: 2, manufacturer: "Mean Well", mpn: "DRDN40-24 (ORing module per arm bus)", price_eur: 55, assumed: true}
+  # --- conversion
+  - {id: DCDC_ARM, short: "DDR-480C-24", category: dcdc, qty: 2, manufacturer: Mean Well, mpn: DDR-480C-24, price_eur: 140,
+     desc: "33.6-67.2 V in, 24 V 20 A, 30 A 5 s, 92 %, remote ON/OFF, DIN rail", source: mw_ddr480,
+     certs: "IEC/UL 62368-1, EN 55032 (conducted class A, radiated class B), EN 55035, EN 50155, IEC 61373"}
+  - {id: DCDC_S24, short: "DDR-120C-24", category: dcdc, qty: 1, manufacturer: Mean Well, mpn: DDR-120C-24, price_eur: 50, source: mw_ddr120,
+     certs: "IEC/UL 62368-1, EN 55032 class B, EN 61000-6-2"}
+  - {id: DCDC_CPU, short: "12 V 10 A", category: dcdc, qty: 1, manufacturer: Mean Well, mpn: DDR-120C-12, price_eur: 50, source: mw_ddr120,
+     certs: "IEC/UL 62368-1, EN 55032 class B"}
+  - {id: DCDC_5V, short: "DDR-60L-5", category: dcdc, qty: 1, manufacturer: Mean Well, mpn: DDR-60L-5, price_eur: 30, source: mw_ddr60,
+     certs: "IEC/UL 62368-1, EN 55032 class A (B with 30 cm I/O cable)"}
+  - {id: DCDC_COF, short: "DDR-480C-24", category: dcdc, qty: 0, manufacturer: Mean Well, mpn: DDR-480C-24, price_eur: 140, source: mw_ddr480,
+     note: "only for coffee OPTION B"}
+  - {id: CHG_TRACER, short: "Orion-Tr 48/24-16", category: charger, qty: 1, manufacturer: Victron Energy, mpn: "ORI482441120 Orion-Tr Smart 48/24-16 (400 W) isolated",
+     ratings: {eta: 0.87, i_out_a: 16, v_out_set: 28.4}, price_eur: 230, assumed: true,
+     note: "set to 10 A / 28.4 V absorption, LFP; confirm Tracer BMS charge limit with AgileX"}
+  - {id: CHG_DOCK, short: "(Delta-Q IC1200)", category: charger, qty: 1, manufacturer: Delta-Q Technologies, mpn: "IC1200 48 V (custom 15s LFP profile 54.0 V, CAN)",
+     ratings: {p_out_w: 1200, i_out_a: 21}, price_eur: 650, assumed: true,
+     certs: "CE (LVD, EMC), UL/IEC 60335-2-29 per manufacturer - verify", note: "in the station; IP-rated; CAN handshake with BMS"}
+  - {id: DOCK_CONTACTS, short: "40 A spring contacts", category: connector, qty: 1, manufacturer: "Conductix-Wampfler / Staubli (TBD)", mpn: "AGV charging contact set, 3-pole (+, -, pilot), >= 40 A",
+     ratings: {i_cont_a: 40, v_dc: 60}, price_eur: 250, assumed: true}
+  # --- safety
+  - {id: K_ARM, short: "3RT2036-1BB40", category: contactor, qty: 2, manufacturer: Siemens, mpn: "3RT2036-1BB40 (S2, 24 V DC coil, 1NO+1NC mirror)",
+     ratings: {i_cont_a: 50, i_break_a: 50, v_break_v: 60, i_make_a: 300, aux: "1NO+1NC integrated (mirror contact IEC 60947-4-1 Annex F)", mirror_contact: true,
+               break_note: "DC-1, 3 poles in series - value recalled from Siemens 3RT2 DC switching table, VERIFY"}, price_eur: 120, assumed: true}
+  - {id: K_PRE, short: "K3", category: relay, qty: 1, manufacturer: Finder, mpn: "62.32.9.024.0040 (16 A power relay) precharge bypass", price_eur: 25, assumed: true}
+  - {id: R_PRE, short: "47 ohm 50 W", category: resistor, qty: 1, manufacturer: Arcol, mpn: HS50 47R J,
+     ratings: {r_ohm: 47, p_cont_w: 10, e_pulse_j: 50, pulse_note: "free-air 10 W; adiabatic pulse rating assumed - verify with Arcol overload curve"}, price_eur: 8, assumed: true}
+  - {id: CLAMP, short: "27.5 V shunt", category: protection, qty: 2, manufacturer: "in-house (comparator + MOSFET) or AMC SRST series", mpn: "shunt regulator 27.5 V + Arcol HS100 1R8",
+     ratings: {r_ohm: 1.8, p_cont_w: 30, e_pulse_j: 500}, price_eur: 60, assumed: true}
+  - {id: PNOZ, short: "PNOZ m B0", category: safety, qty: 1, manufacturer: Pilz, mpn: "772100 PNOZ m B0", price_eur: 500,
+     certs: "PL e (EN ISO 13849-1), SIL CL 3 (EN 62061), CE", note: "20 safe inputs, 4 safe semiconductor outputs; datasheet in hand, PFHd to take from Pilz SISTEMA library"}
+  - {id: PNOZ_REL, short: "PNOZ m EF 4DI4DOR", category: safety, qty: 1, manufacturer: Pilz, mpn: "772143 PNOZ m EF 4DI4DOR (relay outputs)", price_eur: 300, assumed: true}
+  - {id: SCANNER, short: "nanoScan3", category: safety, qty: 2, manufacturer: SICK, mpn: "NANS3-CAAZ30AN1 (1100334) Pro I/O, 128 field sets", price_eur: 2300, source: sick_nanoscan3,
+     certs: "Type 3 IEC 61496, SIL 2, PL d, PFHd 8.0e-8, 3 m protective field"}
+  - {id: ESTOP, short: "M22-PV/K02", category: safety, qty: 2, manufacturer: Eaton, mpn: "M22-PV/K02 + M22-XGPV yellow guard (2 NC)", price_eur: 35, assumed: true,
+     certs: "IEC 60947-5-5, ISO 13850"}
+  - {id: RESET, short: "", category: safety, qty: 1, manufacturer: Eaton, mpn: "M22-DL-B + M22-K10 (blue illuminated reset)", price_eur: 20, assumed: true}
+  - {id: WIRELESS_ESTOP, short: "", category: safety, qty: 0, manufacturer: "FORT Robotics / HBC", mpn: "optional wireless E-stop PL d (operator handheld)", price_eur: 900, assumed: true}
+  # --- connectors & wiring
+  - {id: CONN_ARM, short: "", category: connector, qty: 2, manufacturer: Amass, mpn: "XT60PW-M/F (arm 24 V at column base)", ratings: {i_cont_a: 60, v_dc: 500}, price_eur: 3, assumed: true}
+  - {id: CONN_PACK, short: "", category: connector, qty: 1, manufacturer: Anderson Power Products, mpn: "SB120 (pack <-> distribution, doubles as MSD)", ratings: {i_cont_a: 120, v_dc: 600}, price_eur: 0, assumed: true}
+  - {id: CONN_LV, short: "", category: connector, qty: 10, manufacturer: Anderson Power Products, mpn: "Powerpole PP45 / PP15 (24 V, 12 V branches)", price_eur: 2, assumed: true}
+  - {id: CABLE_16, short: "", category: wire, qty: 2, manufacturer: Lapp, mpn: "H07V-K 16 mm2 (or OLFLEX HEAT 125 SC) [m]", price_eur: 5, assumed: true}
+  - {id: CABLE_10, short: "", category: wire, qty: 3, manufacturer: Lapp, mpn: "H07V-K 10 mm2 [m]", price_eur: 3.5, assumed: true}
+  - {id: CABLE_6, short: "", category: wire, qty: 8, manufacturer: Lapp, mpn: "H07V-K 6 mm2 [m] (arm feeds through column)", price_eur: 2.2, assumed: true}
+  - {id: CABLE_SMALL, short: "", category: wire, qty: 30, manufacturer: Lapp, mpn: "H05V-K 0.75-2.5 mm2 assorted [m]", price_eur: 0.8, assumed: true}
+  - {id: BUSBAR, short: "", category: distribution, qty: 1, manufacturer: "Phoenix Contact", mpn: "PTFIX / UT DIN distribution block + 2x Cu busbar (B48 +/-)", price_eur: 60, assumed: true}
+  - {id: SHUNT_BOND, short: "", category: grounding, qty: 1, manufacturer: "-", mpn: "0 V to chassis single-point bond strap 6 mm2", price_eur: 5, assumed: true}
+  - {id: EMI_FILTER, short: "", category: emc, qty: 1, manufacturer: Schaffner, mpn: "FN2200-50 DC/AC filter on arm DC-DC inputs (if class B conducted needed)", price_eur: 60, assumed: true}
+  - {id: CAN_ISO, short: "", category: interface, qty: 1, manufacturer: "PEAK-System", mpn: "PCAN-USB FD / isolated CAN to Tracer", price_eur: 250, assumed: true}
+  # --- loads referenced (bought as part of subsystems, priced elsewhere in the README BOM)
+  - {id: OPENARM, short: "", category: load, qty: 1, manufacturer: Enactic, mpn: "OpenArm 2.0 bimanual (16 Damiao motors)", price_eur: 0, source: openarm_motor}
+  - {id: JETSON_AGX, short: "", category: load, qty: 1, manufacturer: NVIDIA, mpn: "Jetson AGX Orin 64GB", price_eur: 0, source: jetson_agx_orin_ds}
+  - {id: TRACER, short: "", category: load, qty: 1, manufacturer: AgileX, mpn: "Tracer 2.0", price_eur: 0, source: tracer_manual}

@@ -661,7 +661,45 @@
    ]
   },
   {
-   "_ELEC": true
+   "type": "frames",
+   "glob": "v10/d_energia/f_*.jpg",
+   "ui": false
+  },
+  {
+   "type": "card",
+   "dur": 5.5,
+   "bg": "stills_v10/schema_elettrico.png",
+   "dim": 0.0,
+   "zoom": 0.1,
+   "texts": [
+    {
+     "t0": 0.3,
+     "t1": 5.5,
+     "text": "ELECTRICAL",
+     "pos": "kick",
+     "size": 24,
+     "weight": "X",
+     "align": "left",
+     "color": [
+      255,
+      122,
+      26
+     ],
+     "shadow": false,
+     "band": false,
+     "above": 120,
+     "track": 2
+    },
+    {
+     "t0": 0.3,
+     "t1": 5.5,
+     "text": "EVERY WIRE, FUSE AND\nCONTACTOR: SIZED AND CHECKED.",
+     "pos": "ll",
+     "size": 56,
+     "weight": "H",
+     "align": "left"
+    }
+   ]
   },
   {
    "type": "frames",
