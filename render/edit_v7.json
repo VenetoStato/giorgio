@@ -244,7 +244,7 @@
     {
      "t": 2.4,
      "who": "giorgio",
-     "text": "fai_caffe()  →  porta_caffe(Marco)"
+     "text": "fai_caffe()  ›  porta_caffe(Marco)"
     },
     {
      "t": 3.8,
@@ -325,7 +325,7 @@
    "type": "card",
    "dur": 4.0,
    "bg": "stills_v7/01_hero.png",
-   "dim": 0.55,
+   "dim": 0.74,
    "zoom": 0.04,
    "texts": [
     {
@@ -336,13 +336,14 @@
      "size": 72,
      "weight": "L"
     }
-   ]
+   ],
+   "blur": 5
   },
   {
    "type": "card",
    "dur": 4.5,
    "bg": "stills_v7/02_volto.png",
-   "dim": 0.62,
+   "dim": 0.74,
    "zoom": 0.04,
    "texts": [
     {
@@ -357,17 +358,18 @@
      "t0": 1.2,
      "t1": 4.5,
      "text": "Oggi pinze affidabili. Mani articolate: in sviluppo, come opzione.",
-     "pos": "sub",
+     "pos": "sub2",
      "size": 30,
      "weight": "L"
     }
-   ]
+   ],
+   "blur": 5
   },
   {
    "type": "card",
    "dur": 4.5,
    "bg": "stills_v7/04_zaino_dettaglio.png",
-   "dim": 0.6,
+   "dim": 0.74,
    "zoom": 0.05,
    "texts": [
     {
@@ -386,13 +388,14 @@
      "size": 64,
      "weight": "L"
     }
-   ]
+   ],
+   "blur": 5
   },
   {
    "type": "card",
    "dur": 4.5,
    "bg": "stills_v7/01_hero.png",
-   "dim": 0.7,
+   "dim": 0.74,
    "zoom": 0.03,
    "texts": [
     {
@@ -415,11 +418,12 @@
      "t0": 1.8,
      "t1": 4.5,
      "text": "prezzo indicativo · componenti ≈ € 28.000 + montaggio · margine 30%",
-     "pos": "sub",
+     "pos": "sub2",
      "size": 26,
      "weight": "L"
     }
-   ]
+   ],
+   "blur": 5
   },
   {
    "type": "card",

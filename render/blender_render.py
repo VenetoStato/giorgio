@@ -236,9 +236,10 @@ def human_mat(nm, j):
     k = int(nm.split("_")[1])
     col = (0.5, 0.5, 0.5)
     if HRGB is not None and HRGB.shape[1] > j:
-        vis = np.nonzero(HS[:, j, 0] > 1e-3)[0]
+        bid_ = J["body_names"].index(nm[:-2]) if nm[:-2] in J["body_names"] else None
+        vis = np.nonzero(XP[:, bid_, 2] > -5)[0] if bid_ is not None else np.nonzero(HS[:, j, 0] > 1e-3)[0]
         if len(vis):
-            col = tuple(float(c) for c in HRGB[vis[0], j, :3])
+            col = tuple(float(c) ** 2.2 for c in HRGB[vis[0], j, :3])     # sRGB -> lineare
     key = (k, col)
     if key in _hmats:
         return _hmats[key]

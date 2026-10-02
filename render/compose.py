@@ -63,10 +63,19 @@ def draw_texts(img, texts, t):
             x, y = (W - tw) / 2, 90
         elif pos == "sub":                       # sotto il titolo centrale
             x, y = (W - tw) / 2, H / 2 + 70
+        elif pos == "sub2":                      # nota piccola sotto il sottotitolo
+            x, y = (W - tw) / 2, H / 2 + 160
         elif pos == "left":
             x, y = 120, (H - th) / 2
         else:
             x, y = pos
+        if pos in ("lower", "upper"):                    # fascia scura morbida dietro ai sottotitoli (leggibili sul bianco)
+            band = Image.new("L", (W, int(th + 220)), 0); bd = ImageDraw.Draw(band)
+            for yy in range(band.size[1]):
+                k_ = 1 - abs(yy - band.size[1] / 2) / (band.size[1] / 2)
+                bd.line((0, yy, W, yy), fill=int(150 * a * min(1, k_ * 1.6)))
+            blk = Image.new("RGBA", band.size, (0, 0, 0, 255)); blk.putalpha(band)
+            layer.alpha_composite(blk, (0, max(0, int(y - 110))))
         for i, l in enumerate(lines):
             lx = x + (tw - dr.textlength(l, font=f)) / 2 if tx.get("align", "center") == "center" else x
             if tx.get("shadow", True):
@@ -182,7 +191,8 @@ def draw_chat(img, chat, t):
 
 
 tmp = OUT + ".noaudio.mp4"
-wr = imageio.get_writer(tmp, fps=FPS, quality=9, macro_block_size=8, codec="libx264", pixelformat="yuv420p")
+wr = imageio.get_writer(tmp, fps=FPS, quality=None, macro_block_size=8, codec="libx264", pixelformat="yuv420p",
+                        output_params=["-crf", "20", "-preset", "slow", "-movflags", "+faststart"])
 tail = []                                     # ultimi fotogrammi del segmento precedente (dissolvenza incrociata)
 nframes = 0
 for si, sg in enumerate(E["segments"]):

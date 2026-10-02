@@ -11,7 +11,7 @@ q1() {
   $B -b -P blender_render.py -- --data caffe --frames 30 540 4 --cpos -1.5 0.55 1.25 --ctgt -2.25 1.25 0.82 --lens 45 --lc -2.4 1.45 --out v7/c_caffe1/f_#### $R > v7_c1.log 2>&1
   $B -b -P blender_render.py -- --data caffe --frames 540 830 2 --cpos -1.75 0.8 1.05 --ctgt -2.22 1.24 0.80 --lens 50 --lc -2.4 1.45 --out v7/c_caffe2/f_#### $R > v7_c2.log 2>&1
   $B -b -P blender_render.py -- --data caffe --frames 830 1010 3 --cpos -1.3 0.6 1.45 --ctgt -2.3 1.35 0.95 --lens 40 --lc -2.4 1.45 --out v7/c_caffe3/f_#### $R > v7_c3.log 2>&1
-  $B -b -P blender_render.py -- --data caffe --frames 1700 2260 2 --cpos 1.05 -0.55 1.55 --ctgt 1.0 -2.3 1.0 --lens 32 --lc 1.0 -2.2 --out v7/c_consegna/f_#### $R > v7_c4.log 2>&1
+  $B -b -P blender_render.py -- --data caffe --frames 1700 2260 2 --cpos -1.3 -4.5 1.75 --ctgt 0.63 -2.4 1.1 --lens 34 --lc 0.6 -2.4 --out v7/c_consegna/f_#### $R > v7_c4.log 2>&1
   echo Q1_FATTO
 }
 q2() {
