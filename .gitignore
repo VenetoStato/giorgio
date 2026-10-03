@@ -29,3 +29,10 @@ render/stills_*/
 render/*.log
 *.log
 rl_mani/runs/
+
+# CAD (cad/): env and generated exports
+cad/.env/
+cad/out/
+cad/data/
+cad/__pycache__/
+giorgio_os/.venv/

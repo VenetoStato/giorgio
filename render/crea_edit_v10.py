@@ -81,6 +81,12 @@ S.append(shot("v10/l_ins/f_*.jpg", "SIM // 0.5×", kick(0.3, 5.6, "PRECISION"), 
 S.append(shot("v10/l_oper/f_*.jpg", "SIM // 6×", kick(0.4, 7.5, "COLLABORATION"), T(0.4, 7.5, "WORKS NEXT TO PEOPLE.\nNOT INSTEAD OF THEM.", size=58)))
 S.append(shot("v10/s_smista/f_*.jpg", "SIM // 4×", kick(0.4, 7.5, "SORTING"), T(0.4, 7.5, "SORTS BY COLOUR.", size=64),
               T(1.0, 7.5, "Without knocking over what it already sorted. (That took a while.)", [122, 960], 32, "N", band=False)))
+# --- software
+S.append(dict(type="card", dur=4.6, bg="stills_v10/os_console.png", dim=0.0, zoom=0.04,
+              texts=[T(0.3, 4.6, "GIORGIO-OS", [122, 975], 40, "H", color=WHITE, shadow=False, band=False, track=3, align="left"),
+                     T(0.6, 4.6, "ONE CONSOLE. TALK TO IT, OR CLICK.", [470, 985], 26, "X", color=GREY, shadow=False, band=False, align="left")]))
+S.append(dict(type="card", dur=4.2, bg="stills_v10/os_safety.png", dim=0.0, zoom=0.04,
+              texts=[T(0.3, 4.2, "THE BIG RED BUTTON IS SOFTWARE. THE REAL ONE IS ON THE ROBOT.", [122, 985], 26, "X", color=GREY, shadow=False, band=False, align="left")]))
 # --- mani RL
 S.append(card(2.8, big(0.2, 2.8, "DEXTERITY IS TRAINED,\nNOT HAND-CODED.", 80)))
 S.append(shot("v9/rl_prima/f_*.jpg", "SIM // REINFORCEMENT LEARNING", kick(0.3, 4.3, "ORCA HAND · BEFORE"), T(0.3, 4.3, "UNTRAINED.", size=64)))

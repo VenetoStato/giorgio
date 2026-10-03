@@ -1184,6 +1184,82 @@
   },
   {
    "type": "card",
+   "dur": 4.6,
+   "bg": "stills_v10/os_console.png",
+   "dim": 0.0,
+   "zoom": 0.04,
+   "texts": [
+    {
+     "t0": 0.3,
+     "t1": 4.6,
+     "text": "GIORGIO-OS",
+     "pos": [
+      122,
+      975
+     ],
+     "size": 40,
+     "weight": "H",
+     "align": "left",
+     "color": [
+      245,
+      245,
+      242
+     ],
+     "shadow": false,
+     "band": false,
+     "track": 3
+    },
+    {
+     "t0": 0.6,
+     "t1": 4.6,
+     "text": "ONE CONSOLE. TALK TO IT, OR CLICK.",
+     "pos": [
+      470,
+      985
+     ],
+     "size": 26,
+     "weight": "X",
+     "align": "left",
+     "color": [
+      150,
+      152,
+      158
+     ],
+     "shadow": false,
+     "band": false
+    }
+   ]
+  },
+  {
+   "type": "card",
+   "dur": 4.2,
+   "bg": "stills_v10/os_safety.png",
+   "dim": 0.0,
+   "zoom": 0.04,
+   "texts": [
+    {
+     "t0": 0.3,
+     "t1": 4.2,
+     "text": "THE BIG RED BUTTON IS SOFTWARE. THE REAL ONE IS ON THE ROBOT.",
+     "pos": [
+      122,
+      985
+     ],
+     "size": 26,
+     "weight": "X",
+     "align": "left",
+     "color": [
+      150,
+      152,
+      158
+     ],
+     "shadow": false,
+     "band": false
+    }
+   ]
+  },
+  {
+   "type": "card",
    "dur": 2.8,
    "color": [
     6,

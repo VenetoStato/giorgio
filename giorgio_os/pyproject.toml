@@ -1,0 +1,25 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "giorgio_os"
+version = "0.1.0"
+description = "Unified software stack for Giorgio, a mobile bimanual service robot (HAL + skills + safety + operator UI)"
+requires-python = ">=3.10"
+dependencies = ["numpy", "pyyaml", "fastapi", "uvicorn"]
+
+[project.optional-dependencies]
+sim = ["mujoco>=3.2", "scipy", "opencv-python"]
+llm = ["anthropic"]
+test = ["pytest", "httpx"]
+
+[tool.setuptools.packages.find]
+include = ["giorgio_os*"]
+
+[tool.setuptools.package-data]
+giorgio_os = ["configs/*.yaml", "ui/static/*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-p no:cacheprovider"

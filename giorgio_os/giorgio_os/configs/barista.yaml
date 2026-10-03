@@ -1,0 +1,51 @@
+# Giorgio "Barista": office/hospitality unit with the capsule-coffee backpack.
+name: barista
+title: Barista
+description: "Coffee backpack + parallel grippers. Makes coffee and hands it over; light fetch & carry."
+hands: gripper
+bom_eur: 28080
+modules:
+  coffee: true
+  tray: true
+  cam360: true
+  face: true
+skills: [navigate, dock_charge, pick, place, load_tray, unload_tray, make_coffee, hand_over, wave, say]
+
+# named locations in the map frame [x, y, theta]  (sim coordinates; real robot: from the Nav2 map)
+locations:
+  A: [-2.4, 1.45, 1.5708]     # kitting bench (load)
+  B: [0.0, 0.0, 0.0]          # insertion bench (unload)
+  C: [-3.0, -2.6, -1.5708]    # charging station
+people:
+  Marco: [1.6, -1.92]
+  Sara: [-4.6, 3.12]
+
+safety: {k_mm_s: 1600, t_s: 0.37, c_mm: 1128, reduced_speed: 0.30, clear_hold_s: 1.0}
+energy: {capacity_wh: 2400, charge_below: 0.30, critical_below: 0.15, resume_above: 0.80, task_min_soc: 0.40, coffee_min_soc: 0.20}
+agent: {llm_enabled: false, llm_model: claude-opus-5-5, language: en}
+
+sim:
+  soc: 0.85
+  humans: true
+  look: gb
+
+# --- real robot wiring (used by giorgio_os.hal.real) ---------------------------------------
+real:
+  ros_domain_id: 42
+  base:   {driver: tracer_ros2, can: can0, bitrate: 500000, cmd_vel: /cmd_vel, odom: /odom}
+  arms:   {driver: openarm_ros2, right_can: can1, left_can: can2, canfd: true,
+           controller: /joint_trajectory_controller, moveit_group: {right: right_arm, left: left_arm}}
+  grippers: {driver: openarm_gripper, action: "/{side}_gripper_controller/gripper_cmd"}
+  scanners:
+    front: {driver: sick_safetyscanners2, ip: 192.168.1.11, host_ip: 192.168.1.2, port: 6060, topic: /scan_front}
+    rear:  {driver: sick_safetyscanners2, ip: 192.168.1.12, host_ip: 192.168.1.2, port: 6061, topic: /scan_rear}
+  relay:  {driver: pnoz_gpio, inputs: {estop_ok: 1, scanners_ok: 2, drives_enabled: 3, arm_power: 4, reset_required: 5}, gpiochip: gpiochip0}
+  cameras:
+    gemini:  {driver: orbbec_camera, ns: /camera/gemini, color: /camera/gemini/color/image_raw, depth: /camera/gemini/depth/image_raw}
+    wrist_right: {driver: openarm_wrist_cam, device: /dev/video_wrist_r}
+    wrist_left:  {driver: openarm_wrist_cam, device: /dev/video_wrist_l}
+    pano:    {driver: uvc_360, device: /dev/video_360}
+  battery: {driver: bms_can, can: can3, bitrate: 500000, protocol: victron_can}
+  dock:    {driver: opennav_docking, dock_id: home_dock, action: /dock_robot}
+  face:    {driver: hub75_serial, port: /dev/ttyACM0, baud: 921600}
+  coffee:  {driver: coffee_microros, port: /dev/ttyACM1, namespace: /coffee}

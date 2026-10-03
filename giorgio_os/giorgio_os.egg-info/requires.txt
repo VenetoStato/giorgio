@@ -1,0 +1,16 @@
+numpy
+pyyaml
+fastapi
+uvicorn
+
+[llm]
+anthropic
+
+[sim]
+mujoco>=3.2
+scipy
+opencv-python
+
+[test]
+pytest
+httpx

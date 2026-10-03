@@ -1,0 +1,18 @@
+Metadata-Version: 2.4
+Name: giorgio_os
+Version: 0.1.0
+Summary: Unified software stack for Giorgio, a mobile bimanual service robot (HAL + skills + safety + operator UI)
+Requires-Python: >=3.10
+Requires-Dist: numpy
+Requires-Dist: pyyaml
+Requires-Dist: fastapi
+Requires-Dist: uvicorn
+Provides-Extra: sim
+Requires-Dist: mujoco>=3.2; extra == "sim"
+Requires-Dist: scipy; extra == "sim"
+Requires-Dist: opencv-python; extra == "sim"
+Provides-Extra: llm
+Requires-Dist: anthropic; extra == "llm"
+Provides-Extra: test
+Requires-Dist: pytest; extra == "test"
+Requires-Dist: httpx; extra == "test"

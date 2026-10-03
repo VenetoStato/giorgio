@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Giorgio Console</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' fill='%230a0c0d'/%3E%3Crect x='3' y='5' width='3' height='3' fill='%23c9f26b'/%3E%3Crect x='10' y='5' width='3' height='3' fill='%23c9f26b'/%3E%3Crect x='4' y='11' width='8' height='1' fill='%23e8ebe6'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<header class="top">
+  <div class="brand">
+    <span class="mark" aria-hidden="true"></span>
+    <div>
+      <div class="wordmark">GIORGIO</div>
+      <div class="sub">OPERATOR CONSOLE <span class="dim">// UNIT G-P/01</span></div>
+    </div>
+  </div>
+  <div class="mode" id="mode"><span class="dot"></span><span id="modeText">BOOTING</span></div>
+  <div class="controls">
+    <label class="sel"><span>CONFIG</span>
+      <select id="config"></select>
+    </label>
+    <div class="badge" id="backend">SIM</div>
+    <div class="clock mono" id="clock">T+0.0</div>
+    <button class="reset" id="reset" title="Release the software stop (only when the area is clear)">RESET</button>
+    <button class="stop" id="stop" title="Software stop request. The safety-rated stop is the red E-stop button on the robot.">
+      <span class="big">STOP</span><span class="small">SOFTWARE &middot; NOT SAFETY-RATED</span>
+    </button>
+  </div>
+</header>
+
+<div class="banner" id="banner" hidden></div>
+
+<main class="grid">
+  <!-- LEFT -->
+  <section class="col">
+    <div class="card face-card">
+      <div class="card-h"><span>FACE</span><span class="dim mono" id="faceExpr">neutral</span></div>
+      <canvas id="face" width="320" height="160" aria-label="Giorgio LED face"></canvas>
+      <div class="say" id="say"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-h"><span>POWER</span><span class="dim mono" id="batV">-- V</span></div>
+      <div class="bat">
+        <div class="bat-num mono"><span id="batPct">--</span><small>%</small></div>
+        <div class="bat-bar"><div id="batFill"></div><div class="tick t30"></div><div class="tick t15"></div></div>
+      </div>
+      <dl class="kv mono">
+        <div><dt>POWER</dt><dd id="batW">--</dd></div>
+        <div><dt>STATE</dt><dd id="batState">--</dd></div>
+        <div><dt>AUTONOMY</dt><dd id="batAut">--</dd></div>
+        <div><dt>DOCK</dt><dd id="dock">--</dd></div>
+      </dl>
+    </div>
+
+    <div class="card">
+      <div class="card-h"><span>SAFETY</span><span class="dim mono" id="fieldCase">--</span></div>
+      <div class="zone" id="zone">--</div>
+      <div class="zone-reason mono" id="zoneReason"></div>
+      <canvas id="radar" width="300" height="300" aria-label="Scanner fields"></canvas>
+      <div class="chips" id="relay"></div>
+      <div class="foot dim mono" id="safetyFoot"></div>
+    </div>
+  </section>
+
+  <!-- CENTER -->
+  <section class="col center">
+    <div class="card cam-card">
+      <div class="card-h">
+        <div class="tabs" id="camTabs"></div>
+        <span class="dim mono" id="camInfo"></span>
+      </div>
+      <div class="cam">
+        <img id="cam" alt="" hidden>
+        <div class="nosig mono" id="nosig">NO SIGNAL &middot; waiting for frames</div>
+        <div class="hud mono" id="hud"></div>
+        <div class="reticle" aria-hidden="true"></div>
+        <div class="cam-zone" id="camZone"></div>
+      </div>
+    </div>
+    <div class="card log-card">
+      <div class="card-h"><span>EVENT LOG</span><span class="dim mono" id="evCount"></span></div>
+      <ol class="log mono" id="log"></ol>
+    </div>
+  </section>
+
+  <!-- RIGHT -->
+  <section class="col">
+    <div class="card">
+      <div class="card-h"><span>CURRENT TASK</span><span class="dim mono" id="mState">idle</span></div>
+      <div id="current" class="current"><div class="empty">Nothing to do. Giorgio is enjoying the moment.</div></div>
+    </div>
+
+    <div class="card">
+      <div class="card-h"><span>QUEUE</span><span class="dim mono" id="qCount">0</span></div>
+      <ol class="queue" id="queue"></ol>
+      <details class="history"><summary class="mono">HISTORY</summary><ol class="queue" id="history"></ol></details>
+    </div>
+
+    <div class="card">
+      <div class="card-h"><span>COMMANDS</span><span class="dim mono">skills</span></div>
+      <div class="cmds" id="cmds"></div>
+    </div>
+
+    <div class="card chat-card">
+      <div class="card-h"><span>TALK TO GIORGIO</span><span class="dim mono" id="llm">router</span></div>
+      <ol class="chat" id="chat"></ol>
+      <form id="chatForm" class="chat-in">
+        <input id="chatText" autocomplete="off" placeholder="e.g. make a coffee for Marco">
+        <button type="submit">SEND</button>
+      </form>
+    </div>
+
+    <div class="card sim-card" id="simCard">
+      <div class="card-h"><span>SIMULATION</span><span class="dim mono">test inputs</span></div>
+      <div class="cmds">
+        <button data-sim="person">Send a person</button>
+        <button data-sim="bat25">Battery 25%</button>
+        <button data-sim="bat90">Battery 90%</button>
+        <button data-sim="hwon" class="warn">Press HW E-stop</button>
+        <button data-sim="hwoff">Release HW E-stop</button>
+      </div>
+    </div>
+  </section>
+</main>
+<footer class="foot-bar mono dim">GIORGIO-OS 0.1 &middot; safety functions are hardware (SICK nanoScan3 + Pilz PNOZmulti 2) &middot; this console is not part of the safety chain</footer>
+<script src="/static/app.js"></script>
+</body>
+</html>
