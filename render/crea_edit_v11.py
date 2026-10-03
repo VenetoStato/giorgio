@@ -46,6 +46,25 @@ S.append(shot("v11/h_expl/f_*.jpg", "RENDER // EXPLODED", kick(0.3, 7.5, "BILL O
                      "braccio_dx": ["HANDS", "OpenArm gripper · ORCA · AmazingHand"], "busto": ["TORSO", "Orbbec Gemini 336L stereo depth"],
                      "vassoio": ["KITTING TRAY", "swappable chest module"], "caffe": ["COFFEE MODULE", "any capsule machine"],
                      "scanner": ["SAFETY", "2× SICK nanoScan3 · Pilz PNOZmulti"], "base": ["BASE", "AgileX Tracer 2.0 · commercial AMR"]}))
+# --- anatomia: un gruppo alla volta, dal CAD
+ANAT = {"base": ("MOBILE BASE", "AgileX Ranger Mini 3.0 · commercial · CAN / ROS 2 · docks and charges itself"),
+        "power": ("BATTERY", "48 V LiFePO4, 1.44 kWh · topped up by the base"),
+        "electronics": ("POWER & SAFETY ELECTRONICS", "Pilz safety relay · contactors · DC-DC · NVIDIA Jetson"),
+        "scanners": ("SAFETY SCANNERS", "2× SICK nanoScan3 · they stop the arms when you get too close"),
+        "structure": ("STRUCTURE", "aluminium: laser-cut sheet + 80×80 profile"),
+        "arms": ("ARMS", "2× Enactic OpenArm 2.0 · open hardware · 7 joints each"),
+        "head": ("HEAD & EYES", "Orbbec Gemini 336L depth camera · 360° vision · LED face"),
+        "coffee": ("COFFEE MODULE", "any capsule machine · linear shuttle"),
+        "tray": ("KITTING TRAY", "swappable chest module"),
+        "shells": ("SHELLS", "3D-printed PA12 · the only part we actually designed")}
+if os.path.exists("v11/anat/gruppi.json"):
+    G = json.load(open("v11/anat/gruppi.json")); tx = []
+    for k_, g_ in enumerate(G["groups"]):
+        t0 = (G["start"] + k_ * G["hold"]) / 30 + 0.15; t1 = t0 + G["hold"] / 30 - 0.25
+        a_, b_ = ANAT.get(g_, (g_.upper(), ""))
+        tx += [T(t0, t1, f"{k_ + 1:02d} / {len(G['groups']):02d}", "kick", 24, "X", color=ACC, shadow=False, band=False, track=2),
+               T(t0, t1, a_, size=60, band=False), T(t0 + 0.1, t1, b_, "llsub", 32, "N", band=False)]
+    S.append(dict(type="frames", glob="v11/anat/f_*.jpg", tag="CAD // ANATOMY", texts=tx))
 # --- configurazioni
 S.append(card(2.8, big(0.2, 2.8, "ONE CHASSIS.\\nFOUR PERSONALITIES.".replace("\\n", "\n"), 84), mono(0.9, 2.8, "SAME BASE · SAME TORSO · SWAP HANDS AND BACKPACK")))
 for f, a, b in (("cfg1_barista", "BARISTA", "Grippers + coffee module"), ("cfg2_logistica", "LOGISTICS", "Grippers + kitting tray"),
