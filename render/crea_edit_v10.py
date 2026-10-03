@@ -36,8 +36,6 @@ S.append(card(3.4, big(0.2, 3.4, "AND HOPED THEY'D GET ALONG."), mono(1.4, 3.4, 
 S.append(card(2.6, big(0.2, 2.6, "ITALY DESERVES ITS OWN ROBOT.", 84)))
 S.append(card(2.2, big(0.2, 2.2, "NOT A FERRARI.", 96)))
 S.append(card(3.6, big(0.2, 3.6, "MORE LIKE A FIAT PANDA.", 96), mono(1.0, 3.6, "CHEAP. OPEN. YOU CAN FIX IT YOURSELF.")))
-S.append(card(3.8, big(0.2, 3.8, "ITALY ALSO HAS ITS OWN AI.", 84), mono(1.0, 3.8, "WE'VE SEEN THE MEMES.")))
-S.append(card(3.6, big(0.2, 3.6, "GIORGIO'S AI ONLY PICKS SKILLS.", 80), mono(1.0, 3.6, "NO OPINIONS. NO HISTORY LESSONS.")))
 S.append(shot("v10/h_hero/f_*.jpg", "RENDER", kick(0.5, 5.8, "MOBILE BIMANUAL SERVICE ROBOT"),
               T(0.5, 5.8, "GIORGIO.", size=110), T(1.6, 5.8, "Made entirely of other people's good ideas.", "llsub", 34, "N", band=False)))
 S.append(shot("v10/h_face/f_*.jpg", "RENDER", kick(0.3, 5.8, "FACE"), T(0.3, 5.8, "32×16 RGB LED MATRIX", size=64),
@@ -72,7 +70,7 @@ S.append(shot("v10/r_wide/f_*.jpg", "SIM // 2×", kick(0.4, 6.5, "AUTO-DOCKING")
 S.append(shot("v10/r_close/f_*.jpg", "SIM", kick(0.3, 7.8, "DOCK"), T(0.3, 4.0, "CLOSED-LOOP DOCKING.", size=60),
               T(4.1, 7.8, "THE CONTACTS STAY DEAD\nUNTIL IT'S DOCKED.", size=60),
               battery=dict(json="ricarica_energia.json", src0=600, src_step=1, travel_text="LOW · RETURNING TO DOCK", charging_text="DOCKED · CHARGING 48 V")))
-S.append(card(3.0, big(0.2, 3.0, "SAFETY LIVES IN HARDWARE.", 80), mono(0.9, 3.0, "NOT IN THE AI. HAVE YOU SEEN WHAT AI SAYS LATELY?")))
+S.append(card(3.0, big(0.2, 3.0, "SAFETY LIVES IN HARDWARE.", 80), mono(0.9, 3.0, "NOT IN THE AI. THE AI IS NOT ALLOWED NEAR IT.")))
 S.append(card(2.6, big(0.2, 2.6, "MECHANICAL."), mono(0.8, 2.6, "~100 PARTS · 128 BOLTED JOINTS · EVERY ONE CHECKED")))
 S.append(shot("v10/k_cad/f_*.jpg", "CAD // CADQUERY", kick(0.4, 5.6, "ASSEMBLY"), T(0.4, 5.6, "REAL PARTS. REAL BOLTS.", size=60),
               T(1.2, 5.6, "Off-the-shelf where possible, laser-cut and printed where not.", "llsub", 32, "N", band=False)))
