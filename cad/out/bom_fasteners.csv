@@ -1,10 +1,10 @@
 fastener,grade,with,joint group,qty
-ISO 10642 M6x20,8.8,,G1 adapter->Ranger Air deck,8
+ISO 10642 M5x16,8.8,"slot-6 T-nut M5 (Tracer rail, ASSUMED)",G1 adapter->Ranger Mini rails,16
 ISO 4762 M5x10,8.8,ISO 7089 washer 200HV,G10 scanner 0->pod,4
 ISO 4762 M5x10,8.8,ISO 7089 washer 200HV,G10 scanner 1->pod,4
 ISO 4762 M5x10,8.8,,G11 pod 0->adapter,2
 ISO 4762 M5x10,8.8,,G11 pod 1->adapter,2
-ISO 7380 M5x16,8.8,ISO 7089 washer 200HV,G13 deck cover->standoffs,4
+ISO 7380 M5x10,8.8,ISO 7089 washer 200HV,G13 deck cover->standoffs,4
 ISO 4762 M4x16,8.8,ISO 7089 washer 200HV,G14 waist cover->bracket,4
 ISO 4762 M4x18,8.8,ISO 7089 washer 200HV,G15 neck plate->body_link0,4
 ISO 4762 M4x12,8.8,ISO 7089 washer 200HV + Kerb Konus 860 M4 insert,G16 head shell->neck plate,4
@@ -25,5 +25,8 @@ ISO 4762 M4x12,8.8,ISO 7089 washer 200HV + Kerb Konus 860 M4 insert,G29 torso sh
 ISO 4762 M4x12,8.8,ISO 7089 washer 200HV + Kerb Konus 860 M4 insert,G29 torso shell rear half->bracket,1
 DIN 7984 M12x30,8.8,,G2b profile->column foot,1
 DIN 7984 M12x30,8.8,,G3 profile->torso bracket,1
+ISO 4762 M4x8,8.8,ISO 7089 washer 200HV,G31 backpack e-plate->standoffs,3
 ISO 4762 M6x30,8.8,ISO 7089 washer 200HV,G4 torso bracket->body_link0,8
-ISO 4762 M5x10,8.8,ISO 7089 washer 200HV,G9 e-plates->adapter,8
+ISO 4762 M6x10,8.8,,G8 battery tray->adapter,6
+ISO 4762 M5x12,8.8,ISO 4032 M5 nut-8 + ISO 7089 washer,G8b battery hold-down,4
+ISO 4762 M5x10,8.8,ISO 7089 washer 200HV,G9 e-plates->adapter,12

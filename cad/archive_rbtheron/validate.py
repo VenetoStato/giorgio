@@ -263,7 +263,7 @@ def group_defs(parts):
     base_all = {n for n in parts if not getattr(parts[n], "bolt", None) and n != BASE_PART and not n.startswith("tnut_rail")}
     above_bracket = lift - by(["S01", "P15", "P02", "SH03"])
     D = {
-        "G1 adapter->Ranger Mini rails": (BASE_PART, base_all, "payload", 0),
+        "G1 adapter->RB-THERON top": (BASE_PART, base_all, "payload", 0),
         "G2 column foot->adapter": ("P01_base_adapter_plate", lift | by(["P29", "S01"]), "payload", 0),
         "G2b profile->column foot": ("P29_column_foot", lift | by(["S01"]), "payload", 40.0),
         "G3 profile->torso bracket": ("S01_column_profile_item8_80x80L", lift - by(["S01", "P15"]), "payload", 40.0),
@@ -640,18 +640,16 @@ def main():
     # ---------------- footprint
     log("footprint...")
     skirt, base_fp, outside, bx = footprint(parts)
-    check("Footprint", "upper body + arms (home) inside the Ranger Mini 3.0 plan (720 x 500)", not outside,
+    check("Footprint", "upper body + arms (home) inside the RB-THERON plan (692 x 550)", not outside,
           f"overhanging parts (mm2 outside): {[(k, round(v)) for k, v in sorted(outside.items(), key=lambda x: -x[1])][:8]}", warn=True)
     # zona d'aggancio della stazione AgileX: dietro il retro (piastra spazzole al centro, 115-180 mm), nulla di nostro sotto 300 mm
-    # ricevitore del kit di ricarica AgileX: posizione NON pubblicata -> zone centrali davanti e dietro tenute libere (EST 0-350 mm)
-    hit = []
-    for nm_z, bx_ in (("front", G.box(BS_X1 + 0.5, BS_X1 + 400, -150, 150, 0, 350)), ("rear", G.box(BS_X0 - 400, BS_X0 - 0.5, -150, 150, 0, 350))):
-        hit += [f"{nm_z}:{n}" for n, p in parts.items() if n != BASE_PART and p.shape.intersect(bx_).Volume() > 1.0]
-    check("Docking", "dock-receiver zones free: front and rear centre (|y| <= 150, z <= 350, outside the 720 mm body); AgileX kit position UNVERIFIED", not hit,
-          f"parts in the zones: {hit}; robot can dock forwards or backwards until AgileX confirms the receiver position")
+    dock = G.box(BS_X1 + 0.5, BS_X1 + 400, -DOCK_STATION["W"] / 2 - 20, DOCK_STATION["W"] / 2 + 20, 0, DOCK_STATION["H"] + 30)
+    hit = [n for n, p in parts.items() if n != BASE_PART and p.shape.BoundingBox().xmax > BS_X1 and p.shape.intersect(dock).Volume() > 1.0]
+    check("Docking", f"front dock zone free (x > {BS_X1:.0f}, |y| <= {DOCK_STATION['W'] / 2 + 20:.0f}, z <= {DOCK_STATION['H'] + 30:.0f}): Robotnik station 543 x 292 x 352 reaches the front contacts", not hit,
+          f"parts in the zone: {hit}; contacts at x {BS_X1:.0f}, z ~166 (URDF base_docking_contact); robot docks FORWARDS")
     tb = np.array(bx)
-    check("Footprint", "overall plan envelope (info)", True,
-          f"x {tb[0]:.0f}..{tb[2]:.0f}, y {tb[1]:.0f}..{tb[3]:.0f} mm (Ranger Mini 3.0 body {BS_L:.0f} x {BS_W:.0f}); scanner pods at 2 corners, tray +-309")
+    check("Footprint", "overall plan envelope", True,
+          f"x {tb[0]:.0f}..{tb[2]:.0f}, y {tb[1]:.0f}..{tb[3]:.0f} mm (RB-THERON body {BS_L:.0f} x {BS_W:.0f}, 717 with E-stops); tray +-309", warn=False)
 
     # ---------------- mass
     log("mass...")
@@ -703,19 +701,19 @@ def main():
     mw, cw = total(ext_w, 0.0)
     REPORT.append(("budget", sup, pay, me, ce, mw, cw))
     tot = sup + pay
-    check("Mass", f"HARD: superstructure + product payload (2 x {P1:g} kg arms + {TRAY_PAYLOAD:.1f} kg tray) <= {MASS_HARD:.0f} kg (90 % of the Ranger Mini 3.0 {MASS_LIMIT:.0f} kg); target <= {MASS_TARGET:.0f} kg (80 %)",
+    check("Mass", f"HARD: superstructure + product payload (2 x {P1:g} kg arms + {TRAY_PAYLOAD:.1f} kg tray) <= {MASS_HARD:.0f} kg (15 % under the RB-THERON {MASS_LIMIT:.0f} kg); target <= {MASS_TARGET:.0f} kg (25 %)",
           tot <= MASS_TARGET, f"superstructure {sup:.1f} kg + payload {pay:.1f} kg = {tot:.1f} kg = {tot / MASS_LIMIT * 100:.0f} % of {MASS_LIMIT:.0f} kg (margin {MASS_LIMIT - tot:.1f} kg)",
           warn=tot <= MASS_HARD)
-    check("Mass", "extension CoG within ±20 mm of the Ranger Mini 3.0 centre of rotation (body centre, 4WS), nominal: arms home, tray loaded",
+    check("Mass", "extension CoG within ±20 mm of the RB-THERON centre of rotation (drive axle centre, base_link), nominal: arms home, tray loaded",
           abs(ce[0]) <= 20 and abs(ce[1]) <= 20, f"extension {me:.1f} kg, CoG ({ce[0]:.1f}, {ce[1]:.1f}, {ce[2]:.0f}) mm")
     check("Mass", f"extension CoG, work posture (2 x {P1:g} kg held at x 300 mm)", abs(cw[0]) <= 20 and abs(cw[1]) <= 20,
           f"{mw:.1f} kg, CoG ({cw[0]:.1f}, {cw[1]:.1f}, {cw[2]:.0f}) mm (transient while handling)", warn=True)
     check("Mass", "info: robot mass", True, f"robot {m0_:.1f} kg (base {BS_MASS:.0f} kg); sim robot (Tracer version) {st['sim_robot_mass_kg']:.1f} kg")
     for nm_, tp, cc in (("nominal", tip0, c0), ("work", tip1, c1), ("worst (product payload)", tip2, c2)):
         mn = min(tp["fwd"], tp["back"], tp["left"], tp["right"])
-        check("Stability", f"tipping {nm_}: >= 0.5 g target; >= 2.2 x the commanded accel limit (1.5 m/s2 -> 3.3 m/s2) required",
-              mn >= 0.5 * GRAV, f"fwd/back/left/right = {tp['fwd']:.2f}/{tp['back']:.2f}/{tp['left']:.2f}/{tp['right']:.2f} m/s2; CoG {np.round(cc, 0)} mm; support: wheels ±247 x ±182 (494 x 364)",
-              warn=mn >= 3.3)
+        check("Stability", f"tipping {nm_}: >= 0.5 g target; >= 2.5 m/s2 required (Robotnik controller decel 2.5 m/s2, legacy config)",
+              mn >= 0.5 * GRAV, f"fwd/back/left/right = {tp['fwd']:.2f}/{tp['back']:.2f}/{tp['left']:.2f}/{tp['right']:.2f} m/s2; CoG {np.round(cc, 0)} mm; support: casters ±235 x ±182.5, drive wheels y ±251.6",
+              warn=mn >= 2.5)
 
     # ---------------- fastener loads
     log("fastener loads...")
@@ -832,22 +830,22 @@ def write_report(parts, bolts, gres, dt, inter):
             cb, cn = defaultdict(float), defaultdict(float)
             for k_, v_ in bef.items(): cb[cat(k_)] += v_
             for k_, v_ in now.items(): cn[cat(k_)] += v_
-            L.append("## Mass budget (Ranger Mini 3.0 payload 120 kg; hard <= 108 kg, target <= 96 kg incl. product payload). Before = Tracer design (git 2660c92)\n")
+            L.append("## Mass budget (RB-THERON payload 200 kg; hard <= 170 kg, target <= 150 kg incl. product payload). Before = Tracer design (git 2660c92)\n")
             L.append("| group | before (kg) | now (kg) | delta |\n|---|---|---|---|")
             for k_ in sorted(set(cb) | set(cn), key=lambda k: -cn.get(k, 0)):
                 L.append(f"| {k_} | {cb.get(k_, 0):.2f} | {cn.get(k_, 0):.2f} | {cn.get(k_, 0) - cb.get(k_, 0):+.2f} |")
             tb, tn = sum(cb.values()), sum(cn.values())
             L.append(f"| **robot total** | **{tb:.1f}** | **{tn:.1f}** | **{tn - tb:+.1f}** |")
-            L.append(f"| superstructure (total − base: Tracer 55 / Ranger Mini {BS_MASS:.0f} kg) | {tb - 55:.1f} | {sup:.1f} | {sup - tb + 55:+.1f} |")
+            L.append(f"| superstructure (total − base: Tracer 55 / RB-THERON {BS_MASS:.0f} kg) | {tb - 55:.1f} | {sup:.1f} | {sup - tb + 55:+.1f} |")
             L.append(f"| + product payload (before: 2 × 3 + 2.1 kg; now 2 × {PRODUCT_PAYLOAD_ARM:g} + {TRAY_PAYLOAD:.1f} kg) | {tb - 55 + 8.1:.1f} | **{sup + pay:.1f}** | |")
             L.append(f"\nExtension (superstructure + tray payload) CoG nominal ({ce[0]:.1f}, {ce[1]:.1f}, {ce[2]:.0f}) mm; with 2 × 3 kg held at x = 300 mm: ({cw[0]:.1f}, {cw[1]:.1f}, {cw[2]:.0f}) mm. "
-                     "Centre of rotation: Ranger Mini 3.0 body centre (4WS, wheels symmetric).\n")
+                     "Centre of rotation: RB-THERON drive-axle centre (base_link origin; the body is 13 mm longer at the rear).\n")
         if item[0] == "tipping":
-            L.append("## Static tipping (support polygon: Ranger Mini 3.0 wheels ±247 x ±182 mm = 494 x 364, manual drawing + ranger_ros2 params)\n")
+            L.append("## Static tipping (support polygon: RB-THERON casters (±235, ±182.5) + drive wheels (0, ±251.6) mm, robotnik_description URDF)\n")
             L.append("| configuration | mass kg | CoG mm | a_tip fwd / back / left / right (m/s2) | max lateral slope |\n|---|---|---|---|---|")
             for nm, m, c, t in item[1]:
                 L.append(f"| {nm} | {m:.1f} | ({c[0]:.0f}, {c[1]:.0f}, {c[2]:.0f}) | {t['fwd']:.2f} / {t['back']:.2f} / {t['left']:.2f} / {t['right']:.2f} | {t['slope_lat_deg']:.0f} deg |")
-            L.append("\nArchived: Tracer (git 2660c92) nominal 7.28/7.26/6.58/6.62 m/s2; Ranger Air (git cb47c68) 4.40/3.83/3.58/3.59; RB-THERON (cad/archive_rbtheron) ~5.4-5.9.\n")
+            L.append("\nArchived: Tracer (git 2660c92) nominal 7.28/7.26/6.58/6.62 m/s2; Ranger Air (git cb47c68) nominal 4.40/3.83/3.58/3.59 m/s2.\n")
         if item[0] == "arm_sweep":
             _, per_obj, hits, npose, srcs = item
             L.append(f"## Arm sweep\n\n{npose} poses sampled from the recorded missions ({dict(srcs)}) + home pose; arm link visual meshes "

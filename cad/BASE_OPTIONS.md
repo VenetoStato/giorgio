@@ -1,6 +1,12 @@
 # Giorgio — base options (AgileX only), payload certainty, self-charging
 
-> **DECISION (owner, 2026-10-03): AgileX RANGER AIR**, the base whose automatic recharging is confirmed on the manufacturer's page.
+> **FINAL DECISION (owner, 2026-10-03): AgileX RANGER MINI 3.0** (€12,480 excl. VAT; RB-THERON rejected as too expensive → `archive_rbtheron/`; Ranger Air archived at git cb47c68).
+> CAD rebuilt and fully re-validated: **57 PASS / 18 WARN / 0 FAIL**, superstructure + product payload (2 × 3 + 2.1 kg) **85.3 kg = 71 % of 120 kg**, extension CoG (+1.9, +3.2, 694) mm,
+> tipping nominal 5.38/5.31/3.90/3.98 m/s² and worst 4.33/5.67/3.65/3.72 m/s² (fwd/back/left/right) → mandatory motion limits **accel/decel and lateral ≤ 1.5 m/s²** (see README).
+> Self-charging: AgileX charging kit (sold with NAVIS); price, licence and receiver position UNVERIFIED → AGILEX_REQUEST.md. Our 15s 30 Ah pack is charged from the base 46–50 V output by a Victron Orion-Tr 48/48-6, so the one AgileX dock charges everything.
+> Section 0 below (Ranger Air) is kept for the record.
+
+> *Superseded:* **AgileX RANGER AIR**, the base whose automatic recharging is confirmed on the manufacturer's page.
 > The CAD has been rebuilt on it and fully re-validated: 55 PASS / 17 WARN / 0 FAIL, superstructure + product payload **59.3 kg = 74 % of 80 kg**.
 > See section 0 below and README / VALIDATION.md. Sections 1–6 are the comparison that led there; their Giorgio numbers refer to the Tracer-era model (git 2660c92).
 

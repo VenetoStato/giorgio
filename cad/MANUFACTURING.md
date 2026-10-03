@@ -1,6 +1,16 @@
 # Giorgio — manufacturing notes and assembly sequence
 
-> **Ranger Air design (2026-10-03)** changes:
+> **Ranger Mini 3.0 design (current, 2026-10-03):**
+> - P01 is 8 mm 6082 on the 2 top rails (16 × M5 countersunk + T-nuts).
+> - Fixed column: P29 foot + profile 197 mm + P02 (waterjet + one CNC set-up, no pockets).
+> - **SH01 deck cover in laser-cut, bent and powder-coated 1.5 mm aluminium** (cheaper than SLS).
+> - Our 15s 30 Ah pack in tray P03; side and rear e-plates P06/P07/P08.
+> - Backpack e-plate P30 on 3 catalogue standoffs under the coffee shelf; scanner pods P09 at the front-right and rear-left corners.
+> - No sleeve/liners, skirt, bumper or RoboPad.
+>
+> Cost table and cost-down options: README "Cost drivers".
+>
+> *Superseded* Ranger Air design changes:
 > - P01 is now an 8 mm 6082 "butterfly" plate (waterjet + grid lightening, 8 × M6 countersunk into the base deck).
 > - The column is fixed: **P29 foot** (CNC 20 mm, M12 from below, 8 × M6 from the top in counterbores) + profile 292 mm + P02.
 > - **SH01 is a 2 mm deck cover** (not a skirt).

@@ -1,7 +1,7 @@
 # Request to AgileX Robotics (sales / technical support)
 
 **To:** AgileX sales and technical support (via global.agilex.ai contact form / regional distributor)
-**Subject:** RANGER AIR (selected) + automatic charging station: written payload, power and docking data for a 60 kg mobile-manipulator superstructure
+**Subject:** RANGER MINI 3.0 (selected) + autonomous charging kit / NAVIS: written payload, power and docking data for an 85 kg mobile-manipulator superstructure
 
 Dear AgileX team,
 
@@ -48,7 +48,13 @@ Its height is ≈ **0.42 m above the TRACER 2.0 deck** (0.59 m above the floor).
    - TRACER 2.0 payload: 80 / 100 / 150 kg.
    Please confirm the correct values.
 
-10. **RANGER AIR specifically.** This is our selected base.
+10. **RANGER MINI 3.0 — our selected base.**
+    - **Payload:** 120 kg with our load? Our load is 85 kg incl. 8 kg handled payload, CoG 0.69 m above the floor (0.35 m above the rail top), centred within ±20 mm. What maximum acceleration, deceleration, braking distance (from 1.5 and 2.0 m/s, normal and e-stop) and lateral acceleration apply with that load?
+    - **Top rails:** profile and slot size, recommended T-nut type and permissible load per T-nut, rail length and fixing points. A STEP model of the chassis.
+    - **Rear 48 V output (46–50 V, ≤ 15 A / 720 W):** continuous or peak? Allowed peak current and duration? Does it stay live **while docked and charging**, so that an isolated 48/48 V charger (Victron Orion-Tr 48/48-6, ~6 A) can charge our own 1.44 kWh pack from it?
+    - **Autonomous charging kit:** part number, price, NAVIS licence cost; charging voltage/current. Contacts or wireless? Receiver position and height on the RANGER MINI 3.0, which end it docks on, alignment method and tolerance. Required sensors and computer. Can it be driven from our own ROS 2 stack, and does the station need a wall or floor fixing?
+    - **External safety stop input or STO** on the RANGER MINI 3.0 drives.
+11. **RANGER AIR** (previously considered):
     - **Payload:** is 80 kg allowed with our load (59 kg incl. payload, CoG 0.54 m above the deck, centred within ±20 mm)? What maximum acceleration, deceleration and braking distance from 1.5 m/s apply with that load, and what yaw rate and lateral acceleration in spin and crab modes?
     - **Top plate:** thread size and depth of the 8 top holes (200 × 80 grid); their exact x position from the body centre; deck plate material and thickness; a STEP model of the chassis.
     - **Expansion port:** is the rating 25 A / 600 W (spec table) or 10 A, 23–26.5 V (mating-plug table)? Continuous or peak? What peak current is allowed, and for how long? Can a second output be added? What is the pinout of the top electrical interface?
@@ -67,3 +73,8 @@ Thank you — written answers, drawings or STEP files would let us close our des
 
 Best regards,
 Giorgio project team
+
+## 11. Charging speed (added 2026-10-03)
+- What is the rated charging power / current of the automatic charging kit for the Ranger Mini 3.0 (our estimate from the NAVIS docs example: 54.9 V × 10.9 A ≈ 600 W)? Is a faster dock or charger available (e.g. ≥ 1 kW), and at what price?
+- While docked, does the 48 V accessory output stay live, and can the robot request a "sleep" state that keeps only the charging path and CAN active?
+- Recommended practice for opportunity charging (short partial charges during idle time) with the Ranger Mini battery/BMS?

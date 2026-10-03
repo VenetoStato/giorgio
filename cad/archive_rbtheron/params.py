@@ -21,27 +21,30 @@ TR_OCT = [(351, -173), (351, 173), (294, 290), (-282, 290), (-351, 163), (-351, 
 TR_WHEEL_R = 80.0                                              # ESTIMATE (not published)
 TR_COG_Z = 80.0                                                # ESTIMATE (battery/motors low)
 
-# ---------------------------------------------------------------- AgileX RANGER MINI 3.0 (chosen base, owner decision 2026-10-03)
-# Tracer archived at git 2660c92, Ranger Air at cb47c68, RB-THERON in cad/archive_rbtheron/. Source: RANGER MINI 3.0 user manual
-# https://cdn.shopify.com/s/files/1/0551/0630/6141/files/RANGER_MINI_3.0_User_Manual.pdf?v=1773112703 + ranger_ros2 ranger_params.hpp
-BASE_PART = "B00_ranger_mini3_base"
-BS_X0, BS_X1, BS_W, BS_H = -360.0, 360.0, 500.0, 329.0         # body 720 x 500; deck plate top ~329 (rails top 345 - 16) SOURCED/derived
+# ---------------------------------------------------------------- Robotnik RB-THERON (chosen base, owner decision 2026-10-03)
+# Ranger Air variant archived at git cb47c68, Tracer at 2660c92. Sources: datasheet rev AF:02.26, drawing Theron-v4.0, robotnik_description
+# (jazzy-devel: rbtheron_base.xacro, rbtheron_caster, rbtheron_body: base_docking_contact), charging-station datasheet; see SOURCES.md
+BASE_PART = "B00_rb_theron_base"
+BS_X0, BS_X1, BS_W, BS_H = -359.0, 333.0, 550.0, 320.0         # body (mesh bbox, base_link origin = drive axle); top 320 SOURCED
 BS_L = BS_X1 - BS_X0
-BS_RAIL_Y, BS_RAIL_W, BS_RAIL_H, BS_RAIL_HALF_L = 115.0, 40.0, 16.0, 337.0   # 2 T-slot rails 230 apart (drawing), 16 tall (Fig 2.2); width/length EST
-BS_TOP = BS_H + BS_RAIL_H                                      # 345 top of rails SOURCED
-BS_GC = 105.0                                                  # ground clearance SOURCED
-BS_MASS = 75.0                                                 # SOURCED
-BS_COG_Z = 213.0                                               # manual Fig 2.2: 131.78 below the rail top
-BS_WHEELS = [(247.0, 182.0, 100.0)]                            # wheelbase 494 x track 364, wheel D200 (drawing + ROS)
-BS_SUPPORT = [(247.0, -182.0), (247.0, 182.0), (-247.0, 182.0), (-247.0, -182.0)]
-BS_PAYLOAD = 120.0                                             # SOURCED
-BS_CONTACT = None                                              # AgileX charging-kit receiver position UNVERIFIED (zone kept free front and rear)
+BS_ESTOP_X1 = 358.0                                            # 717 overall incl. front/rear end protrusions (drawing); front value EST
+BS_GC = 16.0                                                   # ground clearance (drawing)
+BS_MASS = 70.0                                                 # SOURCED
+BS_COG_Z = 140.0                                               # ESTIMATE (not published)
+BS_WHEELS = [(0.0, 251.6, 76.2)]                               # drive wheels x, |y|, r (URDF)
+BS_CASTERS = [(235.0, 182.5, 50.0)]                            # 4 swivel casters (URDF)
+BS_SUPPORT = [(235.0, -182.5), (235.0, 182.5), (0.0, 251.6), (-235.0, 182.5), (-235.0, -182.5), (0.0, -251.6)]
+BS_PAYLOAD = 200.0                                             # SOURCED (no CoG/height condition published)
+BS_HOLES = [(x, y) for x in (-240.0, -80.0, 80.0, 240.0) for y in (-200.0, 200.0)]   # ASSUMED (drawing shows holes, no dims)
+BS_HOLE_THREAD, BS_HOLE_DEPTH = "M6", 12.0                     # ASSUMED
+BS_CONTACT = (BS_X1, 90.0, 145.0, 190.0)                       # FRONT docking contacts: face x, width (EST), z0, z1 (URDF frame z 0.166)
+BS_LIDARS = [(267.5, -215.0, 237.5, 135.0), (-267.5, 215.0, 237.5, -45.0)]   # picoScan120 (URDF), inverted, inside the body corners
 BASE_OUTLINE = [(BS_X1, -BS_W / 2), (BS_X1, BS_W / 2), (BS_X0, BS_W / 2), (BS_X0, -BS_W / 2)]
-BS_OUT_V, BS_OUT_A, BS_OUT_W = (46.0, 50.0), 15.0, 720.0        # rear accessory output (SOURCED); cut below 10 % SOC
+DOCK_STATION = dict(W=543.0, D=292.0, H=352.0, P=600.0)        # SOURCED charging-station datasheet
 
 # ---------------------------------------------------------------- base adapter plate
 AD_T = 8.0
-AD_Z0, AD_Z1 = BS_TOP, BS_TOP + AD_T                           # 345 .. 353 (on the rails)
+AD_Z0, AD_Z1 = BS_H, BS_H + AD_T                               # 320 .. 328
 AD_INSET = 5.0
 
 # ---------------------------------------------------------------- column (telescopic, manual adjust)
@@ -53,7 +56,7 @@ PROF = 80.0                                                    # item Profil 8 8
 PROF_KG_M = 5.33
 PROF_CORE_D = 10.2                                             # ESTIMATE core bore -> tapped M12
 PROF_BOT = 195.0
-STROKE = 0.0                                                   # fixed column: with the rails at 345 only 207 mm of column fit under the torso (see README)
+STROKE = 0.0                                                   # fixed column: with the deck at 320 only 232 mm of column fit under the torso (see README)
 INDEX_PITCH = 25.0
 LINER_T = (TUBE_OUT - 2 * TUBE_T - PROF) / 2 - 0.2              # POM-C liners/pads (6.8), 0.2 mm running clearance per side
 BRK_T = 20.0                                                   # torso bracket thickness
@@ -88,7 +91,7 @@ DCDC = dict(L=129.2, W=125.2, H=85.5, mass=1.375)              # SOURCED Mean We
 PNOZ = dict(L=45.0, W=120.0, H=101.4, mass=0.235)              # SOURCED Pilz PNOZ m B0 772100 (upright on DIN rail)
 JETSON = dict(L=110.0, W=110.0, H=71.65, mass=1.58)            # SECONDARY dims / SOURCED mass
 CHARGER = dict(L=150.0, W=100.0, H=60.0, mass=1.2)             # ESTIMATE 48->24 V 10 A LFP charger for the Tracer battery
-CONTACTOR = dict(L=45.0, W=60.0, H=80.0, mass=0.35)            # ESTIMATE DC contactor 48 V 100 A class
+CONTACTOR = dict(L=45.0, W=70.0, H=80.0, mass=0.35)            # ESTIMATE DC contactor 48 V 100 A class
 ROBOPAD = dict(W=90.0, H=56.0, D=42.0, mass=0.3, pitch=(74.0, 56.0))   # SOURCED Roboteq RPCOL90-100 (mass ESTIMATE)
 
 # ---------------------------------------------------------------- coffee backpack
@@ -114,9 +117,9 @@ POCKET, WALL, POCKET_H, CHAMF = 60.0, 9.0, 60.0, 16.0
 GRAV = 9.81
 ARM_PAYLOAD_PEAK = 6.0                                         # SOURCED OpenArm 2.0 peak payload incl. end effector
 ARM_PAYLOAD_NOM = 4.1
-PRODUCT_PAYLOAD_ARM = 3.0                                      # product rating per arm (object), software-limited
+PRODUCT_PAYLOAD_ARM = 3.0                                      # product rating per arm (object), software-limited (RB-THERON design)
 TRAY_PAYLOAD = 6 * 0.35                                        # 6 flasks in the chest tray
-MASS_LIMIT, MASS_HARD, MASS_TARGET = 120.0, 108.0, 96.0        # Ranger Mini 3.0 payload / hard (90 %) / target (80 %)
+MASS_LIMIT, MASS_HARD, MASS_TARGET = 200.0, 170.0, 150.0       # RB-THERON payload / hard (15 %) / target (25 %)
 J_PEAK = {"J1": 40.0, "J2": 40.0}                              # DM-J8009P peak torques used in the sim (SOURCED sim/Enactic)
 BRAKE_G, BUMP_G = 0.5, 2.0
 

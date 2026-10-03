@@ -58,51 +58,46 @@ def oct_poly(inset=0.0):
     return Polygon(TR_OCT).buffer(-inset, join_style=2)
 
 
-# ====================================================================== purchased: AgileX RANGER MINI 3.0
+# ====================================================================== purchased: Robotnik RB-THERON
 def base_envelope():
-    body = G.rounded_rect(0, 0, BS_L, BS_W, BS_H - BS_GC, BS_GC, 30)
-    x, y, r = BS_WHEELS[0]
-    for sx in (-1, 1):
-        for sy in (-1, 1):
-            body = body.fuse(cyl(r, 60, (sx * x, sy * y - 30, r), (0, 1, 0)))
+    cx = (BS_X0 + BS_X1) / 2
+    body = G.rounded_rect(cx, 0, BS_L, BS_W, BS_H - BS_GC, BS_GC, 30)
     for sy in (-1, 1):
-        yy = sy * BS_RAIL_Y
-        rl = box(-BS_RAIL_HALF_L, BS_RAIL_HALF_L, yy - BS_RAIL_W / 2, yy + BS_RAIL_W / 2, BS_H, BS_TOP)
-        rl = rl.cut(box(-BS_RAIL_HALF_L - 1, BS_RAIL_HALF_L + 1, yy - 3.1, yy + 3.1, BS_TOP - 2.5, BS_TOP + 1))      # T-slot (ASSUMED slot 6)
-        rl = rl.cut(box(-BS_RAIL_HALF_L - 1, BS_RAIL_HALF_L + 1, yy - 5.5, yy + 5.5, BS_TOP - 13, BS_TOP - 2))
-        body = body.fuse(rl)
-    p = add(Part(BASE_PART, body, "purchased", "purchased (AgileX RANGER MINI 3.0, 4WD/4WS)", category="purchased",
-                 color=(0.15, 0.16, 0.18), explode=(0, 0, -250), mass_kg=BS_MASS, mass_src="AgileX manual 75 kg (SOURCED)",
-                 notes="envelope from the manual drawings; rail profile/slot ASSUMED; charging-kit receiver UNVERIFIED"))
+        x, y, r = BS_WHEELS[0]
+        body = body.fuse(cyl(r, 25, (x, sy * y - 12.5, r), (0, 1, 0)))
+        for sx in (-1, 1):
+            xc, yc, rc = BS_CASTERS[0]
+            body = body.fuse(cyl(rc, 25, (sx * xc, sy * yc - 12.5, rc), (0, 1, 0)))
+    body = body.fuse(box(BS_X1, BS_ESTOP_X1, -25, 25, 250, 300))                    # pulsante E-stop anteriore (EST)
+    xc_, wc, z0c, z1c = BS_CONTACT
+    body = body.fuse(box(xc_ - 3, xc_, -wc / 2, wc / 2, z0c, z1c))                  # contatti di ricarica frontali (EST)
+    p = add(Part(BASE_PART, body, "purchased", "purchased (Robotnik RB-THERON, differential drive, safety pack)", category="purchased",
+                 color=(0.15, 0.16, 0.18), explode=(0, 0, -250), mass_kg=BS_MASS, mass_src="Robotnik datasheet 70 kg (SOURCED)",
+                 notes="envelope from the datasheet drawing + robotnik_description mesh bbox; top holes ASSUMED"))
     p.com_override = np.array([0.0, 0.0, BS_COG_Z])
+    p.tap_material = "manufacturer thread (datasheet max insertion)"
     return p
 
 
-# ====================================================================== base adapter plate (on the 2 Ranger Mini top rails)
+# ====================================================================== base adapter plate (on the RB-THERON top, hole pattern ASSUMED)
 ADAPTER_KEEP = []          # (x0, x1, y0, y1) zone portanti da non alleggerire
 
 
 def adapter_plate():
-    s = G.rounded_rect(0, 0, BS_L - 12, BS_W - 12, AD_T, AD_Z0, 25)
+    s = G.rounded_rect((BS_X0 + BS_X1) / 2 - 2, 0, BS_L - 12, BS_W - 8, AD_T, AD_Z0, 25)
     p = add(Part("P01_base_adapter_plate", s, "EN AW-6082-T6", "waterjet 8 mm + CNC drill/tap (M5/M6), 90 deg countersinks; grid lightening",
                  color=(0.70, 0.71, 0.73), explode=(0, 0, -120),
-                 notes="bolts on the 2 Ranger Mini 3.0 top T-slot rails (230 mm apart, drawing) with 16 M5 countersunk into T-nuts (slot type ASSUMED)"))
+                 notes="bolts on the RB-THERON top plate: 8 countersunk M6 on an ASSUMED grid (drill to suit; Robotnik STEP requested)"))
     base = PARTS[BASE_PART]
-    for sy in (-1, 1):
-        for x in (-325, -250, -170, -90, 90, 170, 250, 325):
-            hn = f"rail_{'L' if sy > 0 else 'R'}_{x}"
-            y = sy * BS_RAIL_Y
-            drill(p, Hole(hn, (x, y, AD_Z1), DOWN, 5.5, AD_T, "clear", "M5"))
-            p.shape = p.shape.cut(cq.Solid.makeCone(5.6, 2.75, 2.85, V(x, y, AD_Z1 - 2.85), V(0, 0, 1)))
-            p.shape = p.shape.cut(cyl(5.6, 1, (x, y, AD_Z1 - 0.01)))
-            tn = add(Part(f"tnut_{hn}", box(x - 7.5, x + 7.5, y - 5, y + 5, BS_TOP - 6.5, BS_TOP - 2.5), "S235 / 1.4301",
-                          "purchased T-slot nut slot 6 M5 (ASSUMED type)", category="fastener", color=(0.6, 0.6, 0.6), explode=(0, 0, -300)))
-            drill(tn, Hole("t", (x, y, BS_TOP - 2.5), DOWN, 4.2, 4.0, "tap", "M5"))
-            base.holes[f"lip_{hn}"] = Hole(f"lip_{hn}", (x, y, BS_TOP), DOWN, 6.2, 2.5, "bore")
-            bolt(f"B_rail_{hn}", "M5", 16, [(p.name, hn), (BASE_PART, f"lip_{hn}"), (tn.name, "t")], female="tnut", std="ISO 10642", washer=False,
-                 preload_frac=0.07, nut_spec="slot-6 T-nut M5 (Tracer rail, ASSUMED)", group="G1 adapter->Ranger Mini rails",
-                 assumed="Ranger Mini 3.0 rail slot/T-nut type not published (rails 230 mm apart from the drawing)")
-            ADAPTER_KEEP.append((x - 12, x + 12, y - 12, y + 12))
+    for k, (x, y) in enumerate(BS_HOLES):
+        hn = f"bs{k}"
+        drill(p, Hole(hn, (x, y, AD_Z1), DOWN, 6.6, AD_T, "clear", "M6"))
+        p.shape = p.shape.cut(cq.Solid.makeCone(6.72, 3.3, 3.42, V(x, y, AD_Z1 - 3.42), V(0, 0, 1)))
+        p.shape = p.shape.cut(cyl(6.72, 1, (x, y, AD_Z1 - 0.01)))
+        drill(base, Hole(hn, (x, y, BS_H), DOWN, F.ISO["M6"]["tap"], BS_HOLE_DEPTH, "tap", "M6"))
+        bolt(f"B_base_{k}", "M6", 20, [(p.name, hn), (BASE_PART, hn)], std="ISO 10642", washer=False, group="G1 adapter->RB-THERON top",
+             assumed="RB-THERON top-plate holes: positions/thread/depth ASSUMED (not dimensioned in the datasheet)")
+        ADAPTER_KEEP.append((x - 14, x + 14, y - 14, y + 14))
     return p
 
 
@@ -112,7 +107,7 @@ def lighten_adapter():
     holes = [np.array(h.p[:2]) for h in p.holes.values()]
     cell, web, border = 52.0, 12.0, 20.0
     xs = np.arange(BS_X0 + 6 + border, BS_X1 - 6 - border - cell + 1e-6, cell + web)
-    ys = np.arange(-BS_W / 2 + 6 + border, BS_W / 2 - 6 - border - cell + 1e-6, cell + web)
+    ys = np.arange(-BS_W / 2 + border, BS_W / 2 - border - cell + 1e-6, cell + web)
     n = 0
     for x0 in xs:
         for y0 in ys:
@@ -176,8 +171,12 @@ def column():
     x0, x1, y0, y1, _ = BL_PLATE
     s = box(x0, x1, y0, y1, BRK_Z0, TORSO_Z)
     s = s.cut(box(COL_X - PROF / 2 - 0.2, COL_X + PROF / 2 + 0.2, -PROF / 2 - 0.2, PROF / 2 + 0.2, BRK_Z0 - 1, BRK_Z0 + 5))
+    s = s.cut(G.rounded_rect(25, 0, 74, 124, 15, BRK_Z0 - 1, 8))
+    for sy in (-1, 1):
+        s = s.cut(G.rounded_rect(-17, sy * 64, 150, 26, 15, BRK_Z0 - 1, 6))
+    s = s.cut(G.rounded_rect(-118, 0, 22, 60, 15, BRK_Z0 - 1, 5))
     br = add(Part("P02_column_to_torso_bracket", s, "EN AW-6082-T6",
-                  "waterjet 20 mm plate + 1 CNC set-up: 80x80 spigot pocket 5 mm, M12 cbore, drill/tap (no lightening pockets: cost)",
+                  "CNC milled from 20 mm plate: 80x80 spigot pocket 5 mm, underside pockets, M12 cbore, 8x M6 clearance, 4x M4 tapped",
                   color=(0.72, 0.73, 0.75), explode=(0, 0, 280)))
     drill(br, Hole("core", (COL_X, 0, TORSO_Z), DOWN, 13.5, BRK_T - 5, "clear", "M12", cbore=(20.0, 7.5)))
     bolt("B_column_top_M12", "M12", 30, [(br.name, "core"), (pr.name, "core_top")], std="DIN 7984", washer=False,
@@ -287,16 +286,16 @@ def power():
             bolt(f"B_{name[:3]}_{k}", "M5", 10, [(e.name, f"m{k}"), ("P01_base_adapter_plate", f"{name[:3]}m{k}")], group="G9 e-plates->adapter")
             ADAPTER_KEEP.append((x - 12, x + 12, y - 12, y + 12))
         return e
-    eplate("P06_eplate_right", -160, 43, -243, -104, [(-153, -111), (-153, -235), (-12, -111), (-12, -235)])
-    eplate("P07_eplate_left", -160, 43, 104, 243, [(-153, 111), (-153, 235), (-12, 111), (-12, 235)])
+    eplate("P06_eplate_right", -160, 43, -266, -108, [(-153, -115), (-153, -259), (-10, -115), (-10, -259)])
+    eplate("P07_eplate_left", -160, 43, 108, 266, [(-153, 115), (-153, 259), (-10, 115), (-10, 259)])
     eplate("P08_eplate_rear", -330, -160, -88, 152, [(-200, -80), (-170, -10), (-323, 36), (-323, 144)])
     ze = z + ET
-    purchased_box("E02_dcdc_DDR480C_A", -146, -146 + DCDC["L"], -112 - DCDC["W"], -112, ze, ze + DCDC["H"], DCDC["mass"], "Mean Well DDR-480C-24 (SOURCED)", (0.75, 0.75, 0.78))
-    purchased_box("E03_dcdc_DDR480C_B", -146, -146 + DCDC["L"], 112, 112 + DCDC["W"], ze, ze + DCDC["H"], DCDC["mass"], "Mean Well DDR-480C-24 (SOURCED)", (0.75, 0.75, 0.78))
-    purchased_box("E04_din_rail_pnoz", -5, 40, -240, -233, ze, ze + 7.5, 0.05, "DIN rail 35x7.5 (EN 60715)", (0.7, 0.7, 0.7))
-    purchased_box("E05_pilz_PNOZ_mB0", -5, -5 + PNOZ["L"], -237, -237 + PNOZ["W"], ze + 7.5, ze + 7.5 + PNOZ["H"], PNOZ["mass"], "Pilz 772100 (SOURCED)", (0.95, 0.8, 0.1))
-    purchased_box("E06_contactor_K1", -5, -5 + CONTACTOR["L"], 114, 114 + CONTACTOR["W"], ze, ze + CONTACTOR["H"], CONTACTOR["mass"], "ESTIMATE", (0.85, 0.12, 0.1))
-    purchased_box("E07_contactor_K2", -5, -5 + CONTACTOR["L"], 178, 178 + CONTACTOR["W"], ze, ze + CONTACTOR["H"], CONTACTOR["mass"], "ESTIMATE", (0.85, 0.12, 0.1))
+    purchased_box("E02_dcdc_DDR480C_A", -146, -146 + DCDC["L"], -120 - DCDC["W"], -120, ze, ze + DCDC["H"], DCDC["mass"], "Mean Well DDR-480C-24 (SOURCED)", (0.75, 0.75, 0.78))
+    purchased_box("E03_dcdc_DDR480C_B", -146, -146 + DCDC["L"], 120, 120 + DCDC["W"], ze, ze + DCDC["H"], DCDC["mass"], "Mean Well DDR-480C-24 (SOURCED)", (0.75, 0.75, 0.78))
+    purchased_box("E04_din_rail_pnoz", -5, 40, -255, -248, ze, ze + 7.5, 0.05, "DIN rail 35x7.5 (EN 60715)", (0.7, 0.7, 0.7))
+    purchased_box("E05_pilz_PNOZ_mB0", -5, -5 + PNOZ["L"], -252, -252 + PNOZ["W"], ze + 7.5, ze + 7.5 + PNOZ["H"], PNOZ["mass"], "Pilz 772100 (SOURCED)", (0.95, 0.8, 0.1))
+    purchased_box("E06_contactor_K1", -5, -5 + CONTACTOR["L"], 120, 120 + CONTACTOR["W"], ze, ze + CONTACTOR["H"], CONTACTOR["mass"], "ESTIMATE", (0.85, 0.12, 0.1))
+    purchased_box("E07_contactor_K2", -5, -5 + CONTACTOR["L"], 194, 194 + CONTACTOR["W"], ze, ze + CONTACTOR["H"], CONTACTOR["mass"], "ESTIMATE", (0.85, 0.12, 0.1))
     purchased_box("E08_jetson_agx_orin_module", -318, -318 + JETSON_MOD["L"], -78, -78 + JETSON_MOD["W"], ze, ze + JETSON_MOD["H"], JETSON_MOD["mass"], "ESTIMATE AGX Orin module + carrier", (0.12, 0.12, 0.13))
     purchased_box("E09_orion_tr_48_48_6", -318, -318 + CHARGER["L"], 40, 40 + CHARGER["W"], ze, ze + CHARGER["H"], 1.3, "Victron Orion-Tr Smart 48/48-6 isolated (electrical lead; envelope ESTIMATE)", (0.25, 0.25, 0.27))
     return tr
@@ -307,8 +306,8 @@ def power():
 POD_BACK = NS3_AXIS_FROM_REAR + NS3_PLUG + 6.0 + 3.0        # asse specchio -> faccia esterna dello schienale
 
 
-SCAN_HEADS = (-45.0, 135.0)        # front-right / rear-left corners (as in the sim)
-POD_SHIFT = 0.0
+SCAN_HEADS = (45.0, -135.0)        # RB-THERON: front-left / rear-right (its own picoScan120 sit in the other two corners)
+POD_SHIFT = 35.0                   # spostamento laterale verso il fianco: il pod anteriore resta fuori dalla sagoma della stazione di ricarica
 
 
 def scanner_centres(gap=3.0):
@@ -443,15 +442,15 @@ def se_shell(a, b, c, e1, e2, center, t, taper=None):
 SK = dict(a=375.0, b=330.0, c=130.0, e1=0.15, e2=0.30, zc=170.0, t=2.5)     # proposed: e1 0.28->0.15, c 125->130, zc 165->170
 
 
-DECK_TOP = 470.0
+DECK_TOP = 446.0
 
 
 def deck_cover():
-    """carter del ponte: lamiera di alluminio 1.5 mm piegata e verniciata (2 meta'), appoggiata sul ponte della base dentro il suo
-    contorno (costo: lamiera invece di SLS); niente gonna attorno alla base (ha la sua carrozzeria, ruote sterzanti) e niente paraurti"""
-    t = 1.5
+    """carter del ponte (sopra l'adattatore): scatola arrotondata 2 mm, scende fino al ponte della base; niente gonna attorno alla
+    Ranger Air (ha la sua carrozzeria, ruote sterzanti 4WS) e niente paraurti decorativo"""
+    t = 2.0
     # appoggiato sul ponte della base, dentro il suo contorno: nulla sporge dal retro (zona di aggancio della stazione AgileX)
-    cx_ = 0.0
+    cx_ = (BS_X0 + BS_X1) / 2
     o = cq.Workplane("XY", origin=(cx_, 0, BS_H)).rect(BS_L - 2, BS_W - 2).extrude(DECK_TOP - BS_H).edges("|Z").fillet(28).edges(">Z").fillet(12).val()
     i = cq.Workplane("XY", origin=(cx_, 0, BS_H - 1)).rect(BS_L - 2 - 2 * t, BS_W - 2 - 2 * t).extrude(DECK_TOP - BS_H - t + 1).edges("|Z").fillet(26).val()
     s = o.cut(i)
@@ -461,18 +460,20 @@ def deck_cover():
     for k, (cx, cy, head) in enumerate(scanner_centres()):
         R = G.rotz(head)
         s = s.cut(G.transform_shape(box(-NS3_AXIS_FROM_REAR - NS3_PLUG - 95, 150, -NS3_W / 2 - 14, NS3_W / 2 + 14, 100, 500), R, (cx, cy, 0)))
-    dc = add(Part("SH01_deck_cover", s, "EN AW-5754-H22", "laser cut + bent 1.5 mm sheet, 2 halves, powder coated; 4 M5 into standoffs",
+    dc = add(Part("SH01_deck_cover", s, "PA12 (SLS/MJF)", "SLS PA12 2 mm in 2 halves (front/rear), 4 M5 into standoffs; stands on the RB-THERON top inside its outline",
                   category="shell", color=(0.86, 0.86, 0.84), explode=(0, 0, 520)))
     for k, (x, y) in enumerate(((30.0, 92.0), (30.0, -92.0), (-140.0, 97.0), (-140.0, -97.0))):
-        zb = DECK_TOP - t
+        zb = DECK_TOP - t - 6.0
+        boss = cyl(9, 6, (x, y, zb))
+        dc.shape = dc.shape.fuse(boss)
         drill(dc, Hole(f"m{k}", (x, y, DECK_TOP), DOWN, 5.5, DECK_TOP - zb, "clear", "M5"))
-        so = add(Part(f"P11_deck_standoff_{k}", cyl(5, zb - AD_Z1, (x, y, AD_Z1)), "EN AW-6082-T6",
-                      f"purchased hex standoff M5 male/female SW10 x {zb - AD_Z1:.0f} mm (catalogue part, e.g. Ettinger)", color=(0.7, 0.7, 0.72), explode=(0, 0, 300)))
+        so = add(Part(f"P11_deck_standoff_{k}", cyl(7, zb - AD_Z1, (x, y, AD_Z1)), "EN AW-6082-T6",
+                      f"turned D14 x {zb - AD_Z1:.1f} mm, M5 male stud bottom / M5 tapped top", color=(0.7, 0.7, 0.72), explode=(0, 0, 300)))
         drill(so, Hole("top", (x, y, zb), DOWN, F.ISO["M5"]["tap"], 12, "tap", "M5"))
         so.tap_material = "EN AW-6082-T6"
         tap_adapter(f"dk{k}", x, y, "M5")
         ADAPTER_KEEP.append((x - 12, x + 12, y - 12, y + 12))
-        bolt(f"B_deck_{k}", "M5", 10, [(dc.name, f"m{k}"), (so.name, "top")], std="ISO 7380", group="G13 deck cover->standoffs", preload_frac=0.15)
+        bolt(f"B_deck_{k}", "M5", 16, [(dc.name, f"m{k}"), (so.name, "top")], std="ISO 7380", group="G13 deck cover->standoffs", preload_frac=0.15)
     return dc
 
 
@@ -493,7 +494,7 @@ def column_covers():
     # passaggio bracci del vassoio
     for sy in (-1, 1):
         s = s.cut(box(90, 120, sy * 60 - 16, sy * 60 + 16, 900, 960))
-    wc = add(Part("SH03_waist_cover", s, "PA12 (SLS/MJF)", "SLS/MJF PA12 2 mm, 2 halves, hangs from P02 on 4 lugs with M4",
+    wc = add(Part("SH03_waist_cover", s, "PA12 (SLS/MJF)", "SLS PA12 3 mm, 2 halves, hangs from P02 on 4 lugs with M4",
                   category="shell", color=(0.86, 0.86, 0.84), explode=(0, 300, 280), motion="lift"))
     for k, (bx, by) in enumerate([(88, 88), (88, -88), (-148, 88), (-148, -88)]):
         # aletta interna dalla parete al foro, sotto la staffa
@@ -532,7 +533,7 @@ def torso_shell():
     halves = {}
     for nm, sx, (x0, x1) in (("SH04a_torso_shell_front", 1, (0.0, 300.0)), ("SH04b_torso_shell_rear", -1, (-300.0, 0.0))):
         halves[sx] = add(Part(nm, s.intersect(box(x0, x1, -300, 300, 0, 2000)), "PA12 (SLS/MJF)",
-                              "MJF PA12 2 mm half shell (split x=0, tongue-and-groove seam not modelled), 1 M4 insert",
+                              "SLS/MJF PA12 3 mm half shell (split x=0, tongue-and-groove seam not modelled), 2 M4 inserts",
                               category="shell", color=(0.86, 0.86, 0.84), explode=(sx * 250, 0, 150), motion="lift"))
     # staffe del guscio sul montante (cava frontale / posteriore ASSUMED): gamba sul montante, braccio, linguetta verso la parete
     for sx, zb_, xt in ((1, TORSO_Z + 450.0, 80.0), (-1, TORSO_Z + 600.0, 82.0)):
@@ -574,7 +575,7 @@ def head():
     s = s.cut(box(-200, 200, -200, 200, 0, zpl + 3))
     s = s.cut(cyl(9, 100, (-10, 0, H_["z"] + 40)))                                   # passaggio asta
     s = s.cut(box(60, 120, -70, 70, H_["z"] - 50, H_["z"] + 40))                     # finestra frontale (visiera)
-    hs = add(Part("SH05_head_shell", s, "PA12 (SLS/MJF)", "MJF PA12 2 mm, painted; smoked PETG visor bonded",
+    hs = add(Part("SH05_head_shell", s, "PA12 (SLS/MJF)", "SLS PA12 2.5 mm, painted; smoked PETG visor bonded",
                   category="shell", color=(0.86, 0.86, 0.84), explode=(0, 0, 520), motion="lift"))
     # piastra collo su body_link0 (fissaggio ASSUMED: 4 x M4 nel coperchio del giunto)
     pl = cyl(64, 3, (0, 0, zpl))
@@ -797,19 +798,19 @@ def coffee():
     x0p, x1p, y0p, y1p = -305.0, -175.0, -104.0, 161.0
     bpp = add(Part("P30_backpack_eplate", G.rounded_rect((x0p + x1p) / 2, (y0p + y1p) / 2, x1p - x0p, y1p - y0p, 2, zp, 6), "EN AW-5754-H22",
                    "laser cut 2 mm sheet + PEM nuts M4, hung under the coffee shelf", color=(0.55, 0.57, 0.6), explode=(-250, 0, -60)))
-    for k, (xx, yy) in enumerate(((-297.0, -96.0), (-183.0, -96.0), (-183.0, 120.0))):
+    for k, (xx, yy) in enumerate(((-297.0, -96.0), (-183.0, -96.0), (-297.0, 153.0), (-183.0, 153.0))):
         so = add(Part(f"P31_backpack_standoff_{k}", cyl(5, zs - t - (zp + 2), (xx, yy, zp + 2)), "EN AW-6082-T6",
-                      f"purchased hex standoff M4 male/female SW8 x {zs - t - zp - 2:.0f} mm (catalogue)", color=(0.7, 0.7, 0.72), explode=(-250, 0, -30)))
+                      f"turned D10 x {zs - t - zp - 2:.0f} mm, M4 male stud top / M4 tapped bottom", color=(0.7, 0.7, 0.72), explode=(-250, 0, -30)))
         drill(sh, Hole(f"bp{k}", (xx, yy, zs - t), UP, F.ISO["M4"]["tap"], t, "tap", "M4"))
         drill(so, Hole("bot", (xx, yy, zp + 2), UP, F.ISO["M4"]["tap"], 10, "tap", "M4"))
         so.tap_material = "EN AW-6082-T6"
         drill(bpp, Hole(f"s{k}", (xx, yy, zp), UP, 4.5, 2, "clear", "M4"))
         bolt(f"B_backpack_{k}", "M4", 8, [(bpp.name, f"s{k}"), (so.name, "bot")], group="G31 backpack e-plate->standoffs")
     zc_ = zp + 2
-    purchased_box("E11_dcdc_DDR480C_coffee", -303, -303 + 125.2, -60, -60 + 129.2, zc_, zc_ + 85.5, DCDC["mass"],
+    purchased_box("E11_dcdc_DDR480C_coffee", -303, -303 + 125.2, -100, -100 + 129.2, zc_, zc_ + 85.5, DCDC["mass"],
                   "Mean Well DDR-480C-24 (coffee bus), lying (SOURCED dims)", (0.75, 0.75, 0.78))
-    purchased_box("E12_dcdc_S24_CPU_5V", -303, -243, 76, 156, zc_, zc_ + 45, 0.75, "ESTIMATE: 24 V sensors + 12 V CPU + 5 V DC-DCs", (0.75, 0.75, 0.78))
-    purchased_box("E13_ethernet_switch", -238, -208, 76, 156, zc_, zc_ + 70, 0.3, "ESTIMATE 5-8 port 24 V DIN switch", (0.2, 0.2, 0.22))
+    purchased_box("E12_dcdc_S24_CPU_5V", -303, -243, 35, 150, zc_, zc_ + 45, 0.75, "ESTIMATE: 24 V sensors + 12 V CPU + 5 V DC-DCs", (0.75, 0.75, 0.78))
+    purchased_box("E13_ethernet_switch", -238, -208, 35, 135, zc_, zc_ + 70, 0.3, "ESTIMATE 5-8 port 24 V DIN switch", (0.2, 0.2, 0.22))
     # porta-bicchieri: colonnina + anello (PA12) sulla lingua della mensola
     sx_, sy_ = COF_STACK
     stem = cyl(15, COF_STACK_Z, (sx_, sy_, zs)).fuse(cyl(30, 14, (sx_, sy_, zs)))
@@ -834,7 +835,7 @@ def coffee():
     s = s.cut(box(-320, -230, yo0 - 5, yo0 + 10, zs - 40, zs + 30))                                 # passaggio attuatore/navetta
     s = s.cut(box(-316, -240, -40, 200, zo1 - 10, zo1 + 5))                                         # sportello serbatoio (coperchio a parte)
     s = s.cut(box(INI_X0 - 8, xo1 + 5, yo0 - 5, -45, zs + INISSIA["H"] - 30, zo1 + 5))          # testa/pulsanti accessibili dall'alto (pressione del pulsante)
-    hz = add(Part("SH06_coffee_housing", s, "PA12 (SLS/MJF)", "SLS/MJF PA12 2 mm (2 pieces), hangs under the shelf on 3 M4 (tapped shelf)",
+    hz = add(Part("SH06_coffee_housing", s, "PA12 (SLS/MJF)", "SLS PA12 3 mm (2 pieces), hangs on the shelf edge with 4 M4 inserts",
                   category="shell", color=(0.86, 0.86, 0.84), explode=(-450, 0, 250)))
     for k, (x, y) in enumerate(((-312.0, -60.0), (-312.0, 120.0), (-300.0, 192.0))):
         lug = box(x - 6, x + 6, y - 6, y + 6, zs - t - 10, zs - t)
