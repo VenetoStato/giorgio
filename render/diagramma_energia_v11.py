@@ -30,15 +30,15 @@ def S(*v):
 
 # riquadri: nome -> (x, y, w, h, titolo, righe, t_comparsa)
 BOX = {
-    "stz": (90, 430, 330, 200, "DOCK", ["1.2 kW · 54 V CC/CV", "contacts live only after", "pilot + handshake"], 1.0),
+    "stz": (90, 430, 330, 200, "AGILEX DOCK", ["charges the Ranger Mini;", "the base recharges our", "pack (Victron, 370 W)"], 1.0),
     "bat": (560, 410, 330, 240, "BATTERY", ["LiFePO4 · 15s · 48 V", "30 Ah · 1.44 kWh · BMS", "IEC 62619 · UN 38.3"], 1.5),
     "c1": (1040, 175, 330, 130, "2× DC-DC 24 V", ["one per arm, behind", "safety contactors K1/K2"], 2.0),
     "c2": (1040, 355, 330, 130, "DC-DC 24 / 12 / 5 V", ["safety, sensors, compute", "always on"], 2.3),
-    "c3": (1040, 535, 330, 130, "BASE CHARGER", ["isolated, 48 V to 24 V", "10 A"], 2.6),
+    "c3": (1040, 535, 330, 130, "AGILEX RANGER MINI", ["48 V · 1.15 kWh · CAN"], 2.6),
     "c4": (1040, 715, 330, 130, "COFFEE", ["24 V capsule module", "or brew at the dock"], 2.9),
     "o1": (1480, 175, 360, 130, "ARMS", ["2× OpenArm 2.0 · 24 V", "720 W peak per arm"], 2.2),
     "o2": (1480, 355, 360, 130, "SAFETY + SENSING", ["PNOZ, scanners, Jetson,", "cameras, face"], 2.5),
-    "o3": (1480, 535, 360, 130, "BASE", ["AgileX Tracer 2.0", "own 24 V battery"], 2.8),
+    "o3": (1480, 535, 360, 130, "MOTION", ["4-wheel steering", "≤ 1.5 m/s, ≤ 1.5 m/s²"], 2.8),
     "o4": (1480, 715, 360, 130, "ESPRESSO", ["mission-critical"], 3.1),
 }
 ROWS = {"c1": "o1", "c2": "o2", "c3": "o3", "c4": "o4"}
@@ -112,8 +112,8 @@ def frame(t):
             dr.text(S(x + 22, y + 64 + 32 * i), r_, font=fnt("L", 25), fill=GREY + (int(255 * a),))
     # etichetta contatti
     a = ease((t - 1.8) / 0.5)
-    dr.text(S(436, 488), "spring", font=fnt("R", 24), fill=GREY + (int(255 * a),))
-    dr.text(S(436, 548), "contacts", font=fnt("R", 24), fill=GREY + (int(255 * a),))
+    dr.text(S(436, 488), "48 V", font=fnt("R", 24), fill=GREY + (int(255 * a),))
+    dr.text(S(436, 548), "link", font=fnt("R", 24), fill=GREY + (int(255 * a),))
     # arresto
     if stop:
         u = ease((t - 8.0) / 0.4) * ease((11.8 - t) / 0.4)

@@ -45,7 +45,7 @@ S.append(shot("v11/h_expl/f_*.jpg", "RENDER // EXPLODED", kick(0.3, 7.5, "BILL O
               names={"testa": ["HEAD", "32×16 LED face · Insta360 X4 360° cam"], "braccio_sx": ["ARMS", "Enactic OpenArm 2.0 · open hardware"],
                      "braccio_dx": ["HANDS", "OpenArm gripper · ORCA · AmazingHand"], "busto": ["TORSO", "Orbbec Gemini 336L stereo depth"],
                      "vassoio": ["KITTING TRAY", "swappable chest module"], "caffe": ["COFFEE MODULE", "any capsule machine"],
-                     "scanner": ["SAFETY", "2× SICK nanoScan3 · Pilz PNOZmulti"], "base": ["BASE", "AgileX Tracer 2.0 · commercial AMR"]}))
+                     "scanner": ["SAFETY", "2× SICK nanoScan3 · Pilz PNOZmulti"], "base": ["BASE", "AgileX Ranger Mini 3.0 · commercial"]}))
 # --- anatomia: un gruppo alla volta, dal CAD
 ANAT = {"base": ("MOBILE BASE", "AgileX Ranger Mini 3.0 · commercial · CAN / ROS 2 · docks and charges itself"),
         "power": ("BATTERY", "48 V LiFePO4, 1.44 kWh · topped up by the base"),
@@ -82,21 +82,21 @@ S.append(shot("v11/b_xray/f_*.jpg", "RENDER // X-RAY", kick(0.3, 5.8, "INSIDE TH
               labels="lab_base11.json", label_style="colonne", lab_t0=1.0,
               names={"pw_battery": ["48 V LiFePO4", "1.44 kWh · BMS"], "pw_dcdc0": ["DC-DC", "48 V in · 24 / 19 / 5 V out"],
                      "pw_contactor": ["SAFETY CONTACTORS", "cut arm power on stop"], "pw_pnoz": ["SAFETY RELAY", "Pilz PNOZmulti"],
-                     "pw_charger": ["24 V CHARGER", "keeps the base battery topped up"], "pw_jetson": ["COMPUTE", "NVIDIA Jetson AGX Orin"],
-                     "charge_pad1": ["DOCK CONTACTS", "copper, spring-loaded"], "pw_tracer": ["AGILEX TRACER 2.0", "commercial AMR"]}))
+                     "pw_charger": ["PACK CHARGER", "Victron Orion 48/48 · from the base"], "pw_jetson": ["COMPUTE", "NVIDIA Jetson Orin NX"],
+                     "charge_brush": ["DOCK CONTACTS", "AgileX charging kit, rear"], "pw_tracer": ["AGILEX RANGER MINI 3.0", "commercial base · 4-wheel steering"]}))
 S.append(shot("v11/r_wide/f_*.jpg", "SIM // 2×", kick(0.4, 6.5, "AUTO-DOCKING"), T(0.4, 6.5, "LOW BATTERY? IT GOES HOME.", size=60),
               battery=dict(json="ricarica_energia_v11.json", src_step=2, travel_text="LOW · RETURNING TO DOCK", charging_text="DOCKED · CHARGING 48 V")))
-S.append(shot("v11/r_close/f_*.jpg", "SIM", kick(0.3, 7.8, "DOCK"), T(0.3, 4.0, "CLOSED-LOOP DOCKING.", size=60),
-              T(4.1, 7.8, "THE CONTACTS STAY DEAD\nUNTIL IT'S DOCKED.", size=60),
-              battery=dict(json="ricarica_energia_v11.json", src0=600, src_step=1, travel_text="LOW · RETURNING TO DOCK", charging_text="DOCKED · CHARGING 48 V")))
+S.append(shot("v11/r_close/f_*.jpg", "SIM", kick(0.3, 7.8, "DOCK"), T(0.3, 4.0, "IT BACKS INTO ITS CHARGER.", size=60),
+              T(4.1, 7.8, "ONE DOCK CHARGES\nTHE BASE AND GIORGIO.", size=60),
+              battery=dict(json="ricarica_energia_v11.json", src0=690, src_step=1, travel_text="LOW · RETURNING TO DOCK", charging_text="DOCKED · CHARGING 48 V")))
 S.append(card(3.0, big(0.2, 3.0, "SAFETY LIVES IN HARDWARE.", 80), mono(0.9, 3.0, "NOT IN THE AI. THE AI IS NOT ALLOWED NEAR IT.")))
 S.append(card(2.6, big(0.2, 2.6, "MECHANICAL."), mono(0.8, 2.6, "~100 PARTS · 128 BOLTED JOINTS · EVERY ONE CHECKED")))
 S.append(shot("v11/k_cad2/f_*.jpg", "CAD // CADQUERY", kick(0.4, 5.6, "ASSEMBLY"), T(0.4, 5.6, "REAL PARTS. REAL BOLTS.", size=60),
               T(1.2, 5.6, "Off-the-shelf where possible, laser-cut and printed where not.", "llsub", 32, "N", band=False)))
 LINES = [("INTERFERENCE · EXACT B-REP · 3 POSES", "0 OVERLAPS"), ("BOLT AXES, MATING PARTS", "0.000 mm OFFSET"),
          ("HOLES · ISO 273 / TAP DRILLS / INSERTS", "OK"), ("ARM SWEEP vs STRUCTURE · 793 POSES", "2.4 mm MIN"),
-         ("PAYLOAD vs BASE LIMIT (AGILEX MANUAL)", "88.8 / 100 kg"), ("CENTRE OF MASS vs BASE CENTRE", "4.5 mm"),
-         ("TIPPING · NOMINAL", "6.6 m/s²"), ("MASS · ALL-IN", "135.7 kg"), ("OPEN ISSUES", "LISTED. HONESTLY.")]
+         ("PAYLOAD vs BASE LIMIT (AGILEX)", "85.3 / 120 kg"), ("CENTRE OF MASS vs BASE CENTRE", "3.2 mm"),
+         ("TIPPING · SIDEWAYS · NOMINAL", "3.9 m/s²"), ("MASS · ALL-IN", "152 kg"), ("OPEN ISSUES", "LISTED. HONESTLY.")]
 tx = [T(0.2, 7.5, "VALIDATION REPORT", [160, 150], 26, "X", color=ACC, shadow=False, band=False, track=2, align="left")]
 for i, (a, b) in enumerate(LINES):
     t0 = 0.5 + 0.45 * i; y = 230 + 72 * i
@@ -127,6 +127,12 @@ S.append(dict(type="card", dur=5.0, bg="stills_v11/rl_curva_dark.png", dim=0.0,
               texts=[mono(0.2, 5.0, "236 M SIMULATED ATTEMPTS · 4,096 PARALLEL ENVIRONMENTS · 81 MIN · ONE GPU", pos="upper", size=26)]))
 S.append(shot("v10/rld2/f_*.jpg", "SIM // REINFORCEMENT LEARNING", kick(0.3, 9.8, "ORCA HAND · AFTER"), T(0.3, 5.0, "IN-HAND ROTATION, LEARNED.", size=60),
               T(5.1, 9.8, "NEXT: TEACHING IT\nTO A REAL HAND.", size=60)))
+# --- OpenArm 2.0: politica addestrata sul braccio standalone, girata su Giorgio senza modifiche
+S.append(card(2.8, big(0.2, 2.8, "SAME ARMS AS OPENARM 2.0.\nSAME BRAIN.".replace("\\n", "\n"), 80)))
+S.append(shot("v11/oa_std/f_*.jpg", "SIM // OPENARM 2.0 STANDALONE", kick(0.3, 9.8, "OPENARM 2.0"), T(0.3, 9.8, "TRAINED ON A PLAIN OPENARM.", size=58),
+              T(1.0, 9.8, "Grasp and lift, learned in simulation. No Giorgio involved.", "llsub", 32, "N", band=False)))
+S.append(shot("v11/oa_gio/f_*.jpg", "SIM // GIORGIO", kick(0.3, 9.8, "SAME WEIGHTS"), T(0.3, 9.8, "RUNS ON GIORGIO. UNCHANGED.", size=58),
+              T(1.0, 9.8, "If it works on an OpenArm, it works here.", "llsub", 32, "N", band=False)))
 # --- caffe' (comico)
 S.append(card(3.2, mono(0.2, 3.2, "AND NOW", pos="upper", size=26), big(0.5, 3.2, "THE MISSION-CRITICAL\nCAPABILITY.", 84)))
 S.append(shot("v11/c_bicchiere/f_*.jpg", "SIM", kick(0.3, 5.3, "STEP 1"), T(0.3, 5.3, "CUP FROM STACK TO SHUTTLE.", size=60)))

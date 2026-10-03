@@ -59,7 +59,7 @@ tgt = (lo + hi) / 2; H = (hi - lo).z
 cam = bpy.data.objects.new("cam", bpy.data.cameras.new("cam")); sc.collection.objects.link(cam); sc.camera = cam
 cam.data.lens = 50
 for fr in range(1, NF + 1):
-    az = math.radians(25 + 70 * fr / NF); d = H * 1.75
+    az = math.radians(25 + 70 * fr / NF); d = H * 2.6
     cam.location = tgt + Vector((d * math.cos(az), -d * math.sin(az), 0.22 * d))
     cam.rotation_euler = (tgt - cam.location).to_track_quat("-Z", "Y").to_euler()
     cam.keyframe_insert("location", frame=fr); cam.keyframe_insert("rotation_euler", frame=fr)
