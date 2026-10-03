@@ -69,6 +69,9 @@ class Net:
         self.v_min = self.ns * cell["v_min_cutoff"]
         self.ah = self.np * cell["ah"]
         self.e_nom = self.v_nom * self.ah
+        self.main = d.get("main_bus", "B48")
+        mb = self.bus[self.main]
+        self.v_min_bus = min(self.v_min, mb.get("v_min", self.v_min)) if d.get("main_bus") else self.v_min
 
     # ---- resistances
     def r_pack(self, worst):
@@ -97,8 +100,11 @@ class Net:
         """pack-side W that can never flow together (energy-management interlocks): sum of the smaller members"""
         sav = 0.0
         for g in self.d.get("exclusive", []):
-            vals = [self.load[l][f"p_{kind}_w"] for l in g.get("loads", [])]
-            vals += [self.conv_in_power(c, kind) for c in g.get("convs", [])]
+            if "sets" in g:     # groups of loads that never run together: keep only the largest set
+                vals = [sum(self.load[l][f"p_{kind}_w"] for l in st) for st in g["sets"]]
+            else:
+                vals = [self.load[l][f"p_{kind}_w"] for l in g.get("loads", [])]
+                vals += [self.conv_in_power(c, kind) for c in g.get("convs", [])]
             sav += sum(vals) - max(vals)
         return sav
 
@@ -114,9 +120,14 @@ class Net:
             ic = self.conv_out_current(cur["conv"], "cont")
             ip = self.conv_out_current(cur["conv"], "peak")
             ps = self.conv[cur["conv"]].get("peak_s", 1) or 1
+        elif f == "loads":
+            vs = [self.v_min if self.load[x]["bus"] == self.main else self.bus[self.load[x]["bus"]]["v_nom"] for x in cur["loads"]]
+            ic = sum(self.load[x]["p_cont_w"] / v for x, v in zip(cur["loads"], vs))
+            ip = sum(self.load[x]["p_peak_w"] / v for x, v in zip(cur["loads"], vs))
+            ps = max(self.load[x].get("peak_s", 1) for x in cur["loads"])
         elif f == "load":
             l = self.load[cur["load"]]
-            v = self.v_min if l["bus"] == "B48" else self.bus[l["bus"]]["v_nom"]
+            v = self.v_min if l["bus"] == self.main else self.bus[l["bus"]]["v_nom"]
             ic, ip, ps = l["p_cont_w"] / v, l["p_peak_w"] / v, l.get("peak_s", 1)
         elif f == "sum":
             parts = [self.branch_current(x) for x in cur["branches"]]
@@ -140,8 +151,9 @@ def main(path_yaml, path_md):
         "<= 2000 Wh (EU 2023/1542: passport / carbon footprint duties above 2 kWh)", n.e_nom <= 2000)
     rec("Battery & regulatory", "Max pack voltage (3.65 V/cell)", f"{n.v_max:.2f} V",
         "<= 60 V ripple-free DC (IEC 60204-1 6.4 PELV, dry location)", n.v_max <= 60)
-    cv = d["charging"]["cv_v"]
-    rec("Battery & regulatory", "Dock charger CV setpoint", f"{cv:.2f} V = {cv / n.ns:.3f} V/cell", "<= 3.65 V/cell", cv / n.ns <= 3.65)
+    if "charging" in d:
+        cv = d["charging"]["cv_v"]
+        rec("Battery & regulatory", "Dock charger CV setpoint", f"{cv:.2f} V = {cv / n.ns:.3f} V/cell", "<= 3.65 V/cell", cv / n.ns <= 3.65)
     for c in n.conv.values():
         rec("Battery & regulatory", f"{c['id']} input range ({comp[c['component']]['mpn']})", f"{c['vin_min']}-{c['vin_max']} V",
             f"covers {n.v_min:.1f}-{n.v_max:.2f} V", c["vin_min"] <= n.v_min and c["vin_max"] >= n.v_max)
@@ -163,34 +175,58 @@ def main(path_yaml, path_md):
         ob = n.bus[c["out_bus"]]
         ic = n.bus_power(c["out_bus"], "cont") / ob["v_nom"]
         ip = n.bus_power(c["out_bus"], "peak") / ob["v_nom"]
-        cap_p = c["iout_a"] * c.get("peak_factor", 1.0)
-        mpn = comp[c["component"]]["mpn"]
+        k_mount = 1.0
+        if c.get("mount") == "lying":
+            k_nofan = c.get("derate_lying", 1.0)
+            rec("DC-DC sizing", f"{c['id']} lying mount WITHOUT forced air (derate {k_nofan})",
+                f"{ic:.2f} A cont / {ip:.2f} A peak", f"<= {0.8 * c['iout_a'] * k_nofan:.1f} A / {c['iout_a'] * c.get('peak_factor', 1.0) * k_nofan:.1f} A", None,
+                ("would FAIL" if ic > 0.8 * c["iout_a"] * k_nofan or ip > c["iout_a"] * c.get("peak_factor", 1.0) * k_nofan else "would pass")
+                + "; Mean Well curve is for vertical mounting (100 % to 55 C, 40 % at 80 C); lying derate is an assumption")
+            k_mount = 1.0 if c.get("fan") else k_nofan
+        cap_p = c["iout_a"] * c.get("peak_factor", 1.0) * k_mount
+        mpn = comp[c["component"]]["mpn"] + (" lying + fan" if c.get("mount") == "lying" and c.get("fan") else "")
         rec("DC-DC sizing", f"{c['id']} {mpn} -> {ob['id']} continuous", f"{ic:.2f} A ({ic * ob['v_nom']:.0f} W)",
-            f"<= 80 % of {c['iout_a']} A = {0.8 * c['iout_a']:.1f} A", ic <= 0.8 * c["iout_a"] + 1e-9)
+            f"<= 80 % of {c['iout_a'] * k_mount:.1f} A = {0.8 * c['iout_a'] * k_mount:.1f} A", ic <= 0.8 * c["iout_a"] * k_mount + 1e-9)
         rec("DC-DC sizing", f"{c['id']} simultaneous peak of all its loads", f"{ip:.2f} A ({ip * ob['v_nom']:.0f} W)",
             f"<= {cap_p:.1f} A ({c.get('peak_s', 0)} s)", ip <= cap_p + 1e-9, c.get("peak_note", ""))
 
     # ================================================================ pack current
-    loads_b48 = [l for l in n.load.values() if l["bus"] == "B48"]
+    loads_b48 = [l for l in n.load.values() if l["bus"] == n.main]
     p_peak = sum(n.conv_in_power(c, "peak") for c in n.conv) + sum(l["p_peak_w"] for l in loads_b48) - n.excl_saving("peak")
     p_cont = sum(n.conv_in_power(c, "cont") for c in n.conv) + sum(l["p_cont_w"] for l in loads_b48) - n.excl_saving("cont")
     i_peak, i_cont = p_peak / n.v_min, p_cont / n.v_min
+    bf = d.get("buffer")
+    if bf:   # peak buffer behind a current-limited port share for the arm bus
+        arm_pk = sum(n.load[x]["p_peak_w"] for x in bf["feeds"]) / n.v_min
+        arm_ct = sum(n.load[x]["p_cont_w"] for x in bf["feeds"]) / n.v_min
+        share = bf["port_share_a"]
+        i_buf = max(0.0, arm_pk - share)
+        rec("Peak buffer", f"Arm peak current above the port share ({share} A current-limited ORing)", f"{i_buf:.1f} A from the buffer for {bf['peak_s']} s",
+            f"<= buffer pulse {bf['i_pulse_a']} A", i_buf <= bf["i_pulse_a"], comp[bf["component"]]["mpn"])
+        rec("Peak buffer", "Arms sustained current covered by the port share alone", f"{arm_ct:.1f} A", f"<= {share} A", arm_ct <= share)
+        e_evt = (arm_pk - share) * n.v_min * bf["peak_s"] / 3600
+        rec("Peak buffer", "Energy per peak event / recharge time at the charger current", f"{e_evt:.2f} Wh / {e_evt / (bf['chg_a'] * 27) * 60:.1f} min",
+            f"<= 10 % of {bf['e_wh']} Wh", e_evt <= 0.1 * bf["e_wh"], f"charger {bf['chg_a']} A gets the leftover port power (power manager)")
+        i_peak = i_peak - arm_pk + min(arm_pk, share)        # what the base port sees
+        i_cont = i_cont - arm_ct + min(arm_ct, share)
+        p_peak, p_cont = i_peak * n.v_min, i_cont * n.v_min
     bms = comp[b["bms_component"]]["ratings"]
     cell = b["cell"]
-    rec("Pack current", "ALL peaks at once (both arms 720 W, compute, UI, coffee or Tracer charger) at V_min",
+    rec("Pack current", "ALL loads at declared peak at once (interlocks applied) at V_min",
         f"{p_peak:.0f} W -> {i_peak:.1f} A = {i_peak / n.ah:.2f} C",
-        f"<= min(BMS {bms['i_peak_a']} A/{bms['t_peak_s']} s, cell {cell['c_pulse']} C = {cell['c_pulse'] * n.ah:.0f} A)",
+        f"<= min({comp[b['bms_component']]['short'] or 'BMS'} {bms['i_peak_a']} A/{bms['t_peak_s']} s, cell {cell['c_pulse']} C = {cell['c_pulse'] * n.ah:.0f} A)",
         i_peak <= min(bms["i_peak_a"], cell["c_pulse"] * n.ah), "physically unlikely combination; design worst case")
     rec("Pack current", "All loads at max sustained at V_min", f"{p_cont:.0f} W -> {i_cont:.1f} A = {i_cont / n.ah:.2f} C",
-        f"<= min(BMS {bms['i_cont_a']} A, cell {cell['c_cont']} C = {cell['c_cont'] * n.ah:.0f} A)",
+        f"<= min({comp[b['bms_component']]['short'] or 'BMS'} {bms['i_cont_a']} A, cell {cell['c_cont']} C = {cell['c_cont'] * n.ah:.0f} A)",
         i_cont <= min(bms["i_cont_a"], cell["c_cont"] * n.ah))
     sag = i_peak * r_max
     uvlo = max(c["vin_min"] for c in n.conv.values())
     v_low = n.v_ns_low = n.ns * 3.0      # 10 % SoC resting voltage ~3.0 V/cell
     rec("Pack current", "Pack voltage under all-peak load at 10 % SoC (3.0 V/cell, DC-IR max)",
         f"{v_low - sag:.1f} V (sag {sag:.2f} V)", f"> DC-DC UVLO {uvlo} V + 2 V margin", v_low - sag > uvlo + 2)
-    rec("Pack current", "Pack voltage under all-peak load at cut-off (2.5 V/cell)",
-        f"{n.v_min - sag:.1f} V", f"> {uvlo} V (DDR 100 ms ride-through to 28.8 V)", n.v_min - sag > 28.8,
+    rt = d.get("ride_through_v", uvlo)
+    rec("Pack current", f"Pack voltage under all-peak load at cut-off ({b['cell']['v_min_cutoff']} V/cell)",
+        f"{n.v_min - sag:.1f} V", f"> {rt} V (DC-DC UVLO / ride-through)", n.v_min - sag > rt,
         "BMS/Jetson must start a controlled shutdown at 10 % SoC; below that peaks may brown out the arm DC-DCs")
 
     # ================================================================ branches
@@ -211,7 +247,7 @@ def main(path_yaml, path_md):
                 ip <= 1.5 * iz and ps <= 10, "conductor thermal time constant >> peak (assumption)")
         rho = RHO_CU_20 * (1 + ALPHA_CU * (T_COND - 20))
         r_loop = rho * 2 * br["length_m"] / br["csa_mm2"]
-        v_ref = bus["v_min"] if bus["id"] == "B48" else bus["v_nom"]
+        v_ref = bus["v_min"] if bus["id"] == n.main else bus["v_nom"]
         vd, vdp = ic * r_loop, ip * r_loop
         lim = br["vdrop_limit_pct"]
         rec("Voltage drop", tag, f"{100 * vd / v_ref:.2f} % ({vd * 1000:.0f} mV @ {ic:.1f} A)", f"< {lim} % (ref {v_ref} V)",
@@ -226,7 +262,7 @@ def main(path_yaml, path_md):
         rec("Fuse selection", fl + ": In >= 1.25 I_cont", f"{In} A", f">= {1.25 * ic:.1f} A", In >= 1.25 * ic - 1e-9)
         rec("Fuse selection", fl + ": In <= Iz (cable protected)", f"{In} A", f"<= {iz:.1f} A", In <= iz + 1e-9)
         rec("Fuse selection", fl + ": DC voltage rating", f"{fr['v_dc']} V", f">= {bus['v_max']} V", fr["v_dc"] >= bus["v_max"])
-        if bus["id"] == "B48":
+        if bus["id"] == n.main and not br.get("isc_override_a"):
             r_up = r_min + sum(br.get("upstream_r_mohm", [])) / 1000.0
             isc_here = n.v_max / r_up
             note = f"R_pack,min + upstream {sum(br.get('upstream_r_mohm', [])):.2f} mOhm"
@@ -295,7 +331,7 @@ def main(path_yaml, path_md):
     if not has_tr:   # base with its own battery and charger, not fed from our pack (e.g. MiR250)
         tr = {"v_nom": 0, "ah": 0, "usable_dod": 0}
     eta_tc = comp[tr["charger_component"]]["ratings"]["eta"] if has_tr else 1.0
-    e_pack = n.e_nom * b["usable_dod"]
+    e_pack = n.e_nom * b["usable_dod"] + (d["buffer"]["e_wh"] * d["buffer"]["usable"] if d.get("buffer") else 0.0)
     e_tr = tr["v_nom"] * tr["ah"] * tr["usable_dod"]
     conv_of = {c["out_bus"]: c for c in n.conv.values()}
     prof_out = {}
@@ -314,67 +350,82 @@ def main(path_yaml, path_md):
         h_sys = min(h_comb, h_pack + 99 if p_tr == 0 else h_comb)
         prof_out[pr["id"]] = (p_pack, p_tr, h_pack, h_tr, h_comb)
         rec("Autonomy", f"{pr['id']} {pr['desc']}",
-            f"pack {p_pack:.0f} W -> {h_pack:.1f} h; Tracer {p_tr:.0f} W -> {h_tr:.1f} h; combined {h_comb:.1f} h",
-            f">= {pr['target_h']} h (combined, with balancing)", h_sys >= pr["target_h"],
+            (f"pack {p_pack:.0f} W -> {h_pack:.1f} h; Tracer {p_tr:.0f} W -> {h_tr:.1f} h; combined {h_comb:.1f} h" if has_tr
+             else f"{p_pack:.0f} W from {e_pack:.0f} Wh -> {h_pack:.1f} h"),
+            f">= {pr['target_h']} h" + (" (combined, with balancing)" if has_tr else ""), h_sys >= pr["target_h"],
             (f"usable pack {e_pack:.0f} Wh, Tracer {e_tr:.0f} Wh; Tracer topped up from pack via isolated charger (eta {eta_tc})"
-             if has_tr else f"usable pack {e_pack:.0f} Wh; base has its own battery (not counted)"))
+             if has_tr else d.get("autonomy_note", f"usable pack {e_pack:.0f} Wh; base has its own battery (not counted)")))
 
     # ================================================================ charging
-    ch = d["charging"]
-    dk = comp[ch["dock_charger_component"]]["ratings"]
-    i_dock = min(dk["i_out_a"], dk["p_out_w"] / ch["cv_v"])
-    p_dock = i_dock * ch["cv_v"]
-    rec("Charging", "Dock charge current vs cell / BMS", f"{i_dock:.1f} A = {i_dock / n.ah:.2f} C",
-        f"<= {b['cell']['c_charge']} C and BMS {bms['i_charge_a']} A", i_dock / n.ah <= b["cell"]["c_charge"] and i_dock <= bms["i_charge_a"])
-    rec("Charging", "Dock contact current", f"{i_dock:.1f} A", f"<= {comp[ch['dock_contact_component']]['ratings']['i_cont_a']} A",
-        i_dock <= comp[ch["dock_contact_component"]]["ratings"]["i_cont_a"])
-    p_net1 = p_dock - ch["hotel_load_w"]                      # pack only (Tracer waits)
-    p_net2 = p_dock - ch["hotel_load_w"] - ch["tracer_charge_w"] / eta_tc
-    i1, i2 = p_net1 / (cv - 1.5), p_net2 / (cv - 1.5)         # mean pack voltage during CC ~ 52.5 V
-    t_20_80 = 0.6 * n.ah / i1
-    s0, s1 = ch["tracer_priority_soc"], ch["cv_start_soc"]
-    t_full = s0 * n.ah / i1 + (s1 - s0) * n.ah / i2 + ch["cv_tail_h"]
-    rec("Charging", "Net power into pack on the dock", f"{p_net1:.0f} W ({i1:.1f} A) pack-only; {p_net2:.0f} W ({i2:.1f} A) while Tracer charges",
-        "", None, f"dock {p_dock:.0f} W - hotel {ch['hotel_load_w']} W - Tracer {ch['tracer_charge_w']} W / {eta_tc}")
-    rec("Charging", "Opportunity charge 20 % -> 80 % (Tracer deferred)", f"{t_20_80 * 60:.0f} min", f"<= {ch['target_20_80_min']} min",
-        t_20_80 * 60 <= ch["target_20_80_min"])
-    rec("Charging", "Full charge 0 -> 100 % (CC, Tracer from 80 %, CV tail)", f"{t_full:.2f} h", f"<= {ch['target_full_h']} h", t_full <= ch["target_full_h"])
-    t_tr = tr["v_nom"] * tr["ah"] * 0.8 / ch["tracer_charge_w"] if has_tr else 0.0
-    if has_tr:
-        rec("Charging", "Tracer battery 10 -> 90 % via onboard charger (10 A)", f"{t_tr:.2f} h", f"<= {ch['target_full_h']} h (AgileX charger: 3 h)", t_tr <= ch["target_full_h"])
+    if "charging" not in d:
+        oem = d.get("oem_dock", {})
+        e_used = n.e_nom * b["usable_dod"]
+        if oem.get("p_w"):
+            p_net = oem["p_w"] - oem.get("hotel_w", 0)
+            rec("Charging", "Full recharge through the base manufacturer's dock (usable energy)", f"{e_used / p_net:.1f} h",
+                f"<= {oem.get('target_h', 4)} h", e_used / p_net <= oem.get("target_h", 4), oem.get("note", ""))
+        else:
+            rec("Charging", "OEM dock", "no data", "", None, oem.get("note", ""))
+        ch = None
+    else:
+        ch = d["charging"]
+    if ch is not None:
+        dk = comp[ch["dock_charger_component"]]["ratings"]
+        i_dock = min(dk["i_out_a"], dk["p_out_w"] / ch["cv_v"])
+        p_dock = i_dock * ch["cv_v"]
+        rec("Charging", "Dock charge current vs cell / BMS", f"{i_dock:.1f} A = {i_dock / n.ah:.2f} C",
+            f"<= {b['cell']['c_charge']} C and BMS {bms['i_charge_a']} A", i_dock / n.ah <= b["cell"]["c_charge"] and i_dock <= bms["i_charge_a"])
+        rec("Charging", "Dock contact current", f"{i_dock:.1f} A", f"<= {comp[ch['dock_contact_component']]['ratings']['i_cont_a']} A",
+            i_dock <= comp[ch["dock_contact_component"]]["ratings"]["i_cont_a"])
+        p_net1 = p_dock - ch["hotel_load_w"]                      # pack only (Tracer waits)
+        p_net2 = p_dock - ch["hotel_load_w"] - ch["tracer_charge_w"] / eta_tc
+        i1, i2 = p_net1 / (cv - 1.5), p_net2 / (cv - 1.5)         # mean pack voltage during CC ~ 52.5 V
+        t_20_80 = 0.6 * n.ah / i1
+        s0, s1 = ch["tracer_priority_soc"], ch["cv_start_soc"]
+        t_full = s0 * n.ah / i1 + (s1 - s0) * n.ah / i2 + ch["cv_tail_h"]
+        rec("Charging", "Net power into pack on the dock", f"{p_net1:.0f} W ({i1:.1f} A) pack-only; {p_net2:.0f} W ({i2:.1f} A) while Tracer charges",
+            "", None, f"dock {p_dock:.0f} W - hotel {ch['hotel_load_w']} W - Tracer {ch['tracer_charge_w']} W / {eta_tc}")
+        rec("Charging", "Opportunity charge 20 % -> 80 % (Tracer deferred)", f"{t_20_80 * 60:.0f} min", f"<= {ch['target_20_80_min']} min",
+            t_20_80 * 60 <= ch["target_20_80_min"])
+        rec("Charging", "Full charge 0 -> 100 % (CC, Tracer from 80 %, CV tail)", f"{t_full:.2f} h", f"<= {ch['target_full_h']} h", t_full <= ch["target_full_h"])
+        t_tr = tr["v_nom"] * tr["ah"] * 0.8 / ch["tracer_charge_w"] if has_tr else 0.0
+        if has_tr:
+            rec("Charging", "Tracer battery 10 -> 90 % via onboard charger (10 A)", f"{t_tr:.2f} h", f"<= {ch['target_full_h']} h (AgileX charger: 3 h)", t_tr <= ch["target_full_h"])
 
     # ================================================================ coffee options
-    cf = d["coffee"]
-    coffee_convs = [c for c in n.conv if n.conv[c]["out_bus"] == "COF24"]
-    coffee_loads = [l for l in n.load if n.load[l]["bus"] == "COF24"]
-    i_peak_nc = (p_peak - sum(n.conv_in_power(c, "peak") for c in coffee_convs) + n.excl_saving("peak")) / n.v_min
-    i_cont_nc = (p_cont - sum(n.conv_in_power(c, "cont") for c in coffee_convs) + n.excl_saving("cont")) / n.v_min
-    p2 = next(pr for pr in d["profiles"] if pr["id"] == "P2")
-    p2_nc = prof_out["P2"][0] - sum(p2["p_avg"].get(l, 0) for l in coffee_loads) / (n.conv[coffee_convs[0]]["eta"] if coffee_convs else 1)
-    base_main = (i_cont_nc, i_peak_nc)
-    f0 = comp[n.fuse["F0"]["component"]]["ratings"]["in_a"]
-    w01 = n.br["W01"]
-    iz_main = d["wiring"]["ampacity_table"][w01["method"]][float(w01["csa_mm2"])] * interp(d["wiring"]["ambient_correction"], w01["ambient_c"])
-    for o in cf["options"]:
-        p_dc = o["machine_w"] / o["eta_conv"] if o["machine_w"] else 0.0
-        i_dc = p_dc / n.v_min
-        i_all = i_peak_nc + i_dc
-        wh_pack = o["wh_per_cup"] / o["eta_conv"] if o["wh_per_cup"] else 0.0
-        cups = e_pack / wh_pack if wh_pack else float("inf")
-        p_serv = p2_nc + wh_pack * cf["cups_per_hour_service"] + o["idle_w"]
-        h_serv = (e_pack + e_tr * eta_tc) / (p_serv + prof_out["P2"][1] / eta_tc)
-        main_cont = base_main[0] + i_dc
-        f0_need = 1.25 * main_cont
-        ok_peak = i_all <= min(bms["i_peak_a"], cell["c_pulse"] * n.ah)
-        ok_opt = ok_peak and f0_need <= f0
-        is_def = o["id"] == cf["default"]
-        rec("Coffee options", f"{o['id']}: {o['desc']}" + (" [DEFAULT]" if is_def else " [alternative: " + ("feasible" if ok_opt else "NOT feasible as-is") + "]"),
-            f"DC {p_dc:.0f} W ({i_dc:.1f} A); all-peak {i_all:.0f} A = {i_all / n.ah:.2f} C; {wh_pack:.1f} Wh/cup from pack; "
-            f"P2 + {cf['cups_per_hour_service']} cups/h -> {h_serv:.1f} h",
-            "all-peak within BMS/cell pulse; main fuse/cable unchanged", ok_opt if is_def else None,
-            f"main cont {main_cont:.1f} A needs F0 >= {f0_need:.0f} A (have {f0} A, cable Iz {iz_main:.0f} A)"
-            + ("" if f0_need <= f0 else " -> upsize F0 and W01") + ("" if ok_peak else " -> needs brew/arm interlock")
-            )
+    if "coffee" in d:
+        cf = d["coffee"]
+        coffee_convs = [c for c in n.conv if n.conv[c]["out_bus"] == "COF24"]
+        coffee_loads = [l for l in n.load if n.load[l]["bus"] == "COF24"]
+        i_peak_nc = (p_peak - sum(n.conv_in_power(c, "peak") for c in coffee_convs) + n.excl_saving("peak")) / n.v_min
+        i_cont_nc = (p_cont - sum(n.conv_in_power(c, "cont") for c in coffee_convs) + n.excl_saving("cont")) / n.v_min
+        p2 = next(pr for pr in d["profiles"] if pr["id"] == "P2")
+        p2_nc = prof_out["P2"][0] - sum(p2["p_avg"].get(l, 0) for l in coffee_loads) / (n.conv[coffee_convs[0]]["eta"] if coffee_convs else 1)
+        base_main = (i_cont_nc, i_peak_nc)
+        f0 = comp[n.fuse["F0"]["component"]]["ratings"]["in_a"]
+        w01 = n.br["W01"]
+        iz_main = d["wiring"]["ampacity_table"][w01["method"]][float(w01["csa_mm2"])] * interp(d["wiring"]["ambient_correction"], w01["ambient_c"])
+        for o in cf["options"]:
+            p_dc = o["machine_w"] / o["eta_conv"] if o["machine_w"] else 0.0
+            i_dc = p_dc / n.v_min
+            i_excl = sum(n.load[l]["p_peak_w"] for g in d.get("exclusive", []) for l in g.get("loads", [])) / n.v_min
+            i_all = i_peak_nc + i_dc - min(i_dc, i_excl)      # Tracer charging paused while brewing (energy interlock)
+            wh_pack = o["wh_per_cup"] / o["eta_conv"] if o["wh_per_cup"] else 0.0
+            cups = e_pack / wh_pack if wh_pack else float("inf")
+            p_serv = p2_nc + wh_pack * cf["cups_per_hour_service"] + o["idle_w"]
+            h_serv = (e_pack + e_tr * eta_tc) / (p_serv + prof_out["P2"][1] / eta_tc)
+            main_cont = base_main[0] + i_dc
+            f0_need = 1.25 * main_cont
+            ok_peak = i_all <= min(bms["i_peak_a"], cell["c_pulse"] * n.ah)
+            ok_opt = ok_peak and f0_need <= f0
+            is_def = o["id"] == cf["default"]
+            rec("Coffee options", f"{o['id']}: {o['desc']}" + (" [DEFAULT]" if is_def else " [alternative: " + ("feasible" if ok_opt else "NOT feasible as-is") + "]"),
+                f"DC {p_dc:.0f} W ({i_dc:.1f} A); all-peak {i_all:.0f} A = {i_all / n.ah:.2f} C; {wh_pack:.1f} Wh/cup from pack; "
+                f"P2 + {cf['cups_per_hour_service']} cups/h -> {h_serv:.1f} h",
+                "all-peak within BMS/cell pulse; main fuse/cable unchanged", ok_opt if is_def else None,
+                f"main cont {main_cont:.1f} A needs F0 >= {f0_need:.0f} A (have {f0} A, cable Iz {iz_main:.0f} A)"
+                + ("" if f0_need <= f0 else " -> upsize F0 and W01") + ("" if ok_peak else " -> needs brew/arm interlock")
+                )
 
     # ================================================================ safety
     for sf in d["safety"]["functions"]:

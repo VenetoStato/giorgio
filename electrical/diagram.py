@@ -20,7 +20,8 @@ OUT = "power_safety_architecture_mir250" if MIR else "power_safety_architecture"
 C = {c["id"]: c for c in NET["components"]}
 FZ = {f["id"]: C[f["component"]] for f in NET["fuses"]}
 B = NET["battery"]
-E_KWH = B["series"] * B["cell"]["v_nom"] * B["cell"]["ah"] / 1000
+AH = B["cell"]["ah"] * B["parallel"]
+E_KWH = B["series"] * B["cell"]["v_nom"] * AH / 1000
 
 
 def fl(fid):
@@ -80,7 +81,7 @@ def txt(x, y, s, size=9.0, color=INK, bold=False, ha="left"):
 
 # ================================================================== title
 txt(40, 40, "Giorgio  -  power & safety architecture" + ("  (product: MiR250 base)" if MIR else "  (prototype: Tracer 2.0 base)"), size=24, bold=True)
-txt(40, 72, f"15s LiFePO4 48 V {B['cell']['ah']:.0f} Ah ({E_KWH:.2f} kWh)   ·   every on-board circuit PELV <= 60 V DC   ·   "
+txt(40, 72, f"15s{B['parallel']}p LiFePO4 48 V {AH:.0f} Ah ({E_KWH:.2f} kWh)   ·   every on-board circuit PELV <= 60 V DC   ·   "
             f"safety functions PL d / Cat 3 (EN ISO 13849-1)   ·   stop category 1 (SS1-t) for arms   ·   rev {NET['meta']['revision']}",
     size=12, color=MUTED)
 
@@ -100,8 +101,8 @@ txt(380, 446, "F9  " + FZ["F9"]["short"] + "  ·  ideal diode: no backfeed to co
 wire([(395, 532), (360, 532)], "B48", lw=2.4)
 
 # ================================================================== battery
-box(30, 470, 330, 196, "Battery pack", [f"15s1p LiFePO4  48 V  {B['cell']['ah']:.0f} Ah  =  {E_KWH:.2f} kWh",
-    "BMS: cell V/T, SoC, CAN, FETs, wake precharge", "certified IEC 62619 + UN 38.3, CE / EMC",
+box(30, 470, 330, 196, "Battery pack", [f"15s{B['parallel']}p LiFePO4 48 V {AH:.0f} Ah = {E_KWH:.2f} kWh",
+    "75 x 32700 6 Ah cells, >= 1.2 C / 2 C, 13 kg", "certified IEC 62619 + UN 38.3, CE / EMC",
     "V range 37.5 - 54.75 V (cut-off - full)", f"bolted Isc ~ {NET['meta']['isc_ka_note']} kA (calc.py)",
     "key switch -> BMS enable"], dom="B48", title_size=12.5)
 # main path
@@ -131,7 +132,7 @@ txt(651, Y_ARM - 37, "mirror contacts -> PNOZ EDM", size=8.4, ha="center", color
 wire([(770, 172), (770, 292)], "B48", lw=3)
 for y0, side, fid, cid in ((172, "LEFT", "F1L", "F10"), (292, "RIGHT", "F1R", "F11")):
     wire([(770, y0), (800, y0)], "B48", lw=3)
-    box(800, y0 - 32, 196, 64, f"DC-DC arm {side.lower()}", ["Mean Well DDR-480C-24", "24 V 20 A, peak 30 A / 5 s"], dom="A24")
+    box(800, y0 - 32, 196, 64, f"DC-DC arm {side.lower()}", ["DDR-480C-24, lying + fan", "24 V 20 A, peak 30 A / 5 s"], dom="A24")
     txt(785, y0 - 42 if side == "LEFT" else y0 + 44, fl(fid), size=8.0, ha="center", color=MUTED)
     wire([(996, y0), (1090, y0)], "A24", lw=3.4)
     fuse(1050, y0, fl(cid), "A24")
@@ -150,7 +151,7 @@ rows = [
     (668, "F4", "DC-DC 5 V", ["Mean Well DDR-60L-5", "5 V 12 A"], "LV",
      ("Face & status UI", ["32x16 LED face, 2x GC9A01 eyes,", "status LEDs, ESP32"])),
 ] + ([] if MIR else [
-    (784, "F5", "Tracer charger", ["Victron Orion-Tr 48/24-16", "10 A -> Tracer 2-pin charge port"], "T24",
+    (784, "F5", "Tracer charger", ["Victron Orion-Tr 48/24-16", "10 A -> 2-pin charge port"], "T24",
      ("AgileX Tracer 2.0", ["own 24 V 30 Ah LFP + BMS", "stop via CAN only (no safety input)"])),
 ])
 if MIR:

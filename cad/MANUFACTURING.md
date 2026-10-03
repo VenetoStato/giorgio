@@ -1,5 +1,16 @@
 # Giorgio — manufacturing notes and assembly sequence
 
+> **Ranger Air design (2026-10-03)** changes:
+> - P01 is now an 8 mm 6082 "butterfly" plate (waterjet + grid lightening, 8 × M6 countersunk into the base deck).
+> - The column is fixed: **P29 foot** (CNC 20 mm, M12 from below, 8 × M6 from the top in counterbores) + profile 292 mm + P02.
+> - **SH01 is a 2 mm deck cover** (not a skirt).
+> - **No** sleeve weldment W01, liners, battery tray/pack, hold-downs, Tracer charger, RoboPad bracket or bumper.
+> - Two 2 mm e-plates: P06 front, P07 rear.
+> - Coffee uprights move to x −266…−190.
+>
+> Rows below for removed parts refer to the archived Tracer design (git 2660c92).
+> **Assembly:** P29 + profile + P02 are bolted to P01 on the bench, because the M12 sits under the foot. Then P01 goes onto the Ranger Air (8 × M6 csk).
+
 All part numbers refer to `model.py` (names in `out/bom_parts.csv`). Prototype quantity 1–5 sets; the "series" column
 says what changes at 50+ units. Fastener list: `out/bom_fasteners.csv` (generated, with torque/preload in VALIDATION.md).
 

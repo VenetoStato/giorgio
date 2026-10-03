@@ -1,4 +1,7 @@
-"""Static mass / CoG / tipping of the current Giorgio superstructure on alternative AgileX bases.
+"""NOTE: written for the Tracer-era model (git 2660c92), where the base part was "tracer2_base"; the current model is on the
+Ranger Air and is validated directly by validate.py.
+
+Static mass / CoG / tipping of the current Giorgio superstructure on alternative AgileX bases.
 Same method as validate.py (rigid body, quasi-static tip about the support-polygon edge).
 
     cd ~/giorgio_sim/cad && .env/bin/python base_options.py

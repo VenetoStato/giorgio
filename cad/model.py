@@ -58,56 +58,70 @@ def oct_poly(inset=0.0):
     return Polygon(TR_OCT).buffer(-inset, join_style=2)
 
 
-# ====================================================================== purchased: Tracer 2.0
-def tracer():
-    body = poly_plate(oct_poly(0.0), TR_GROUND, TR_BODY_TOP - TR_GROUND)
-    for sy in (-1, 1):
-        y = sy * TR_RAIL_Y
-        r = box(-TR_RAIL_HALF_L, TR_RAIL_HALF_L, y - TR_RAIL_W / 2, y + TR_RAIL_W / 2, TR_BODY_TOP, TR_H)
-        # T-slot: opening 6.2 mm, cavity 11 x 12 mm under 2 mm lips (ASSUMED 20-series slot 6)
-        r = r.cut(box(-TR_RAIL_HALF_L - 1, TR_RAIL_HALF_L + 1, y - 3.1, y + 3.1, TR_H - 2.5, TR_H + 1))
-        r = r.cut(box(-TR_RAIL_HALF_L - 1, TR_RAIL_HALF_L + 1, y - 5.5, y + 5.5, TR_H - 14, TR_H - 2))
-        body = body.fuse(r)
-    p = add(Part("tracer2_base", body, "purchased", "purchased (AgileX Tracer 2.0)", category="purchased",
-                 color=(0.12, 0.12, 0.13), explode=(0, 0, -250), mass_kg=TR_MASS, mass_src="AgileX manual 54-56 kg (SOURCED)",
-                 notes="envelope from manual p.35 top drawing; rail profile/height ASSUMED"))
-    p.com_override = np.array([0.0, 0.0, TR_COG_Z])
+# ====================================================================== purchased: AgileX RANGER AIR
+def ranger_air():
+    body = G.rounded_rect(0, 0, RA_L, RA_W, RA_H - RA_GC, RA_GC, 25)
+    for sx in (-1, 1):
+        for sy in (-1, 1):
+            body = body.fuse(cyl(RA_WHEEL_D / 2, RA_WHEEL_W, (sx * RA_SUPPORT[0], sy * RA_SUPPORT[1] - RA_WHEEL_W / 2, RA_WHEEL_D / 2), (0, 1, 0)))
+    xc, wc, z0c, z1c = RA_CONTACT
+    body = body.fuse(box(xc - 3, xc, -wc / 2, wc / 2, z0c, z1c))                 # piastra spazzole di ricarica (retro)
+    p = add(Part(BASE_PART, body, "purchased", "purchased (AgileX RANGER AIR, 4WD/4WS omni)", category="purchased",
+                 color=(0.12, 0.12, 0.13), explode=(0, 0, -250), mass_kg=RA_MASS, mass_src="AgileX manual 50-55 kg (SOURCED; 50 used)",
+                 notes="envelope from the manual drawings 552 x 500 x 250; deck = flat top plate with 8 tapped holes (thread ASSUMED M6)"))
+    p.com_override = np.array([0.0, 0.0, RA_COG_Z])
+    p.tap_material = "manufacturer thread (datasheet max insertion)"
     return p
 
 
-# ====================================================================== base adapter plate
-ADAPTER_TAPS = []   # (name, x, y, thread, depth) filled by the users of the plate
+# ====================================================================== base adapter plate (on the Ranger Air 8-hole grid)
+ADAPTER_KEEP = []          # (x0, x1, y0, y1) zone portanti da non alleggerire
 
 
 def adapter_plate():
-    poly = oct_poly(AD_INSET)
-    s = poly_plate(poly, AD_Z0, AD_T)
-    # alleggerimenti: finestre dove sopra non c'e' nulla di fissato (sotto la batteria la vasca fa da ponte)
-    for (x0, x1, y0, y1) in ((80, 200, -95, -20), (80, 200, 20, 95), (225, 300, -95, -20), (225, 300, 20, 95),
-                             (-140, -40, 140, 230), (-140, -40, -230, -140), (-310, -215, -70, 25), (-310, -180, 48, 96),
-                             (80, 300, 135, 195), (80, 300, -195, -135), (-122, -28, -62, 62)):
-        s = s.cut(G.rounded_rect((x0 + x1) / 2, (y0 + y1) / 2, x1 - x0, y1 - y0, AD_T + 2, AD_Z0 - 1, 12))
-    p = add(Part("P01_base_adapter_plate", s, "EN AW-6082-T6", "waterjet/laser cut 10 mm + CNC drill/tap (M5/M6/M8)",
+    # forma a "farfalla": nucleo (fori base + piede colonna), ala anteriore (piastra elettronica), ala posteriore (montanti zaino,
+    # elettronica di sicurezza), due bracci diagonali verso i pod degli scanner
+    s = G.rounded_rect(12.5, 0, 325, 236, AD_T, AD_Z0, 12)
+    s = s.fuse(G.rounded_rect(150, 0, 240, 250, AD_T, AD_Z0, 12))
+    s = s.fuse(G.rounded_rect(-206, 27.5, 132, 345, AD_T, AD_Z0, 12))
+    for head in (-45.0, 135.0):
+        arm = G.transform_shape(box(150, 372, -40, 40, AD_Z0, AD_Z1), G.rotz(head), (0, 0, 0))
+        s = s.fuse(arm)
+    s = s.clean() if hasattr(s, "clean") else s
+    p = add(Part("P01_base_adapter_plate", s, "EN AW-6082-T6", "waterjet 8 mm + CNC drill/tap (M5/M6), 90 deg countersinks; grid lightening",
                  color=(0.70, 0.71, 0.73), explode=(0, 0, -120),
-                 notes="bolts on the 2 Tracer top rails (230 mm apart, SOURCED) with M5 T-nuts; rail slot type ASSUMED"))
-    # fissaggio alle guide della Tracer: 12 x M5 svasate in dadi a T (posizione x libera lungo le guide)
-    for sy in (-1, 1):
-        for x in (-300, -240, -140, -20, 60, 140, 220, 270):
-            hn = f"rail_{'L' if sy > 0 else 'R'}_{x}"
-            drill(p, Hole(hn, (x, sy * TR_RAIL_Y, AD_Z1), DOWN, 5.5, AD_T, "clear", "M5", cbore=None))
-            # svasatura 90 gradi per la testa ISO 10642 (dk 11.2)
-            p.shape = p.shape.cut(cq.Solid.makeCone(5.6, 2.75, 2.85, V(x, sy * TR_RAIL_Y, AD_Z1 - 2.85), V(0, 0, 1)))
-            p.shape = p.shape.cut(cyl(5.6, 1, (x, sy * TR_RAIL_Y, AD_Z1 - 0.01)))
-            tn = add(Part(f"tnut_{hn}", box(x - 7.5, x + 7.5, sy * TR_RAIL_Y - 5, sy * TR_RAIL_Y + 5, TR_H - 6.5, TR_H - 2.5),
-                          "S235 / 1.4301", "purchased T-slot nut slot 6 M5 (ASSUMED type)", category="fastener",
-                          color=(0.6, 0.6, 0.6), explode=(0, 0, -300)))
-            drill(tn, Hole("t", (x, sy * TR_RAIL_Y, TR_H - 2.5), DOWN, 4.2, 4.0, "tap", "M5"))
-            tr_ = PARTS["tracer2_base"]
-            tr_.holes[f"lip_{hn}"] = Hole(f"lip_{hn}", (x, sy * TR_RAIL_Y, TR_H), DOWN, 6.2, 2.5, "bore")
-            b = bolt(f"B_rail_{hn}", "M5", 16, [(p.name, hn), ("tracer2_base", f"lip_{hn}"), (tn.name, "t")], female="tnut", std="ISO 10642", washer=False, preload_frac=0.07,
-                     nut_spec="slot-6 T-nut M5 (Tracer rail, ASSUMED)", group="G1 adapter->Tracer rails",
-                     assumed="Tracer rail slot/T-nut type not published")
+                 notes="bolts on the Ranger Air top hole grid 200 x 80 (SOURCED drawing; thread ASSUMED M6) with 8 countersunk M6"))
+    base = PARTS[BASE_PART]
+    for k, (x, y) in enumerate(RA_HOLES):
+        hn = f"ra{k}"
+        drill(p, Hole(hn, (x, y, AD_Z1), DOWN, 6.6, AD_T, "clear", "M6"))
+        p.shape = p.shape.cut(cq.Solid.makeCone(6.72, 3.3, 3.42, V(x, y, AD_Z1 - 3.42), V(0, 0, 1)))
+        p.shape = p.shape.cut(cyl(6.72, 1, (x, y, AD_Z1 - 0.01)))
+        drill(base, Hole(hn, (x, y, RA_H), DOWN, F.ISO["M6"]["tap"], RA_HOLE_DEPTH, "tap", "M6"))
+        bolt(f"B_base_{k}", "M6", 20, [(p.name, hn), (BASE_PART, hn)], std="ISO 10642", washer=False, group="G1 adapter->Ranger Air deck",
+             assumed="Ranger Air top holes: positions SOURCED (200 x 80), thread M6 and depth >= 12 ASSUMED")
+        ADAPTER_KEEP.append((x - 14, x + 14, y - 14, y + 14))
     return p
+
+
+def lighten_adapter():
+    """griglia di finestre 70 x 70 dove non ci sono fori o appoggi (bordo 22 mm, nervature 14 mm)"""
+    p = PARTS["P01_base_adapter_plate"]
+    holes = [np.array(h.p[:2]) for h in p.holes.values()]
+    cell, web, border = 52.0, 12.0, 20.0
+    xs = np.arange(-RA_L / 2 + border, RA_L / 2 - border - cell + 1e-6, cell + web)
+    ys = np.arange(-RA_W / 2 + border, RA_W / 2 - border - cell + 1e-6, cell + web)
+    n = 0
+    for x0 in xs:
+        for y0 in ys:
+            x1, y1 = x0 + cell, y0 + cell
+            if any(x0 - 10 < hp[0] < x1 + 10 and y0 - 10 < hp[1] < y1 + 10 for hp in holes):
+                continue
+            if any(not (x1 < k[0] or x0 > k[1] or y1 < k[2] or y0 > k[3]) for k in ADAPTER_KEEP):
+                continue
+            p.shape = p.shape.cut(G.rounded_rect((x0 + x1) / 2, (y0 + y1) / 2, cell, cell, AD_T + 2, AD_Z0 - 1, 12))
+            n += 1
+    return n
 
 
 def tap_adapter(name, x, y, thread, depth=AD_T):
@@ -115,88 +129,58 @@ def tap_adapter(name, x, y, thread, depth=AD_T):
     return drill(p, Hole(name, (x, y, AD_Z1), DOWN, F.ISO[thread]["tap"], depth, "tap", thread))
 
 
-# ====================================================================== column: weldment, profile, bracket
-def column():
-    x0, x1, y0, y1 = COL_X - FL_HALF, COL_X + FL_HALF, -FL_HALF, FL_HALF
-    fl = G.rounded_rect(COL_X, 0, 2 * FL_HALF, 2 * FL_HALF, FL_T, AD_Z1, 10)
-    h = TUBE_OUT / 2
-    tube = box(COL_X - h, COL_X + h, -h, h, AD_Z1 + FL_T, SLEEVE_TOP).cut(
-        box(COL_X - h + TUBE_T, COL_X + h - TUBE_T, -h + TUBE_T, h - TUBE_T, AD_Z1, SLEEVE_TOP + 1))
-    fl = fl.cut(box(COL_X - h + TUBE_T, COL_X + h - TUBE_T, -h + TUBE_T, h - TUBE_T, AD_Z1 - 1, AD_Z1 + FL_T + 1))
-    # blocco morsetto (lato +y) e blocco perno d'indicizzazione (lato -y), saldati
-    zc0, zc1 = SLEEVE_TOP - 60, SLEEVE_TOP
-    clamp_blk = box(COL_X - 30, COL_X + 30, h, h + 20, zc0, zc1)
-    ZI = 450.0
-    idx_blk = box(COL_X - 18, COL_X + 18, -h - 22, -h, ZI - 18, ZI + 18)
-    s = fl.fuse(tube).fuse(clamp_blk).fuse(idx_blk)
-    w = add(Part("W01_column_sleeve_weldment", s, "EN AW-6082-T6",
-                 "TIG-welded: 12 mm 6082 flange (8x M8 tapped) + 6060 tube 100x100x3 + 2 boss blocks; machine after welding",
-                 color=(0.75, 0.76, 0.78), explode=(0, 0, 60)))
-    for k, (bx, by) in enumerate([(COL_X + sx * 80, sy * 80) for sx in (-1, 0, 1) for sy in (-1, 0, 1) if (sx, sy) != (0, 0)]):
-        hn = f"fl{k}"
-        drill(w, Hole(hn, (bx, by, AD_Z1), UP, F.ISO["M8"]["tap"], FL_T, "tap", "M8"))
-        drill(PARTS["P01_base_adapter_plate"], Hole(f"col{k}", (bx, by, AD_Z0), UP, 9.0, AD_T, "clear", "M8"))
-        bolt(f"B_colfoot_{k}", "M8", 20, [("P01_base_adapter_plate", f"col{k}"), (w.name, hn)], std="DIN 7984", group="G2 column foot->adapter",
-             assumed="bolted from below before P01 goes on the Tracer: heads (6.6 mm) need the ASSUMED 20 mm rail height under P01")
-    # viti di bloccaggio M10 (leva a scatto) e perno d'indicizzazione GN 617 (M16x1.5) - fori
-    for k, z in enumerate((SLEEVE_TOP - 45, SLEEVE_TOP - 15)):
-        drill(w, Hole(f"clamp{k}", (COL_X, h + 20, z), (0, -1, 0), 8.5, 20, "tap", "M10"))
-        drill(w, Hole(f"clampwall{k}", (COL_X, h, z), (0, -1, 0), 11.0, TUBE_T, "bore", "M10"))
-    drill(w, Hole("index", (COL_X, -h - 22, ZI), (0, 1, 0), 14.5, 22, "tap", "M16x1.5"))
-    drill(w, Hole("index_wall", (COL_X, -h, ZI), (0, 1, 0), 8.5, TUBE_T + 0.1, "bore"))
-    w.holes["index"].kind = "bore"   # M16x1.5 fine thread: not a checked bolt (purchased plunger)
+# ====================================================================== column: fixed height (Ranger Air), foot + profile + bracket
+FOOT_T = 20.0
 
-    # liners POM in testa al manicotto (3 incollati + 1 lardone spinto dalle viti del morsetto)
-    for side, (ax, sx, sy) in {"xm": (0, -1, 0), "xp": (0, 1, 0), "ym": (1, 0, -1), "yp": (1, 0, 1)}.items():
-        inner = h - TUBE_T
-        if ax == 0:
-            sh = box(COL_X + sx * inner - (LINER_T if sx > 0 else 0), COL_X + sx * inner + (0 if sx > 0 else LINER_T), -30, 30, zc0, zc1)
-        else:
-            sh = box(COL_X - 30, COL_X + 30, sy * inner - (LINER_T if sy > 0 else 0), sy * inner + (0 if sy > 0 else LINER_T), zc0, zc1)
-        nm = "P14_column_gib_strip" if side == "yp" else f"P13_column_liner_{side}"
-        add(Part(nm, sh, "POM-C", "machined POM-C strip 60x60x4.8 (bonded; gib strip floating)", color=(0.95, 0.95, 0.92),
-                 explode=(0, 0, 120)))
-    # profilo interno (acquistato, tagliato a misura)
-    prof = box(COL_X - PROF / 2, COL_X + PROF / 2, -PROF / 2, PROF / 2, PROF_BOT, PROF_TOP)
+
+def column():
+    zf0, zf1 = AD_Z1, AD_Z1 + FOOT_T
+    s = G.rounded_rect(COL_X, 0, 160, 160, FOOT_T, zf0, 10)
+    s = s.cut(box(COL_X - PROF / 2 - 0.2, COL_X + PROF / 2 + 0.2, -PROF / 2 - 0.2, PROF / 2 + 0.2, zf1 - 5, zf1 + 1))     # tasca spigot
+    ft = add(Part("P29_column_foot", s, "EN AW-6082-T6", "CNC 20 mm: 80x80 spigot pocket, M12 cbore from below, 8x M6 cbores",
+                  color=(0.72, 0.73, 0.75), explode=(0, 0, 60)))
+    ADAPTER_KEEP.append((COL_X - 80, COL_X + 80, -80, 80))
+    for k, (bx, by) in enumerate([(COL_X + sx * 62, sy * 62) for sx in (-1, 0, 1) for sy in (-1, 0, 1) if (sx, sy) != (0, 0)]):
+        hn = f"f{k}"
+        drill(ft, Hole(hn, (bx, by, zf0 + 8), DOWN, 6.6, 8, "clear", "M6", cbore=None))
+        ft.shape = ft.shape.cut(cyl(5.75, FOOT_T, (bx, by, zf0 + 8)))                  # lamatura D11.5 per la testa
+        tap_adapter(f"col{k}", bx, by, "M6")
+        bolt(f"B_colfoot_{k}", "M6", 16, [(ft.name, hn), ("P01_base_adapter_plate", f"col{k}")], washer=False, group="G2 column foot->adapter")
+    prof_bot = zf1 - 5
+    L = PROF_TOP - prof_bot
+    prof = box(COL_X - PROF / 2, COL_X + PROF / 2, -PROF / 2, PROF / 2, prof_bot, PROF_TOP)
     for (sx, sy, along) in ((1, 0, "y"), (-1, 0, "y"), (0, 1, "x"), (0, -1, "x")):
-        for off in (-20.0, 20.0):     # 2 cave per lato (Profil 8: apertura 8 mm)
+        for off in (-20.0, 20.0):
             if along == "y":
                 cx, cy = COL_X + sx * (PROF / 2 - 6), off
-                prof = prof.cut(box(cx - 6.5, cx + 6.5, cy - 4, cy + 4, PROF_BOT - 1, PROF_TOP + 1))
+                prof = prof.cut(box(cx - 6.5, cx + 6.5, cy - 4, cy + 4, prof_bot - 1, PROF_TOP + 1))
             else:
                 cx, cy = COL_X + off, sy * (PROF / 2 - 6)
-                prof = prof.cut(box(cx - 4, cx + 4, cy - 6.5, cy + 6.5, PROF_BOT - 1, PROF_TOP + 1))
-    prof = prof.cut(cyl(PROF_CORE_D / 2, PROF_TOP - PROF_BOT + 2, (COL_X, 0, PROF_BOT - 1)))
-    L = PROF_TOP - PROF_BOT
+                prof = prof.cut(box(cx - 4, cx + 4, cy - 6.5, cy + 6.5, prof_bot - 1, PROF_TOP + 1))
+    prof = prof.cut(cyl(PROF_CORE_D / 2, L + 2, (COL_X, 0, prof_bot - 1)))
     pr = add(Part("S01_column_profile_item8_80x80L", prof, "EN AW-6063-T66 (profile)",
-                  f"purchased item Profil 8 80x80 leicht 0.0.265.80 cut to {L:.0f} mm; drill index holes, tap core M12",
-                  category="purchased", color=(0.8, 0.81, 0.83), explode=(0, 0, 200), motion="lift",
-                  mass_kg=PROF_KG_M * L / 1000, mass_src="item24 5.33 kg/m (SOURCED)",
-                  notes="slot geometry simplified; core bore diameter ESTIMATE"))
+                  f"purchased item Profil 8 80x80 leicht 0.0.265.80 cut to {L:.0f} mm; tap core M12 both ends",
+                  category="purchased", color=(0.8, 0.81, 0.83), explode=(0, 0, 200),
+                  mass_kg=PROF_KG_M * L / 1000, mass_src="item24 5.33 kg/m (SOURCED)", notes="core bore diameter ESTIMATE"))
     pr.tap_material = "EN AW-6063-T66 (profile)"
-    for k in range(int(STROKE / INDEX_PITCH) + 1):
-        z = ZI - k * INDEX_PITCH
-        drill(pr, Hole(f"idx{k}", (COL_X, -PROF / 2, z), (0, 1, 0), 8.5, 8.0, "bore"))
     drill(pr, Hole("core_top", (COL_X, 0, PROF_TOP), DOWN, F.ISO["M12"]["tap"], 30, "tap", "M12"))
-    # pattini di guida in basso sul profilo (si muovono col profilo)
-    for side, (sx, sy) in {"xm": (-1, 0), "xp": (1, 0), "ym": (0, -1), "yp": (0, 1)}.items():
-        if sx:
-            sh = box(COL_X + sx * PROF / 2 + (0 if sx > 0 else -LINER_T), COL_X + sx * PROF / 2 + (LINER_T if sx > 0 else 0), -30, 30, PROF_BOT, PROF_BOT + 60)
-        else:
-            sh = box(COL_X - 30, COL_X + 30, sy * PROF / 2 + (0 if sy > 0 else -LINER_T), sy * PROF / 2 + (LINER_T if sy > 0 else 0), PROF_BOT, PROF_BOT + 60)
-        add(Part(f"P15_column_guide_pad_{side}", sh, "POM-C", "machined POM-C 60x60x4.8, bonded to the profile",
-                 color=(0.95, 0.95, 0.92), explode=(0, 0, 200), motion="lift"))
+    drill(pr, Hole("core_bot", (COL_X, 0, prof_bot), UP, F.ISO["M12"]["tap"], 30, "tap", "M12"))
+    drill(ft, Hole("core", (COL_X, 0, zf0), UP, 13.5, FOOT_T - 5, "clear", "M12", cbore=(20.0, 7.5)))
+    bolt("B_column_bot_M12", "M12", 30, [(ft.name, "core"), (pr.name, "core_bot")], std="DIN 7984", washer=False, group="G2b profile->column foot")
+    tap_adapter("colcb", COL_X, 0, "M12") if False else None
+    # la testa M12 sta nella lamatura sotto il piede: foro passante D21 nell'adattatore per l'accesso
+    PARTS["P01_base_adapter_plate"].shape = PARTS["P01_base_adapter_plate"].shape.cut(cyl(11, AD_T + 2, (COL_X, 0, AD_Z0 - 1)))
     # staffa colonna -> busto OpenArm (body_link0)
     x0, x1, y0, y1, _ = BL_PLATE
     s = box(x0, x1, y0, y1, BRK_Z0, TORSO_Z)
     s = s.cut(box(COL_X - PROF / 2 - 0.2, COL_X + PROF / 2 + 0.2, -PROF / 2 - 0.2, PROF / 2 + 0.2, BRK_Z0 - 1, BRK_Z0 + 5))
-    s = s.cut(G.rounded_rect(25, 0, 74, 124, 15, BRK_Z0 - 1, 8))                     # tasche sotto: velo 6 mm sopra
+    s = s.cut(G.rounded_rect(25, 0, 74, 124, 15, BRK_Z0 - 1, 8))
     for sy in (-1, 1):
         s = s.cut(G.rounded_rect(-17, sy * 64, 150, 26, 15, BRK_Z0 - 1, 6))
     s = s.cut(G.rounded_rect(-118, 0, 22, 60, 15, BRK_Z0 - 1, 5))
     br = add(Part("P02_column_to_torso_bracket", s, "EN AW-6082-T6",
-                  "CNC milled from 20 mm plate: 80x80 spigot pocket 5 mm, M12 cbore, 8x M6 clearance, 4x M4 tapped",
-                  color=(0.72, 0.73, 0.75), explode=(0, 0, 280), motion="lift"))
+                  "CNC milled from 20 mm plate: 80x80 spigot pocket 5 mm, underside pockets, M12 cbore, 8x M6 clearance, 4x M4 tapped",
+                  color=(0.72, 0.73, 0.75), explode=(0, 0, 280)))
     drill(br, Hole("core", (COL_X, 0, TORSO_Z), DOWN, 13.5, BRK_T - 5, "clear", "M12", cbore=(20.0, 7.5)))
     bolt("B_column_top_M12", "M12", 30, [(br.name, "core"), (pr.name, "core_top")], std="DIN 7984", washer=False,
          group="G3 profile->torso bracket")
@@ -204,7 +188,7 @@ def column():
         drill(br, Hole(f"bl{k}", (bx, by, BRK_Z0), UP, 6.6, BRK_T, "clear", "M6"))
     for k, (bx, by) in enumerate([(88, 88), (88, -88), (-148, 88), (-148, -88)]):
         drill(br, Hole(f"wc{k}", (bx, by, BRK_Z0), UP, F.ISO["M4"]["tap"], 10, "tap", "M4"))
-    return w, pr, br
+    return ft, pr, br
 
 
 # ====================================================================== OpenArm body_link0 (purchased, simplified B-rep from the official STL)
@@ -251,71 +235,33 @@ def purchased_box(name, x0, x1, y0, y1, z0, z1, mass, src, color=(0.2, 0.2, 0.22
 
 
 def power():
+    """Ranger Air: alimentazione dalla batteria della base (24 V); niente pacco proprio, niente caricatore.
+    Una piastra elettronica davanti alla colonna: PNOZ (DIN), 2 contattori bus bracci, Jetson (modulo), DC-DC 19 V e 5 V, tampone 24 V."""
     z = AD_Z1
-    # vasca batteria: lamiera 2 mm piegata con ali laterali
-    tx0, tx1, ty = 45.0, 45.0 + BATT["L"] + 8.0, BATT["W"] / 2 + 10.0      # 10 mm laterali per dadi + tamponi EPDM
-    t = 2.0
-    s = box(tx0, tx1, -ty, ty, z, z + t)
-    for sy in (-1, 1):
-        s = s.fuse(box(tx0, tx1, sy * ty - (t if sy > 0 else 0), sy * ty + (0 if sy > 0 else t), z, z + 50))
-        s = s.fuse(box(tx0, tx1, sy * ty + (0 if sy > 0 else -20), sy * ty + (20 if sy > 0 else 0), z, z + t))
-    for sx, xx in ((-1, tx0), (1, tx1)):
-        s = s.fuse(box(xx - (0 if sx > 0 else 0) - (t if sx > 0 else 0), xx + (0 if sx > 0 else t), -ty, ty, z, z + 50))
-    s = s.cut(G.rounded_rect((tx0 + tx1) / 2, 0, 200, 300, 5, z - 1, 20))         # finestra di alleggerimento sul fondo
-    tr = add(Part("P03_battery_tray", s, "EN AW-5754-H22", "laser cut + bent 2 mm sheet, 3 bends per side",
-                  color=(0.6, 0.62, 0.65), explode=(0, 0, 120)))
-    for sy in (-1, 1):
-        for k, x in enumerate((75, 185, 295)):
-            hn = f"fl{'L' if sy > 0 else 'R'}{k}"
-            y = sy * (ty + 10)
-            drill(tr, Hole(hn, (x, y, z + t), DOWN, 6.6, t, "clear", "M6"))
-            tap_adapter(f"bt{hn}", x, y, "M6")
-            bolt(f"B_batt_tray_{hn}", "M6", 12, [(tr.name, hn), ("P01_base_adapter_plate", f"bt{hn}")], group="G8 battery tray->adapter")
-    bx0, by0 = (tx0 + tx1) / 2 - BATT["L"] / 2, -BATT["W"] / 2
-    purchased_box("E01_battery_48V_15s30Ah_LFP", bx0, bx0 + BATT["L"], by0, by0 + BATT["W"], z + t + 3, z + t + 3 + BATT["H"], BATT["mass"],
-                  "ESTIMATE custom flat 15s 30 Ah LFP pack (1.44 kWh)", color=(0.15, 0.32, 0.62))
-    add(Part("P04_battery_pad_EPDM", box(bx0 + 10, bx0 + BATT["L"] - 10, by0 + 10, by0 + BATT["W"] - 10, z + t, z + t + 3).cut(
-        G.rounded_rect((tx0 + tx1) / 2, 0, 200, 300, 5, z, 20)), "TPU 90A / EPDM", "die-cut 3 mm EPDM sheet", color=(0.05, 0.05, 0.05),
-        explode=(0, 0, 130)))
-    # barre di ritenuta sopra la batteria (2), estremita' piegate e imbullonate alle pareti della vasca
-    ztop = z + t + 3 + BATT["H"]
-    for k, x in enumerate((110.0, 270.0)):
-        bar = box(x - 15, x + 15, -ty - 3, ty + 3, ztop, ztop + 3)
-        for sy in (-1, 1):
-            yy = sy * ty
-            bar = bar.fuse(box(x - 15, x + 15, yy, yy + 3 * sy, z + 28, ztop + 3))
-        pb = add(Part(f"P05_battery_hold_down_{k}", bar, "EN AW-5754-H22", "laser cut + bent 3 mm sheet",
-                      color=(0.6, 0.62, 0.65), explode=(0, 0, 220)))
-        for sy in (-1, 1):
-            yy = sy * (ty + 3)
-            hn = f"e{'L' if sy > 0 else 'R'}"
-            drill(pb, Hole(hn, (x, yy, z + 38), (0, -sy, 0), 5.5, 3, "clear", "M5"))
-            drill(tr, Hole(f"hd{k}{hn}", (x, sy * ty, z + 38), (0, -sy, 0), 5.5, t, "nut", "M5"))
-            bolt(f"B_hold_down_{k}{hn}", "M5", 12, [(pb.name, hn), (tr.name, f"hd{k}{hn}")], female="nut", washer=False, group="G8b battery hold-down")
-    # piastre elettroniche (3): destra, sinistra, posteriore - 3 mm 5754, componenti fissati con M4 (non verificati)
     ET = 2.0
     def eplate(name, x0, x1, y0, y1, bolts_xy):
-        s = G.rounded_rect((x0 + x1) / 2, (y0 + y1) / 2, x1 - x0, y1 - y0, ET, z, 6)
-        e = add(Part(name, s, "EN AW-5754-H22", "laser cut 2 mm sheet + PEM nuts M4 for components",
-                     color=(0.55, 0.57, 0.6), explode=(0, 0, 100)))
+        e = add(Part(name, G.rounded_rect((x0 + x1) / 2, (y0 + y1) / 2, x1 - x0, y1 - y0, ET, z, 6), "EN AW-5754-H22",
+                     "laser cut 2 mm sheet + PEM nuts M4 for components", color=(0.55, 0.57, 0.6), explode=(0, 0, 100)))
         for k, (x, y) in enumerate(bolts_xy):
             drill(e, Hole(f"m{k}", (x, y, z + ET), DOWN, 5.5, ET, "clear", "M5"))
-            tap_adapter(f"{name[:3]}m{k}", x, y, "M5")
-            bolt(f"B_{name[:3]}_{k}", "M5", 10, [(e.name, f"m{k}"), ("P01_base_adapter_plate", f"{name[:3]}m{k}")], group="G9 e-plates->adapter")
+            tap_adapter(f"{name[:3]}{k}", x, y, "M5")
+            bolt(f"B_{name[:3]}_{k}", "M5", 10, [(e.name, f"m{k}"), ("P01_base_adapter_plate", f"{name[:3]}{k}")], group="G9 e-plates->adapter")
+            ADAPTER_KEEP.append((x - 12, x + 12, y - 12, y + 12))
         return e
-    eplate("P06_eplate_right", -160, 43, -266, -108, [(-153, -115), (-153, -259), (-10, -115), (-10, -259)])
-    eplate("P07_eplate_left", -160, 43, 108, 266, [(-153, 115), (-153, 259), (-10, 115), (-10, 259)])
-    eplate("P08_eplate_rear", -330, -160, -88, 152, [(-200, -80), (-170, -10), (-323, 36), (-323, 144)])
+    e = eplate("P06_eplate_front", 40.0, 266.0, -124.0, 124.0, [(47, -117), (47, 117), (259, -117), (259, 117)])
+    eplate("P07_eplate_rear", -262.0, -152.0, -94.0, 148.0, [(-255, -87), (-255, 141), (-159, -87), (-159, 141)])
     ze = z + ET
-    purchased_box("E02_dcdc_DDR480C_A", -146, -146 + DCDC["L"], -120 - DCDC["W"], -120, ze, ze + DCDC["H"], DCDC["mass"], "Mean Well DDR-480C-24 (SOURCED)", (0.75, 0.75, 0.78))
-    purchased_box("E03_dcdc_DDR480C_B", -146, -146 + DCDC["L"], 120, 120 + DCDC["W"], ze, ze + DCDC["H"], DCDC["mass"], "Mean Well DDR-480C-24 (SOURCED)", (0.75, 0.75, 0.78))
-    purchased_box("E04_din_rail_pnoz", -5, 40, -255, -248, ze, ze + 7.5, 0.05, "DIN rail 35x7.5 (EN 60715)", (0.7, 0.7, 0.7))
-    purchased_box("E05_pilz_PNOZ_mB0", -5, -5 + PNOZ["L"], -252, -252 + PNOZ["W"], ze + 7.5, ze + 7.5 + PNOZ["H"], PNOZ["mass"], "Pilz 772100 (SOURCED)", (0.95, 0.8, 0.1))
-    purchased_box("E06_contactor_K1", -5, -5 + CONTACTOR["L"], 120, 120 + CONTACTOR["W"], ze, ze + CONTACTOR["H"], CONTACTOR["mass"], "ESTIMATE", (0.85, 0.12, 0.1))
-    purchased_box("E07_contactor_K2", -5, -5 + CONTACTOR["L"], 194, 194 + CONTACTOR["W"], ze, ze + CONTACTOR["H"], CONTACTOR["mass"], "ESTIMATE", (0.85, 0.12, 0.1))
-    purchased_box("E08_jetson_agx_orin", -318, -318 + JETSON["L"], -78, -78 + JETSON["W"], ze, ze + JETSON["H"], JETSON["mass"], "NVIDIA (SOURCED mass)", (0.12, 0.12, 0.13))
-    purchased_box("E09_tracer_charger_48to24", -318, -318 + CHARGER["L"], 40, 40 + CHARGER["W"], ze, ze + CHARGER["H"], CHARGER["mass"], "ESTIMATE", (0.25, 0.25, 0.27))
-    return tr
+    purchased_box("E10_buffer_24V_LFP", 60, 60 + BUFFER["L"], 12, 12 + BUFFER["W"], ze, ze + BUFFER["H"], BUFFER["mass"],
+                  "ESTIMATE 8s LFP ~6 Ah peak buffer (electrical lead)", (0.15, 0.32, 0.62))
+    purchased_box("E08_jetson_agx_orin_module", 58, 58 + JETSON_MOD["L"], -122, -122 + JETSON_MOD["W"], ze, ze + JETSON_MOD["H"], JETSON_MOD["mass"],
+                  "ESTIMATE AGX Orin module + carrier", (0.12, 0.12, 0.13))
+    purchased_box("E02_dcdc_24to19", 172, 172 + DCDC_19["L"], -110, -110 + DCDC_19["W"], ze, ze + DCDC_19["H"], DCDC_19["mass"], "ESTIMATE", (0.75, 0.75, 0.78))
+    purchased_box("E03_dcdc_24to5", 172, 172 + DCDC_5["L"], -45, -45 + DCDC_5["W"], ze, ze + DCDC_5["H"], DCDC_5["mass"], "ESTIMATE", (0.75, 0.75, 0.78))
+    purchased_box("E04_din_rail_pnoz", -247, -202, -74, -67, ze, ze + 7.5, 0.05, "DIN rail 35x7.5 (EN 60715)", (0.7, 0.7, 0.7))
+    purchased_box("E05_pilz_PNOZ_mB0", -247, -247 + PNOZ["L"], -66, -66 + PNOZ["W"], ze + 7.5, ze + 7.5 + PNOZ["H"], PNOZ["mass"], "Pilz 772100 (SOURCED)", (0.95, 0.8, 0.1))
+    purchased_box("E06_contactor_K1", -198, -198 + CONTACTOR["L"], -78, -78 + CONTACTOR["W"], ze, ze + CONTACTOR["H"], CONTACTOR["mass"], "ESTIMATE", (0.85, 0.12, 0.1))
+    purchased_box("E07_contactor_K2", -198, -198 + CONTACTOR["L"], 2, 2 + CONTACTOR["W"], ze, ze + CONTACTOR["H"], CONTACTOR["mass"], "ESTIMATE", (0.85, 0.12, 0.1))
+    return e
 
 
 # ====================================================================== SICK nanoScan3 corner pods
@@ -327,7 +273,7 @@ def scanner_centres(gap=3.0):
     out = []
     for head in (-45.0, 135.0):
         f = np.array([math.cos(math.radians(head)), math.sin(math.radians(head))])
-        proj = max(float(np.dot(v, f)) for v in TR_OCT)
+        proj = max(float(np.dot(v, f)) for v in BASE_OUTLINE)
         d = proj + POD_BACK + gap
         out.append((round(d * f[0], 1), round(d * f[1], 1), head))
     return out
@@ -384,9 +330,10 @@ def scanner_pods():
         for j, yl in enumerate((-22.0, 22.0)):
             pl = np.array([cx, cy, 0]) + R @ np.array([xb - 45, yl, 0])
             pl[2] = AD_Z1 + t
-            drill(pb, Hole(f"a{j}", tuple(pl), DOWN, 6.6, t, "clear", "M6"))
-            tap_adapter(f"pod{k}a{j}", pl[0], pl[1], "M6")
-            bolt(f"B_pod{k}_a{j}", "M6", 14, [(pb.name, f"a{j}"), ("P01_base_adapter_plate", f"pod{k}a{j}")], group=f"G11 pod {k}->adapter")
+            drill(pb, Hole(f"a{j}", tuple(pl), DOWN, 5.5, t, "clear", "M5"))
+            tap_adapter(f"pod{k}a{j}", pl[0], pl[1], "M5")
+            bolt(f"B_pod{k}_a{j}", "M5", 10, [(pb.name, f"a{j}"), ("P01_base_adapter_plate", f"pod{k}a{j}")], washer=False, group=f"G11 pod {k}->adapter")
+            ADAPTER_KEEP.append((pl[0] - 15, pl[0] + 15, pl[1] - 15, pl[1] + 15))
         out.append((sc, pb))
     return out
 
@@ -451,61 +398,48 @@ def se_shell(a, b, c, e1, e2, center, t, taper=None):
 SK = dict(a=375.0, b=330.0, c=130.0, e1=0.15, e2=0.30, zc=170.0, t=2.5)     # proposed: e1 0.28->0.15, c 125->130, zc 165->170
 
 
-def base_skirt():
-    a, b, c, e1, e2, zc, t = (SK[k] for k in ("a", "b", "c", "e1", "e2", "zc", "t"))
-    s = se_shell(a, b, c, e1, e2, (0, 0, zc), t)
-    s = s.cut(box(-500, 500, -500, 500, -50, 56))                                  # fondo aperto, bordo a 48 mm (paraurti sotto)
-    # aperture: colonna (il carter fisso appoggia sul bordo), montanti zaino, finestre scanner, collettore di ricarica
-    s = s.cut(G.rounded_rect(COL_X, 0, 172, 192, 100, 250, 40))
-    for (y0, y1) in ((-134, -102), (159, 191)):
-        s = s.cut(box(-296, -204, y0, y1, 250, 330))
-    s = s.cut(box(355, 420, -50, 50, 108, 172))
+DECK_TOP = 376.0
+
+
+def deck_cover():
+    """carter del ponte (sopra l'adattatore): scatola arrotondata 2 mm, scende fino al ponte della base; niente gonna attorno alla
+    Ranger Air (ha la sua carrozzeria, ruote sterzanti 4WS) e niente paraurti decorativo"""
+    t = 2.0
+    # appoggiato sul ponte della base, dentro il suo contorno: nulla sporge dal retro (zona di aggancio della stazione AgileX)
+    o = cq.Workplane("XY", origin=(0, 0, RA_H)).rect(RA_L - 2, RA_W - 2).extrude(DECK_TOP - RA_H).edges("|Z").fillet(24).edges(">Z").fillet(12).val()
+    i = cq.Workplane("XY", origin=(0, 0, RA_H - 1)).rect(RA_L - 2 - 2 * t, RA_W - 2 - 2 * t).extrude(DECK_TOP - RA_H - t + 1).edges("|Z").fillet(22).val()
+    s = o.cut(i)
+    s = s.cut(G.rounded_rect(COL_X, 0, 100, 100, 50, DECK_TOP - 20, 10))                     # colonna
+    for yc in (-118.0, 175.0):
+        s = s.cut(box(-270, -186, yc - 16, yc + 16, DECK_TOP - 20, DECK_TOP + 5))              # montanti zaino
     for k, (cx, cy, head) in enumerate(scanner_centres()):
         R = G.rotz(head)
-        cut = G.transform_shape(box(-NS3_AXIS_FROM_REAR - NS3_PLUG - 20, 150, -NS3_W / 2 - 12, NS3_W / 2 + 12, 100, 260), R, (cx, cy, 0))
-        s = s.cut(cut)
-    sk = add(Part("SH01_base_skirt", s, "PA12 (SLS/MJF)", "series: vacuum-formed ABS/PC 4 mm on CNC mould; prototype: SLS PA12 in 4 bonded segments",
-                  category="shell", color=(0.86, 0.86, 0.84), explode=(0, 0, 720),
-                  notes="open bottom at z=48, scanner pod cut-outs, column/upright openings, contact window"))
-    # 6 distanziali + bossoli sul cielo del guscio
-    pts = [(200, 255), (200, -255), (-90, 276), (-90, -276), (-335, 60), (-335, -60)]
-    for k, (x, y) in enumerate(pts):
-        zo = se_inside_z(a, b, c, e1, e2, x, y, zc, top=True)
-        zi = se_inside_z(a - t, b - t, c - t, e1, e2, x, y, zc, top=True)
-        zb = zi - 6.0                                   # fondo del bossolo
-        boss = cyl(10, zo - zb + 2, (x, y, zb)).intersect(G.superellipsoid_solid(a, b, c, e1, e2, center=(0, 0, zc)))
-        sk.shape = sk.shape.fuse(boss)
-        # spianatura esterna per la testa della vite
-        zf = zo - 1.5
-        sk.shape = sk.shape.cut(cyl(9.0, 20, (x, y, zf)))
-        drill(sk, Hole(f"m{k}", (x, y, zf), DOWN, 5.5, zf - zb, "clear", "M5"))
-        so = add(Part(f"P11_skirt_standoff_{k}", cyl(7, zb - AD_Z1, (x, y, AD_Z1)), "EN AW-6082-T6",
+        s = s.cut(G.transform_shape(box(-NS3_AXIS_FROM_REAR - NS3_PLUG - 95, 150, -NS3_W / 2 - 14, NS3_W / 2 + 14, 100, 400), R, (cx, cy, 0)))
+    dc = add(Part("SH01_deck_cover", s, "PA12 (SLS/MJF)", "SLS PA12 2 mm in 2 halves (front/rear), 4 M5 into standoffs; open toward the base",
+                  category="shell", color=(0.86, 0.86, 0.84), explode=(0, 0, 520)))
+    for k, (x, y) in enumerate(((22.0, 105.0), (22.0, -105.0), (-140.0, 100.0), (-140.0, -100.0))):
+        zb = DECK_TOP - t - 6.0
+        boss = cyl(9, 6, (x, y, zb))
+        dc.shape = dc.shape.fuse(boss)
+        drill(dc, Hole(f"m{k}", (x, y, DECK_TOP), DOWN, 5.5, DECK_TOP - zb, "clear", "M5"))
+        so = add(Part(f"P11_deck_standoff_{k}", cyl(7, zb - AD_Z1, (x, y, AD_Z1)), "EN AW-6082-T6",
                       f"turned D14 x {zb - AD_Z1:.1f} mm, M5 male stud bottom / M5 tapped top", color=(0.7, 0.7, 0.72), explode=(0, 0, 300)))
         drill(so, Hole("top", (x, y, zb), DOWN, F.ISO["M5"]["tap"], 12, "tap", "M5"))
         so.tap_material = "EN AW-6082-T6"
-        tap_adapter(f"sk{k}", x, y, "M5")
-        bolt(f"B_skirt_{k}", "M5", 16, [(sk.name, f"m{k}"), (so.name, "top")], std="ISO 7380", group="G13 skirt->standoffs", preload_frac=0.15)
-    # paraurti EPDM incollato sul bordo inferiore
-    ring = G.superellipsoid_solid(a + 3, b + 3, 60, 0.12, e2, center=(0, 0, 58)).intersect(box(-500, 500, -500, 500, 40, 76)).cut(
-        G.superellipsoid_solid(a, b, c, e1, e2, center=(0, 0, zc))).cut(poly_plate(oct_poly(-2.0), 0, 200))
-    for k, (cx, cy, head) in enumerate(scanner_centres()):
-        R = G.rotz(head)
-        ring = ring.cut(G.transform_shape(box(-NS3_AXIS_FROM_REAR - NS3_PLUG - 20, 150, -NS3_W / 2 - 12, NS3_W / 2 + 12, 30, 260), R, (cx, cy, 0)))
-    add(Part("P12_bumper_EPDM", ring, "TPU 90A / EPDM", "extruded EPDM D-profile 3 mm wall (modelled solid 3 x 36 mm), bonded", color=(0.05, 0.05, 0.06), explode=(0, 0, -80)))
-    return sk
+        tap_adapter(f"dk{k}", x, y, "M5")
+        ADAPTER_KEEP.append((x - 12, x + 12, y - 12, y + 12))
+        bolt(f"B_deck_{k}", "M5", 16, [(dc.name, f"m{k}"), (so.name, "top")], std="ISO 7380", group="G13 deck cover->standoffs", preload_frac=0.15)
+    return dc
 
 
 def column_covers():
     # carter fisso (sul guscio base) attorno al manicotto: tubo superellittico, 2 semigusci
     t = 2.0
-    zc0 = max(se_inside_z(SK["a"], SK["b"], SK["c"], SK["e1"], SK["e2"], COL_X + sx * 90, sy * 100, SK["zc"]) for sx in (-1, 0, 1) for sy in (-1, 0, 1)) + 0.3
-    zc1 = 540.0
-    o = cq.Workplane("XY", origin=(COL_X, 0, zc0)).rect(180, 200).extrude(zc1 - zc0).edges("|Z").fillet(45).val()
-    i = cq.Workplane("XY", origin=(COL_X, 0, zc0 - 1)).rect(180 - 2 * t, 200 - 2 * t).extrude(zc1 - zc0 + 2).edges("|Z").fillet(42).val()
+    zc0, zc1 = DECK_TOP + 0.2, 540.0
+    o = cq.Workplane("XY", origin=(COL_X, 0, zc0)).rect(120, 120).extrude(zc1 - zc0).edges("|Z").fillet(24).val()
+    i = cq.Workplane("XY", origin=(COL_X, 0, zc0 - 1)).rect(120 - 2 * t, 120 - 2 * t).extrude(zc1 - zc0 + 2).edges("|Z").fillet(22).val()
     s = o.cut(i)
-    s = s.cut(box(COL_X - 32, COL_X + 32, 80, 110, SLEEVE_TOP - 62, SLEEVE_TOP + 5))         # finestra leve morsetto
-    s = s.cut(box(COL_X - 22, COL_X + 22, -110, -80, 430, 470))                              # finestra perno d'indicizzazione
-    cc = add(Part("SH02_column_cover_fixed", s, "PA12 (SLS/MJF)", "SLS PA12 2.5-3 mm, 2 halves with M4 inserts",
+    cc = add(Part("SH02_column_cover_fixed", s, "PA12 (SLS/MJF)", "SLS PA12 2 mm, 2 halves clipped around the profile (T-slot clips)",
                   category="shell", color=(0.86, 0.86, 0.84), explode=(0, -300, 150)))
     # cintura mobile (sotto il busto, fissata alla staffa P02): chiude la piastra di body_link0
     zw0, zw1 = 562.0, 838.0
@@ -731,7 +665,7 @@ def coffee():
     # montanti a C (lamiera 3 mm) dall'adattatore alla mensola
     for k, (yc) in enumerate((-118.0, 175.0)):
         t3 = 2.0
-        x0, x1 = -290.0, -210.0
+        x0, x1 = -266.0, -190.0
         web = box(x0, x1, yc - t3 / 2, yc + t3 / 2, AD_Z1, zs - t)
         fl1 = box(x0, x0 + t3, yc - 12, yc + 12, AD_Z1 + 25, zs - t - 25)
         fl2 = box(x1 - t3, x1, yc - 12, yc + 12, AD_Z1 + 25, zs - t - 25)
@@ -853,20 +787,23 @@ def coffee():
 def build():
     PARTS.clear()
     BOLTS.clear()
-    tracer()
+    ADAPTER_KEEP.clear()
+    ranger_air()
     adapter_plate()
     column()
     body_link0()
     power()
     scanner_pods()
-    charge_bracket()
-    base_skirt()
+    deck_cover()
     column_covers()
     torso_shell()
     head()
     gemini()
     chest_tray()
     coffee()
+    for (x0, x1, y0, y1) in ((-266, -190, -138, -98), (-266, -190, 155, 195)):
+        ADAPTER_KEEP.append((x0, x1, y0, y1))
+    lighten_adapter()
     return PARTS, BOLTS
 
 

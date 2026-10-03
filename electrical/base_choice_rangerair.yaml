@@ -1,0 +1,24 @@
+# Base choice for make_bom.py - owner decision 2026-10-03 (latest): AgileX RANGER AIR, base-powered 24 V,
+# robot charges on the AgileX OEM dock (no dock / pack / charger / RoboPad of ours).
+name: "AgileX Ranger Air, superstructure powered from the base (24 V), AgileX OEM dock"
+lines:
+  - {item: "AgileX Ranger Air (24 V 30 Ah LFP, 80 kg payload, accessory output 24-29.6 V <= 25 A / 600 W)", unit: 0,
+     source: "price NOT published (cad/BASE_OPTIONS.md: UNVERIFIED) - quote requested, see AGILEX_REQUEST.md", mpn: "Ranger Air",
+     note: "NOT included in the sum; for scale: Ranger Mini 3.0 = EUR 12,480 at Generation Robots (BASE_OPTIONS.md)"}
+own_dock: false
+oem_dock_lines:
+  - {item: "AgileX automatic charging dock / kit for Ranger Air (incl. robot-side receiver)", unit: 0,
+     source: "price and datasheet NOT published - quote requested (AGILEX_REQUEST.md)", note: "NOT included in the sum"}
+barista_netlist_ids: [K_COF]
+drop_netlist: []
+drop_cad: [P03_battery_tray, P04_battery_pad_EPDM, P05_battery_hold_down_0, P05_battery_hold_down_1, P10_charge_collector_bracket]
+drop_reason: "removed with our own pack / RoboPad (Ranger Air base-powered design)"
+config_deltas:
+  - name: "Previous design for comparison: Tracer 2.0 + own 15s 30 Ah pack + own dock (docs electrical/netlist.yaml)"
+    delta_text: "EUR 32,251 incl. Tracer 7,500 (computed on the 12:44 Tracer CAD export; not comparable line by line with the Ranger Air CAD)"
+    what: "kept for reference; not compliant with the owner's OEM-dock rule"
+  - name: "Without the 1.9 kg peak buffer (CAD E10)"
+    delta: -355
+    what: "remove buffer 180, port limiter 60, buffer ideal diode 55, charger 45, F12 + holder 15; arms then limited to 210 W also at peak (ARCHITECTURE 15.4); -1.9 kg"
+cad_to_net: {E02: DCDC_CPU, E03: DCDC_5V}
+jetson: {item: "NVIDIA Jetson AGX Orin 64 GB module + compact carrier (CAD E08: 0.6 kg)", unit: 2500, source: "estimate (module ~USD 1,800-2,000 + carrier ~USD 400-600; not quoted)", mpn: "900-13701-0050-000 + carrier TBD"}

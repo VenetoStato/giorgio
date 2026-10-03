@@ -165,3 +165,16 @@ Sources: ISO 273 at https://engineeringhardware.com/fastener/clearance-hole-size
 | Tracer accessory power / IO | ≤ 5 A, ≤ 120 W, cut at low battery (p.5); rear 4-pin = VCC 23–29.2 V max 5 A, GND, CAN_H, CAN_L; no external E-stop (p.11); charging 2-pin plug, 10 A charger (p.15) | manual | SOURCED (lead) |
 | Tracer braking | 0.9 m from 2 m/s (≈ 2.2 m/s²), empty | datasheet | SOURCED |
 | Alternative bases (MiR250, Robotnik RB-THERON/KAIROS/VOGUI, Ranger Mini 3.0, Ridgeback, ZLTECH hub motor, Synapticon Integro STO drive) | see BASE_DECISION.md "Sources" | official pages fetched 2026-10-03 | per row |
+
+## AgileX RANGER AIR (chosen base, fetched 2026-10-03)
+
+| Item | Value | Source | Confidence |
+|---|---|---|---|
+| Manual | V1.0.0 2026-01-25 (8 pp; drawing chapter mislabelled "RANGER DELTA") | https://cdn.shopify.com/s/files/1/0551/0630/6141/files/RANGER_AIR_USER_MANUAL_AgileX_Robotics.pdf?v=1788332629 | SOURCED |
+| Size / mass / payload | 552 × 500 × 250 mm, 50–55 kg, 80 kg | manual; https://www.generationrobots.com/en/404405-robot-mobile-ranger-air-delta-2101.html ; https://static.generation-robots.com/media/agilex-datasheet-ranger-air-delta.pdf | SOURCED |
+| Wheelbase / track | 388 / 338 mm; ROS 0.39 / 0.34 | manual + https://github.com/agilexrobotics/ranger_ros (branch air_delta, agx_bringup/config/robot_params.yaml) | SOURCED |
+| Top holes | 8, grid 200 × 80 mm (printed); x offset scaled; thread not given | manual drawing | SOURCED / EST / ASSUMED |
+| Battery / expansion | LFP 24 V 30 Ah; expansion 24–29.6 V ≤ 25 A, ≤ 600 W (plug table: 23–26.5 V 10 A) | manual | SOURCED (conflicting) |
+| Auto-charging | "Automatic recharging" | https://global.agilex.ai/products/mobile-manipulator | SOURCED |
+| Charging brush plate | rear face centre, contact type | manual drawings | SOURCED (position EST) |
+| Price | €3,700 / €5,600 (navigation) excl. VAT | Generation Robots | SOURCED (distributor) |

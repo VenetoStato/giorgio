@@ -1,5 +1,39 @@
 # Giorgio — base options (AgileX only), payload certainty, self-charging
 
+> **DECISION (owner, 2026-10-03): AgileX RANGER AIR**, the base whose automatic recharging is confirmed on the manufacturer's page.
+> The CAD has been rebuilt on it and fully re-validated: 55 PASS / 17 WARN / 0 FAIL, superstructure + product payload **59.3 kg = 74 % of 80 kg**.
+> See section 0 below and README / VALIDATION.md. Sections 1–6 are the comparison that led there; their Giorgio numbers refer to the Tracer-era model (git 2660c92).
+
+## 0. Ranger Air — chosen base (data: manual V1.0.0 2026-01-25, product page, ROS ranger_ros air_delta, Generation Robots)
+
+| Item | Value | Status |
+|---|---|---|
+| L × W × H | 552 × 500 × 250 mm (deck = flat top plate at ≈ 250) | SOURCED / deck height EST |
+| mass / payload | 50–55 kg / **80 kg**; payload CoG at the rotation centre | SOURCED |
+| wheels | wheelbase 388 × track 338 mm (ROS 0.39 × 0.34), Ø ≈ 122 solid, 4WD/4WS: spin, crab, Ackermann | SOURCED / Ø EST |
+| top interface | 8 tapped holes, grid 200 (y) × 80 (x) pitch; thread not given | SOURCED drawing / thread ASSUMED M6 |
+| speed / slope / obstacle | 1.5 m/s / 8° / 10 mm; **braking/decel not published** | SOURCED |
+| battery | LFP 24 V 30 Ah (0.72 kWh), 10 A charger, 3 h; runtime 6.5 h empty / 2.5 h full load | SOURCED |
+| expansion power | rear 4-pin: 24–29.6 V, ≤ 25 A, ≤ 600 W total (the plug table says 23–26.5 V, 10 A: conflict); cut below 10 % SOC; no 12/5 V | SOURCED (conflicting) |
+| safety | rear mushroom e-stop, CAN status bit; **no external stop input** | SOURCED |
+| auto-charging | product page: "automatic recharging". Manual drawings: **contact "charging brush plate" at the rear face centre** (≈ 137 mm wide, z ≈ 115–180). Station photo: wall box at floor level with a marker. Alignment, NAVIS or navigation-version requirement, price: **UNVERIFIED** | SOURCED claim / geometry EST |
+| price | €3,700 (standard) / €5,600 (navigation: 2 lidars + depth camera) excl. VAT, Generation Robots | SOURCED (distributor) |
+
+**Giorgio on the Ranger Air (validated CAD)**
+- Robot 104.2 kg; superstructure 54.2 kg; + product payload (2 × 1.5 + 2.1 kg) = **59.3 kg ≤ 64 kg target**.
+- Extension CoG (−17.7, 0.2, 788) mm.
+- Tipping (m/s², fwd/back/left/right): nominal 4.40/3.83/3.58/3.59, worst 3.43/4.34/3.38/3.39. These need software acceleration limits ≤ 1.5 m/s².
+
+**Power architecture for the electrical lead.** Everything runs from the base battery at 24 V:
+- OpenArm bus direct, through the PNOZ-switched contactors;
+- 24→19 V for the Jetson module;
+- 24→5 V for cameras and LEDs;
+- a ≤ 2 kg 24 V LFP buffer behind an ideal diode for arm peaks above 600 W;
+- an arm power cap in software.
+
+The AgileX station then charges the single base battery: one dock charges everything.
+
+
 Date 2026-10-03. Owner constraints:
 - MiR is rejected (closed system, subscriptions).
 - We must be **sure** about the payload.

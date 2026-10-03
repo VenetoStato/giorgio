@@ -1,3 +1,15 @@
+> **ACTIVE (owner decision, latest): Ranger Air, base-powered 24 V. See ARCHITECTURE.md §15.**
+> - Files: `netlist_rangerair.yaml`, `CHECKS_RANGERAIR.md` (122 PASS / 4 FAIL), `diagram_24v.py`, `power_safety_architecture_rangerair.png/.svg`.
+> - Run: `python3 calc.py netlist_rangerair.yaml CHECKS_RANGERAIR.md` and `~/IsaacLab/env_isaaclab/bin/python diagram_24v.py`.
+> - The 4 FAILs are real:
+>   - autonomy P1 / P2 / P3 = 3.0 / 2.8 / 7.9 h against 4 / 6 / 8 h (base battery 0.65 kWh usable + 1.9 kg buffer 0.12 kWh);
+>   - SF3, the base stop: no external safety input on AgileX bases.
+> - Sim impact: the superstructure energy is drawn from the base battery (`--bat_wh 768`, 0.85 usable). Arm power is 210 W sustained per arm, or 550 W for 5 s from the 1.9 kg buffer. Coffee is 300 W only with the arms parked.
+>
+> - BOM: `../docs/BOM.md` / `bom.csv`, generated with `python3 make_bom.py netlist_rangerair.yaml base_choice_rangerair.yaml`. **€20,029 sum of parts** (barista, no margin, no labour), **excluding the Ranger Air and the AgileX dock**: their prices are not published, so ask for a quote.
+>
+> Everything below documents the earlier 48 V own-pack design (Tracer prototype / MiR250 product), kept for reference.
+
 # electrical/: Giorgio power and safety design
 
 | File | What |
@@ -5,21 +17,23 @@
 | `ARCHITECTURE.md` | The design: single-line diagram, voltage domains, loads with sources, budget and autonomy, battery protection, precharge, regen, safety (PL, stop categories), charging and dock, grounding and EMC, coffee decision, arm certification, open issues |
 | `netlist.yaml` | Machine-readable netlist and BOM: parts, MPNs, ratings, prices, branches, fuses, contactors, profiles, safety chains. `assumed: true` marks values that are not verified. |
 | `calc.py` | Validation. Run `python3 calc.py` (needs only PyYAML). It writes `CHECKS.md` and exits with 1 if anything FAILs. |
-| `CHECKS.md` | Tracer prototype: **173 PASS, 1 FAIL, 9 INFO** |
-| `variants.py` | Generates `netlist_mir250.yaml` (the MiR250 product base, per `cad/BASE_DECISION.md`) and runs calc into `CHECKS_MIR250.md`: **157 PASS, 2 FAIL** (SF2: MiR safe output not documented; P2 barista autonomy 5.9 h vs 6 h) |
+| `CHECKS.md` | Tracer prototype: **172 PASS, 2 FAIL, 11 INFO** (SF3 base stop; P2 barista autonomy 5.6 h vs 6 h) |
+| `variants.py` | Generates `netlist_mir250.yaml` (the MiR250 product base, per `cad/BASE_DECISION.md`) and runs calc into `CHECKS_MIR250.md`: **157 PASS, 2 FAIL** (SF2: MiR safe output not documented; P2 barista autonomy 4.4 h vs 6 h) |
 | `make_bom.py`, `base_choice.yaml` | Consolidated whole-robot BOM: writes `../docs/BOM.md` and `../docs/bom.csv` |
 | `diagram.py` | Draws `power_safety_architecture.svg/.png` (Tracer) or, with `--mir250`, `power_safety_architecture_mir250.svg/.png`, at 1920×1080. Run `~/IsaacLab/env_isaaclab/bin/python diagram.py`, which needs matplotlib. |
 
-**The one FAIL is real and deliberate.** Safety function SF3 (base stop) has no rated element: the AgileX Tracer 2.0 documents no external safety input. See ARCHITECTURE §8.6.
+**Both FAILs are real and kept on purpose.**
+- **SF3 (base stop)** has no rated element: the AgileX Tracer 2.0 documents no external safety input. See ARCHITECTURE §8.6.
+- **P2 barista autonomy** is 5.6 h against the 6 h target with the 30 Ah pack. Mitigation: one 15-minute dock top-up per shift, which gives about 6.4 h. See ARCHITECTURE §4.
 
 **Coffee options.** The default is now B (on board, barista), and it passes. A (230 V inverter) and C (at the dock) are INFO rows. A would fail the pack-current and main-fuse checks.
 
 ## Key decisions (short)
-1. **Battery:** 15s1p LFP 40 Ah (48 V nominal, 37.5–54.75 V, 1.92 kWh ≤ 2 kWh), bought as an IEC 62619 / UN 38.3 certified pack with CAN BMS.
+1. **Battery (final CAD):** 15s5p LFP 30 Ah from 32700 6 Ah power cells (48 V nominal, 37.5–54.75 V, 1.44 kWh, ≤ 13 kg, 270 × 400 × 75 mm). Cells must be ≥ 1.2 C continuous / 2 C for 10 s. Bought as an IEC 62619 / UN 38.3 certified pack with CAN BMS.
 2. **Arm power:** each arm on a regulated 24 V bus (Mean Well DDR-480C-24: 20 A, 30 A for 5 s), because Damiao J4310/J4340P have OVP at 32 V.
    - Safety contactors K1 + K2 (mirror contacts) with precharge on the 48 V feed.
    - ORing plus a 27.5 V shunt clamp on each arm bus for regen.
-3. **Protection:** class T main fuse (20 kA DC) and gPV 10×38 branch fuses, because the pack's prospective short-circuit current is about 5.8 kA. Automotive 58 V fuses (1–2 kA) are not adequate on the 48 V bus.
+3. **Protection:** class T main fuse (20 kA DC) and gPV 10×38 branch fuses, because the pack's prospective short-circuit current is about 2.55 kA. Automotive 58 V fuses (1–2 kA) are not adequate on the 48 V bus.
 4. **Safety logic:** PNOZmulti 2 with 2 × nanoScan3 and 2 × E-stop. Arms stop with SS1-t (category 1, 0.5 s), then power is removed. Arms have no brakes, so they park on mechanical rests and there is no hand-to-hand handover.
 5. **Dock:** 1.2 kW CC/CV at 54.0 V. Contacts (Roboteq RoboPad, 2 poles, 75 A) are live only after a resistor-signature plus wireless handshake. Robot contacts are dead when undocked (ideal diode). The Tracer battery is charged by an onboard isolated Orion-Tr 48/24 at 10 A.
 6. **Coffee (barista default):** an on-board 24 V DC capsule machine via a dedicated DDR-480C-24, cut by the PNOZ (remote OFF + K4). The Tracer charging is paused while brewing. Alternative: brew at the dock with a stock 230 V machine, which is the fastest to certify.
@@ -30,7 +44,7 @@
 ### `giorgio_v5.py`, energy model (lines ~35 and ~631–669)
 | Item | Now | Proposed | Why |
 |---|---|---|---|
-| `--bat_wh` default | `2400.0` | **`1920.0`** | 15s1p 40 Ah = 48.0 V × 40 Ah (≤ 2 kWh) |
+| `--bat_wh` default | `2400.0` | **`1440.0`** | 15s5p 30 Ah = 48.0 V × 30 Ah (final CAD) |
 | `P_ELEC` | `40 + 2*4.5 + 5 + 4 + 5 + 6 + 8 + 15` = 92 W | **`101.3`** W at the pack | S24 (2 × 3.9 scanners + 5 PNOZ + 27 contactor coils + 2 beacon) / 0.91 = 45.9. C12 (35 Jetson + 3 Gemini + 5 two UVC fisheyes and hub) / 0.895 = 48.0. L5 (3 + 1.5 + 2) / 0.875 = 7.4. The Tracer's own 15 W electronics move to the Tracer battery (below). |
 | Arm power | `p_arm` straight from the pack | **`p_arm / 0.92`** (`ETA_ARM_DCDC = 0.92`) | DDR-480C-24 efficiency |
 | `K_CU` | `0.04` for all joints | **per joint**: J1, J2 (DM-J8009P) **0.135**; J3, J4 (DM-J4340P) **0.088**; J5–J7 (DM-J4310) **0.677** W/(N·m)² | P_cu = 1.5·R_ph·(τ/K_t)², with K_t = rated torque / rated current (1.0, 3.6, 1.2 N·m/A) and R_ph = 0.090 / 0.76 / 0.65 Ω (docs.openarm.dev motor table). This is an approximation [A]. |
@@ -48,7 +62,7 @@ Sizes are half-extents in m. DDR sizes come from Mean Well datasheets; the other
 
 | Part | Now (half-extents) | Proposed |
 |---|---|---|
-| `pw_battery` | (0.20, 0.11, 0.040) | Use the CAD value: half (0.135, 0.20, 0.0425) at (0.184, 0, 0.2265), 13 kg (`cad/README.md`, `cad/VALIDATION.md`). Electrically it must be **15s** 40 Ah. 13 kg is optimistic (148 Wh/kg); see ARCHITECTURE §5 for the 30 Ah fallback. |
+| `pw_battery` | (0.20, 0.11, 0.040) | Use the CAD value: half (0.135, 0.20, 0.0375) at (0.184, 0, 0.2195), 13 kg, 15s5p 30 Ah, 1.44 kWh (`cad/README.md`) |
 | `pw_bms` | (0.035, 0.07, 0.012) | remove (integrated in the pack) or keep as the pack's CAN/connector box |
 | `pw_dcdc0` | (0.035, 0.045, 0.022) | **2 × DDR-480C-24 side by side: (0.086, 0.065, 0.063)** (171 × 129 × 125 mm, 2.75 kg) |
 | `pw_dcdc1` | (0.035, 0.045, 0.022) | **DDR-120C-24 + DDR-120C-12 + DDR-60L-5: (0.059, 0.051, 0.063)** (117 × 102 × 125 mm, 1.24 kg) |
@@ -65,19 +79,19 @@ The charger post in the sim (`charger_post`, `charger_plate`, `charger_lamella*`
 
 ## BOM
 The consolidated whole-robot bill of materials is **`../docs/BOM.md`** (machine-readable copy: `../docs/bom.csv`), generated by `make_bom.py` from the CAD BOM, this netlist and the FEASIBILITY.md swaps.
-- Barista default on the Tracer prototype: **€32,484 sum of parts** (no margin, no labour).
+- Barista default on the Tracer prototype: **€32,258 sum of parts** (no margin, no labour).
 - Optional assembly labour: €1,750.
 
 Electrical + safety share from `netlist.yaml` (EUR, indicative):
 
 | Group | EUR |
 |---|---|
-| Battery pack 15s 40 Ah certified (BMS included) [A] | 1,400 |
+| Battery pack 15s5p 30 Ah certified (BMS included) [A] | 1,150 |
 | DC-DC converters (3 × DDR-480C-24 incl. coffee, DDR-120C-24, DDR-120C-12, DDR-60L-5) | 550 |
 | Chargers (dock IC1200-class 650 + Orion-Tr 230) | 880 |
 | Safety (2 × nanoScan3 4,600, PNOZ m B0 + EF 800, E-stops + reset 90) | 5,490 |
-| Contactors, K3/K4 relays, precharge, ORing, clamps, fuses + holders, MSD, connectors (incl. RoboPad 260), wire, busbar, EMC filter, isolated CAN | 1,623 |
-| **Total** | **≈ 9,943** |
+| Contactors, K3/K4 relays, precharge, ORing, clamps, DC-DC fans, fuses + holders, MSD, connectors (incl. RoboPad 260), wire, busbar, EMC filter, isolated CAN | 1,647 |
+| **Total** | **≈ 9,717** |
 
 ## Caveats
 - Web research was capped. Pilz, Siemens, Littelfuse (current site), Victron, Delta-Q and Blue Sea pages could not be fetched, so their key values are flagged `assumed`. Verify them first (ARCHITECTURE §13–14).

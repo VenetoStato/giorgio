@@ -21,9 +21,24 @@ TR_OCT = [(351, -173), (351, 173), (294, 290), (-282, 290), (-351, 163), (-351, 
 TR_WHEEL_R = 80.0                                              # ESTIMATE (not published)
 TR_COG_Z = 80.0                                                # ESTIMATE (battery/motors low)
 
+# ---------------------------------------------------------------- AgileX RANGER AIR (chosen base, owner decision 2026-10-03)
+# manual V1.0.0 2026-01-25 https://cdn.shopify.com/s/files/1/0551/0630/6141/files/RANGER_AIR_USER_MANUAL_AgileX_Robotics.pdf?v=1788332629
+BASE_PART = "B00_ranger_air_base"
+RA_L, RA_W, RA_H = 552.0, 500.0, 250.0                          # SOURCED 552 x 500 x 250 (deck = flat top plate at 250: EST from drawing)
+RA_GC = 43.0                                                   # drawing 43 (table 39)
+RA_MASS = 50.0                                                 # SOURCED 50-55 kg; 50 used (worse for tipping)
+RA_COG_Z = 118.0                                               # drawing: 131.8 below the top surface
+RA_SUPPORT = (194.0, 169.0)                                    # SOURCED wheelbase 388 x track 338 (ROS ranger_ros air_delta: 0.39 / 0.34)
+RA_WHEEL_D, RA_WHEEL_W = 122.0, 64.0                           # ESTIMATE from drawing
+RA_PAYLOAD = 80.0                                              # SOURCED
+RA_HOLES = [(x, y) for x in (160.0, 80.0, 0.0, -80.0) for y in (-100.0, 100.0)]   # 200 x 80 pitch SOURCED (drawing); x offset EST; thread ASSUMED M6
+RA_HOLE_THREAD, RA_HOLE_DEPTH = "M6", 12.0                     # ASSUMED (not given)
+RA_CONTACT = (-RA_L / 2, 137.0, 115.0, 180.0)                  # rear charging brush plate: x face, width, z0, z1 (EST)
+BASE_OUTLINE = [(RA_L / 2, -RA_W / 2), (RA_L / 2, RA_W / 2), (-RA_L / 2, RA_W / 2), (-RA_L / 2, -RA_W / 2)]
+
 # ---------------------------------------------------------------- base adapter plate
-AD_T = 8.0                                                      # was 10: column foot now tapped in its own flange
-AD_Z0, AD_Z1 = TR_H, TR_H + AD_T                               # 169 .. 177
+AD_T = 8.0
+AD_Z0, AD_Z1 = RA_H, RA_H + AD_T                               # 250 .. 258
 AD_INSET = 5.0
 
 # ---------------------------------------------------------------- column (telescopic, manual adjust)
@@ -35,7 +50,7 @@ PROF = 80.0                                                    # item Profil 8 8
 PROF_KG_M = 5.33
 PROF_CORE_D = 10.2                                             # ESTIMATE core bore -> tapped M12
 PROF_BOT = 195.0
-STROKE = 150.0                                                 # proposed (sim: 400, not realisable, see README)
+STROKE = 0.0                                                   # fixed-height column on the Ranger Air (Tracer design had 150)
 INDEX_PITCH = 25.0
 LINER_T = (TUBE_OUT - 2 * TUBE_T - PROF) / 2 - 0.2              # POM-C liners/pads (6.8), 0.2 mm running clearance per side
 BRK_T = 20.0                                                   # torso bracket thickness
@@ -96,12 +111,18 @@ POCKET, WALL, POCKET_H, CHAMF = 60.0, 9.0, 60.0, 16.0
 GRAV = 9.81
 ARM_PAYLOAD_PEAK = 6.0                                         # SOURCED OpenArm 2.0 peak payload incl. end effector
 ARM_PAYLOAD_NOM = 4.1
-PRODUCT_PAYLOAD_ARM = 3.0                                      # product rating per arm (object only; gripper is in the arm mass), software-limited
+PRODUCT_PAYLOAD_ARM = 1.5                                      # product rating per arm (cups/bottles), software-limited (Ranger Air design)
 TRAY_PAYLOAD = 6 * 0.35                                        # 6 flasks in the chest tray
-MASS_LIMIT, MASS_TARGET = 100.0, 90.0                          # Tracer manual p.3 (binding) / 10 % margin
+MASS_LIMIT, MASS_HARD, MASS_TARGET = 80.0, 68.0, 64.0          # Ranger Air payload / hard limit (15 % margin) / target (20 % margin)
 J_PEAK = {"J1": 40.0, "J2": 40.0}                              # DM-J8009P peak torques used in the sim (SOURCED sim/Enactic)
 BRAKE_G, BUMP_G = 0.5, 2.0
 
 
 def deg(x):
     return math.radians(x)
+
+# ---------------------------------------------------------------- Ranger Air electronics (base-powered at 24 V)
+JETSON_MOD = dict(L=110.0, W=110.0, H=45.0, mass=0.6)          # ESTIMATE AGX Orin module + compact carrier + heatsink
+DCDC_19 = dict(L=90.0, W=60.0, H=35.0, mass=0.25)              # ESTIMATE 24 -> 19 V 150 W (Jetson)
+DCDC_5 = dict(L=70.0, W=50.0, H=30.0, mass=0.15)               # ESTIMATE 24 -> 5 V 50 W (cameras, LEDs)
+BUFFER = dict(L=160.0, W=100.0, H=70.0, mass=1.9)              # ESTIMATE 8s LFP 24 V ~6 Ah peak buffer (electrical lead: <= 2 kg)

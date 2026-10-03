@@ -1,0 +1,274 @@
+# Giorgio - electrical netlist, RANGER AIR base-powered 24 V architecture (owner decision 2026-10-03)
+# No pack, no charger, no dock of ours: the superstructure runs from the Ranger Air accessory output
+# (24-29.6 V, <= 25 A / 600 W; continuous vs peak UNVERIFIED) and the robot charges on the AgileX dock.
+# Read by calc.py:  python3 calc.py netlist_rangerair.yaml CHECKS_RANGERAIR.md
+# Conventions as netlist.yaml: assumed: true = estimate / not verified.
+meta:
+  project: Giorgio mobile bimanual service robot
+  revision: E2.1 (2026-10-03) Ranger Air base-powered + 1.9 kg peak buffer (CAD E10)
+  variant: "Ranger Air, superstructure fed from the base accessory output, no own pack"
+  isc_ka_note: "3.5"
+main_bus: B24
+autonomy_note: "usable energy = Ranger Air battery 768 Wh x 0.85 + buffer 154 Wh x 0.8 (start of shift); traction from the same battery is included"
+
+sources:
+  ranger_air_page: https://global.agilex.ai/products/mobile-manipulator
+  ranger_air_manual: https://cdn.shopify.com/s/files/1/0551/0630/6141/files/RANGER_AIR_USER_MANUAL_AgileX_Robotics.pdf?v=1788332629
+  base_options: cad/BASE_OPTIONS.md
+  openarm_motor: https://docs.openarm.dev/hardware/openarm-2.0/motor
+  openarm_v1_psu: https://docs.openarm.dev/1.0/hardware/bill-of-materials/procuring-components
+  dm_j8009p: https://damiao.enactic.ai/en/products/hardware/dm-j8009p-2ec-v1.0
+  dm_j4340p: https://damiao.enactic.ai/en/products/hardware/dm-j4340p-2ec-v1.0
+  dm_j4310: https://damiao.enactic.ai/en/products/hardware/dm-j4310-2ec-v1.1/
+  mw_ddr120: https://www.meanwell.com/Upload/PDF/DDR-120/DDR-120-SPEC.PDF
+  mw_ddr60: https://www.meanwell.com/Upload/PDF/DDR-60/DDR-60-SPEC.PDF
+  lf_jlln: https://littelfusesales.com/assets/content/vendorAssets/pdf/littelfuse_fuse_jlln_jlls_datasheet.pdf
+  sick_nanoscan3: https://www.sick.com/media/pdf/0/80/980/dataSheet_NANS3-CAAZ30AN1_1100334_en.pdf
+  jetson_agx_orin_ds: https://static.generation-robots.com/media/Jetson-AGX-Orin-Data-Sheet.pdf
+  orbbec_336l: https://www.orbbec.com/products/stereo-vision-camera/gemini-336l/
+  truck_24v_capsule: https://www.truckstyler-shop.de/Suitable-for-Nespresso-Truck-24V-coffee-capsule-machine?slotID=2
+  waveshare_p4: https://www.waveshare.com/wiki/RGB-Matrix-P4-64x32
+
+# The "battery" is the Ranger Air's own 24 V 30 Ah LFP (8s); our side sees it only through the accessory port.
+battery:
+  chemistry: LiFePO4 (Ranger Air internal)
+  series: 8
+  parallel: 1
+  cell:
+    ref: "Ranger Air internal 24 V 30 Ah LFP (BASE_OPTIONS.md); port window 24-29.6 V"
+    v_nom: 3.2
+    v_max: 3.7            # 29.6 V = port maximum (BASE_OPTIONS.md)
+    v_min_cutoff: 3.0     # 24 V = port minimum
+    ah: 30
+    r_ac_mohm: 0.8        # assumed: 30 Ah prismatic (worst case for Isc if the port is a fused direct battery tap)
+    r_dc_mohm: 1.5        # assumed
+    c_cont: 1.0
+    c_pulse: 2.0
+    c_charge: 0.5
+    assumed: true
+  r_interconnect_mohm: 1.0
+  r_bms_path_mohm: 2.0
+  r_bms_path_min_mohm: 1.0
+  usable_dod: 0.85        # assumed: port is cut at low battery (threshold UNVERIFIED for Ranger Air)
+  bms_component: BASE_PORT
+
+buses:
+  - {id: B24, desc: "Ranger Air accessory output (24-29.6 V)", v_nom: 25.6, v_min: 24.0, v_max: 29.6}
+  - {id: S24, desc: "24 V regulated: PNOZ, scanners, coils (PNOZ tolerance 20.4-26.4 V < 29.6 V)", v_nom: 24.0, v_min: 23.5, v_max: 24.5}
+  - {id: C12, desc: "12 V compute (Jetson + USB)", v_nom: 12.0, v_min: 11.8, v_max: 12.2}
+  - {id: L5, desc: "5 V UI", v_nom: 5.1, v_min: 5.0, v_max: 5.2}
+  - {id: TRAC, desc: "Ranger Air traction (internal, not through the accessory port)", v_nom: 25.6, v_min: 24.0, v_max: 29.6}
+
+loads:
+  - {id: ARM_L, desc: "OpenArm 2.0 left, 8 Damiao 24 V: 210 W sustained cap (port share), 550 W for 5 s from the buffer", bus: B24,
+     p_typ_w: 70, p_cont_w: 210, p_peak_w: 550, peak_s: 5, assumed: true,
+     note: "sustained cap = (600 W port - hotel) / 2; OpenArm reference is 360 W cont / 720 W peak per arm (docs.openarm.dev)"}
+  - {id: ARM_R, desc: "OpenArm 2.0 right: 210 W sustained / 550 W for 5 s", bus: B24, p_typ_w: 70, p_cont_w: 210, p_peak_w: 550, peak_s: 5, assumed: true}
+  - {id: COFFEE, desc: "24 V DC capsule machine 300 W (truck type), only while arms are parked (interlock)", bus: B24, p_typ_w: 0, p_cont_w: 300, p_peak_w: 330, peak_s: 5,
+     source: truck_24v_capsule, note: "heater is resistive: at 29.6 V draws ~(29.6/24)^2 x 300 = 456 W -> COFFEE_PWR power manager / PWM limit, see ARCHITECTURE"}
+  - {id: COFFEE_IO, desc: "Coffee shuttle MCU + Actuonix P16", bus: B24, p_typ_w: 1, p_cont_w: 6, p_peak_w: 12, peak_s: 3, assumed: true}
+  - {id: SCAN_F, desc: "SICK nanoScan3 front", bus: S24, p_typ_w: 3.9, p_cont_w: 6, p_peak_w: 8, peak_s: 1, source: sick_nanoscan3}
+  - {id: SCAN_R, desc: "SICK nanoScan3 rear", bus: S24, p_typ_w: 3.9, p_cont_w: 6, p_peak_w: 8, peak_s: 1, source: sick_nanoscan3}
+  - {id: PNOZ_L, desc: "Pilz PNOZ m B0 + EF 4DI4DOR + ES ETH", bus: S24, p_typ_w: 6, p_cont_w: 8, p_peak_w: 10, peak_s: 1, assumed: true}
+  - {id: KCOIL, desc: "K1 + K2 (3RT2036 S2 DC coil, electronic economy variant -1NB30 preferred) + K3 + K4", bus: S24, p_typ_w: 14, p_cont_w: 14, p_peak_w: 15, peak_s: 1, assumed: true,
+     note: "standard S2 DC coils ~13 W each would exceed S24 (DDR-60G-24, 2.5 A): use the economy coil or 3RT2026 per arm"}
+  - {id: BEACON, desc: "Status light / buzzer, power-manager MCU (INA228 shunts)", bus: S24, p_typ_w: 2, p_cont_w: 3, p_peak_w: 4, peak_s: 1, assumed: true}
+  - {id: JETSON, desc: "Jetson AGX Orin 64 GB, nvpmodel capped at 50 W", bus: C12, p_typ_w: 30, p_cont_w: 55, p_peak_w: 65, peak_s: 3, source: jetson_agx_orin_ds, assumed: true}
+  - {id: GEMINI, desc: "Orbbec Gemini 336L (USB)", bus: C12, p_typ_w: 3, p_cont_w: 3, p_peak_w: 6, peak_s: 1, source: orbbec_336l}
+  - {id: FISHEYE, desc: "2x USB UVC fisheye + powered USB hub", bus: C12, p_typ_w: 5, p_cont_w: 6, p_peak_w: 8, peak_s: 3, assumed: true}
+  - {id: LEDFACE, desc: "32x16 P4 HUB75 LED face (brightness capped 50 %)", bus: L5, p_typ_w: 3, p_cont_w: 5, p_peak_w: 6, peak_s: 1, source: waveshare_p4, assumed: true}
+  - {id: EYES, desc: "2x GC9A01 + ESP32-S3", bus: L5, p_typ_w: 1.5, p_cont_w: 2, p_peak_w: 3, peak_s: 1, assumed: true}
+  - {id: LEDSTRIP, desc: "status LED strips (capped)", bus: L5, p_typ_w: 2, p_cont_w: 3, p_peak_w: 3, peak_s: 1, assumed: true}
+  - {id: TRACTION, desc: "Ranger Air traction (internal) - average while driving", bus: TRAC, p_typ_w: 80, p_cont_w: 0, p_peak_w: 0, peak_s: 1, assumed: true,
+     note: "not published; 80 W while driving assumed (Tracer 40-80 W, lighter base)"}
+
+converters:
+  - {id: DCDC_S24, component: DCDC_S24, out_bus: S24, iout_a: 2.5, peak_factor: 1.0, peak_s: 0, eta: 0.91, vin_min: 9, vin_max: 36}
+  - {id: DCDC_CPU, component: DCDC_CPU, out_bus: C12, iout_a: 10, peak_factor: 1.5, peak_s: 3, eta: 0.89, vin_min: 16.8, vin_max: 33.6}
+  - {id: DCDC_5V, component: DCDC_5V, out_bus: L5, iout_a: 10.8, peak_factor: 1.0, peak_s: 0, eta: 0.875, vin_min: 9, vin_max: 36}
+
+buffer:
+  component: BUFFER
+  feeds: [ARM_L, ARM_R]
+  port_share_a: 17.5         # current-limited ideal-diode (hot-swap controller) from B24 into the arm node
+  e_wh: 154                  # 8s1p 6 Ah
+  usable: 0.8
+  i_cont_a: 18               # 3 C
+  i_pulse_a: 30              # 5 C, 10 s (high-rate 32700 cells) [A]
+  peak_s: 5
+  chg_a: 3                   # charger from B24, leftover port power only (power manager)
+
+exclusive:
+  - {sets: [[ARM_L, ARM_R], [COFFEE, COFFEE_IO]], note: "brewing only with the arms parked (Jetson power manager; arms hold ~10 W each, inside margin)"}
+
+wiring:
+  ampacity_table:
+    B1: {0.75: 7.6, 1.0: 10.4, 1.5: 13.5, 2.5: 18.3, 4.0: 25, 6.0: 32, 10.0: 44, 16.0: 60, 25.0: 77, 35.0: 97}
+  ambient_correction: {30: 1.15, 35: 1.08, 40: 1.00, 45: 0.91, 50: 0.82, 55: 0.71, 60: 0.58}
+  grouping_correction: {1: 1.0, 2: 0.80, 3: 0.70, 4: 0.65, 6: 0.57, 9: 0.50}
+  conductor: "flexible tinned Cu class 5, 90-105 C insulation preferred"
+
+branches:
+  - {id: W01, desc: "Ranger Air rear port -> F0 -> Q0 -> B24 busbar", bus: B24, current: {from: sum, branches: [W02, W05, W06, W07, W14]},
+     csa_mm2: 6, length_m: 0.6, method: B1, ambient_c: 40, grouped: 1, fuse: F0, vdrop_limit_pct: 3, upstream_r_mohm: [],
+     note: "base port pins limit the cable; 6 mm2 tail into the port connector (check pin gauge)"}
+  - {id: W02, desc: "B24 -> F1 -> current-limited ORing (17.5 A) -> arm node (+ buffer) -> K1/K2", bus: B24, current: {from: fixed, i_cont_a: 17.5, i_peak_a: 17.5, peak_s: 5},
+     csa_mm2: 6, length_m: 0.4, method: B1, ambient_c: 45, grouped: 1, fuse: F1, vdrop_limit_pct: 3, upstream_r_mohm: [0.5, 0.3, 1.0]}
+  - {id: W04L, desc: "K2 -> F10 -> clamp -> left arm hub (through column)", bus: B24, current: {from: loads, loads: [ARM_L]},
+     csa_mm2: 4, length_m: 1.4, method: B1, ambient_c: 40, grouped: 1, fuse: F10, vdrop_limit_pct: 3, upstream_r_mohm: [0.5, 0.3, 1.0, 2.0]}
+  - {id: W04R, desc: "K2 -> F11 -> clamp -> right arm hub (through column)", bus: B24, current: {from: loads, loads: [ARM_R]},
+     csa_mm2: 4, length_m: 1.4, method: B1, ambient_c: 40, grouped: 1, fuse: F11, vdrop_limit_pct: 3, upstream_r_mohm: [0.5, 0.3, 1.0, 2.0]}
+  - {id: W16, desc: "Buffer pack + -> F12 (at the buffer) -> ideal diode -> arm node", bus: B24, current: {from: fixed, i_cont_a: 3, i_peak_a: 30, peak_s: 5},
+     csa_mm2: 6, length_m: 0.4, method: B1, ambient_c: 40, grouped: 1, fuse: F12, vdrop_limit_pct: 3, isc_override_a: 1200,
+     note: "buffer 8s1p 6 Ah: Isc ~1.2 kA (8 x 6 Ah cells ~3 mOhm each + BMS) [A]; the buffer BMS must also trip"}
+  - {id: W05, desc: "B24 -> F2 -> DDR-120B-24 (regulated safety 24 V)", bus: B24, current: {from: conv_in, convs: [DCDC_S24]},
+     csa_mm2: 1.5, length_m: 0.3, method: B1, ambient_c: 45, grouped: 4, fuse: F2, vdrop_limit_pct: 5, upstream_r_mohm: [0.5, 0.3, 1.0]}
+  - {id: W06, desc: "B24 -> F3 -> DDR-120B-12 (compute)", bus: B24, current: {from: conv_in, convs: [DCDC_CPU]},
+     csa_mm2: 1.5, length_m: 0.3, method: B1, ambient_c: 45, grouped: 4, fuse: F3, vdrop_limit_pct: 5, upstream_r_mohm: [0.5, 0.3, 1.0]}
+  - {id: W07, desc: "B24 -> F4 -> DDR-60G-5 (UI)", bus: B24, current: {from: conv_in, convs: [DCDC_5V]},
+     csa_mm2: 1.5, length_m: 0.3, method: B1, ambient_c: 45, grouped: 4, fuse: F4, vdrop_limit_pct: 5, upstream_r_mohm: [0.5, 0.3, 1.0]}
+  - {id: W14, desc: "B24 -> F6 -> K4 -> coffee machine (backpack)", bus: B24, current: {from: loads, loads: [COFFEE, COFFEE_IO]},
+     csa_mm2: 4, length_m: 0.9, method: B1, ambient_c: 45, grouped: 1, fuse: F6, vdrop_limit_pct: 3, upstream_r_mohm: [0.5, 0.3, 1.0]}
+  - {id: W10, desc: "S24 -> F20 -> scanners + PNOZ + coils", bus: S24, current: {from: conv_out, conv: DCDC_S24},
+     csa_mm2: 1.0, length_m: 1.0, method: B1, ambient_c: 45, grouped: 4, fuse: F20, vdrop_limit_pct: 5, isc_override_a: 8}
+  - {id: W11, desc: "C12 -> F30 -> Jetson AGX Orin", bus: C12, current: {from: conv_out, conv: DCDC_CPU},
+     csa_mm2: 2.5, length_m: 0.6, method: B1, ambient_c: 50, grouped: 2, fuse: F30, vdrop_limit_pct: 5, isc_override_a: 15}
+  - {id: W12, desc: "L5 -> F40 -> head (face, eyes, ESP32)", bus: L5, current: {from: conv_out, conv: DCDC_5V},
+     csa_mm2: 1.5, length_m: 1.2, method: B1, ambient_c: 40, grouped: 2, fuse: F40, vdrop_limit_pct: 5, isc_override_a: 11}
+
+fuses:
+  - {id: F0, component: FUSE_SPF030}
+  - {id: F1, component: FUSE_SPF025}
+  - {id: F10, component: FUSE_SPF020}
+  - {id: F11, component: FUSE_SPF020}
+  - {id: F12, component: FUSE_SPF030}
+  - {id: F2, component: FUSE_SPF006}
+  - {id: F3, component: FUSE_SPF006}
+  - {id: F4, component: FUSE_SPF003}
+  - {id: F6, component: FUSE_SPF020}
+  - {id: F20, component: FUSE_ATO5}
+  - {id: F30, component: FUSE_ATO10}
+  - {id: F40, component: FUSE_ATO5}
+
+contactors:
+  - {id: K1, component: K_ARM, i_cont_a: 17.5, i_break_a: 47.5, v_dc: 29.6,
+     note: "K1/K2 sit AFTER the buffer node (a stop must also isolate the buffer). Worst case = port share 17.5 A + buffer 30 A (SS1 failed); normal break after SS1 < 2 A"}
+  - {id: K2, component: K_ARM, i_cont_a: 17.5, i_break_a: 47.5, v_dc: 29.6}
+
+precharge:
+  - {id: PC_ARM, resistor: R_PRE, c_total_uf: 3600, c_note: "16 Damiao drivers (100 uF each assumed) + 2x1000 uF bulk at the ORing outputs",
+     done_fraction: 0.95, t_max_s: 1.0, r_contactor_path_ohm: 0.02, repeat_per_min: 2, dcdc_inhibit: true}
+
+regen:
+  v_dcdc_set: 29.6             # highest bus voltage (full base battery) - clamp must stay above it
+  v_dcdc_ovp_min: 99           # no DC-DC on the arm path; ORing blocks regen toward the base port
+  v_motor_ovp: 32.0            # DM-J4310 / DM-J4340P 24 V recommended OVP (datasheet)
+  v_clamp_on: 30.8
+  c_bus_uf_per_arm: 1800
+  e_regen_j_per_arm: 50
+  p_regen_peak_w_per_arm: 250
+  stops_per_min: 6
+  clamp_component: CLAMP
+
+profiles:
+  - id: P1
+    desc: "Logistics kitting, continuous (arms active 100 %, driving 30 %)"
+    target_h: 4
+    p_avg: {ARM_L: 70, ARM_R: 70, JETSON: 40, TRACTION: 24}
+  - id: P2
+    desc: "Barista: 8 cups/h on board (120 W avg), arms active 25 %, driving 20 %"
+    target_h: 6
+    p_avg: {ARM_L: 30, ARM_R: 30, JETSON: 30, TRACTION: 16, COFFEE: 120, COFFEE_IO: 2}
+  - id: P3
+    desc: "Reception / standby, arms parked and powered, no driving"
+    target_h: 8
+    p_avg: {ARM_L: 10, ARM_R: 10, JETSON: 25, TRACTION: 0}
+
+oem_dock:
+  p_w: 292
+  hotel_w: 0
+  target_h: 4
+  note: "AgileX dock for Ranger Air: specs UNVERIFIED; 10 A x 29.2 V assumed (AgileX 10 A chargers). Whether the accessory output (our payload) stays on while docked is UNVERIFIED (AGILEX_REQUEST)."
+
+safety:
+  pl_target: d
+  functions:
+    - id: SF1
+      desc: "E-stop -> SS1-t -> arm power removed by K1+K2"
+      plr: d
+      cat: 3
+      chain:
+        - {name: "E-stop 2NC", pfhd: 1.0e-7, assumed: true}
+        - {name: "PNOZ m B0", pfhd: 3.0e-9, assumed: true}
+        - {name: "K1+K2 3RT2 mirror contacts + EDM", pfhd: 1.0e-7, assumed: true}
+    - id: SF2
+      desc: "Protective field violated -> SS1-t -> arm power removed"
+      plr: d
+      cat: 3
+      chain:
+        - {name: "nanoScan3 (datasheet PFHd)", pfhd: 8.0e-8, source: sick_nanoscan3}
+        - {name: "PNOZ m B0", pfhd: 3.0e-9, assumed: true}
+        - {name: "K1+K2 + EDM", pfhd: 1.0e-7, assumed: true}
+    - id: SF3
+      desc: "Protective field / E-stop -> base stop (Ranger Air)"
+      plr: d
+      cat: 3
+      chain:
+        - {name: "nanoScan3", pfhd: 8.0e-8, source: sick_nanoscan3}
+        - {name: "PNOZ m B0 + EF 4DI4DOR", pfhd: 1.3e-8, assumed: true}
+        - {name: "Ranger Air: external safety-stop input UNVERIFIED (none documented on any AgileX base); CAN stop only", pfhd: null}
+
+components:
+  - {id: BASE_PORT, short: "Ranger Air port", category: load, qty: 0, manufacturer: AgileX, mpn: "Ranger Air accessory output 24-29.6 V <= 25 A / 600 W",
+     ratings: {i_cont_a: 25, i_peak_a: 25, t_peak_s: 0, i_charge_a: 0}, price_eur: 0, source: base_options,
+     note: "peak capability above 600 W UNVERIFIED -> design treats 600 W as an absolute limit"}
+  - {id: FUSE_SPF025, short: "25 A gPV", category: fuse, qty: 1, manufacturer: Littelfuse, mpn: SPF025 (10x38 gPV), price_eur: 6,
+     ratings: {in_a: 25, v_dc: 1000, ir_dc_a: 20000, no_blow_ratio: 1.3}, assumed: true}
+  - {id: FUSE_SPF020, short: "20 A gPV", category: fuse, qty: 3, manufacturer: Littelfuse, mpn: SPF020, price_eur: 6,
+     ratings: {in_a: 20, v_dc: 1000, ir_dc_a: 20000, no_blow_ratio: 1.3}, assumed: true}
+  - {id: FUSE_SPF030, short: "30 A gPV", category: fuse, qty: 2, manufacturer: Littelfuse, mpn: SPF030, price_eur: 6,
+     ratings: {in_a: 30, v_dc: 1000, ir_dc_a: 20000, no_blow_ratio: 1.3}, assumed: true}
+  - {id: FUSE_SPF006, short: "6 A gPV", category: fuse, qty: 2, manufacturer: Littelfuse, mpn: SPF006, price_eur: 6,
+     ratings: {in_a: 6, v_dc: 1000, ir_dc_a: 20000, no_blow_ratio: 1.3}, assumed: true}
+  - {id: FUSE_SPF003, short: "3 A gPV", category: fuse, qty: 1, manufacturer: Littelfuse, mpn: SPF003, price_eur: 6,
+     ratings: {in_a: 3, v_dc: 1000, ir_dc_a: 20000, no_blow_ratio: 1.3}, assumed: true}
+  - {id: FUSEHOLDER_10x38, short: "", category: fuse, qty: 10, manufacturer: Littelfuse, mpn: "LPXV series 10x38 DIN holder (1-pole)", price_eur: 9, assumed: true}
+  - {id: FUSE_ATO10, short: "10 A ATO", category: fuse, qty: 1, manufacturer: Littelfuse, mpn: "0257010", price_eur: 1,
+     ratings: {in_a: 10, v_dc: 32, ir_dc_a: 1000, no_blow_ratio: 1.3}, assumed: true}
+  - {id: FUSE_ATO5, short: "5 A ATO", category: fuse, qty: 2, manufacturer: Littelfuse, mpn: "0257005", price_eur: 1,
+     ratings: {in_a: 5, v_dc: 32, ir_dc_a: 1000, no_blow_ratio: 1.3}, assumed: true}
+  - {id: MSD, short: "SB50", category: disconnect, qty: 1, manufacturer: Anderson Power Products, mpn: "SB50 + lockout cover (superstructure service disconnect, open only with base output off)",
+     ratings: {i_cont_a: 50, v_dc: 600}, price_eur: 15, assumed: true}
+  - {id: BASE_CONN, short: "", category: connector, qty: 1, manufacturer: AgileX / Amphenol, mpn: "mating plug for the Ranger Air rear aviation port (power + CAN)", price_eur: 30, assumed: true}
+  - {id: BUFFER, short: "8s 6 Ah LFP", category: battery, qty: 1, manufacturer: "pack integrator (TBD)", mpn: "8s1p LFP 32700 6 Ah high-rate (3 C cont / 5 C 10 s) + BMS, 154 Wh, <= 1.9 kg (CAD E10)",
+     price_eur: 180, assumed: true, certs: "UN 38.3 required (IEC 62619 recommended)"}
+  - {id: PORT_LIMITER, short: "", category: protection, qty: 1, manufacturer: "Analog Devices (LTC4282/LTC4234 class)", mpn: "current-limited ideal-diode / hot-swap board 17.5 A, blocks regen and buffer back-feed to the base port",
+     price_eur: 60, assumed: true}
+  - {id: BUF_DIODE, short: "", category: protection, qty: 1, manufacturer: Mean Well, mpn: "DRDN40-24 ideal diode (buffer -> arm node)", price_eur: 55, assumed: true}
+  - {id: BUF_CHG, short: "", category: charger, qty: 1, manufacturer: "TBD", mpn: "24 V LFP CC/CV charger module 3 A, 28.8 V (8s), enable from power manager", price_eur: 45, assumed: true}
+  - {id: CLAMP, short: "30.8 V shunt", category: protection, qty: 2, manufacturer: "in-house (comparator + MOSFET) or AMC SRST series", mpn: "shunt regulator 30.8 V + Arcol HS100 2R2",
+     ratings: {r_ohm: 2.2, p_cont_w: 30, e_pulse_j: 500}, price_eur: 60, assumed: true}
+  - {id: PWR_MON, short: "", category: control, qty: 3, manufacturer: TI / Adafruit, mpn: "INA228 85 V shunt monitor board (arm L, arm R, total) for the power manager", price_eur: 15, assumed: true}
+  - {id: DCDC_S24, short: "DDR-60G-24", category: dcdc, qty: 1, manufacturer: Mean Well, mpn: DDR-60G-24, price_eur: 30, source: mw_ddr60,
+     certs: "IEC/UL 62368-1", note: "9-36 V in, 24 V 2.5 A, 0.22 kg: regulates the 24-29.6 V port for the PNOZ (NOT in the CAD yet: +0.22 kg)"}
+  - {id: DCDC_CPU, short: "DDR-120B-12", category: dcdc, qty: 1, manufacturer: Mean Well, mpn: DDR-120B-12, price_eur: 50, source: mw_ddr120}
+  - {id: DCDC_5V, short: "DDR-60G-5", category: dcdc, qty: 1, manufacturer: Mean Well, mpn: DDR-60G-5, price_eur: 30, source: mw_ddr60}
+  - {id: K_ARM, short: "3RT2036-1BB40", category: contactor, qty: 2, manufacturer: Siemens, mpn: "3RT2036-1BB40 (S2, 24 V DC coil, 1NO+1NC mirror)",
+     ratings: {i_cont_a: 50, i_break_a: 50, v_break_v: 60, i_make_a: 300, aux: "1NO+1NC integrated (mirror contact IEC 60947-4-1 Annex F)", mirror_contact: true,
+               break_note: "DC-1, 3 poles in series - recalled, VERIFY"}, price_eur: 120, assumed: true}
+  - {id: K_PRE, short: "K3", category: relay, qty: 1, manufacturer: Finder, mpn: "40.61.9.024 (16 A) precharge bypass", price_eur: 12, assumed: true}
+  - {id: K_COF, short: "K4", category: relay, qty: 1, manufacturer: Finder, mpn: "62.32.9.024.0040 (16 A, coffee cut by PNOZ safe output)", price_eur: 25, assumed: true}
+  - {id: R_PRE, short: "10 ohm 25 W", category: resistor, qty: 1, manufacturer: Arcol, mpn: HS25 10R J,
+     ratings: {r_ohm: 10, p_cont_w: 5, e_pulse_j: 25, pulse_note: "adiabatic pulse rating assumed - verify"}, price_eur: 6, assumed: true}
+  - {id: PNOZ, short: "PNOZ m B0", category: safety, qty: 1, manufacturer: Pilz, mpn: "772100 PNOZ m B0", price_eur: 500, certs: "PL e, SIL CL 3"}
+  - {id: PNOZ_REL, short: "PNOZ m EF 4DI4DOR", category: safety, qty: 1, manufacturer: Pilz, mpn: "772143 PNOZ m EF 4DI4DOR", price_eur: 300, assumed: true}
+  - {id: SCANNER, short: "nanoScan3", category: safety, qty: 2, manufacturer: SICK, mpn: "NANS3-CAAZ30AN1 (1100334) Pro I/O", price_eur: 2300, source: sick_nanoscan3}
+  - {id: ESTOP, short: "M22-PV/K02", category: safety, qty: 2, manufacturer: Eaton, mpn: "M22-PV/K02 + M22-XGPV (2 NC)", price_eur: 35, assumed: true}
+  - {id: RESET, short: "", category: safety, qty: 1, manufacturer: Eaton, mpn: "M22-DL-B + M22-K10", price_eur: 20, assumed: true}
+  - {id: CONN_ARM, short: "", category: connector, qty: 2, manufacturer: Amass, mpn: "XT60PW-M/F (arm 24 V at column base)", price_eur: 3, assumed: true}
+  - {id: CONN_LV, short: "", category: connector, qty: 8, manufacturer: Anderson Power Products, mpn: "Powerpole PP15/PP45", price_eur: 2, assumed: true}
+  - {id: CABLE_6, short: "", category: wire, qty: 3, manufacturer: Lapp, mpn: "H07V-K 6 mm2 [m]", price_eur: 2.2, assumed: true}
+  - {id: CABLE_SMALL, short: "", category: wire, qty: 25, manufacturer: Lapp, mpn: "H05V-K 0.75-4 mm2 assorted [m]", price_eur: 0.8, assumed: true}
+  - {id: BUSBAR, short: "", category: distribution, qty: 1, manufacturer: Phoenix Contact, mpn: "PTFIX distribution blocks (B24 +/-)", price_eur: 40, assumed: true}
+  - {id: SHUNT_BOND, short: "", category: grounding, qty: 1, manufacturer: "-", mpn: "0 V to chassis single-point bond strap", price_eur: 5, assumed: true}
+  - {id: CAN_ISO, short: "", category: interface, qty: 1, manufacturer: PEAK-System, mpn: "PCAN-USB (isolated) to the Ranger Air CAN", price_eur: 250, assumed: true}

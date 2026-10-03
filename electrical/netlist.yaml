@@ -6,9 +6,9 @@
 #   price_eur: indicative unit price excl. VAT (estimate unless 'price_source' given)
 meta:
   project: Giorgio mobile bimanual service robot
-  revision: E1.1 (2026-10-03)
+  revision: E1.2 (2026-10-03)
   author: electrical design (generated with Claude, to be reviewed by a qualified engineer)
-  isc_ka_note: "5.8"
+  isc_ka_note: "2.5"
 
 sources:
   openarm_motor: https://docs.openarm.dev/hardware/openarm-2.0/motor
@@ -46,24 +46,26 @@ sources:
   robopad: https://docs.galco.com/techdoc/rbtq/robopads_dat.pdf
   tracer_ds: https://static.generation-robots.com/media/datasheet-tracer-2-0-agilex-robotics.pdf
 
+ride_through_v: 28.8          # DDR-480C 100 ms input ride-through limit
+
 # ------------------------------------------------------------------------------------------- battery
 battery:
   chemistry: LiFePO4
-  series: 15                 # 15s keeps V_max 54.75 V < 60 V and nominal energy < 2 kWh at 40 Ah
-  parallel: 1
+  series: 15                 # 15s keeps V_max 54.75 V < 60 V; 15s 30 Ah = 1.44 kWh (CAD final, cad/README.md)
+  parallel: 5
   cell:
-    ref: "CALB CA40 class 40 Ah prismatic (reference; final cell chosen by pack integrator)"
+    ref: "LFP 32700 cylindrical 6 Ah power-type cell (EVE/Lishen class), 15s5p = 75 cells in 2 lying layers (32 mm) -> fits 270x400x75 mm, ~10.5 kg cells + BMS/case ~2.5 kg = 13 kg"
     v_nom: 3.2
     v_max: 3.65
     v_min_cutoff: 2.5
-    ah: 40
-    r_ac_mohm: 0.5           # assumed: lowest plausible ACIR for 40-50 Ah prismatic (worst case for Isc)
-    r_dc_mohm: 1.2           # assumed: DC-IR incl. ageing (worst case for sag)
-    c_cont: 1.0              # assumed (typical datasheet), continuous discharge C-rate
-    c_pulse: 2.0             # assumed, <=10 s, conservative vs typical 3C
-    c_charge: 1.0            # assumed max charge C-rate at 15-35 C (0.5C standard)
+    ah: 6
+    r_ac_mohm: 6.0           # assumed: lowest plausible ACIR of a 6 Ah 32700 (worst case for Isc)
+    r_dc_mohm: 14.0          # assumed: DC-IR incl. ageing (worst case for sag)
+    c_cont: 1.2              # REQUIREMENT on the pack spec (32700 power cells are typically rated 2-3 C continuous) [A]
+    c_pulse: 2.0             # REQUIREMENT, <= 10 s
+    c_charge: 1.0            # assumed max charge C-rate at 15-35 C
     assumed: true
-  r_interconnect_mohm: 1.5   # assumed: 14 busbars + terminals
+  r_interconnect_mohm: 3.0   # assumed: nickel/copper strip interconnects of a cylindrical pack
   r_bms_path_mohm: 1.0       # assumed: MOSFET BMS + shunt, hot (max)
   r_bms_path_min_mohm: 0.5   # assumed: cold (min) - used for Isc
   usable_dod: 0.90
@@ -99,6 +101,7 @@ loads:
   - {id: PNOZ_L, desc: "Pilz PNOZ m B0 + PNOZ m EF 4DI4DOR", bus: S24, p_typ_w: 5, p_cont_w: 7, p_peak_w: 9, peak_s: 1, assumed: true}
   - {id: KCOIL, desc: "K1 + K2 contactor coils (3RT2036 DC coil) + K3 precharge relay", bus: S24, p_typ_w: 27, p_cont_w: 27, p_peak_w: 30, peak_s: 1, assumed: true,
      note: "13 W per S2 DC coil assumed; electronic-coil variant would cut this to a few W"}
+  - {id: DCDC_FAN, desc: "2x 60 mm 24 V fans over the lying DDR-480C pair (forced air restores the vertical-mount rating)", bus: S24, p_typ_w: 2.4, p_cont_w: 2.4, p_peak_w: 3, peak_s: 1, assumed: true}
   - {id: BEACON, desc: "Status light / buzzer, dock IR/Wi-Fi handshake MCU", bus: S24, p_typ_w: 2, p_cont_w: 4, p_peak_w: 5, peak_s: 1, assumed: true}
   - {id: JETSON, desc: "Jetson AGX Orin 64 GB module + carrier (7-20 V input, 15-60 W modes)", bus: C12, p_typ_w: 35, p_cont_w: 75, p_peak_w: 100, peak_s: 3, source: jetson_agx_orin_ds,
      note: "60 W MAXN module + carrier/NVMe/Wi-Fi; carrier peak assumed"}
@@ -121,8 +124,10 @@ loads:
 # ------------------------------------------------------------------------------------------- converters
 converters:
   - {id: DCDC_ARM_L, component: DCDC_ARM, out_bus: A24L, iout_a: 20, peak_factor: 1.5, peak_s: 5, eta: 0.92, vin_min: 33.6, vin_max: 67.2,
+     mount: lying, ambient_c: 50, derate_lying: 0.75, fan: true,
      peak_note: "150 % for 5 s, then constant current 105-135 % (auto-recovery) - no shutdown"}
   - {id: DCDC_ARM_R, component: DCDC_ARM, out_bus: A24R, iout_a: 20, peak_factor: 1.5, peak_s: 5, eta: 0.92, vin_min: 33.6, vin_max: 67.2,
+     mount: lying, ambient_c: 50, derate_lying: 0.75, fan: true,
      peak_note: "150 % for 5 s"}
   - {id: DCDC_S24, component: DCDC_S24, out_bus: S24, iout_a: 5, peak_factor: 1.5, peak_s: 3, eta: 0.91, vin_min: 33.6, vin_max: 67.2}
   - {id: DCDC_CPU, component: DCDC_CPU, out_bus: C12, iout_a: 10, peak_factor: 1.5, peak_s: 3, eta: 0.895, vin_min: 33.6, vin_max: 67.2}
@@ -317,11 +322,11 @@ safety:
 # ratings used by calc.py; 'short' = label used in the diagram
 components:
   # --- energy storage
-  - {id: PACK, short: "15s LFP 40 Ah", category: battery, qty: 1, manufacturer: "pack integrator (TBD)", mpn: "GIO-BAT-15S40 (spec), cells CALB CA40-class",
-     desc: "15s1p LiFePO4 48 V 40 Ah 1.92 kWh, IP54 case, CAN BMS, IEC 62619 + UN 38.3 + CE/EMC test reports required", price_eur: 1400, assumed: true,
+  - {id: PACK, short: "15s LFP 30 Ah", category: battery, qty: 1, manufacturer: "pack integrator (TBD)", mpn: "GIO-BAT-15S30 (spec), 15s5p LFP 32700 6 Ah power cells",
+     desc: "15s5p LiFePO4 48 V 30 Ah 1.44 kWh, flat 270x400x75 mm, <= 13 kg, IP54 case, CAN BMS, cells >= 1.2 C cont / 2 C 10 s, IEC 62619 + UN 38.3 + CE/EMC test reports required", price_eur: 1150, assumed: true,
      certs: "required: IEC 62619, UN 38.3, IEC 61000-6-2/-6-3, EU 2023/1542 labelling"}
   - {id: BMS, short: "BMS", category: battery, qty: 1, manufacturer: "integrated in pack", mpn: "pack BMS, MOSFET, CAN 2.0B, with precharge",
-     ratings: {i_cont_a: 100, i_peak_a: 200, t_peak_s: 10, i_charge_a: 40}, price_eur: 0, assumed: true,
+     ratings: {i_cont_a: 60, i_peak_a: 120, t_peak_s: 10, i_charge_a: 30}, price_eur: 0, assumed: true,
      desc: "cell V/T monitoring, SoC/SoH, charge/discharge FETs, bus precharge on wake, CAN to Jetson and dock charger, key/enable input"}
   # --- protection
   - {id: FUSE_JLLN060, short: "60 A class T", category: fuse, qty: 1, manufacturer: Littelfuse, mpn: JLLN060.T, price_eur: 30,
@@ -408,6 +413,7 @@ components:
   - {id: CABLE_SMALL, short: "", category: wire, qty: 30, manufacturer: Lapp, mpn: "H05V-K 0.75-2.5 mm2 assorted [m]", price_eur: 0.8, assumed: true}
   - {id: BUSBAR, short: "", category: distribution, qty: 1, manufacturer: "Phoenix Contact", mpn: "PTFIX / UT DIN distribution block + 2x Cu busbar (B48 +/-)", price_eur: 60, assumed: true}
   - {id: SHUNT_BOND, short: "", category: grounding, qty: 1, manufacturer: "-", mpn: "0 V to chassis single-point bond strap 6 mm2", price_eur: 5, assumed: true}
+  - {id: FAN_DCDC, short: "", category: protection, qty: 2, manufacturer: "Sunon / ebm-papst", mpn: "60x60x15 mm 24 V DC fan (e.g. Sunon MF60152V1 class) + guard", price_eur: 12, assumed: true}
   - {id: EMI_FILTER, short: "", category: emc, qty: 1, manufacturer: Schaffner, mpn: "FN2200-50 DC/AC filter on arm DC-DC inputs (if class B conducted needed)", price_eur: 60, assumed: true}
   - {id: CAN_ISO, short: "", category: interface, qty: 1, manufacturer: "PEAK-System", mpn: "PCAN-USB FD / isolated CAN to Tracer rear 4-pin aviation connector (CAN pins only, 500 kbit/s)", price_eur: 250, assumed: true}
   # --- loads referenced (bought as part of subsystems, priced elsewhere in the README BOM)

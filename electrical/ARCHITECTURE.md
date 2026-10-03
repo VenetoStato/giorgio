@@ -1,6 +1,14 @@
 # Giorgio: electrical architecture (power, safety, charging)
 
-Revision E1.1, 2026-10-03. Updated after the base decision in `cad/BASE_DECISION.md`: the **prototype/demo** stays on the AgileX Tracer 2.0, and the **sellable product** moves to the MiR250. The default configuration is now **barista**, with the coffee module on board.
+> **Current owner decision (2026-10-03, latest): base = AgileX RANGER AIR, powered from the base battery, no pack and no dock of ours.**
+> The active design is **section 15** (`netlist_rangerair.yaml`, `CHECKS_RANGERAIR.md`: **122 PASS, 4 FAIL**, `power_safety_architecture_rangerair.png`).
+>
+> Sections 0–14 document the earlier 48 V own-pack architecture. They are kept because the safety chain, arm power path (contactors, precharge, regen) and wiring rules carry over. Their variants still pass their own checks:
+> - Tracer prototype, `CHECKS.md`: 172 PASS / 2 FAIL.
+> - MiR250, `CHECKS_MIR250.md`: 157 PASS / 2 FAIL.
+
+
+Revision E1.2, 2026-10-03. Battery aligned to the final CAD (**15s5p 30 Ah, 1.44 kWh, ≤ 13 kg, 270 × 400 × 75 mm**, tray at x 49…319, y ±200, z 182…257 in the base frame). Updated after the base decision in `cad/BASE_DECISION.md`: the **prototype/demo** stays on the AgileX Tracer 2.0, and the **sellable product** moves to the MiR250. The default configuration is now **barista**, with the coffee module on board.
 
 Companion files:
 - `netlist.yaml` is the single source of truth for the Tracer prototype: parts, ratings, branches, profiles.
@@ -9,8 +17,8 @@ Companion files:
 
 | Build | Checks file | Result | FAIL |
 |---|---|---|---|
-| Tracer prototype | `CHECKS.md` | 173 PASS, 1 FAIL | SF3, the Tracer base stop, section 8.6 |
-| MiR250 product | `CHECKS_MIR250.md` | 157 PASS, 2 FAIL | SF2, a MiR safe output not documented; P2 autonomy 5.9 h vs 6 h. See section 8.7. |
+| Tracer prototype | `CHECKS.md` | 172 PASS, 2 FAIL | SF3, the Tracer base stop (section 8.6); P2 barista autonomy 5.6 h vs 6 h (section 4) |
+| MiR250 product | `CHECKS_MIR250.md` | 157 PASS, 2 FAIL | SF2, a MiR safe output not documented; P2 barista autonomy 4.4 h vs 6 h. See section 8.7. |
 
 - `diagram.py` draws `power_safety_architecture.svg/.png` (Tracer); `diagram.py --mir250` draws `power_safety_architecture_mir250.svg/.png`.
 - `make_bom.py` writes the consolidated `../docs/BOM.md` and `../docs/bom.csv`.
@@ -47,9 +55,9 @@ This is an engineering design proposal. It is not a signed-off design. Every val
                                                     ║ W13 10 mm2
                                        ideal diode ─╨─ F9 30 A gPV ─┐ (charge input, BMS)
                                                                      │
- 15s1p LFP 48 V 40 Ah + BMS ── F0 60 A class T ── Q0 (MSD, SB120) ───┴── B48 BUSBAR (37.5-54.75 V)
+ 15s5p LFP 48 V 30 Ah + BMS ── F0 60 A class T ── Q0 (MSD, SB120) ───┴── B48 BUSBAR (37.5-54.75 V)
                                                                           │
-   ├─ F1 35 A T ─ K1 ─ K2(‖K3+47 Ω) ─┬─ F1L 20 A ─ DDR-480C-24 ─ ORing ─ F10 25 A ─ ARM L (8 Damiao) + 27.5 V clamp
+   ├─ F1 35 A T ─ K1 ─ K2(‖K3+47 Ω) ─┬─ F1L 20 A ─ DDR-480C-24 (lying + fan) ─ ORing ─ F10 25 A ─ ARM L (8 Damiao) + 27.5 V clamp
    │   (safety contactors, PNOZ)     └─ F1R 20 A ─ DDR-480C-24 ─ ORing ─ F11 25 A ─ ARM R (8 Damiao) + 27.5 V clamp
    ├─ F2 6 A gPV ─ DDR-120C-24 ─ S24 (always on): PNOZ, 2x nanoScan3, E-stops, K1/K2/K3 coils, beacon
    ├─ F3 6 A gPV ─ DDR-120C-12 ─ F30 10 A ─ Jetson AGX Orin (USB: Gemini 336L, 2 UVC fisheyes, 2 PCAN-USB FD)
@@ -110,69 +118,74 @@ Both are listed in the sources of the research notes. With either hand, the Open
 - Peak power per arm must be capped in firmware at 720 W, which is 30 A at 24 V, by setting the Damiao current limits [A: OpenArm default limits not checked].
 - S24: 2.1 A of 4 A. C12: 7.2 A of 8 A. L5: 3.5 A of 9.6 A.
 
-**Pack current**
+**Pack current** (15s5p 30 Ah; cells specified ≥ 1.2 C continuous / 2 C for 10 s)
 
 | Case | Power | Current at 37.5 V | C-rate | Limit |
 |---|---|---|---|---|
-| All peaks at once: both arms at 720 W, plus compute, UI, and coffee or Tracer charger | 2156 W | 57.5 A | 1.44 C | cell 2 C pulse (80 A) [A], BMS 200 A / 10 s [A] |
-| All loads at maximum sustained | 1287 W | 34.3 A | 0.86 C | 1 C continuous [A] |
+| All peaks at once: both arms at 720 W, plus compute, UI, and coffee or Tracer charger | 2160 W | 57.6 A | 1.92 C | 2 C pulse = 60 A [A], BMS 120 A / 10 s [A] |
+| All loads at maximum sustained | 1289 W | 34.4 A | 1.15 C | 1.2 C = 36 A [A] |
 
-- Under the all-peak load, the pack sags to 43.8 V at 10 % SoC, well above the DC-DC turn-off of 33 V.
-- At cut-off (2.5 V/cell) the pack sits at 36.3 V. So the BMS and Jetson start a controlled shutdown at 10 % SoC.
+- Both pass, but with **little margin** (4 % on peak, 4 % on sustained). The Damiao current limits (720 W per arm) and the "no Tracer charging while brewing" interlock are therefore **required**, not optional.
+- Pack sag under all-peak at 10 % SoC: 42.4 V. At cut-off: 34.9 V, still above the DDR 33.6 V turn-off.
+
+**Energy-management interlock (non-safety, Jetson).** The Orion-Tr is switched off while the coffee heater runs.
 
 **Autonomy**
-- Usable energy: pack 1728 Wh (90 % DoD), Tracer 653 Wh (85 %).
+- Usable energy: pack 1296 Wh (90 % DoD of 1.44 kWh), Tracer 653 Wh (85 %).
 - "Combined" means the onboard isolated charger tops up the Tracer battery from the pack (energy balancing, efficiency 0.87).
 
-| Profile | Pack draw | Tracer draw | Pack alone | Combined |
-|---|---|---|---|---|
-| P1: logistics kitting, arms active 100 %, driving 30 % | 266 W | 33 W | 6.5 h | **7.6 h** |
-| P2: barista, 8 cups/h brewed on board (≈ 120 W), arms 25 %, driving 20 % | 299 W | 27 W | 5.8 h | **7.0 h** |
-| P3: reception or standby, arms parked and powered | 113 W | 15 W | 15.3 h | **17.6 h** |
+| Profile | Pack draw | Tracer draw | Pack alone | Combined (Tracer) | MiR250 variant | Target |
+|---|---|---|---|---|---|---|
+| P1: logistics kitting, arms active 100 %, driving 30 % | 268 W | 33 W | 4.8 h | **6.1 h** PASS | 5.0 h PASS | 4 h |
+| P2: barista, 8 cups/h brewed on board (≈ 120 W), arms 25 %, driving 20 % | 302 W | 27 W | 4.3 h | **5.6 h FAIL** | 4.4 h FAIL | 6 h |
+| P3: reception or standby, arms parked and powered | 116 W | 15 W | 11.2 h | **14.0 h** PASS | 12.1 h PASS | 8 h |
 
-**Energy-management interlock (non-safety, Jetson).** The Orion-Tr is switched off while the coffee heater runs. Otherwise the sustained case would reach 43 A (1.08 C).
+**P2 barista fails the 6 h target with 30 Ah. The FAIL is kept, not hidden.** Mitigations, any one of which is enough on the Tracer:
+- **One 15-minute dock top-up per shift.** 1014 W × 0.25 h ≈ 250 Wh, which adds about 0.8 h, for about 6.4 h. A coffee run that ends at the station can do this naturally.
+- **Fewer cups:** 6 cups/h instead of 8 brings P2 to about 6.2 h (hand calculation from the calc.py inputs).
+- **Brew at the dock (option C):** removes about 130 W from the robot, giving about 9 h.
+- On the MiR250 (4.4 h) the top-up is needed twice per shift, or the superstructure must be fed from the MiR top-module supply (UNVERIFIED).
 
-Arm averages are an estimate: 70 / 30 / 10 W per arm [A], from the copper-loss model of section 3. The doc's earlier "~250 W, 6–7 h" estimate is consistent with P1.
+Arm averages are an estimate: 70 / 30 / 10 W per arm [A], from the copper-loss model of section 3.
 
 **Charging**
-- The dock delivers 21 A × 54 V = 1134 W, which is 0.53 C.
+- The dock delivers 21 A × 54 V = 1134 W, which is 0.70 C of the 30 Ah pack (cell limit 1 C, BMS charge limit 30 A).
 - With the robot's 120 W hotel load, 1014 W net goes into the pack.
 - The Tracer is charged only once the pack is above 80 % (or the Tracer is below 30 %).
 
 | Charge | Time |
 |---|---|
-| 20 → 80 % | **75 min** |
-| 0 → 100 % (including Tracer share and CV tail) | **2.4 h** |
+| 20 → 80 % | **56 min** |
+| 0 → 100 % (including Tracer share and CV tail) | **1.9 h** |
 | Tracer 10 → 90 % at 10 A | 2.2 h (AgileX's own charger: 3 h) |
 
 ## 5. Battery and battery protection
 
-**Pack.** 15s1p LiFePO4, 40 Ah, 1.92 kWh, IP54 case, CAN BMS.
+**Pack.** 15s5p LiFePO4, 30 Ah, 1.44 kWh, IP54 case, CAN BMS. Flat 270 × 400 × 75 mm, ≤ 13 kg (CAD final).
+- **Cells:** 75 × LFP 32700 cylindrical 6 Ah power cells (EVE/Lishen class), laid in two layers of 32 mm.
+  - About 10.5 kg of cells plus about 2.5 kg BMS/case, so 13 kg is about 111 Wh/kg: realistic for LFP.
+  - Requirement on the pack spec: **≥ 1.2 C continuous (36 A), ≥ 2 C for 10 s (60 A), 1 C charge**. 32700 power cells are commonly rated 2–3 C continuous [A: confirm with the chosen cell datasheet].
 - Bought **as a complete pack** from an integrator who supplies **IEC 62619** and **UN 38.3** test reports plus a CE/EMC declaration. Reference cell: CALB CA40 class [A]. Estimated mass about 19 kg [A].
 - At ≤ 2 kWh, the pack stays out of the battery-passport (Art. 77, from 18 Feb 2027) and carbon-footprint duties that EU 2023/1542 sets for industrial batteries **> 2 kWh** [S eu_battery_reg via thebatterypass.eu].
 - Extended producer responsibility (registration, take-back) and labelling apply at any size.
 - If an off-the-shelf 2.4 kWh module is bought instead (e.g. a 15s 50 Ah rack module), those duties fall on its manufacturer. Most such modules are certified for stationary ESS, not mobile use; check vibration and shock coverage.
 
-**Mass and size versus the CAD.**
-- The CAD now budgets the pack at **13 kg**, in a flat 270 × 400 × 85 mm envelope (`cad/VALIDATION.md` mass budget). For 1.92 kWh that is about **148 Wh/kg at pack level**, at the top of what LFP packs reach (cells about 160–180 Wh/kg). Treat it as **optimistic until a supplier quotes it**.
-- `cad/out/bom_parts.csv` still calls it "16S". The electrical design requires **15s**.
-- **Fallback if 13 kg cannot be met** (calc run on a copy of the netlist): **15s 30 Ah** (1.44 kWh, about 11–13 kg).
-  - It needs cells rated **≥ 1.2 C continuous / 2 C pulse**: sustained 1.14 C, all-peak 1.92 C.
-  - P2 barista autonomy drops to 5.6 h; P1 6.1 h and P3 14.2 h still pass.
-- **15s 20 Ah is not acceptable**: 2.9 C peaks, 1.05 C dock charge, 4.3 h barista.
+**CAD label to fix (not edited here).** `cad/out/bom_parts.csv` row `E01_battery_48V_40Ah_LFP` says "40Ah" and "custom flat 16S LFP pack". The design is **15s 30 Ah**; `docs/BOM.md` uses 15s 30 Ah.
+
+**Rejected:** 15s 20 Ah gives 2.9 C peaks, a 1.05 C dock charge and 4.3 h barista autonomy.
 
 **BMS requirements** (pack supplier, [A]):
 - Cell voltage and temperature monitoring.
-- Discharge 100 A continuous / 200 A for 10 s; charge 40 A.
+- Discharge 60 A continuous / 120 A for 10 s; charge 30 A.
 - MOSFET disconnect with a **precharge on wake** for the whole B48 capacitance.
 - CAN 2.0B to the Jetson and to the dock charger: limits, SoC, faults, charge enable.
 - Key/enable input.
 - Short-circuit trip in < 500 µs. This is a second protection layer and is not credited in fuse selection.
 
-**Prospective short circuit.** R_min = 15 × 0.5 mΩ (lowest plausible AC-IR) + 1.5 mΩ interconnects + 0.5 mΩ BMS path = 9.5 mΩ, so **Isc ≈ 5.8 kA** bolted at 54.75 V [A: cell IR]. This is why:
+**Prospective short circuit.** R_min = 15 × 6 mΩ / 5 (lowest plausible AC-IR of a 6 Ah 32700) + 3 mΩ interconnects + 0.5 mΩ BMS path = 21.5 mΩ, so **Isc ≈ 2.55 kA** bolted at 54.75 V [A: cell IR]. This is why:
 - **F0, the main fuse**, is a Littelfuse **JLLN060 class T** (160 V DC, **20 kA DC** interrupting rating for 35–1200 A, UL 248-15) [S lf_jlln], in an LFT60 holder, within 150 mm of the pack terminal.
 - **Branch fuses on B48** are **10×38 gPV fuses** (Littelfuse SPF, 1000 V DC, 20 kA [A: rating recalled; the Littelfuse site blocks fetching]) or class T where the branch is ≥ 35 A.
-- **Automotive 58 V fuses are not used on B48.** ATO/MINI/MAXI 58 V are rated only 1 kA at 58 V [S lf_tac58], and MIDI/MEGA 58 V about 2 kA [A]. Both are below 5.8 kA.
+- **Automotive 58 V fuses are not used on B48.** ATO/MINI/MAXI 58 V are rated only 1 kA at 58 V [S lf_tac58], and MIDI/MEGA 58 V about 2 kA [A]. Both are below 2.55 kA, and the margin to a lower-IR cell choice must stay large.
 - On the 24/12/5 V outputs the DC-DCs limit fault current to ≤ 1.35 × rating, so ATO 32 V fuses are fine there.
 
 **Service disconnect (Q0).** An Anderson SB120 between pack and distribution, with a lockout cover.
@@ -188,6 +201,12 @@ The contactors switch the **48 V feed**, so a single pair removes energy from bo
 - Worst-case break current: 41.7 A (both converters at 150 % at 37.5 V, with SS1 failed). The assumed DC-1 rating is 50 A at 60 V with 3 poles in series [A: verify in the Siemens 3RT2 DC switching table].
 - In normal operation the break current is below 3 A. SS1 has already stopped the arms, and the PNOZ releases the DC-DC remote-ON pins 50 ms before K1/K2 open.
 - If the Siemens rating does not verify, use a **Schaltbau C195** (rail/forklift DC contactor, 320 A, positive-opening S870 auxiliary switch [S schaltbau_c195]; still confirm mirror-contact status).
+
+**Mounting and derating (CAD: both DDR-480C lie flat on 2 mm plates inside the skirt).**
+- Mean Well's derating curve is given for **vertical** mounting: 100 % load up to 55 °C, falling to 40 % at 80 °C [S mw_ddr480]. No figure is published for lying mounting.
+- I assume **75 %** for lying mounting in natural convection at about 50 °C inside the skirt [A]. Then 15 A continuous > 12 A (80 % of 15 A), and the 30 A peak > 22.5 A, so it **would FAIL** (INFO row in CHECKS).
+- **Mitigation adopted:** two 60 mm 24 V fans (2.4 W on S24, €24) blowing across the pair restore the vertical rating. Then 15 A ≤ 16 A and 30 A ≤ 30 A pass. Alternative: mount them on edge on a vertical DIN plate.
+- **Verify** with a thermal test at 50 °C ambient and 360 W continuous per unit, or with Mean Well's installation manual.
 
 **Precharge** (sequence run by the PNOZ and the Jetson after a reset):
 1. EDM check: K1 and K2 mirror contacts are closed, i.e. the contactors are open.
@@ -486,7 +505,7 @@ Actions:
 1. **Base.**
    - Prototype on the Tracer: SF3 gap accepted in the risk assessment.
    - Product on the MiR250: obtain the MiR user guide (safe protective-stop output for SF2, top-module CoG limits, top power), its PFHd, and a quote. Ask Robotnik for the RB-THERON+ payload.
-2. **Battery mass.** Get a supplier quote for a 15s 40 Ah pack at ≤ 13 kg, flat 270 × 400 × 85 mm. Fallback: 15s 30 Ah with ≥ 1.2 C cells (section 5). Fix the "16S" label in the CAD.
+2. **Battery.** Get a supplier quote for the 15s5p 30 Ah pack (32700, ≥ 1.2 C / 2 C, ≤ 13 kg, 270 × 400 × 75 mm). Barista autonomy needs one dock top-up per shift (section 4). Fix the "40Ah / 16S" label in the CAD.
 3. **24 V coffee machine** with documented EN 60335-2-15 conformity (or test the module).
 4. **Arms** (section 12). Decide between OpenArm guard-only without handover and certified UR3e-class arms for collaborative service.
 5. **Safe speed for field switching** (8.5). Tracer prototype only; the MiR handles its own fields.
@@ -499,3 +518,134 @@ Actions:
 8. **Tracer charging spec** (voltage, current, connector) from AgileX.
 9. **SISTEMA calculation** for SF1–SF3 with manufacturer libraries. Then a stopping-distance test campaign for the field sizes (ISO 3691-4 and ISO 13855).
 10. **EMC pre-scan** of the robot plus dock: conducted emissions on the DC port, DDR class A.
+
+
+## 15. ACTIVE DESIGN: Ranger Air, superstructure powered from the base (24 V), rev E2.1
+
+Files:
+- `netlist_rangerair.yaml` and `CHECKS_RANGERAIR.md`: **122 PASS, 4 FAIL, 6 INFO**.
+- `power_safety_architecture_rangerair.png/.svg`, drawn by `diagram_24v.py`.
+- BOM: `../docs/BOM.md`.
+
+Aligned with the CAD redesign of 13:28 (`cad/VALIDATION.md`): superstructure 54.4 kg, plus product payload 5.1 kg (2 × 1.5 kg in the hands + 2.1 kg tray) = 59.5 kg, against the hard limit of 68 kg.
+
+### 15.1 Constraints (owner + `cad/BASE_OPTIONS.md`)
+- **Base:** AgileX Ranger Air.
+  - Internal LFP 24 V 30 Ah (768 Wh nominal; about 650 Wh usable, assuming the port cuts at low SoC [A]).
+  - Payload 80 kg.
+  - Automatic recharging on the AgileX dock.
+- **Accessory output:** 24–29.6 V, ≤ 25 A / 600 W. Continuous vs peak is **UNVERIFIED**, so 600 W is treated as a hard limit.
+- **No own pack, charger, RoboPad or dock.** One peak buffer of ≤ 2 kg is allowed; the CAD budgets 1.9 kg for it (E10).
+
+### 15.2 Topology
+```
+Ranger Air rear port 24-29.6 V ─ F0 30 A gPV ─ Q0 SB50 ─ B24 busbar ── power manager (3x INA228, keeps port <= 600 W)
+  ├─ F1 25 A ─ current-limited ideal diode 17.5 A (LTC4282-class) ─┐
+  │   buffer 8s1p LFP 6 Ah (154 Wh, 1.9 kg) ─ F12 30 A ─ ideal diode ┤ arm node ─ K1 ─ K2(‖K3+10 Ω) ─┬─ F10 20 A ─ 30.8 V clamp ─ OpenArm L
+  │   buffer charger 3 A from B24 (leftover power only)              │                                └─ F11 20 A ─ 30.8 V clamp ─ OpenArm R
+  ├─ F2 6 A ─ DDR-60G-24 ─ S24 regulated (PNOZ m B0 + EF + ES ETH, 2x nanoScan3, E-stops, coils)
+  ├─ F3 6 A ─ DDR-120B-12 ─ Jetson AGX Orin (50 W mode) + Gemini 336L + 2 UVC fisheye   [CAD: 24->19 V module, also valid]
+  ├─ F4 3 A ─ DDR-60G-5 ─ face, eyes, LEDs, ESP32
+  └─ F6 20 A ─ K4 ─ 24 V capsule machine + shuttle (interlocked with the arms)
+CAN (isolated PCAN, 500 kbit/s) to the Ranger Air: motion, zero-speed stop, SoC.
+```
+Why K1/K2 sit **after** the buffer node: a stop must remove *all* energy sources from the arms, including the buffer.
+- The current-limited ideal diode does two jobs:
+  - it caps what the arms take from the port to 17.5 A (420 W);
+  - it blocks regen and buffer back-feed into the base port.
+- The buffer supplies everything above 17.5 A.
+- The buffer's own BMS and F12 protect its 1.2 kA [A] short-circuit current.
+
+### 15.3 Voltage window
+**Arms directly on 24–29.6 V: OK.**
+- DM-J4310 and DM-J4340P (24 V): UVP 15 V, recommended OVP 32 V. DM-J8009P: 24–48 V, absolute maximum 52 V [S].
+- Speed specifications are given at 24 V, so there is no loss.
+
+**Regen.**
+- A clamp per arm switches on at **30.8 V**, above the 29.6 V port maximum and below the 32 V OVP.
+- The window is only 1.2 V wide, so the threshold needs ±0.2 V accuracy [A].
+- 2.2 Ω gives 431 W at threshold, against about 250 W regen [A].
+- The limiter diode keeps regen off the port.
+
+**PNOZ supply.** 29.6 V exceeds the PNOZ +10 % tolerance, so a **DDR-60G-24** (9–36 V in, 24 V 2.5 A, 0.22 kg) regulates S24 [S mw_ddr60]. **It is not yet in the CAD (+0.22 kg).**
+
+### 15.4 Power budget and arm caps (calc)
+| | W / A |
+|---|---|
+| Hotel, max sustained: S24 37 W / 0.91 + C12 64 W / 0.89 + L5 10 W / 0.875 | ≈ 124 W |
+| Hotel at peak | ≈ 152 W |
+| Arms, sustained (port share 17.5 A at 24 V) | 2 × 210 W |
+| Arms, peak for 5 s (port share + buffer 28.3 A ≤ 30 A 5 C pulse) | 2 × 550 W |
+| **Port, all loads at peak, interlocks applied** | **572 W = 23.8 A ≤ 25 A (PASS)** |
+| Port, max sustained | 544 W = 22.7 A (PASS) |
+| Buffer energy per peak event | 0.94 Wh, refilled in under 1 min at 3 A |
+
+**What the caps mean.** Copper-loss model, OpenArm motor data; arm 5.5 kg with its CoG at 0.28 m extended [A].
+- **Sustained 210 W:**
+  - one DM-J8009P at about 38 N·m, or both shoulders at about 27 N·m;
+  - holding a 1.5 kg product payload at 0.3 m costs about 25 W;
+  - a cup at full reach costs about 37 W.
+- **Peak 550 W for 5 s:** close to OpenArm's 720 W reference, so normal pick-and-place accelerations are fine.
+- **Not possible:** sustained fast whole-arm motions with payload, or repeated 5-second peaks back to back. The buffer refills between them in about 1 minute at 3 A.
+- **Enforcement (not a safety function):**
+  - Damiao per-joint current limits;
+  - the hardware 17.5 A limiter;
+  - the Jetson power manager (INA228 shunts on arm L, arm R and total).
+  - If all of these fail, the base port protection cuts the superstructure and the arms drop, as on an E-stop. The risk assessment must cover this case.
+
+**Coffee interlock (power manager).** The ~300 W truck machine has a resistive heater: about 456 W at 29.6 V.
+- Brewing is allowed only with **both arms parked** (about 10 W each), **the buffer charger off**, and **the bus ≤ 27.6 V** (heater ≤ 400 W).
+- K4 opens on any stop (category 0).
+
+### 15.5 Autonomy (usable 768 Wh × 0.85 + buffer 154 Wh × 0.8 = 776 Wh at shift start; traction 80 W while driving [A])
+| Profile | Draw | Autonomy | Target | Result | + one 30-min dock stop (≈ 290 W [A]) |
+|---|---|---|---|---|---|
+| P1 logistics, arms 100 %, driving 30 % | 259 W | **3.0 h** | 4 h | FAIL | ≈ 3.6 h |
+| P2 barista, 8 cups/h, arms 25 %, driving 20 % | 281 W | **2.8 h** | 6 h | FAIL | ≈ 3.3 h |
+| P3 reception / standby | 98 W | **7.9 h** | 8 h | FAIL (just short) | ≈ 9.4 h |
+
+**Honest conclusion.** Active service on the Ranger Air alone lasts about 3 h per charge. Full recharge is about 2.2 h, assuming a 10 A / 29.2 V AgileX dock [A].
+- **6 h of barista service would need about 1 kWh more.** At about 290 W from the dock, that is about 3.5 h docked per 6 h shift, so roughly 50 % availability.
+- No ≤ 2 kg buffer can close that gap.
+- **Ways forward** (the owner decides):
+  - accept about 3 h service blocks with dock visits;
+  - fewer cups per hour (6 cups/h gives P2 ≈ 3.1 h);
+  - if AgileX offers it, the 60 Ah battery option the Tracer has (UNVERIFIED for Ranger Air; question 8 below);
+  - a base with more energy (BASE_OPTIONS: Ranger, up to 4 × 1.15 kWh).
+
+### 15.6 Charging
+- **AgileX OEM dock only.** The robot itself contains no charging hardware.
+- The buffer recharges from B24 with leftover port power.
+- If AgileX confirms the payload stays powered while docked, the robot can stay awake on the dock. That reduces the net charge power by about 100 W.
+
+### 15.7 Safety (unchanged concept)
+- **Chain:** PNOZ m B0 + EF 4DI4DOR + ES ETH, 2 × nanoScan3, 2 × E-stop.
+- **Contactors:** K1/K2 are now **Siemens 3RT2036 (S2)** because they also break the buffer. Worst case is 47.5 A at 29.6 V against an assumed 50 A DC-1 rating [A]. Use the electronic economy-coil variant; standard S2 DC coils (about 13 W each) would overload the 2.5 A S24 supply.
+- **Stop and precharge:** SS1-t 0.5 s; precharge 10 Ω, τ = 36 ms.
+- **Results:** SF1 and SF2 pass (PFHd about 2e-7 [A]). **SF3 FAIL:** no external safety input is documented for the Ranger Air; only a CAN zero-speed command is available.
+- **Base-port dependency:** if the base cuts its output (low SoC or base E-stop), the PNOZ, scanners and Jetson go dark together and the arms drop (de-energised).
+  - The buffer cannot hold the arms, because K1/K2 drop out when S24 is lost (fail-safe).
+  - Mitigation: the Jetson parks the arms and docks well before the port's low-SoC cut-off (SoC over CAN).
+
+### 15.8 Questions for AgileX (to merge into `cad/AGILEX_REQUEST.md`)
+1. Is the accessory output 600 W **continuous**? What peak power and duration, and what over-current behaviour (cut, latch, auto-retry)?
+2. At what SoC or voltage is the accessory output cut, and is there a CAN warning before?
+3. **Does the accessory output stay powered while the robot is on the automatic charging dock?** What is the dock's charging power and current?
+4. Does the port tolerate reverse current, or does it have a blocking element?
+5. Is there an external E-stop or safety input, or an STO option? What is the braking deceleration at 80 kg?
+6. What is the port connector part number, pin rating and cable cross-section?
+7. Ranger Air price, and dock kit price and datasheet.
+8. Is a larger battery (for example 60 Ah, as offered for the Tracer) available for the Ranger Air?
+
+### 15.9 Electrical items the CAD must add or recheck (CAD `bom_parts.csv` 13:28)
+| CAD has | Electrical design needs | Delta |
+|---|---|---|
+| E02 DC-DC 24→19 V 0.25 kg | DDR-120B-12 (0.51 kg) **or** a 24→19 V module: both are valid for the AGX Orin module (7–20 V). Keep the CAD choice if the carrier accepts 19 V. | 0 / +0.26 kg |
+| E03 DC-DC 24→5 V 0.15 kg | DDR-60G-5 (0.22 kg) | +0.07 kg |
+| (none) | **DDR-60G-24 regulated S24 for the PNOZ** | **+0.22 kg** |
+| E05 PNOZ m B0 | + PNOZ m EF 4DI4DOR + PNOZ m ES ETH | ≈ +0.4 kg [A] |
+| E06/E07 contactors 0.35 kg each | 3RT2036 S2, about 0.6 kg each [A] (or 4 × 3RT2026, two per arm) | ≈ +0.5 kg |
+| E10 buffer 1.9 kg | + current-limited ideal diode (about 0.1 kg), buffer ideal diode DRDN40-24 (about 0.3 kg), 3 A charger (about 0.15 kg), F12 | ≈ +0.55 kg [A] |
+| (none) | 2 regen clamps with 100 W resistors on a heatsink plate | ≈ +0.5 kg [A] |
+| wiring 2.0 kg | arm feeds now 4 mm² (550 W peaks) + 7 fuse holders | probably OK within 2.0 kg |
+| **Total** | | **≈ +2.2 to 2.5 kg → about 62 kg, still ≤ 64 kg target and ≤ 68 kg hard** |

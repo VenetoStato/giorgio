@@ -1,7 +1,7 @@
 # Request to AgileX Robotics (sales / technical support)
 
 **To:** AgileX sales and technical support (via global.agilex.ai contact form / regional distributor)
-**Subject:** RANGER MINI 3.0 / RANGER / TRACER 2.0 + auto-charging kit (NAVIS): written payload, power and docking data for a 70–90 kg mobile-manipulator superstructure
+**Subject:** RANGER AIR (selected) + automatic charging station: written payload, power and docking data for a 60 kg mobile-manipulator superstructure
 
 Dear AgileX team,
 
@@ -47,6 +47,21 @@ Its height is ≈ **0.42 m above the TRACER 2.0 deck** (0.59 m above the floor).
    - RANGER IP rating: IP22 vs IP55.
    - TRACER 2.0 payload: 80 / 100 / 150 kg.
    Please confirm the correct values.
+
+10. **RANGER AIR specifically.** This is our selected base.
+    - **Payload:** is 80 kg allowed with our load (59 kg incl. payload, CoG 0.54 m above the deck, centred within ±20 mm)? What maximum acceleration, deceleration and braking distance from 1.5 m/s apply with that load, and what yaw rate and lateral acceleration in spin and crab modes?
+    - **Top plate:** thread size and depth of the 8 top holes (200 × 80 grid); their exact x position from the body centre; deck plate material and thickness; a STEP model of the chassis.
+    - **Expansion port:** is the rating 25 A / 600 W (spec table) or 10 A, 23–26.5 V (mating-plug table)? Continuous or peak? What peak current is allowed, and for how long? Can a second output be added? What is the pinout of the top electrical interface?
+    - **Automatic charging station:**
+      - part number, price, charging voltage/current;
+      - how the robot finds and aligns to it (marker, lidar, IR) and the tolerance;
+      - does it require the navigation version or NAVIS, and the licence cost;
+      - box height and depth from the wall: our robot has a 54 mm overhang behind the rear face above 380 mm;
+      - can the payload stay powered while charging;
+      - can it run autonomously with our own ROS 2 navigation (we have 2 SICK nanoScan3 scanners on the corners)?
+    - **Navigation version:** where exactly are the lidars / "pucks" on the top corners, and is the standard version enough for docking?
+    - Runtime with a 250 W continuous accessory load.
+    - Availability of an external safety stop input or STO on the RANGER AIR drives.
 
 Thank you — written answers, drawings or STEP files would let us close our design review.
 
