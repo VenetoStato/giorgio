@@ -346,21 +346,37 @@ def main(path_yaml, path_md):
             else:
                 p_pack += p
         h_pack, h_tr = e_pack / p_pack, (e_tr / p_tr if p_tr else float("inf"))
-        h_comb = (e_pack + e_tr * eta_tc) / (p_pack + p_tr / eta_tc)
+        if has_tr and tr.get("transfer") == "base_to_pack":
+            # base battery feeds its own loads and tops up our pack through the isolated charger (eta)
+            h_comb = (e_tr * eta_tc + e_pack) / (p_tr * eta_tc + p_pack)
+        else:
+            h_comb = (e_pack + e_tr * eta_tc) / (p_pack + p_tr / eta_tc)
         h_sys = min(h_comb, h_pack + 99 if p_tr == 0 else h_comb)
         prof_out[pr["id"]] = (p_pack, p_tr, h_pack, h_tr, h_comb)
         rec("Autonomy", f"{pr['id']} {pr['desc']}",
-            (f"pack {p_pack:.0f} W -> {h_pack:.1f} h; Tracer {p_tr:.0f} W -> {h_tr:.1f} h; combined {h_comb:.1f} h" if has_tr
+            (f"pack {p_pack:.0f} W -> {h_pack:.1f} h; {tr.get('label', 'Tracer')} {p_tr:.0f} W -> {h_tr:.1f} h; combined {h_comb:.1f} h" if has_tr
              else f"{p_pack:.0f} W from {e_pack:.0f} Wh -> {h_pack:.1f} h"),
             f">= {pr['target_h']} h" + (" (combined, with balancing)" if has_tr else ""), h_sys >= pr["target_h"],
-            (f"usable pack {e_pack:.0f} Wh, Tracer {e_tr:.0f} Wh; Tracer topped up from pack via isolated charger (eta {eta_tc})"
+            (d.get("autonomy_note") or f"usable pack {e_pack:.0f} Wh, Tracer {e_tr:.0f} Wh; Tracer topped up from pack via isolated charger (eta {eta_tc})"
              if has_tr else d.get("autonomy_note", f"usable pack {e_pack:.0f} Wh; base has its own battery (not counted)")))
 
     # ================================================================ charging
     if "charging" not in d:
         oem = d.get("oem_dock", {})
         e_used = n.e_nom * b["usable_dod"]
-        if oem.get("p_w"):
+        if oem.get("p_w") and has_tr and tr.get("transfer") == "base_to_pack":
+            p_net = oem["p_w"] - oem.get("hotel_w", 0)
+            t_sys = (e_tr + e_used / eta_tc) / p_net
+            p_c = comp[tr["charger_component"]]["ratings"]
+            t_c = e_used / (p_c["i_out_a"] * p_c.get("v_out_v", 54.0))
+            t_full = max(t_sys, t_c)
+            rec("Charging", "Dock power available to the whole robot", f"{oem['p_w']} W - hotel {oem.get('hotel_w', 0)} W = {p_net} W", "", None, oem.get("note", ""))
+            rec("Charging", f"Full recharge of base ({e_tr:.0f} Wh) + our pack ({e_used:.0f} Wh via the {p_c['i_out_a']} A charger) on the one dock",
+                f"{t_full:.1f} h (energy limit {t_sys:.1f} h, charger limit {t_c:.1f} h)", f"<= {oem.get('target_h', 4)} h",
+                t_full <= oem.get("target_h", 4))
+            rec("Charging", "Opportunity charge 20 -> 80 % of both batteries", f"{0.6 * t_full * 60:.0f} min", f"<= {oem.get('target_20_80_min', 120)} min",
+                0.6 * t_full * 60 <= oem.get("target_20_80_min", 120))
+        elif oem.get("p_w"):
             p_net = oem["p_w"] - oem.get("hotel_w", 0)
             rec("Charging", "Full recharge through the base manufacturer's dock (usable energy)", f"{e_used / p_net:.1f} h",
                 f"<= {oem.get('target_h', 4)} h", e_used / p_net <= oem.get("target_h", 4), oem.get("note", ""))
@@ -426,6 +442,67 @@ def main(path_yaml, path_md):
                 f"main cont {main_cont:.1f} A needs F0 >= {f0_need:.0f} A (have {f0} A, cable Iz {iz_main:.0f} A)"
                 + ("" if f0_need <= f0 else " -> upsize F0 and W01") + ("" if ok_peak else " -> needs brew/arm interlock")
                 )
+
+    # ================================================================ motors (per joint) and power scenarios
+    for mt in d.get("motors", []):
+        w_r = (mt["tau_rated"] * mt["w_rated"] + 1.5 * mt["i_rated"] ** 2 * mt["r_ph"]) / mt["eta_drv"]
+        w_p = (mt["tau_peak"] * mt["w_rated"] * 0.5 + 1.5 * mt["i_peak"] ** 2 * mt["r_ph"]) / mt["eta_drv"]
+        mt["_w_r"], mt["_w_p"] = w_r, w_p
+        rec("Power table: motors (per joint)", f"{mt['model']} x{mt['qty_per_arm']} per arm ({mt['joints']})",
+            f"rated {w_r:.0f} W, peak {w_p:.0f} W per joint", "", None,
+            f"rated: {mt['tau_rated']} Nm at {mt['w_rated']:.1f} rad/s + 1.5*{mt['i_rated']}^2*{mt['r_ph']} ohm; peak: {mt['tau_peak']} Nm at half speed + "
+            f"1.5*{mt['i_peak']}^2*R; drive eta {mt['eta_drv']} | {mt['source']}")
+    if d.get("motors"):
+        s_r = sum(m["_w_r"] * m["qty_per_arm"] for m in d["motors"])
+        s_p = sum(m["_w_p"] * m["qty_per_arm"] for m in d["motors"])
+        env = d["arm_envelope"]
+        rec("Power table: motors (per joint)", "Sum of all joints of one arm at datasheet rating / peak", f"{s_r:.0f} W / {s_p:.0f} W",
+            f"design envelope {env['cont_w']} W cont / {env['peak_w']} W peak per arm", None,
+            "joints never all reach rating together; the envelope (OpenArm reference PSU 24 V 15 A, 2 PSUs for heavy payload) is ENFORCED by Damiao current limits + DC-DC current limit")
+    for l in (n.load.values() if d.get("power_table") else []):
+        bus = n.bus[l["bus"]]
+        src = l.get("source", "")
+        src = d["sources"].get(src, src) if src else "ASSUMED"
+        if l.get("assumed"):
+            src = (src + " (ASSUMED)") if src != "ASSUMED" else "ASSUMED"
+        duty = {pr["id"]: pr["p_avg"].get(l["id"], l["p_typ_w"]) for pr in d["profiles"]}
+        rec("Power table: every load", f"{l['id']}: {l['desc']}", f"{bus['v_nom']} V ({l['bus']}): typ {l['p_typ_w']} / cont {l['p_cont_w']} / peak {l['p_peak_w']} W ({l.get('peak_s', 1)} s)",
+            "avg per profile: " + ", ".join(f"{k} {v:.0f} W" for k, v in duty.items()), None, src)
+    if d.get("power_table"):
+        for c in n.conv.values():
+            ob = n.bus[c["out_bus"]]
+            po = n.bus_power(c["out_bus"], "cont")
+            pt = n.bus_power(c["out_bus"], "typ")
+            rec("Power table: DC-DC losses", f"{c['id']} {comp[c['component']]['mpn']} -> {ob['id']}",
+                f"typ {pt:.0f} W out -> {pt / c['eta']:.0f} W in (loss {pt / c['eta'] - pt:.1f} W); max sustained {po:.0f} W out -> loss {po / c['eta'] - po:.0f} W",
+                f"eta {c['eta']}", None, "")
+    for sc in d.get("scenarios", []):
+        p_pk = 0.0
+        p_bs = 0.0
+        notes = []
+        for lid, kind in sc["pack_loads"].items():
+            l = n.load[lid]
+            w = l[f"p_{kind}_w"] if isinstance(kind, str) else float(kind)
+            conv = conv_of.get(l["bus"])
+            p_pk += w / (conv["eta"] if conv else 1.0)
+        for lid, kind in sc.get("base_loads", {}).items():
+            l = n.load[lid]
+            p_bs += l[f"p_{kind}_w"] if isinstance(kind, str) else float(kind)
+        i_pk = p_pk / n.v_min
+        lim_p = min(bms["i_peak_a"], cell["c_pulse"] * n.ah) if sc.get("short") else min(bms["i_cont_a"], cell["c_cont"] * n.ah)
+        ok_p = i_pk <= lim_p
+        ok_b = True
+        bl = ""
+        if sc.get("base_loads"):
+            bb = d["base_battery"]
+            i_b = p_bs / bb["v_min"]
+            lim_b = bb["c_pulse"] * bb["ah"] if sc.get("short") else bb["c_cont"] * bb["ah"]
+            ok_b = i_b <= lim_b
+            bl = f"; base battery {p_bs:.0f} W = {i_b:.1f} A ({i_b / bb['ah']:.2f} C) vs {lim_b:.0f} A [A]"
+        rec("Power scenarios: do we have the watts?", f"{sc['id']} {sc['desc']}",
+            f"our pack {p_pk:.0f} W = {i_pk:.1f} A ({i_pk / n.ah:.2f} C) vs {lim_p:.0f} A" + bl,
+            "YES if within limits", (None if sc.get("info_only") else ok_p and ok_b),
+            ("(info) would be " + ("YES" if ok_p and ok_b else "NO") + " - " if sc.get("info_only") else "") + sc.get("requires", ""))
 
     # ================================================================ safety
     for sf in d["safety"]["functions"]:

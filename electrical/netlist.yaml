@@ -102,6 +102,7 @@ loads:
   - {id: KCOIL, desc: "K1 + K2 contactor coils (3RT2036 DC coil) + K3 precharge relay", bus: S24, p_typ_w: 27, p_cont_w: 27, p_peak_w: 30, peak_s: 1, assumed: true,
      note: "13 W per S2 DC coil assumed; electronic-coil variant would cut this to a few W"}
   - {id: DCDC_FAN, desc: "2x 60 mm 24 V fans over the lying DDR-480C pair (forced air restores the vertical-mount rating)", bus: S24, p_typ_w: 2.4, p_cont_w: 2.4, p_peak_w: 3, peak_s: 1, assumed: true}
+  - {id: ETH_SWITCH, desc: "Industrial Ethernet switch 5-8 port 24 V DIN (scanners, PNOZ ES ETH, Jetson, base)", bus: S24, p_typ_w: 3, p_cont_w: 4, p_peak_w: 5, peak_s: 1, assumed: true}
   - {id: BEACON, desc: "Status light / buzzer, dock IR/Wi-Fi handshake MCU", bus: S24, p_typ_w: 2, p_cont_w: 4, p_peak_w: 5, peak_s: 1, assumed: true}
   - {id: JETSON, desc: "Jetson AGX Orin 64 GB module + carrier (7-20 V input, 15-60 W modes)", bus: C12, p_typ_w: 35, p_cont_w: 75, p_peak_w: 100, peak_s: 3, source: jetson_agx_orin_ds,
      note: "60 W MAXN module + carrier/NVMe/Wi-Fi; carrier peak assumed"}

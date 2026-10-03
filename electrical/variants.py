@@ -76,3 +76,130 @@ n["safety"]["functions"] = [
 r = subprocess.run([sys.executable, str(HERE / "calc.py"), str(HERE / "netlist_mir250.yaml"), str(HERE / "CHECKS_MIR250.md")],
                    capture_output=True, text=True)
 print(r.stdout)
+
+
+# =====================================================================================================
+# RB-THERON (owner decision, latest): our 48 V pack kept, charged from the base VBATT; ONE Robotnik dock
+# =====================================================================================================
+def make_rbtheron():
+    n = copy.deepcopy(base)
+    n["meta"]["revision"] = "E3.0 (2026-10-03) RB-THERON, own 15s 30 Ah pack charged from base VBATT"
+    n["meta"]["variant"] = "Robotnik RB-THERON + own 48 V pack; the Robotnik dock charges both batteries"
+    n["power_table"] = True
+    n["sources"].update({
+        "rb_theron": "https://robotnik.eu/products/mobile-robots/rb-theron/",
+        "rb_theron_gr": "https://www.generationrobots.com/en/404262-rb-theron-autonomous-mobile-robot-2068.html",
+        "robotnik_charge": "https://github.com/RobotnikAutomation/robotnik_charge",
+        "robotnik_safety_module": "https://github.com/RobotnikAutomation/safety_module",
+        "bases_doc": "docs/BASES_SELF_CHARGING.md"})
+    # --- base battery island (replaces the Tracer): RB-THERON 48 V 15 Ah, feeds traction + its own electronics,
+    #     and tops up our pack through an isolated DC-DC charger from VBATT
+    n["tracer"] = {"label": "RB-THERON", "v_nom": 48.0, "ah": 15, "usable_dod": 0.85, "charger_component": "ORION_4848",
+                   "transfer": "base_to_pack", "source": "rb_theron"}
+    n["base_battery"] = {"v_min": 40.0, "ah": 15, "c_cont": 1.0, "c_pulse": 2.0,
+                         "note": "chemistry and C-rates NOT published: 1 C / 2 C assumed"}
+    n["buses"] = [b for b in n["buses"] if b["id"] != "T24"] + [
+        {"id": "T24", "desc": "RB-THERON internal 48 V battery (VBATT; chemistry/range UNVERIFIED)", "v_nom": 48.0, "v_min": 40.0, "v_max": 54.6}]
+    drop = {"TRACER_CHG_IN", "TRACER_DRIVE", "TRACER_ELEC"}
+    n["loads"] = [l for l in n["loads"] if l["id"] not in drop] + [
+        {"id": "BASE_TRACTION", "desc": "RB-THERON traction (2 drive motors), ~155 kg robot", "bus": "T24", "p_typ_w": 60, "p_cont_w": 150, "p_peak_w": 350,
+         "peak_s": 3, "assumed": True,
+         "note": "cruise 1.0 m/s: rolling 0.015*155*9.81*1.0 = 23 W + losses -> ~60 W; accel 0.5 m/s2 at 1.25 m/s: 97 W mech -> ~350 W elec peak; not published"},
+        {"id": "BASE_HOTEL", "desc": "RB-THERON own electronics: i7 PC, 2 safety LiDARs, safety PLC, 5G router, RGBD, IMU, drives idle", "bus": "T24",
+         "p_typ_w": 70, "p_cont_w": 90, "p_peak_w": 100, "peak_s": 1, "assumed": True,
+         "note": "i7 ~35 W, 2 safety LiDARs ~2x7 W, PLC ~5 W, router ~8 W, camera ~3 W, misc ~5 W; consistent with 'up to 8 h' from 0.72 kWh"},
+        {"id": "BASE_TO_PACK", "desc": "Isolated DC-DC charger input (Orion-Tr 48/48-6) drawn from VBATT", "bus": "T24", "p_typ_w": 0, "p_cont_w": 370, "p_peak_w": 370,
+         "peak_s": 3600, "assumed": True, "note": "6 A x 54 V / 0.88; energy transfer is handled by the autonomy model, not by p_typ"}]
+    for p in n["profiles"]:
+        for k in ("TRACER_DRIVE", "TRACER_CHG_IN"):
+            p["p_avg"].pop(k, None)
+    n["profiles"][0]["p_avg"]["BASE_TRACTION"] = 18     # P1: 30 % driving x 60 W
+    n["profiles"][1]["p_avg"]["BASE_TRACTION"] = 12     # P2: 20 %
+    n["profiles"][2]["p_avg"]["BASE_TRACTION"] = 0
+    for p in n["profiles"]:
+        p["p_avg"]["BASE_TO_PACK"] = 0
+    n["exclusive"] = []
+    # --- wiring: drop Tracer + own dock branches, add VBATT -> charger -> pack
+    n["branches"] = [b for b in n["branches"] if b["id"] not in ("W08", "W09", "W13")]
+    for b in n["branches"]:
+        if b["id"] == "W01":
+            b["current"]["branches"] = [x for x in b["current"]["branches"] if x != "W08"]
+    n["branches"] += [
+        {"id": "W17", "desc": "RB-THERON VBATT payload output -> F17 -> Orion-Tr 48/48-6 input", "bus": "T24",
+         "current": {"from": "fixed", "i_cont_a": 9.3, "i_peak_a": 9.3, "peak_s": 3600},
+         "csa_mm2": 4, "length_m": 1.0, "method": "B1", "ambient_c": 45, "grouped": 2, "fuse": "F17", "vdrop_limit_pct": 3, "isc_override_a": 5000,
+         "note": "VBATT prospective Isc unknown (base battery 48 V 15 Ah): 5 kA assumed; F17 at the VBATT connector"},
+        {"id": "W18", "desc": "Orion-Tr output -> F18 (at our pack) -> BMS charge input", "bus": "B48",
+         "current": {"from": "fixed", "i_cont_a": 6.0, "i_peak_a": 6.0, "peak_s": 3600},
+         "csa_mm2": 2.5, "length_m": 0.6, "method": "B1", "ambient_c": 45, "grouped": 2, "fuse": "F18", "vdrop_limit_pct": 3, "upstream_r_mohm": [0.3]}]
+    n["fuses"] = [f for f in n["fuses"] if f["id"] not in ("F5", "F7", "F9")] + [
+        {"id": "F17", "component": "FUSE_SPF015"}, {"id": "F18", "component": "FUSE_SPF012"}]
+    for c in n["components"]:
+        if c["id"] in ("CHG_TRACER", "CHG_DOCK", "DOCK_CONTACTS", "IDEAL_DIODE_CHG", "CAN_ISO", "TRACER", "FUSE_SPF030"):
+            c["qty"] = 0
+            c["note"] = "removed in the RB-THERON design (Robotnik dock charges everything; ROS 2 over Ethernet)"
+        if c["id"] == "FUSE_SPF015":
+            c["qty"] = 1
+        if c["id"] == "FUSE_SPF012":
+            c["qty"] = 3
+    n["components"] += [
+        {"id": "ORION_4848", "short": "Orion-Tr 48/48-6", "category": "charger", "qty": 1, "manufacturer": "Victron Energy",
+         "mpn": "Orion-Tr Smart 48/48-6 (isolated DC-DC charger, LFP profile 54.0 V, ~290 W)", "ratings": {"eta": 0.88, "i_out_a": 6, "v_out_v": 54.0},
+         "price_eur": 260, "assumed": True,
+         "note": "galvanic isolation between base battery and our pack; remote on/off from the Jetson (charge on dock + energy balancing)"},
+        {"id": "RB_THERON", "short": "", "category": "load", "qty": 1, "manufacturer": "Robotnik", "mpn": "RB-THERON (48 V 15 Ah, dock included, safety PLC + 2 safety LiDARs)",
+         "price_eur": 0, "source": "rb_theron_gr"}]
+    n.pop("charging", None)
+    n["oem_dock"] = {"p_w": 600, "hotel_w": 190, "target_h": 6, "target_20_80_min": 240,
+                     "note": "Robotnik charging station power NOT published: 48 V x ~12.5 A = 600 W assumed. Payload powered while docked: inferred from robotnik_charge (relay), UNVERIFIED"}
+    # --- per-joint motor models (OpenArm 2.0 motor table) and arm envelope
+    n["motors"] = [
+        {"model": "DM-J8009P-2EC", "joints": "J1-J2", "qty_per_arm": 2, "tau_rated": 20, "tau_peak": 40, "i_rated": 20, "i_peak": 50, "r_ph": 0.090,
+         "w_rated": 10.47, "eta_drv": 0.9, "source": "https://docs.openarm.dev/hardware/openarm-2.0/motor"},
+        {"model": "DM-J4340P-2EC", "joints": "J3-J4", "qty_per_arm": 2, "tau_rated": 9, "tau_peak": 27, "i_rated": 2.5, "i_peak": 8, "r_ph": 0.76,
+         "w_rated": 3.77, "eta_drv": 0.9, "source": "https://docs.openarm.dev/hardware/openarm-2.0/motor"},
+        {"model": "DM-J4310-2EC V1.1", "joints": "J5-J7 + gripper J8", "qty_per_arm": 4, "tau_rated": 3, "tau_peak": 7, "i_rated": 2.5, "i_peak": 7.5, "r_ph": 0.65,
+         "w_rated": 12.57, "eta_drv": 0.9, "source": "https://docs.openarm.dev/hardware/openarm-2.0/motor"}]
+    n["arm_envelope"] = {"cont_w": 360, "peak_w": 720}
+    # --- explicit power scenarios ("do we have the watts?")
+    hotel = {"SCAN_F": "cont", "SCAN_R": "cont", "PNOZ_L": "cont", "KCOIL": "cont", "BEACON": "cont", "JETSON": "cont", "GEMINI": "cont",
+             "FISHEYE": "cont", "LEDFACE": "cont", "EYES": "cont", "LEDSTRIP": "cont", "ETH_SWITCH": "cont"}
+    hotel_pk = {k: "peak" for k in hotel}
+    n["scenarios"] = [
+        {"id": "S1", "desc": "WORST CASE 5 s: both arms at 720 W + coffee heater 330 W + Jetson/sensors/UI at peak; base accelerating at full speed while charging our pack",
+         "short": True, "pack_loads": {**hotel_pk, "ARM_L": "peak", "ARM_R": "peak", "COFFEE": "peak", "COFFEE_IO": "peak"},
+         "base_loads": {"BASE_TRACTION": "peak", "BASE_HOTEL": "peak", "BASE_TO_PACK": "cont"},
+         "requires": "Damiao current limits (arm <= 720 W); DC-DC 150 % for 5 s; physically unlikely (coffee normally interlocked with arm motion)"},
+        {"id": "S2", "desc": "SUSTAINED: both arms at the 360 W envelope + coffee 300 W + everything else at max sustained; base at 150 W traction, pack charger PAUSED",
+         "short": False, "pack_loads": {**hotel, "ARM_L": "cont", "ARM_R": "cont", "COFFEE": "cont", "COFFEE_IO": "cont"},
+         "base_loads": {"BASE_TRACTION": "cont", "BASE_HOTEL": "cont"},
+         "requires": "INTERLOCK (power manager, non-safety): Orion charger off while base traction > 100 W"},
+        {"id": "S2x", "desc": "same as S2 WITHOUT the charger interlock (shows why it is required)", "info_only": True,
+         "short": False, "pack_loads": {**hotel, "ARM_L": "cont", "ARM_R": "cont", "COFFEE": "cont", "COFFEE_IO": "cont"},
+         "base_loads": {"BASE_TRACTION": "cont", "BASE_HOTEL": "cont", "BASE_TO_PACK": "cont"},
+         "requires": "base battery would exceed the assumed 1 C"},
+        {"id": "S3", "desc": "BARISTA TYPICAL: arms 2x30 W avg, coffee 120 W avg, Jetson 30 W, sensors/UI typical; base 20 % driving",
+         "short": False, "pack_loads": {**{k: "typ" for k in hotel}, "ARM_L": 30, "ARM_R": 30, "JETSON": 30, "COFFEE": 120, "COFFEE_IO": 2},
+         "base_loads": {"BASE_TRACTION": 12, "BASE_HOTEL": "typ"}, "requires": "none"},
+        {"id": "S4", "desc": "DOCKED: robot awake + base charging + our pack charging through the base (6 A)",
+         "short": False, "pack_loads": {**{k: "typ" for k in hotel}, "ARM_L": 10, "ARM_R": 10},
+         "base_loads": {"BASE_HOTEL": "typ", "BASE_TO_PACK": "cont"},
+         "requires": "the dock must supply >= base hotel + 370 W charger + base charge current; dock power UNVERIFIED (600 W assumed)"},
+    ]
+    # --- safety: keep PNOZ + our scanners; Robotnik interface unverified
+    n["safety"]["functions"][2] = {
+        "id": "SF3", "desc": "Giorgio E-stop / protective field -> RB-THERON drive stop", "plr": "d", "cat": 3,
+        "chain": [{"name": "nanoScan3", "pfhd": 8.0e-8, "source": "sick_nanoscan3"},
+                  {"name": "PNOZ m B0 + EF 4DI4DOR relay output", "pfhd": 1.3e-8, "assumed": True},
+                  {"name": "RB-THERON safety PLC external E-stop / safe-stop input for a third-party payload: NOT documented (safety_module exposes only E-stop status, laser modes, watchdog, speed word over Modbus)",
+                   "pfhd": None}]}
+    n["autonomy_note"] = "usable: our pack 1296 Wh + RB-THERON 612 Wh (0.85 x 720 Wh, assumed); base energy moved to our pack through the Orion (eta 0.88)"
+    return n
+
+
+rb = make_rbtheron()
+(HERE / "netlist_rbtheron.yaml").write_text(
+    "# GENERATED by variants.py from netlist.yaml - do not edit by hand\n" + yaml.safe_dump(rb, sort_keys=False, allow_unicode=True, width=160))
+r = subprocess.run([sys.executable, str(HERE / "calc.py"), str(HERE / "netlist_rbtheron.yaml"), str(HERE / "CHECKS_RBTHERON.md")],
+                   capture_output=True, text=True)
+print(r.stdout, r.stderr[-2000:])

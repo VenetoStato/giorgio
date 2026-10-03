@@ -176,6 +176,9 @@ with open(ROOT / "cad/out/bom_parts.csv") as f:
             else:
                 removed.append((name, f"not in the {NET_FILE} architecture (removed by the base decision)"))
             continue
+        if name.startswith("B00_"):
+            mapped.append((name, "A. Mobile base"))
+            continue
         if name in SUBSYS_MAP:
             mapped.append((name, SUBSYS_MAP[name]))
             continue

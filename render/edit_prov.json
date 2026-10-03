@@ -1,0 +1,2565 @@
+{
+ "fps": 30,
+ "size": [
+  1920,
+  1080
+ ],
+ "music": "music_prov.wav",
+ "xfade": 0.45,
+ "ui": {
+  "head": "GIORGIO // REV.11"
+ },
+ "segments": [
+  {
+   "type": "card",
+   "dur": 3.2,
+   "color": [
+    6,
+    6,
+    8
+   ],
+   "texts": [
+    {
+     "t0": 0.2,
+     "t1": 3.2,
+     "text": "GIORGIO // SERVICE ROBOT // REV.11",
+     "pos": "upper",
+     "size": 24,
+     "weight": "X",
+     "align": "center",
+     "color": [
+      150,
+      152,
+      158
+     ],
+     "shadow": false,
+     "band": false,
+     "track": 1
+    },
+    {
+     "t0": 0.6,
+     "t1": 3.2,
+     "text": "WE COULDN'T BUILD THE PARTS.",
+     "pos": "center",
+     "size": 96,
+     "weight": "H",
+     "align": "center",
+     "color": [
+      245,
+      245,
+      242
+     ],
+     "shadow": false,
+     "band": false,
+     "track": 3
+    }
+   ],
+   "xfade": 0.2
+  },
+  {
+   "type": "card",
+   "dur": 2.4,
+   "color": [
+    6,
+    6,
+    8
+   ],
+   "texts": [
+    {
+     "t0": 0.2,
+     "t1": 2.4,
+     "text": "SO WE BOUGHT THEM.",
+     "pos": "center",
+     "size": 96,
+     "weight": "H",
+     "align": "center",
+     "color": [
+      245,
+      245,
+      242
+     ],
+     "shadow": false,
+     "band": false,
+     "track": 3
+    }
+   ],
+   "xfade": 0.2
+  },
+  {
+   "type": "card",
+   "dur": 3.4,
+   "color": [
+    6,
+    6,
+    8
+   ],
+   "texts": [
+    {
+     "t0": 0.2,
+     "t1": 3.4,
+     "text": "AND HOPED THEY'D GET ALONG.",
+     "pos": "center",
+     "size": 96,
+     "weight": "H",
+     "align": "center",
+     "color": [
+      245,
+      245,
+      242
+     ],
+     "shadow": false,
+     "band": false,
+     "track": 3
+    },
+    {
+     "t0": 1.4,
+     "t1": 3.4,
+     "text": "(THEY MOSTLY DO.)",
+     "pos": "sub2",
+     "size": 26,
+     "weight": "X",
+     "align": "center",
+     "color": [
+      150,
+      152,
+      158
+     ],
+     "shadow": false,
+     "band": false,
+     "track": 1
+    }
+   ],
+   "xfade": 0.2
+  },
+  {
+   "type": "card",
+   "dur": 2.6,
+   "color": [
+    6,
+    6,
+    8
+   ],
+   "texts": [
+    {
+     "t0": 0.2,
+     "t1": 2.6,
+     "text": "ITALY DESERVES ITS OWN ROBOT.",
+     "pos": "center",
+     "size": 84,
+     "weight": "H",
+     "align": "center",
+     "color": [
+      245,
+      245,
+      242
+     ],
+     "shadow": false,
+     "band": false,
+     "track": 3
+    }
+   ],
+   "xfade": 0.2
+  },
+  {
+   "type": "card",
+   "dur": 2.2,
+   "color": [
+    6,
+    6,
+    8
+   ],
+   "texts": [
+    {
+     "t0": 0.2,
+     "t1": 2.2,
+     "text": "NOT A FERRARI.",
+     "pos": "center",
+     "size": 96,
+     "weight": "H",
+     "align": "center",
+     "color": [
+      245,
+      245,
+      242
+     ],
+     "shadow": false,
+     "band": false,
+     "track": 3
+    }
+   ],
+   "xfade": 0.2
+  },
+  {
+   "type": "card",
+   "dur": 3.6,
+   "color": [
+    6,
+    6,
+    8
+   ],
+   "texts": [
+    {
+     "t0": 0.2,
+     "t1": 3.6,
+     "text": "MORE LIKE A FIAT PANDA.",
+     "pos": "center",
+     "size": 96,
+     "weight": "H",
+     "align": "center",
+     "color": [
+      245,
+      245,
+      242
+     ],
+     "shadow": false,
+     "band": false,
+     "track": 3
+    },
+    {
+     "t0": 1.0,
+     "t1": 3.6,
+     "text": "CHEAP. OPEN. YOU CAN FIX IT YOURSELF.",
+     "pos": "sub2",
+     "size": 26,
+     "weight": "X",
+     "align": "center",
+     "color": [
+      150,
+      152,
+      158
+     ],
+     "shadow": false,
+     "band": false,
+     "track": 1
+    }
+   ],
+   "xfade": 0.2
+  },
+  {
+   "type": "frames",
+   "glob": "v11/h_hero/f_*.jpg",
+   "tag": "RENDER",
+   "texts": [
+    {
+     "t0": 0.5,
+     "t1": 5.8,
+     "text": "MOBILE BIMANUAL SERVICE ROBOT",
+     "pos": "kick",
+     "size": 24,
+     "weight": "X",
+     "align": "left",
+     "color": [
+      255,
+      122,
+      26
+     ],
+     "shadow": false,
+     "band": false,
+     "above": 120,
+     "track": 2
+    },
+    {
+     "t0": 0.5,
+     "t1": 5.8,
+     "text": "GIORGIO.",
+     "pos": "ll",
+     "size": 110,
+     "weight": "H",
+     "align": "left"
+    },
+    {
+     "t0": 1.6,
+     "t1": 5.8,
+     "text": "Made entirely of other people's good ideas.",
+     "pos": "llsub",
+     "size": 34,
+     "weight": "N",
+     "align": "center",
+     "band": false
+    }
+   ]
+  },
+  {
+   "type": "frames",
+   "glob": "v10/h_face/f_*.jpg",
+   "tag": "RENDER",
+   "texts": [
+    {
+     "t0": 0.3,
+     "t1": 5.8,
+     "text": "FACE",
+     "pos": "kick",
+     "size": 24,
+     "weight": "X",
+     "align": "left",
+     "color": [
+      255,
+      122,
+      26
+     ],
+     "shadow": false,
+     "band": false,
+     "above": 120,
+     "track": 2
+    },
+    {
+     "t0": 0.3,
+     "t1": 5.8,
+     "text": "32×16 RGB LED MATRIX",
+     "pos": "ll",
+     "size": 64,
+     "weight": "H",
+     "align": "left"
+    },
+    {
+     "t0": 1.2,
+     "t1": 5.8,
+     "text": "Expressions, attention, status. The moustache is non-negotiable.",
+     "pos": "llsub",
+     "size": 32,
+     "weight": "N",
+     "align": "center",
+     "band": false
+    }
+   ]
+  },
+  {
+   "type": "frames",
+   "glob": "v10/h_expl/f_*.jpg",
+   "tag": "RENDER // EXPLODED",
+   "texts": [
+    {
+     "t0": 0.3,
+     "t1": 7.5,
+     "text": "BILL OF MATERIALS",
+     "pos": "kick",
+     "size": 24,
+     "weight": "X",
+     "align": "left",
+     "color": [
+      255,
+      122,
+      26
+     ],
+     "shadow": false,
+     "band": false,
+     "above": 120,
+     "track": 2
+    },
+    {
+     "t0": 0.3,
+     "t1": 7.5,
+     "text": "0% INVENTED HERE.",
+     "pos": "ll",
+     "size": 72,
+     "weight": "H",
+     "align": "left"
+    }
+   ],
+   "labels": "lab_expl10.json",
+   "label_style": "colonne",
+   "lab_t0": 3.0,
+   "names": {
+    "testa": [
+     "HEAD",
+     "32×16 LED face · Insta360 X4 360° cam"
+    ],
+    "braccio_sx": [
+     "ARMS",
+     "Enactic OpenArm 2.0 · open hardware"
+    ],
+    "braccio_dx": [
+     "HANDS",
+     "OpenArm gripper · ORCA · AmazingHand"
+    ],
+    "busto": [
+     "TORSO",
+     "Orbbec Gemini 336L stereo depth"
+    ],
+    "vassoio": [
+     "KITTING TRAY",
+     "swappable chest module"
+    ],
+    "caffe": [
+     "COFFEE MODULE",
+     "any capsule machine"
+    ],
+    "scanner": [
+     "SAFETY",
+     "2× SICK nanoScan3 · Pilz PNOZmulti"
+    ],
+    "base": [
+     "BASE",
+     "AgileX Tracer 2.0 · commercial AMR"
+    ]
+   }
+  },
+  {
+   "type": "card",
+   "dur": 2.8,
+   "color": [
+    6,
+    6,
+    8
+   ],
+   "texts": [
+    {
+     "t0": 0.2,
+     "t1": 2.8,
+     "text": "ONE CHASSIS.\nFOUR PERSONALITIES.",
+     "pos": "center",
+     "size": 84,
+     "weight": "H",
+     "align": "center",
+     "color": [
+      245,
+      245,
+      242
+     ],
+     "shadow": false,
+     "band": false,
+     "track": 3
+    },
+    {
+     "t0": 0.9,
+     "t1": 2.8,
+     "text": "SAME BASE · SAME TORSO · SWAP HANDS AND BACKPACK",
+     "pos": "sub2",
+     "size": 26,
+     "weight": "X",
+     "align": "center",
+     "color": [
+      150,
+      152,
+      158
+     ],
+     "shadow": false,
+     "band": false,
+     "track": 1
+    }
+   ],
+   "xfade": 0.2
+  },
+  {
+   "type": "card",
+   "dur": 2.6,
+   "bg": "stills_v11/cfg1_barista.png",
+   "dim": 0.0,
+   "zoom": 0.03,
+   "xfade": 0.3,
+   "texts": [
+    {
+     "t0": 0.15,
+     "t1": 2.6,
+     "text": "CONFIGURATION",
+     "pos": [
+      1080,
+      690
+     ],
+     "size": 24,
+     "weight": "X",
+     "align": "left",
+     "color": [
+      255,
+      122,
+      26
+     ],
+     "shadow": false,
+     "band": false,
+     "track": 2
+    },
+    {
+     "t0": 0.15,
+     "t1": 2.6,
+     "text": "BARISTA",
+     "pos": [
+      1080,
+      730
+     ],
+     "size": 96,
+     "weight": "H",
+     "align": "left",
+     "color": [
+      245,
+      245,
+      242
+     ],
+     "band": false,
+     "shadow": false,
+     "track": 3
+    },
+    {
+     "t0": 0.4,
+     "t1": 2.6,
+     "text": "Grippers + coffee module",
+     "pos": [
+      1084,
+      850
+     ],
+     "size": 34,
+     "weight": "N",
+     "align": "left",
+     "color": [
+      150,
+      152,
+      158
+     ],
+     "band": false,
+     "shadow": false
+    }
+   ]
+  },
+  {
+   "type": "card",
+   "dur": 2.6,
+   "bg": "stills_v11/cfg2_logistica.png",
+   "dim": 0.0,
+   "zoom": 0.03,
+   "xfade": 0.3,
+   "texts": [
+    {
+     "t0": 0.15,
+     "t1": 2.6,
+     "text": "CONFIGURATION",
+     "pos": [
+      1080,
+      690
+     ],
+     "size": 24,
+     "weight": "X",
+     "align": "left",
+     "color": [
+      255,
+      122,
+      26
+     ],
+     "shadow": false,
+     "band": false,
+     "track": 2
+    },
+    {
+     "t0": 0.15,
+     "t1": 2.6,
+     "text": "LOGISTICS",
+     "pos": [
+      1080,
+      730
+     ],
+     "size": 96,
+     "weight": "H",
+     "align": "left",
+     "color": [
+      245,
+      245,
+      242
+     ],
+     "band": false,
+     "shadow": false,
+     "track": 3
+    },
+    {
+     "t0": 0.4,
+     "t1": 2.6,
+     "text": "Grippers + kitting tray",
+     "pos": [
+      1084,
+      850
+     ],
+     "size": 34,
+     "weight": "N",
+     "align": "left",
+     "color": [
+      150,
+      152,
+      158
+     ],
+     "band": false,
+     "shadow": false
+    }
+   ]
+  },
+  {
+   "type": "card",
+   "dur": 2.6,
+   "bg": "stills_v11/cfg3_mani_orca.png",
+   "dim": 0.0,
+   "zoom": 0.03,
+   "xfade": 0.3,
+   "texts": [
+    {
+     "t0": 0.15,
+     "t1": 2.6,
+     "text": "CONFIGURATION",
+     "pos": [
+      1080,
+      690
+     ],
+     "size": 24,
+     "weight": "X",
+     "align": "left",
+     "color": [
+      255,
+      122,
+      26
+     ],
+     "shadow": false,
+     "band": false,
+     "track": 2
+    },
+    {
+     "t0": 0.15,
+     "t1": 2.6,
+     "text": "DEXTEROUS",
+     "pos": [
+      1080,
+      730
+     ],
+     "size": 96,
+     "weight": "H",
+     "align": "left",
+     "color": [
+      245,
+      245,
+      242
+     ],
+     "band": false,
+     "shadow": false,
+     "track": 3
+    },
+    {
+     "t0": 0.4,
+     "t1": 2.6,
+     "text": "2× ORCA Hand · open, tendon-driven",
+     "pos": [
+      1084,
+      850
+     ],
+     "size": 34,
+     "weight": "N",
+     "align": "left",
+     "color": [
+      150,
+      152,
+      158
+     ],
+     "band": false,
+     "shadow": false
+    }
+   ]
+  },
+  {
+   "type": "card",
+   "dur": 2.6,
+   "bg": "stills_v11/cfg4_lowcost.png",
+   "dim": 0.0,
+   "zoom": 0.03,
+   "xfade": 0.3,
+   "texts": [
+    {
+     "t0": 0.15,
+     "t1": 2.6,
+     "text": "CONFIGURATION",
+     "pos": [
+      1080,
+      690
+     ],
+     "size": 24,
+     "weight": "X",
+     "align": "left",
+     "color": [
+      255,
+      122,
+      26
+     ],
+     "shadow": false,
+     "band": false,
+     "track": 2
+    },
+    {
+     "t0": 0.15,
+     "t1": 2.6,
+     "text": "BUDGET",
+     "pos": [
+      1080,
+      730
+     ],
+     "size": 96,
+     "weight": "H",
+     "align": "left",
+     "color": [
+      245,
+      245,
+      242
+     ],
+     "band": false,
+     "shadow": false,
+     "track": 3
+    },
+    {
+     "t0": 0.4,
+     "t1": 2.6,
+     "text": "2× AmazingHand · open, low-cost",
+     "pos": [
+      1084,
+      850
+     ],
+     "size": 34,
+     "weight": "N",
+     "align": "left",
+     "color": [
+      150,
+      152,
+      158
+     ],
+     "band": false,
+     "shadow": false
+    }
+   ]
+  },
+  {
+   "type": "card",
+   "dur": 2.6,
+   "color": [
+    6,
+    6,
+    8
+   ],
+   "texts": [
+    {
+     "t0": 0.2,
+     "t1": 2.6,
+     "text": "POWER.",
+     "pos": "center",
+     "size": 96,
+     "weight": "H",
+     "align": "center",
+     "color": [
+      245,
+      245,
+      242
+     ],
+     "shadow": false,
+     "band": false,
+     "track": 3
+    },
+    {
+     "t0": 0.8,
+     "t1": 2.6,
+     "text": "48 V · ONE BATTERY · ONE PLUG",
+     "pos": "sub2",
+     "size": 26,
+     "weight": "X",
+     "align": "center",
+     "color": [
+      150,
+      152,
+      158
+     ],
+     "shadow": false,
+     "band": false,
+     "track": 1
+    }
+   ],
+   "xfade": 0.2
+  },
+  {
+   "type": "frames",
+   "glob": "v11/d_energia/f_*.jpg",
+   "ui": false
+  },
+  {
+   "type": "card",
+   "dur": 5.5,
+   "bg": "stills_v11/schema_elettrico.png",
+   "dim": 0.0,
+   "zoom": 0.1,
+   "texts": [
+    {
+     "t0": 0.3,
+     "t1": 5.5,
+     "text": "ELECTRICAL",
+     "pos": "kick",
+     "size": 24,
+     "weight": "X",
+     "align": "left",
+     "color": [
+      255,
+      122,
+      26
+     ],
+     "shadow": false,
+     "band": false,
+     "above": 120,
+     "track": 2
+    },
+    {
+     "t0": 0.3,
+     "t1": 5.5,
+     "text": "EVERY WIRE, FUSE AND\nCONTACTOR: SIZED AND CHECKED.",
+     "pos": "ll",
+     "size": 56,
+     "weight": "H",
+     "align": "left"
+    }
+   ]
+  },
+  {
+   "type": "frames",
+   "glob": "v10/b_xray/f_*.jpg",
+   "tag": "RENDER // X-RAY",
+   "texts": [
+    {
+     "t0": 0.3,
+     "t1": 5.8,
+     "text": "INSIDE THE BASE",
+     "pos": "kick",
+     "size": 24,
+     "weight": "X",
+     "align": "left",
+     "color": [
+      255,
+      122,
+      26
+     ],
+     "shadow": false,
+     "band": false,
+     "above": 120,
+     "track": 2
+    },
+    {
+     "t0": 0.3,
+     "t1": 5.8,
+     "text": "BATTERY · DC-DC · SAFETY",
+     "pos": "ll",
+     "size": 60,
+     "weight": "H",
+     "align": "left"
+    }
+   ],
+   "labels": "lab_base.json",
+   "label_style": "colonne",
+   "lab_t0": 1.0,
+   "names": {
+    "pw_battery": [
+     "48 V LiFePO4",
+     "1.44 kWh · BMS"
+    ],
+    "pw_dcdc0": [
+     "DC-DC",
+     "48 V in · 24 / 19 / 5 V out"
+    ],
+    "pw_contactor": [
+     "SAFETY CONTACTORS",
+     "cut arm power on stop"
+    ],
+    "pw_pnoz": [
+     "SAFETY RELAY",
+     "Pilz PNOZmulti"
+    ],
+    "pw_charger": [
+     "24 V CHARGER",
+     "keeps the base battery topped up"
+    ],
+    "pw_jetson": [
+     "COMPUTE",
+     "NVIDIA Jetson AGX Orin"
+    ],
+    "charge_pad1": [
+     "DOCK CONTACTS",
+     "copper, spring-loaded"
+    ],
+    "pw_tracer": [
+     "AGILEX TRACER 2.0",
+     "commercial AMR"
+    ]
+   }
+  },
+  {
+   "type": "frames",
+   "glob": "v10/r_wide/f_*.jpg",
+   "tag": "SIM // 2×",
+   "texts": [
+    {
+     "t0": 0.4,
+     "t1": 6.5,
+     "text": "AUTO-DOCKING",
+     "pos": "kick",
+     "size": 24,
+     "weight": "X",
+     "align": "left",
+     "color": [
+      255,
+      122,
+      26
+     ],
+     "shadow": false,
+     "band": false,
+     "above": 120,
+     "track": 2
+    },
+    {
+     "t0": 0.4,
+     "t1": 6.5,
+     "text": "LOW BATTERY? IT GOES HOME.",
+     "pos": "ll",
+     "size": 60,
+     "weight": "H",
+     "align": "left"
+    }
+   ],
+   "battery": {
+    "json": "ricarica_energia_v11.json",
+    "src_step": 2,
+    "travel_text": "LOW · RETURNING TO DOCK",
+    "charging_text": "DOCKED · CHARGING 48 V"
+   }
+  },
+  {
+   "type": "frames",
+   "glob": "v10/r_close/f_*.jpg",
+   "tag": "SIM",
+   "texts": [
+    {
+     "t0": 0.3,
+     "t1": 7.8,
+     "text": "DOCK",
+     "pos": "kick",
+     "size": 24,
+     "weight": "X",
+     "align": "left",
+     "color": [
+      255,
+      122,
+      26
+     ],
+     "shadow": false,
+     "band": false,
+     "above": 120,
+     "track": 2
+    },
+    {
+     "t0": 0.3,
+     "t1": 4.0,
+     "text": "CLOSED-LOOP DOCKING.",
+     "pos": "ll",
+     "size": 60,
+     "weight": "H",
+     "align": "left"
+    },
+    {
+     "t0": 4.1,
+     "t1": 7.8,
+     "text": "THE CONTACTS STAY DEAD\nUNTIL IT'S DOCKED.",
+     "pos": "ll",
+     "size": 60,
+     "weight": "H",
+     "align": "left"
+    }
+   ],
+   "battery": {
+    "json": "ricarica_energia_v11.json",
+    "src0": 600,
+    "src_step": 1,
+    "travel_text": "LOW · RETURNING TO DOCK",
+    "charging_text": "DOCKED · CHARGING 48 V"
+   }
+  },
+  {
+   "type": "card",
+   "dur": 3.0,
+   "color": [
+    6,
+    6,
+    8
+   ],
+   "texts": [
+    {
+     "t0": 0.2,
+     "t1": 3.0,
+     "text": "SAFETY LIVES IN HARDWARE.",
+     "pos": "center",
+     "size": 80,
+     "weight": "H",
+     "align": "center",
+     "color": [
+      245,
+      245,
+      242
+     ],
+     "shadow": false,
+     "band": false,
+     "track": 3
+    },
+    {
+     "t0": 0.9,
+     "t1": 3.0,
+     "text": "NOT IN THE AI. THE AI IS NOT ALLOWED NEAR IT.",
+     "pos": "sub2",
+     "size": 26,
+     "weight": "X",
+     "align": "center",
+     "color": [
+      150,
+      152,
+      158
+     ],
+     "shadow": false,
+     "band": false,
+     "track": 1
+    }
+   ],
+   "xfade": 0.2
+  },
+  {
+   "type": "card",
+   "dur": 2.6,
+   "color": [
+    6,
+    6,
+    8
+   ],
+   "texts": [
+    {
+     "t0": 0.2,
+     "t1": 2.6,
+     "text": "MECHANICAL.",
+     "pos": "center",
+     "size": 96,
+     "weight": "H",
+     "align": "center",
+     "color": [
+      245,
+      245,
+      242
+     ],
+     "shadow": false,
+     "band": false,
+     "track": 3
+    },
+    {
+     "t0": 0.8,
+     "t1": 2.6,
+     "text": "~100 PARTS · 128 BOLTED JOINTS · EVERY ONE CHECKED",
+     "pos": "sub2",
+     "size": 26,
+     "weight": "X",
+     "align": "center",
+     "color": [
+      150,
+      152,
+      158
+     ],
+     "shadow": false,
+     "band": false,
+     "track": 1
+    }
+   ],
+   "xfade": 0.2
+  },
+  {
+   "type": "frames",
+   "glob": "v11/k_cad2/f_*.jpg",
+   "tag": "CAD // CADQUERY",
+   "texts": [
+    {
+     "t0": 0.4,
+     "t1": 5.6,
+     "text": "ASSEMBLY",
+     "pos": "kick",
+     "size": 24,
+     "weight": "X",
+     "align": "left",
+     "color": [
+      255,
+      122,
+      26
+     ],
+     "shadow": false,
+     "band": false,
+     "above": 120,
+     "track": 2
+    },
+    {
+     "t0": 0.4,
+     "t1": 5.6,
+     "text": "REAL PARTS. REAL BOLTS.",
+     "pos": "ll",
+     "size": 60,
+     "weight": "H",
+     "align": "left"
+    },
+    {
+     "t0": 1.2,
+     "t1": 5.6,
+     "text": "Off-the-shelf where possible, laser-cut and printed where not.",
+     "pos": "llsub",
+     "size": 32,
+     "weight": "N",
+     "align": "center",
+     "band": false
+    }
+   ]
+  },
+  {
+   "type": "card",
+   "dur": 7.5,
+   "color": [
+    6,
+    6,
+    8
+   ],
+   "texts": [
+    {
+     "t0": 0.2,
+     "t1": 7.5,
+     "text": "VALIDATION REPORT",
+     "pos": [
+      160,
+      150
+     ],
+     "size": 26,
+     "weight": "X",
+     "align": "left",
+     "color": [
+      255,
+      122,
+      26
+     ],
+     "shadow": false,
+     "band": false,
+     "track": 2
+    },
+    {
+     "t0": 0.5,
+     "t1": 7.5,
+     "text": "INTERFERENCE · EXACT B-REP · 3 POSES ........",
+     "pos": [
+      160,
+      230
+     ],
+     "size": 34,
+     "weight": "X",
+     "align": "left",
+     "color": [
+      200,
+      202,
+      206
+     ],
+     "shadow": false,
+     "band": false
+    },
+    {
+     "t0": 0.7,
+     "t1": 7.5,
+     "text": "0 OVERLAPS",
+     "pos": [
+      1240,
+      230
+     ],
+     "size": 34,
+     "weight": "X",
+     "align": "left",
+     "color": [
+      245,
+      245,
+      242
+     ],
+     "shadow": false,
+     "band": false
+    },
+    {
+     "t0": 0.95,
+     "t1": 7.5,
+     "text": "BOLT AXES, MATING PARTS .....................",
+     "pos": [
+      160,
+      302
+     ],
+     "size": 34,
+     "weight": "X",
+     "align": "left",
+     "color": [
+      200,
+      202,
+      206
+     ],
+     "shadow": false,
+     "band": false
+    },
+    {
+     "t0": 1.15,
+     "t1": 7.5,
+     "text": "0.000 mm OFFSET",
+     "pos": [
+      1240,
+      302
+     ],
+     "size": 34,
+     "weight": "X",
+     "align": "left",
+     "color": [
+      245,
+      245,
+      242
+     ],
+     "shadow": false,
+     "band": false
+    },
+    {
+     "t0": 1.4,
+     "t1": 7.5,
+     "text": "HOLES · ISO 273 / TAP DRILLS / INSERTS ......",
+     "pos": [
+      160,
+      374
+     ],
+     "size": 34,
+     "weight": "X",
+     "align": "left",
+     "color": [
+      200,
+      202,
+      206
+     ],
+     "shadow": false,
+     "band": false
+    },
+    {
+     "t0": 1.5999999999999999,
+     "t1": 7.5,
+     "text": "OK",
+     "pos": [
+      1240,
+      374
+     ],
+     "size": 34,
+     "weight": "X",
+     "align": "left",
+     "color": [
+      245,
+      245,
+      242
+     ],
+     "shadow": false,
+     "band": false
+    },
+    {
+     "t0": 1.85,
+     "t1": 7.5,
+     "text": "ARM SWEEP vs STRUCTURE · 793 POSES ..........",
+     "pos": [
+      160,
+      446
+     ],
+     "size": 34,
+     "weight": "X",
+     "align": "left",
+     "color": [
+      200,
+      202,
+      206
+     ],
+     "shadow": false,
+     "band": false
+    },
+    {
+     "t0": 2.0500000000000003,
+     "t1": 7.5,
+     "text": "2.4 mm MIN",
+     "pos": [
+      1240,
+      446
+     ],
+     "size": 34,
+     "weight": "X",
+     "align": "left",
+     "color": [
+      245,
+      245,
+      242
+     ],
+     "shadow": false,
+     "band": false
+    },
+    {
+     "t0": 2.3,
+     "t1": 7.5,
+     "text": "PAYLOAD vs BASE LIMIT (AGILEX MANUAL) .......",
+     "pos": [
+      160,
+      518
+     ],
+     "size": 34,
+     "weight": "X",
+     "align": "left",
+     "color": [
+      200,
+      202,
+      206
+     ],
+     "shadow": false,
+     "band": false
+    },
+    {
+     "t0": 2.5,
+     "t1": 7.5,
+     "text": "88.8 / 100 kg",
+     "pos": [
+      1240,
+      518
+     ],
+     "size": 34,
+     "weight": "X",
+     "align": "left",
+     "color": [
+      245,
+      245,
+      242
+     ],
+     "shadow": false,
+     "band": false
+    },
+    {
+     "t0": 2.75,
+     "t1": 7.5,
+     "text": "CENTRE OF MASS vs BASE CENTRE ...............",
+     "pos": [
+      160,
+      590
+     ],
+     "size": 34,
+     "weight": "X",
+     "align": "left",
+     "color": [
+      200,
+      202,
+      206
+     ],
+     "shadow": false,
+     "band": false
+    },
+    {
+     "t0": 2.95,
+     "t1": 7.5,
+     "text": "4.5 mm",
+     "pos": [
+      1240,
+      590
+     ],
+     "size": 34,
+     "weight": "X",
+     "align": "left",
+     "color": [
+      245,
+      245,
+      242
+     ],
+     "shadow": false,
+     "band": false
+    },
+    {
+     "t0": 3.2,
+     "t1": 7.5,
+     "text": "TIPPING · NOMINAL ...........................",
+     "pos": [
+      160,
+      662
+     ],
+     "size": 34,
+     "weight": "X",
+     "align": "left",
+     "color": [
+      200,
+      202,
+      206
+     ],
+     "shadow": false,
+     "band": false
+    },
+    {
+     "t0": 3.4000000000000004,
+     "t1": 7.5,
+     "text": "6.6 m/s²",
+     "pos": [
+      1240,
+      662
+     ],
+     "size": 34,
+     "weight": "X",
+     "align": "left",
+     "color": [
+      245,
+      245,
+      242
+     ],
+     "shadow": false,
+     "band": false
+    },
+    {
+     "t0": 3.65,
+     "t1": 7.5,
+     "text": "MASS · ALL-IN ...............................",
+     "pos": [
+      160,
+      734
+     ],
+     "size": 34,
+     "weight": "X",
+     "align": "left",
+     "color": [
+      200,
+      202,
+      206
+     ],
+     "shadow": false,
+     "band": false
+    },
+    {
+     "t0": 3.85,
+     "t1": 7.5,
+     "text": "135.7 kg",
+     "pos": [
+      1240,
+      734
+     ],
+     "size": 34,
+     "weight": "X",
+     "align": "left",
+     "color": [
+      245,
+      245,
+      242
+     ],
+     "shadow": false,
+     "band": false
+    },
+    {
+     "t0": 4.1,
+     "t1": 7.5,
+     "text": "OPEN ISSUES .................................",
+     "pos": [
+      160,
+      806
+     ],
+     "size": 34,
+     "weight": "X",
+     "align": "left",
+     "color": [
+      200,
+      202,
+      206
+     ],
+     "shadow": false,
+     "band": false
+    },
+    {
+     "t0": 4.3,
+     "t1": 7.5,
+     "text": "LISTED. HONESTLY.",
+     "pos": [
+      1240,
+      806
+     ],
+     "size": 34,
+     "weight": "X",
+     "align": "left",
+     "color": [
+      255,
+      122,
+      26
+     ],
+     "shadow": false,
+     "band": false
+    }
+   ],
+   "xfade": 0.2
+  },
+  {
+   "type": "card",
+   "dur": 2.4,
+   "color": [
+    6,
+    6,
+    8
+   ],
+   "texts": [
+    {
+     "t0": 0.2,
+     "t1": 2.4,
+     "text": "WHAT IT DOES.",
+     "pos": "center",
+     "size": 96,
+     "weight": "H",
+     "align": "center",
+     "color": [
+      245,
+      245,
+      242
+     ],
+     "shadow": false,
+     "band": false,
+     "track": 3
+    }
+   ],
+   "xfade": 0.2
+  },
+  {
+   "type": "frames",
+   "glob": "v10/l_carico/f_*.jpg",
+   "tag": "SIM // 4×",
+   "texts": [
+    {
+     "t0": 0.4,
+     "t1": 4.8,
+     "text": "LOGISTICS",
+     "pos": "kick",
+     "size": 24,
+     "weight": "X",
+     "align": "left",
+     "color": [
+      255,
+      122,
+      26
+     ],
+     "shadow": false,
+     "band": false,
+     "above": 120,
+     "track": 2
+    },
+    {
+     "t0": 0.4,
+     "t1": 4.8,
+     "text": "LOADS ITSELF.",
+     "pos": "ll",
+     "size": 64,
+     "weight": "H",
+     "align": "left"
+    },
+    {
+     "t0": 1.0,
+     "t1": 4.8,
+     "text": "3D vision finds the parts. The arms plan around everything else.",
+     "pos": "llsub",
+     "size": 32,
+     "weight": "N",
+     "align": "center",
+     "band": false
+    }
+   ]
+  },
+  {
+   "type": "frames",
+   "glob": "v10/l_cross/f_*.jpg",
+   "tag": "SIM",
+   "texts": [
+    {
+     "t0": 0.3,
+     "t1": 6.5,
+     "text": "SPEED & SEPARATION MONITORING",
+     "pos": "kick",
+     "size": 24,
+     "weight": "X",
+     "align": "left",
+     "color": [
+      255,
+      122,
+      26
+     ],
+     "shadow": false,
+     "band": false,
+     "above": 120,
+     "track": 2
+    },
+    {
+     "t0": 0.3,
+     "t1": 6.5,
+     "text": "SLOWS DOWN WHEN YOU'RE NEAR.\nSTOPS WHEN YOU'RE TOO NEAR.",
+     "pos": "ll",
+     "size": 54,
+     "weight": "H",
+     "align": "left"
+    }
+   ]
+  },
+  {
+   "type": "frames",
+   "glob": "v10/l_drive/f_*.jpg",
+   "tag": "SIM // 2×",
+   "texts": [
+    {
+     "t0": 0.3,
+     "t1": 5.0,
+     "text": "NAVIGATION",
+     "pos": "kick",
+     "size": 24,
+     "weight": "X",
+     "align": "left",
+     "color": [
+      255,
+      122,
+      26
+     ],
+     "shadow": false,
+     "band": false,
+     "above": 120,
+     "track": 2
+    },
+    {
+     "t0": 0.3,
+     "t1": 5.0,
+     "text": "A TO B. NO DRAMA.",
+     "pos": "ll",
+     "size": 64,
+     "weight": "H",
+     "align": "left"
+    }
+   ]
+  },
+  {
+   "type": "frames",
+   "glob": "v10/l_ins/f_*.jpg",
+   "tag": "SIM // 0.5×",
+   "texts": [
+    {
+     "t0": 0.3,
+     "t1": 5.6,
+     "text": "PRECISION",
+     "pos": "kick",
+     "size": 24,
+     "weight": "X",
+     "align": "left",
+     "color": [
+      255,
+      122,
+      26
+     ],
+     "shadow": false,
+     "band": false,
+     "above": 120,
+     "track": 2
+    },
+    {
+     "t0": 0.3,
+     "t1": 5.6,
+     "text": "VISION-GUIDED INSERTION.",
+     "pos": "ll",
+     "size": 60,
+     "weight": "H",
+     "align": "left"
+    },
+    {
+     "t0": 1.0,
+     "t1": 5.6,
+     "text": "Millimetre clearances. No jigs.",
+     "pos": "llsub",
+     "size": 32,
+     "weight": "N",
+     "align": "center",
+     "band": false
+    }
+   ],
+   "slow": 2
+  },
+  {
+   "type": "frames",
+   "glob": "v10/l_oper/f_*.jpg",
+   "tag": "SIM // 6×",
+   "texts": [
+    {
+     "t0": 0.4,
+     "t1": 7.5,
+     "text": "COLLABORATION",
+     "pos": "kick",
+     "size": 24,
+     "weight": "X",
+     "align": "left",
+     "color": [
+      255,
+      122,
+      26
+     ],
+     "shadow": false,
+     "band": false,
+     "above": 120,
+     "track": 2
+    },
+    {
+     "t0": 0.4,
+     "t1": 7.5,
+     "text": "WORKS NEXT TO PEOPLE.\nNOT INSTEAD OF THEM.",
+     "pos": "ll",
+     "size": 58,
+     "weight": "H",
+     "align": "left"
+    }
+   ]
+  },
+  {
+   "type": "frames",
+   "glob": "v10/s_smista/f_*.jpg",
+   "tag": "SIM // 4×",
+   "texts": [
+    {
+     "t0": 0.4,
+     "t1": 7.5,
+     "text": "SORTING",
+     "pos": "kick",
+     "size": 24,
+     "weight": "X",
+     "align": "left",
+     "color": [
+      255,
+      122,
+      26
+     ],
+     "shadow": false,
+     "band": false,
+     "above": 120,
+     "track": 2
+    },
+    {
+     "t0": 0.4,
+     "t1": 7.5,
+     "text": "SORTS BY COLOUR.",
+     "pos": "ll",
+     "size": 64,
+     "weight": "H",
+     "align": "left"
+    },
+    {
+     "t0": 1.0,
+     "t1": 7.5,
+     "text": "Without knocking over what it already sorted. (That took a while.)",
+     "pos": "llsub",
+     "size": 32,
+     "weight": "N",
+     "align": "center",
+     "band": false
+    }
+   ]
+  },
+  {
+   "type": "card",
+   "dur": 4.6,
+   "bg": "stills_v11/os_console.png",
+   "dim": 0.0,
+   "zoom": 0.04,
+   "texts": [
+    {
+     "t0": 0.3,
+     "t1": 4.6,
+     "text": "GIORGIO-OS",
+     "pos": [
+      122,
+      975
+     ],
+     "size": 40,
+     "weight": "H",
+     "align": "left",
+     "color": [
+      245,
+      245,
+      242
+     ],
+     "shadow": false,
+     "band": false,
+     "track": 3
+    },
+    {
+     "t0": 0.6,
+     "t1": 4.6,
+     "text": "ONE CONSOLE. TALK TO IT, OR CLICK.",
+     "pos": [
+      470,
+      985
+     ],
+     "size": 26,
+     "weight": "X",
+     "align": "left",
+     "color": [
+      150,
+      152,
+      158
+     ],
+     "shadow": false,
+     "band": false
+    }
+   ]
+  },
+  {
+   "type": "card",
+   "dur": 4.2,
+   "bg": "stills_v11/os_safety.png",
+   "dim": 0.0,
+   "zoom": 0.04,
+   "texts": [
+    {
+     "t0": 0.3,
+     "t1": 4.2,
+     "text": "THE BIG RED BUTTON IS SOFTWARE. THE REAL ONE IS ON THE ROBOT.",
+     "pos": [
+      122,
+      985
+     ],
+     "size": 26,
+     "weight": "X",
+     "align": "left",
+     "color": [
+      150,
+      152,
+      158
+     ],
+     "shadow": false,
+     "band": false
+    }
+   ]
+  },
+  {
+   "type": "card",
+   "dur": 2.8,
+   "color": [
+    6,
+    6,
+    8
+   ],
+   "texts": [
+    {
+     "t0": 0.2,
+     "t1": 2.8,
+     "text": "DEXTERITY IS TRAINED,\nNOT HAND-CODED.",
+     "pos": "center",
+     "size": 80,
+     "weight": "H",
+     "align": "center",
+     "color": [
+      245,
+      245,
+      242
+     ],
+     "shadow": false,
+     "band": false,
+     "track": 3
+    }
+   ],
+   "xfade": 0.2
+  },
+  {
+   "type": "frames",
+   "glob": "v10/rlp2/f_*.jpg",
+   "tag": "SIM // REINFORCEMENT LEARNING",
+   "texts": [
+    {
+     "t0": 0.3,
+     "t1": 4.3,
+     "text": "ORCA HAND · BEFORE",
+     "pos": "kick",
+     "size": 24,
+     "weight": "X",
+     "align": "left",
+     "color": [
+      255,
+      122,
+      26
+     ],
+     "shadow": false,
+     "band": false,
+     "above": 120,
+     "track": 2
+    },
+    {
+     "t0": 0.3,
+     "t1": 4.3,
+     "text": "UNTRAINED.",
+     "pos": "ll",
+     "size": 64,
+     "weight": "H",
+     "align": "left"
+    }
+   ]
+  },
+  {
+   "type": "card",
+   "dur": 5.0,
+   "bg": "stills_v11/rl_curva_dark.png",
+   "dim": 0.0,
+   "texts": [
+    {
+     "t0": 0.2,
+     "t1": 5.0,
+     "text": "236 M SIMULATED ATTEMPTS · 4,096 PARALLEL ENVIRONMENTS · 81 MIN · ONE GPU",
+     "pos": "upper",
+     "size": 26,
+     "weight": "X",
+     "align": "center",
+     "color": [
+      150,
+      152,
+      158
+     ],
+     "shadow": false,
+     "band": false,
+     "track": 1
+    }
+   ]
+  },
+  {
+   "type": "frames",
+   "glob": "v10/rld2/f_*.jpg",
+   "tag": "SIM // REINFORCEMENT LEARNING",
+   "texts": [
+    {
+     "t0": 0.3,
+     "t1": 9.8,
+     "text": "ORCA HAND · AFTER",
+     "pos": "kick",
+     "size": 24,
+     "weight": "X",
+     "align": "left",
+     "color": [
+      255,
+      122,
+      26
+     ],
+     "shadow": false,
+     "band": false,
+     "above": 120,
+     "track": 2
+    },
+    {
+     "t0": 0.3,
+     "t1": 5.0,
+     "text": "IN-HAND ROTATION, LEARNED.",
+     "pos": "ll",
+     "size": 60,
+     "weight": "H",
+     "align": "left"
+    },
+    {
+     "t0": 5.1,
+     "t1": 9.8,
+     "text": "NEXT: TEACHING IT\nTO A REAL HAND.",
+     "pos": "ll",
+     "size": 60,
+     "weight": "H",
+     "align": "left"
+    }
+   ]
+  },
+  {
+   "type": "card",
+   "dur": 2.8,
+   "color": [
+    6,
+    6,
+    8
+   ],
+   "xfade": 0.2,
+   "texts": [
+    {
+     "t0": 0.2,
+     "t1": 2.8,
+     "text": "SAME ARMS AS OPENARM 2.0.\nSAME BRAIN.",
+     "pos": "center",
+     "size": 80,
+     "weight": "H",
+     "align": "center",
+     "color": [
+      245,
+      245,
+      242
+     ],
+     "shadow": false,
+     "band": false,
+     "track": 3
+    }
+   ]
+  },
+  {
+   "type": "frames",
+   "glob": "v11/oa_std/f_*.jpg",
+   "tag": "SIM // OPENARM 2.0 STANDALONE",
+   "texts": [
+    {
+     "t0": 0.3,
+     "t1": 9.8,
+     "text": "OPENARM 2.0",
+     "pos": "kick",
+     "size": 24,
+     "weight": "X",
+     "align": "left",
+     "color": [
+      255,
+      122,
+      26
+     ],
+     "shadow": false,
+     "band": false,
+     "track": 2
+    },
+    {
+     "t0": 0.3,
+     "t1": 9.8,
+     "text": "TRAINED ON A PLAIN OPENARM.",
+     "pos": "ll",
+     "size": 58,
+     "weight": "H",
+     "align": "left"
+    },
+    {
+     "t0": 1.0,
+     "t1": 9.8,
+     "text": "Grasp and lift, learned in simulation. No Giorgio involved.",
+     "pos": "llsub",
+     "size": 32,
+     "weight": "N",
+     "align": "left",
+     "band": false
+    }
+   ]
+  },
+  {
+   "type": "frames",
+   "glob": "v11/oa_gio/f_*.jpg",
+   "tag": "SIM // GIORGIO",
+   "texts": [
+    {
+     "t0": 0.3,
+     "t1": 9.8,
+     "text": "SAME WEIGHTS",
+     "pos": "kick",
+     "size": 24,
+     "weight": "X",
+     "align": "left",
+     "color": [
+      255,
+      122,
+      26
+     ],
+     "shadow": false,
+     "band": false,
+     "track": 2
+    },
+    {
+     "t0": 0.3,
+     "t1": 9.8,
+     "text": "RUNS ON GIORGIO. UNCHANGED.",
+     "pos": "ll",
+     "size": 58,
+     "weight": "H",
+     "align": "left"
+    },
+    {
+     "t0": 1.0,
+     "t1": 9.8,
+     "text": "If it works on an OpenArm, it works here.",
+     "pos": "llsub",
+     "size": 32,
+     "weight": "N",
+     "align": "left",
+     "band": false
+    }
+   ]
+  },
+  {
+   "type": "card",
+   "dur": 3.2,
+   "color": [
+    6,
+    6,
+    8
+   ],
+   "texts": [
+    {
+     "t0": 0.2,
+     "t1": 3.2,
+     "text": "AND NOW",
+     "pos": "upper",
+     "size": 26,
+     "weight": "X",
+     "align": "center",
+     "color": [
+      150,
+      152,
+      158
+     ],
+     "shadow": false,
+     "band": false,
+     "track": 1
+    },
+    {
+     "t0": 0.5,
+     "t1": 3.2,
+     "text": "THE MISSION-CRITICAL\nCAPABILITY.",
+     "pos": "center",
+     "size": 84,
+     "weight": "H",
+     "align": "center",
+     "color": [
+      245,
+      245,
+      242
+     ],
+     "shadow": false,
+     "band": false,
+     "track": 3
+    }
+   ],
+   "xfade": 0.2
+  },
+  {
+   "type": "frames",
+   "glob": "v10/c_bicchiere/f_*.jpg",
+   "tag": "SIM",
+   "texts": [
+    {
+     "t0": 0.3,
+     "t1": 5.3,
+     "text": "STEP 1",
+     "pos": "kick",
+     "size": 24,
+     "weight": "X",
+     "align": "left",
+     "color": [
+      255,
+      122,
+      26
+     ],
+     "shadow": false,
+     "band": false,
+     "above": 120,
+     "track": 2
+    },
+    {
+     "t0": 0.3,
+     "t1": 5.3,
+     "text": "CUP FROM STACK TO SHUTTLE.",
+     "pos": "ll",
+     "size": 60,
+     "weight": "H",
+     "align": "left"
+    }
+   ]
+  },
+  {
+   "type": "frames",
+   "glob": "v11/c_eroga/f_*.jpg",
+   "tag": "SIM // 3×",
+   "texts": [
+    {
+     "t0": 0.2,
+     "t1": 7.6,
+     "text": "STEPS 2–4",
+     "pos": "kick",
+     "size": 24,
+     "weight": "X",
+     "align": "left",
+     "color": [
+      255,
+      122,
+      26
+     ],
+     "shadow": false,
+     "band": false,
+     "above": 120,
+     "track": 2
+    },
+    {
+     "t0": 0.2,
+     "t1": 2.5,
+     "text": "START THE MACHINE.",
+     "pos": "ll",
+     "size": 60,
+     "weight": "H",
+     "align": "left"
+    },
+    {
+     "t0": 0.6,
+     "t1": 2.5,
+     "text": "Any capsule machine. We're not picky.",
+     "pos": "llsub",
+     "size": 32,
+     "weight": "N",
+     "align": "center",
+     "band": false
+    },
+    {
+     "t0": 2.6,
+     "t1": 4.6,
+     "text": "SHUTTLE UNDER THE SPOUT.",
+     "pos": "ll",
+     "size": 60,
+     "weight": "H",
+     "align": "left"
+    },
+    {
+     "t0": 4.7,
+     "t1": 7.6,
+     "text": "ESPRESSO.",
+     "pos": "ll",
+     "size": 80,
+     "weight": "H",
+     "align": "left"
+    }
+   ]
+  },
+  {
+   "type": "frames",
+   "glob": "v10/c_prende/f_*.jpg",
+   "tag": "SIM",
+   "texts": [
+    {
+     "t0": 0.3,
+     "t1": 5.5,
+     "text": "STEP 5",
+     "pos": "kick",
+     "size": 24,
+     "weight": "X",
+     "align": "left",
+     "color": [
+      255,
+      122,
+      26
+     ],
+     "shadow": false,
+     "band": false,
+     "above": 120,
+     "track": 2
+    },
+    {
+     "t0": 0.3,
+     "t1": 5.5,
+     "text": "PICK UP THE FULL CUP.",
+     "pos": "ll",
+     "size": 60,
+     "weight": "H",
+     "align": "left"
+    },
+    {
+     "t0": 1.0,
+     "t1": 5.5,
+     "text": "Carefully. It's the most expensive cup in the building.",
+     "pos": "llsub",
+     "size": 32,
+     "weight": "N",
+     "align": "center",
+     "band": false
+    }
+   ]
+  },
+  {
+   "type": "frames",
+   "glob": "v10/c_consegna/f_*.jpg",
+   "tag": "SIM // 2×",
+   "texts": [
+    {
+     "t0": 0.3,
+     "t1": 7.5,
+     "text": "STEP 6",
+     "pos": "kick",
+     "size": 24,
+     "weight": "X",
+     "align": "left",
+     "color": [
+      255,
+      122,
+      26
+     ],
+     "shadow": false,
+     "band": false,
+     "above": 120,
+     "track": 2
+    },
+    {
+     "t0": 0.3,
+     "t1": 3.4,
+     "text": "DELIVER.",
+     "pos": "ll",
+     "size": 72,
+     "weight": "H",
+     "align": "left"
+    },
+    {
+     "t0": 3.5,
+     "t1": 7.5,
+     "text": "ENJOY, MARCO.",
+     "pos": "ll",
+     "size": 72,
+     "weight": "H",
+     "align": "left"
+    }
+   ]
+  },
+  {
+   "type": "card",
+   "dur": 5.0,
+   "bg": "stills_v11/cfg1_barista.png",
+   "dim": 0.15,
+   "zoom": 0.05,
+   "texts": [
+    {
+     "t0": 0.5,
+     "t1": 5.0,
+     "text": "WORST CASE,",
+     "pos": [
+      1300,
+      700
+     ],
+     "size": 80,
+     "weight": "H",
+     "align": "left",
+     "color": [
+      245,
+      245,
+      242
+     ],
+     "shadow": false,
+     "band": false,
+     "track": 3
+    },
+    {
+     "t0": 1.5,
+     "t1": 5.0,
+     "text": "IT'S A VERY EXPENSIVE\nCOFFEE MACHINE.",
+     "pos": [
+      1304,
+      800
+     ],
+     "size": 46,
+     "weight": "N",
+     "align": "left",
+     "color": [
+      245,
+      245,
+      242
+     ],
+     "shadow": false,
+     "band": false
+    }
+   ]
+  },
+  {
+   "type": "card",
+   "dur": 3.0,
+   "color": [
+    6,
+    6,
+    8
+   ],
+   "texts": [
+    {
+     "t0": 0.2,
+     "t1": 3.0,
+     "text": "IS IT OPEN?",
+     "pos": "center",
+     "size": 96,
+     "weight": "H",
+     "align": "center",
+     "color": [
+      245,
+      245,
+      242
+     ],
+     "shadow": false,
+     "band": false,
+     "track": 3
+    },
+    {
+     "t0": 1.2,
+     "t1": 3.0,
+     "text": "YES. CAD, SCHEMATICS, CODE, BILL OF MATERIALS. ALL OF IT.",
+     "pos": "sub2",
+     "size": 26,
+     "weight": "X",
+     "align": "center",
+     "color": [
+      150,
+      152,
+      158
+     ],
+     "shadow": false,
+     "band": false,
+     "track": 1
+    }
+   ],
+   "xfade": 0.2
+  },
+  {
+   "type": "card",
+   "dur": 2.6,
+   "color": [
+    6,
+    6,
+    8
+   ],
+   "texts": [
+    {
+     "t0": 0.2,
+     "t1": 1.3,
+     "text": "DID WE BUILD ONE?",
+     "pos": "center",
+     "size": 96,
+     "weight": "H",
+     "align": "center",
+     "color": [
+      245,
+      245,
+      242
+     ],
+     "shadow": false,
+     "band": false,
+     "track": 3
+    },
+    {
+     "t0": 1.4,
+     "t1": 2.6,
+     "text": "NO.",
+     "pos": "center",
+     "size": 140,
+     "weight": "H",
+     "align": "center",
+     "color": [
+      245,
+      245,
+      242
+     ],
+     "shadow": false,
+     "band": false,
+     "track": 3
+    }
+   ],
+   "xfade": 0.2
+  },
+  {
+   "type": "card",
+   "dur": 5.0,
+   "color": [
+    6,
+    6,
+    8
+   ],
+   "texts": [
+    {
+     "t0": 0.2,
+     "t1": 5.0,
+     "text": "SO DO US A FAVOUR.",
+     "pos": "center",
+     "size": 84,
+     "weight": "H",
+     "align": "center",
+     "color": [
+      245,
+      245,
+      242
+     ],
+     "shadow": false,
+     "band": false,
+     "track": 3
+    },
+    {
+     "t0": 1.0,
+     "t1": 5.0,
+     "text": "BUILD ONE. TELL US WHAT BREAKS. WE'LL BUILD V2 FROM YOUR PROBLEMS.",
+     "pos": "sub2",
+     "size": 26,
+     "weight": "X",
+     "align": "center",
+     "color": [
+      150,
+      152,
+      158
+     ],
+     "shadow": false,
+     "band": false,
+     "track": 1
+    }
+   ],
+   "xfade": 0.2
+  },
+  {
+   "type": "card",
+   "dur": 4.5,
+   "color": [
+    6,
+    6,
+    8
+   ],
+   "texts": [
+    {
+     "t0": 0.2,
+     "t1": 4.5,
+     "text": "BILL OF MATERIALS",
+     "pos": "upper",
+     "size": 26,
+     "weight": "X",
+     "align": "center",
+     "color": [
+      150,
+      152,
+      158
+     ],
+     "shadow": false,
+     "band": false,
+     "track": 1
+    },
+    {
+     "t0": 0.4,
+     "t1": 4.5,
+     "text": "€32,258 IN PARTS.",
+     "pos": "center",
+     "size": 96,
+     "weight": "H",
+     "align": "center",
+     "color": [
+      245,
+      245,
+      242
+     ],
+     "shadow": false,
+     "band": false,
+     "track": 3
+    },
+    {
+     "t0": 1.2,
+     "t1": 4.5,
+     "text": "SUM OF PARTS. NO MARGIN. ASSEMBLY NOT INCLUDED: THAT'S YOUR PART.",
+     "pos": "sub2",
+     "size": 26,
+     "weight": "X",
+     "align": "center",
+     "color": [
+      150,
+      152,
+      158
+     ],
+     "shadow": false,
+     "band": false,
+     "track": 1
+    }
+   ],
+   "xfade": 0.2
+  },
+  {
+   "type": "card",
+   "dur": 5.0,
+   "color": [
+    6,
+    6,
+    8
+   ],
+   "texts": [],
+   "xfade": 0.2,
+   "images": [
+    {
+     "path": "logo/logo_full_chiaro.png",
+     "t0": 0.3,
+     "t1": 5.0,
+     "pos": [
+      960,
+      500
+     ],
+     "w": 1100
+    }
+   ]
+  }
+ ]
+}

@@ -1,0 +1,22 @@
+# Base choice for make_bom.py - owner decision (latest): Robotnik RB-THERON + our own 15s 30 Ah pack;
+# the Robotnik charging station (included with the base) charges both batteries.
+name: "Robotnik RB-THERON (charging station included) + own 48 V 15s 30 Ah pack charged from VBATT"
+lines:
+  - {item: "Robotnik RB-THERON (48 V 15 Ah, safety PLC + 2 safety LiDARs, i7, 200 kg payload, charging station INCLUDED)", unit: 25950,
+     source: "https://www.generationrobots.com/en/404262-rb-theron-autonomous-mobile-robot-2068.html (EUR 25,950 excl. VAT)", mpn: "RB-THERON"}
+own_dock: false
+oem_dock_lines:
+  - {item: "Robotnik charging station", unit: 0, source: "included in the RB-THERON price (Generation Robots / robotnik.eu)", note: "not a separate cost"}
+barista_netlist_ids: [DCDC_COF, K_COF, FUSE_ATO20]
+cad_to_net: {E09: ORION_4848}
+drop_netlist: []
+drop_cad: [P10_charge_collector_bracket]
+drop_reason: "removed with our own dock / RoboPad (the Robotnik station charges through the base)"
+config_deltas:
+  - name: "Remove our 2 nanoScan3 + pods (only if Robotnik confirms a safe payload stop output, ARCHITECTURE 16.1)"
+    delta: -4600
+    what: "2 x 2,300 scanners, -1.34 kg; SF2 then relies on the RB-THERON safety PLC. NOTE: the CAD (13:51) already omits our scanners/pods - if they stay, the CAD must add 2 x 0.67 kg + 2 pods"
+  - name: "Previous Tracer 2.0 design (own dock, Orion 48/24)"
+    delta_text: "EUR 32,251 at the 12:44 CAD export (not comparable line by line)"
+    what: "reference only"
+jetson: {item: "NVIDIA Jetson AGX Orin 64 GB module + compact carrier (CAD E08: 0.6 kg)", unit: 2500, source: "estimate (module ~USD 1,800-2,000 + carrier ~USD 400-600; not quoted)", mpn: "900-13701-0050-000 + carrier TBD"}

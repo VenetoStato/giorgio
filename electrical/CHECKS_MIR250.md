@@ -39,8 +39,8 @@ Inputs flagged `assumed: true` in the netlist are engineering estimates or recal
 | DCDC_ARM_R lying mount WITHOUT forced air (derate 0.75) | 15.00 A cont / 30.00 A peak | <= 12.0 A / 22.5 A | info | would FAIL; Mean Well curve is for vertical mounting (100 % to 55 C, 40 % at 80 C); lying derate is an assumption |
 | DCDC_ARM_R DDR-480C-24 lying + fan -> A24R continuous | 15.00 A (360 W) | <= 80 % of 20.0 A = 16.0 A | PASS |  |
 | DCDC_ARM_R simultaneous peak of all its loads | 30.00 A (720 W) | <= 30.0 A (5 s) | PASS | 150 % for 5 s |
-| DCDC_S24 DDR-120C-24 -> S24 continuous | 1.68 A (40 W) | <= 80 % of 5.0 A = 4.0 A | PASS |  |
-| DCDC_S24 simultaneous peak of all its loads | 1.96 A (47 W) | <= 7.5 A (3 s) | PASS |  |
+| DCDC_S24 DDR-120C-24 -> S24 continuous | 1.85 A (44 W) | <= 80 % of 5.0 A = 4.0 A | PASS |  |
+| DCDC_S24 simultaneous peak of all its loads | 2.17 A (52 W) | <= 7.5 A (3 s) | PASS |  |
 | DCDC_CPU DDR-120C-12 -> C12 continuous | 7.17 A (86 W) | <= 80 % of 10.0 A = 8.0 A | PASS |  |
 | DCDC_CPU simultaneous peak of all its loads | 9.83 A (118 W) | <= 15.0 A (3 s) | PASS |  |
 | DCDC_COF DDR-480C-24 -> COF24 continuous | 12.75 A (306 W) | <= 80 % of 20.0 A = 16.0 A | PASS |  |
@@ -52,8 +52,8 @@ Inputs flagged `assumed: true` in the netlist are engineering estimates or recal
 
 | Check | Value | Limit | Result | Note |
 |---|---|---|---|---|
-| ALL loads at declared peak at once (interlocks applied) at V_min | 2142 W -> 57.1 A = 1.90 C | <= min(BMS 120 A/10 s, cell 2.0 C = 60 A) | PASS | physically unlikely combination; design worst case |
-| All loads at max sustained at V_min | 1276 W -> 34.0 A = 1.13 C | <= min(BMS 60 A, cell 1.2 C = 36 A) | PASS |  |
+| ALL loads at declared peak at once (interlocks applied) at V_min | 2148 W -> 57.3 A = 1.91 C | <= min(BMS 120 A/10 s, cell 2.0 C = 60 A) | PASS | physically unlikely combination; design worst case |
+| All loads at max sustained at V_min | 1281 W -> 34.2 A = 1.14 C | <= min(BMS 60 A, cell 1.2 C = 36 A) | PASS |  |
 | Pack voltage under all-peak load at 10 % SoC (3.0 V/cell, DC-IR max) | 42.4 V (sag 2.63 V) | > DC-DC UVLO 33.6 V + 2 V margin | PASS |  |
 | Pack voltage under all-peak load at cut-off (2.5 V/cell) | 34.9 V | > 28.8 V (DC-DC UVLO / ride-through) | PASS | BMS/Jetson must start a controlled shutdown at 10 % SoC; below that peaks may brown out the arm DC-DCs |
 
@@ -61,19 +61,19 @@ Inputs flagged `assumed: true` in the netlist are engineering estimates or recal
 
 | Check | Value | Limit | Result | Note |
 |---|---|---|---|---|
-| W01 Pack -> F0 -> Q0 (MSD) -> B48 busbar | 34.0 A cont / 57.1 A peak, 16 mm2 | Iz 60.0 A = 60 x 1.00 (T 40 C) x 1.00 (n=1) | PASS |  |
+| W01 Pack -> F0 -> Q0 (MSD) -> B48 busbar | 34.2 A cont / 57.3 A peak, 16 mm2 | Iz 60.0 A = 60 x 1.00 (T 40 C) x 1.00 (n=1) | PASS |  |
 
 ## Voltage drop
 
 | Check | Value | Limit | Result | Note |
 |---|---|---|---|---|
-| W01 Pack -> F0 -> Q0 (MSD) -> B48 busbar | 0.14 % (53 mV @ 34.0 A) | < 3 % (ref 37.5 V) | PASS | loop 1.2 m, 1.5 mOhm @ 70 C; at peak 0.24 % |
+| W01 Pack -> F0 -> Q0 (MSD) -> B48 busbar | 0.14 % (53 mV @ 34.2 A) | < 3 % (ref 37.5 V) | PASS | loop 1.2 m, 1.5 mOhm @ 70 C; at peak 0.24 % |
 
 ## Fuse selection
 
 | Check | Value | Limit | Result | Note |
 |---|---|---|---|---|
-| F0 JLLN060.T (W01): In >= 1.25 I_cont | 60 A | >= 42.5 A | PASS |  |
+| F0 JLLN060.T (W01): In >= 1.25 I_cont | 60 A | >= 42.7 A | PASS |  |
 | F0 JLLN060.T (W01): In <= Iz (cable protected) | 60 A | <= 60.0 A | PASS |  |
 | F0 JLLN060.T (W01): DC voltage rating | 160 V | >= 54.75 V | PASS |  |
 | F0 JLLN060.T (W01): DC breaking capacity | 20.0 kA | >= Isc 2.55 kA | PASS | R_pack,min + upstream 0.00 mOhm |
@@ -194,23 +194,23 @@ Inputs flagged `assumed: true` in the netlist are engineering estimates or recal
 
 | Check | Value | Limit | Result | Note |
 |---|---|---|---|---|
-| W05 B48 -> F2 -> DDR-120C-24 (safety 24 V) | 1.2 A cont / 1.4 A peak, 1.5 mm2 | Iz 8.0 A = 13.5 x 0.91 (T 45 C) x 0.65 (n=4) | PASS |  |
+| W05 B48 -> F2 -> DDR-120C-24 (safety 24 V) | 1.3 A cont / 1.5 A peak, 1.5 mm2 | Iz 8.0 A = 13.5 x 0.91 (T 45 C) x 0.65 (n=4) | PASS |  |
 
 ## Voltage drop
 
 | Check | Value | Limit | Result | Note |
 |---|---|---|---|---|
-| W05 B48 -> F2 -> DDR-120C-24 (safety 24 V) | 0.03 % (13 mV @ 1.2 A) | < 5 % (ref 37.5 V) | PASS | loop 0.8 m, 11.0 mOhm @ 70 C; at peak 0.04 % |
+| W05 B48 -> F2 -> DDR-120C-24 (safety 24 V) | 0.04 % (14 mV @ 1.3 A) | < 5 % (ref 37.5 V) | PASS | loop 0.8 m, 11.0 mOhm @ 70 C; at peak 0.04 % |
 
 ## Fuse selection
 
 | Check | Value | Limit | Result | Note |
 |---|---|---|---|---|
-| F2 SPF006 (W05): In >= 1.25 I_cont | 6 A | >= 1.5 A | PASS |  |
+| F2 SPF006 (W05): In >= 1.25 I_cont | 6 A | >= 1.6 A | PASS |  |
 | F2 SPF006 (W05): In <= Iz (cable protected) | 6 A | <= 8.0 A | PASS |  |
 | F2 SPF006 (W05): DC voltage rating | 1000 V | >= 54.75 V | PASS |  |
 | F2 SPF006 (W05): DC breaking capacity | 20.0 kA | >= Isc 2.41 kA | PASS | R_pack,min + upstream 1.25 mOhm | IR value assumed - verify |
-| F2 SPF006 (W05): no blow on peak | 0.23 x In for 3 s | <= 1.3 x In | PASS |  |
+| F2 SPF006 (W05): no blow on peak | 0.25 x In for 3 s | <= 1.3 x In | PASS |  |
 
 ## Wiring ampacity
 
@@ -260,23 +260,23 @@ Inputs flagged `assumed: true` in the netlist are engineering estimates or recal
 
 | Check | Value | Limit | Result | Note |
 |---|---|---|---|---|
-| W10 S24 -> F20 -> PNOZ + coils + MiR interface relays (distribution) | 1.7 A cont / 2.0 A peak, 1.0 mm2 | Iz 6.2 A = 10.4 x 0.91 (T 45 C) x 0.65 (n=4) | PASS |  |
+| W10 S24 -> F20 -> PNOZ + coils + MiR interface relays (distribution) | 1.8 A cont / 2.2 A peak, 1.0 mm2 | Iz 6.2 A = 10.4 x 0.91 (T 45 C) x 0.65 (n=4) | PASS |  |
 
 ## Voltage drop
 
 | Check | Value | Limit | Result | Note |
 |---|---|---|---|---|
-| W10 S24 -> F20 -> PNOZ + coils + MiR interface relays (distribution) | 0.29 % (69 mV @ 1.7 A) | < 5 % (ref 24.0 V) | PASS | loop 2.0 m, 41.3 mOhm @ 70 C; at peak 0.34 % |
+| W10 S24 -> F20 -> PNOZ + coils + MiR interface relays (distribution) | 0.32 % (76 mV @ 1.8 A) | < 5 % (ref 24.0 V) | PASS | loop 2.0 m, 41.3 mOhm @ 70 C; at peak 0.37 % |
 
 ## Fuse selection
 
 | Check | Value | Limit | Result | Note |
 |---|---|---|---|---|
-| F20 0257005 (W10): In >= 1.25 I_cont | 5 A | >= 2.1 A | PASS |  |
+| F20 0257005 (W10): In >= 1.25 I_cont | 5 A | >= 2.3 A | PASS |  |
 | F20 0257005 (W10): In <= Iz (cable protected) | 5 A | <= 6.2 A | PASS |  |
 | F20 0257005 (W10): DC voltage rating | 32 V | >= 24.5 V | PASS |  |
 | F20 0257005 (W10): DC breaking capacity | 1.0 kA | >= Isc 0.01 kA | PASS | source current-limited (DC-DC) or declared | IR value assumed - verify |
-| F20 0257005 (W10): no blow on peak | 0.39 x In for 3 s | <= 1.3 x In | PASS |  |
+| F20 0257005 (W10): no blow on peak | 0.43 x In for 3 s | <= 1.3 x In | PASS |  |
 
 ## Wiring ampacity
 
@@ -426,9 +426,9 @@ Inputs flagged `assumed: true` in the netlist are engineering estimates or recal
 
 | Check | Value | Limit | Result | Note |
 |---|---|---|---|---|
-| P1 Logistics kitting, continuous (arms active 100 %, driving 30 %) | 260 W from 1296 Wh -> 5.0 h | >= 4 h | PASS | usable pack 1296 Wh; base has its own battery (not counted) |
-| P2 Barista service: 8 cups/h brewed on board (8 x 15 Wh = 120 W avg), arms active 25 %, driving 20 % | 293 W from 1296 Wh -> 4.4 h | >= 6 h | **FAIL** | usable pack 1296 Wh; base has its own battery (not counted) |
-| P3 Reception / standby, arms parked and powered, no driving, face on | 107 W from 1296 Wh -> 12.1 h | >= 8 h | PASS | usable pack 1296 Wh; base has its own battery (not counted) |
+| P1 Logistics kitting, continuous (arms active 100 %, driving 30 %) | 263 W from 1296 Wh -> 4.9 h | >= 4 h | PASS | usable pack 1296 Wh; base has its own battery (not counted) |
+| P2 Barista service: 8 cups/h brewed on board (8 x 15 Wh = 120 W avg), arms active 25 %, driving 20 % | 297 W from 1296 Wh -> 4.4 h | >= 6 h | **FAIL** | usable pack 1296 Wh; base has its own battery (not counted) |
+| P3 Reception / standby, arms parked and powered, no driving, face on | 110 W from 1296 Wh -> 11.7 h | >= 8 h | PASS | usable pack 1296 Wh; base has its own battery (not counted) |
 
 ## Charging
 
@@ -444,9 +444,9 @@ Inputs flagged `assumed: true` in the netlist are engineering estimates or recal
 
 | Check | Value | Limit | Result | Note |
 |---|---|---|---|---|
-| A: 230 V commercial capsule machine on board via 48 V inverter [alternative: NOT feasible as-is] | DC 1409 W (37.6 A); all-peak 85 A = 2.83 C; 16.1 Wh/cup from pack; P2 + 8 cups/h -> 4.4 h | all-peak within BMS/cell pulse; main fuse/cable unchanged | info | main cont 62.7 A needs F0 >= 78 A (have 60 A, cable Iz 60 A) -> upsize F0 and W01 -> needs brew/arm interlock |
-| B: 24 V DC capsule machine on board (truck type, 300 W) via DDR-480C-24 [DEFAULT] | DC 326 W (8.7 A); all-peak 56 A = 1.86 C; 16.3 Wh/cup from pack; P2 + 8 cups/h -> 4.4 h | all-peak within BMS/cell pulse; main fuse/cable unchanged | PASS | main cont 33.9 A needs F0 >= 42 A (have 60 A, cable Iz 60 A) |
-| C: 230 V commercial capsule machine fixed at the docking station (robot carries the cup) [alternative: feasible] | DC 0 W (0.0 A); all-peak 47 A = 1.57 C; 0.0 Wh/cup from pack; P2 + 8 cups/h -> 8.1 h | all-peak within BMS/cell pulse; main fuse/cable unchanged | info | main cont 25.2 A needs F0 >= 31 A (have 60 A, cable Iz 60 A) |
+| A: 230 V commercial capsule machine on board via 48 V inverter [alternative: NOT feasible as-is] | DC 1409 W (37.6 A); all-peak 85 A = 2.83 C; 16.1 Wh/cup from pack; P2 + 8 cups/h -> 4.4 h | all-peak within BMS/cell pulse; main fuse/cable unchanged | info | main cont 62.8 A needs F0 >= 79 A (have 60 A, cable Iz 60 A) -> upsize F0 and W01 -> needs brew/arm interlock |
+| B: 24 V DC capsule machine on board (truck type, 300 W) via DDR-480C-24 [DEFAULT] | DC 326 W (8.7 A); all-peak 56 A = 1.87 C; 16.3 Wh/cup from pack; P2 + 8 cups/h -> 4.4 h | all-peak within BMS/cell pulse; main fuse/cable unchanged | PASS | main cont 34.0 A needs F0 >= 42 A (have 60 A, cable Iz 60 A) |
+| C: 230 V commercial capsule machine fixed at the docking station (robot carries the cup) [alternative: feasible] | DC 0 W (0.0 A); all-peak 47 A = 1.58 C; 0.0 Wh/cup from pack; P2 + 8 cups/h -> 7.9 h | all-peak within BMS/cell pulse; main fuse/cable unchanged | info | main cont 25.3 A needs F0 >= 32 A (have 60 A, cable Iz 60 A) |
 
 ## Safety functions (ISO 13849-1)
 

@@ -15,8 +15,9 @@ import yaml
 HERE = Path(__file__).resolve().parent
 import sys
 MIR = "--mir250" in sys.argv
-NET = yaml.safe_load((HERE / ("netlist_mir250.yaml" if MIR else "netlist.yaml")).read_text())
-OUT = "power_safety_architecture_mir250" if MIR else "power_safety_architecture"
+RB = "--rbtheron" in sys.argv
+NET = yaml.safe_load((HERE / ("netlist_rbtheron.yaml" if RB else "netlist_mir250.yaml" if MIR else "netlist.yaml")).read_text())
+OUT = "power_safety_architecture_rbtheron" if RB else "power_safety_architecture_mir250" if MIR else "power_safety_architecture"
 C = {c["id"]: c for c in NET["components"]}
 FZ = {f["id"]: C[f["component"]] for f in NET["fuses"]}
 B = NET["battery"]
@@ -80,25 +81,43 @@ def txt(x, y, s, size=9.0, color=INK, bold=False, ha="left"):
 
 
 # ================================================================== title
-txt(40, 40, "Giorgio  -  power & safety architecture" + ("  (product: MiR250 base)" if MIR else "  (prototype: Tracer 2.0 base)"), size=24, bold=True)
+txt(40, 40, "Giorgio  -  power & safety architecture" + ("  (RB-THERON base, own 48 V pack)" if RB else "  (product: MiR250 base)" if MIR else "  (prototype: Tracer 2.0 base)"), size=24, bold=True)
 txt(40, 72, f"15s{B['parallel']}p LiFePO4 48 V {AH:.0f} Ah ({E_KWH:.2f} kWh)   ·   every on-board circuit PELV <= 60 V DC   ·   "
-            f"safety functions PL d / Cat 3 (EN ISO 13849-1)   ·   stop category 1 (SS1-t) for arms   ·   rev {NET['meta']['revision']}",
+            f"safety functions PL d / Cat 3 (EN ISO 13849-1)   ·   stop category 1 (SS1-t) for arms   ·   rev {NET['meta']['revision'].split(' ')[0]}",
     size=12, color=MUTED)
 
-# ================================================================== station
-box(30, 112, 330, 312, "Docking station  (230 V mains)", dom="AC", fill="white", title_size=12)
-box(48, 148, 294, 66, "LFP charger  " + C["CHG_DOCK"]["short"], ["CC/CV 54.0 V (3.60 V/cell), 21 A, 1.2 kW", "charge profile + limits from BMS over CAN"], dom="AC")
-box(48, 232, 294, 66, "Station controller + relay", ["contacts energised ONLY after signature +", "Wi-Fi handshake; off < 100 ms on loss"], dom="AC")
-box(48, 316, 294, 90, "Roboteq RoboPad contacts", ["RPCOL90-100 + RPBAS90-100, 75 A, 75 V", "2 poles, 10 mm stroke, +/-5 mm", "robot side dead when undocked"], dom="AC")
-wire([(195, 214), (195, 232)], "AC", lw=2)
-wire([(195, 298), (195, 316)], "AC", lw=2)
+# ================================================================== station / base (RB-THERON)
+if RB:
+    box(30, 112, 330, 92, "Robotnik charging station (included)", ["contact dock; robotnik_charge (ROS 2, BSD-3)", "switches a charge relay; power UNVERIFIED (600 W ass.)"], dom="AC", fill="white", title_size=11)
+    arrow((195, 204), (195, 228), "AC")
+    box(30, 228, 330, 150, "Robotnik RB-THERON (base)", ["48 V 15 Ah = 0.72 kWh, 70 kg, 200 kg payload", "safety PLC + 2 safety LiDARs, i7 PC, CE",
+        "outputs 12 V / 24 V / VBATT (ratings UNVERIFIED)", "own load ~70 W + traction 60-350 W [A]", "external safety I/O for payload: NOT documented",
+        "ROS 2 over Ethernet (cmd_vel, stop, SoC)"], dom="T24", title_size=11.5)
+    wire([(360, 352), (395, 352), (395, 430)], "T24", lw=2.4)
+    fuse(395, 372, "", above=True)
+    ax.add_patch(FancyBboxPatch((372, 395), 46, 30, boxstyle="round,pad=0,rounding_size=4", fc="white", ec=COL["T24"], lw=1.4, zorder=5))
+    txt(395, 410, "Orion", size=7.6, ha="center")
+    wire([(395, 425), (395, 520)], "B48", lw=2.4)
+    arrow((395, 500), (395, 532), "B48")
+    wire([(395, 532), (360, 532)], "B48", lw=2.4)
+    for k_, t_ in enumerate(["VBATT -> F17 -> Orion-Tr 48/48-6 (isolated)", "6 A / 54.0 V -> F18 -> our pack:",
+                             "the ONE Robotnik dock charges both.", "Jetson: on when docked / balancing,", "off while traction > 100 W."]):
+        txt(40, 392 + k_ * 15, t_, size=8.4, color=MUTED)
+else:
+    # ================================================================== station
+    box(30, 112, 330, 312, "Docking station  (230 V mains)", dom="AC", fill="white", title_size=12)
+    box(48, 148, 294, 66, "LFP charger  " + C["CHG_DOCK"]["short"], ["CC/CV 54.0 V (3.60 V/cell), 21 A, 1.2 kW", "charge profile + limits from BMS over CAN"], dom="AC")
+    box(48, 232, 294, 66, "Station controller + relay", ["contacts energised ONLY after signature +", "Wi-Fi handshake; off < 100 ms on loss"], dom="AC")
+    box(48, 316, 294, 90, "Roboteq RoboPad contacts", ["RPCOL90-100 + RPBAS90-100, 75 A, 75 V", "2 poles, 10 mm stroke, +/-5 mm", "robot side dead when undocked"], dom="AC")
+    wire([(195, 214), (195, 232)], "AC", lw=2)
+    wire([(195, 298), (195, 316)], "AC", lw=2)
 
-# charge path into pack
-wire([(342, 361), (395, 361), (395, 520)], "B48", lw=2.4)
-arrow((395, 500), (395, 532), "B48")
-fuse(395, 430, "", above=True)
-txt(380, 446, "F9  " + FZ["F9"]["short"] + "  ·  ideal diode: no backfeed to contacts", size=8.4, color=MUTED, ha="right")
-wire([(395, 532), (360, 532)], "B48", lw=2.4)
+    # charge path into pack
+    wire([(342, 361), (395, 361), (395, 520)], "B48", lw=2.4)
+    arrow((395, 500), (395, 532), "B48")
+    fuse(395, 430, "", above=True)
+    txt(380, 446, "F9  " + FZ["F9"]["short"] + "  ·  ideal diode: no backfeed to contacts", size=8.4, color=MUTED, ha="right")
+    wire([(395, 532), (360, 532)], "B48", lw=2.4)
 
 # ================================================================== battery
 box(30, 470, 330, 196, "Battery pack", [f"15s{B['parallel']}p LiFePO4 48 V {AH:.0f} Ah = {E_KWH:.2f} kWh",
@@ -150,7 +169,7 @@ rows = [
      ("Jetson AGX Orin 64 GB", ["15-60 W · USB: Gemini 336L,", "2x UVC fisheye, PCAN-USB FD x2"])),
     (668, "F4", "DC-DC 5 V", ["Mean Well DDR-60L-5", "5 V 12 A"], "LV",
      ("Face & status UI", ["32x16 LED face, 2x GC9A01 eyes,", "status LEDs, ESP32"])),
-] + ([] if MIR else [
+] + ([] if (MIR or RB) else [
     (784, "F5", "Tracer charger", ["Victron Orion-Tr 48/24-16", "10 A -> 2-pin charge port"], "T24",
      ("AgileX Tracer 2.0", ["own 24 V 30 Ah LFP + BMS", "stop via CAN only (no safety input)"])),
 ])
@@ -165,7 +184,7 @@ for y0, fid, title, lines, dom, load in rows:
         box(1090, y0 - 32, 238, 64, load[0], load[1], dom=dom)
 fuse(1043, 552, fl("F30"), "LV")
 fuse(1043, 668, fl("F40"), "LV")
-if not MIR:
+if not (MIR or RB):
     fuse(1043, 784, fl("F7"), "T24")
 
 # coffee (default at dock)
@@ -188,7 +207,8 @@ wire([(1328, 545), (1342, 545), (1342, 292)], "CAN", lw=1.8, ls=(0, (1, 2.2)))
 wire([(1342, 292), (1328, 292)], "CAN", lw=1.8, ls=(0, (1, 2.2)))
 wire([(1342, 172), (1342, 292)], "CAN", lw=1.8, ls=(0, (1, 2.2)))
 wire([(1342, 172), (1328, 172)], "CAN", lw=1.8, ls=(0, (1, 2.2)))
-wire([(1328, 562), (1342, 562), (1342, 784), (1328, 784)], "CAN", lw=1.8, ls=(0, (1, 2.2)))  # MiR: Ethernet REST on the same route
+if not RB:
+    wire([(1328, 562), (1342, 562), (1342, 784), (1328, 784)], "CAN", lw=1.8, ls=(0, (1, 2.2)))  # MiR: Ethernet REST on the same route
 txt(1336, 470, "CAN", size=8.4, color=COL["CAN"], bold=True, ha="right")
 
 # ================================================================== safety panel
@@ -208,7 +228,8 @@ for xx, yy in ((SX + 127, SY + 108), (SX + 368, SY + 108), (SX + 127, SY + 170),
 
 txt(SX + 18, SY + 300, "Stop sequence on any trip", size=10.5, bold=True)
 outs = [("t = 0", "SS1 request -> Jetson: controlled stop of both arms via CAN"),
-        (("t = 0", "relay output -> MiR250 auxiliary E-stop (PL d)") if MIR else ("t = 0", "Tracer: CAN zero-speed (500 ms timeout) - not rated")),
+        (("t = 0", "relay output -> MiR250 auxiliary E-stop (PL d)") if MIR else ("t = 0", "RB-THERON: ROS 2 stop; safety-PLC link TBC (not rated)") if RB
+         else ("t = 0", "Tracer: CAN zero-speed (500 ms timeout) - not rated")),
         ("t = 0", "coffee: K4 opens + DC-DC off (stop category 0)"),
         ("t = 0.45 s", "DC-DC remote OFF (non-safety, pre-empts arcing)"),
         ("t = 0.5 s", "delayed safe outputs open K1 + K2: arm power removed")]
@@ -219,11 +240,12 @@ for i, (t, s) in enumerate(outs):
 
 box(SX + 16, SY + 460, 463, 118, "Stays powered in any stop", [
     "PNOZ, scanners, E-stop circuit, Jetson, cameras, face and status",
-    "LEDs, BMS, Wi-Fi." + (" MiR250: stopped by its own safety system." if MIR else " Tracer: held at zero speed via CAN only."),
+    "LEDs, BMS, Wi-Fi." + (" MiR250: stopped by its own safety system." if MIR else " RB-THERON: own PLC; ours via ROS 2." if RB else " Tracer: held at zero speed via CAN only."),
     "Arms: power removed after SS1. No brakes -> park pose on",
     "mechanical rests before the cut; cup placed, not handed over."], dom="S24", fill="white")
 box(SX + 16, SY + 592, 463, 150, "Open certification issues", [
     *(["MiR250: safe protective-stop OUTPUT to the PNOZ not documented", "(SF2 FAIL in CHECKS_MIR250.md) -> MiR user guide / quote."] if MIR else
+      ["RB-THERON safety PLC: no documented payload E-stop / safe I/O", "(SF3 FAIL in CHECKS_RBTHERON.md) -> ask Robotnik; P2 4.9 h < 6 h."] if RB else
       ["Tracer 2.0 has no external safety input: base stop path", "unrated (SF3 FAIL) - accepted for the prototype; product: MiR250."]),
     "OpenArm: no STO / brakes / safety-rated monitoring -> no PFL;",
     "arms only move when protective field is clear (SSM by scanners).",
@@ -239,7 +261,7 @@ LX, LY = 30, 728
 txt(LX, LY, "Legend", size=11, bold=True)
 items = [("B48", "-", "48 V battery bus, fused branches"), ("A24", "-", "24 V arm buses (safety-switched)"),
          ("S24", "-", "24 V safety + sensors (always on)"), ("LV", "-", "12 V / 5 V compute and UI"),
-         ("T24", "-", "base domain (own battery)" if MIR else "Tracer 24 V domain (isolated)"), ("SAFE", "--", "safety signals, dual channel"),
+         ("T24", "-", "base domain (own battery)" if (MIR or RB) else "Tracer 24 V domain (isolated)"), ("SAFE", "--", "safety signals, dual channel"),
          ("CAN", ":", "CAN bus")]
 for i, (k, st, t) in enumerate(items):
     yy = LY + 24 + i * 21
@@ -247,12 +269,12 @@ for i, (k, st, t) in enumerate(items):
     ax.plot([LX, LX + 36], [yy, yy], color=COL[k], lw=3, ls=ls)
     txt(LX + 46, yy, t, size=9)
 notes = ["Grounding: battery 0 V bonded to chassis at one point (distribution block);",
-         "Tracer domain isolated by the Orion-Tr; dock charger output isolated (SELV).",
+         ("Base domain isolated from our pack by the Orion-Tr 48/48 (galvanic)." if RB else "Tracer domain isolated by the Orion-Tr; dock charger output isolated (SELV)."),
          "Fuses: breaking capacity >= pack Isc; ampacity, drops, precharge, regen,",
          "autonomy and PFHd are checked by calc.py -> CHECKS.md."]
 for i, s in enumerate(notes):
     txt(LX, LY + 184 + i * 17, s, size=8.6, color=MUTED)
-txt(1890, 1050, "generated from electrical/netlist.yaml by diagram.py  ·  part numbers indicative, see ARCHITECTURE.md",
+txt(1890, 1050, "generated from electrical/" + ("netlist_rbtheron.yaml" if RB else "netlist_mir250.yaml" if MIR else "netlist.yaml") + " by diagram.py  ·  part numbers indicative, see ARCHITECTURE.md",
     size=9, color=MUTED, ha="right")
 
 if MIR:
