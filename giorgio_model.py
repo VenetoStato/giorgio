@@ -397,9 +397,7 @@ def build(look="gb", hands="gripper", humans=2, fixed_base=True, base="cart", bu
     vbox(torso, "torso_accent", (0.104, 0, PED_TOP - 0.07), (0.002, 0.06, 0.003), "accent")
     torso.add_geom(name="logo_chest", type=mujoco.mjtGeom.mjGEOM_BOX, pos=[0.0995, 0, PED_TOP - 0.20], size=[0.0012, 0.065, 0.065],
                    rgba=[1, 1, 1, 1], contype=0, conaffinity=0, group=GROUP_ROBOT, mass=0)   # logo Giorgio (tazzina) sul petto
-    for s, sy in (("left", 1), ("right", -1)):
-        sp.body(f"openarm_{s}_link2").add_geom(name=f"pauldron_{s}", type=mujoco.mjtGeom.mjGEOM_MESH, meshname="shell_pauldron",
-                                               pos=[0, sy * 0.012, 0.0], material="armor", contype=0, conaffinity=0, group=GROUP_ROBOT, mass=0)
+    # spallacci decorativi rimossi: non sono nel CAD validato e col busto da 105 mm lo intersecavano (verifiche/gusci_reali.py)
 
     # ---------------------------------------------------------- testa fissa "cute": Gemini 336L dietro il frontale, 2 occhi-display, Insta360 sopra
     for nm in ("head", "face", "eye"):
