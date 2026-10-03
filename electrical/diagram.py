@@ -15,9 +15,12 @@ import yaml
 HERE = Path(__file__).resolve().parent
 import sys
 MIR = "--mir250" in sys.argv
-RB = "--rbtheron" in sys.argv
-NET = yaml.safe_load((HERE / ("netlist_rbtheron.yaml" if RB else "netlist_mir250.yaml" if MIR else "netlist.yaml")).read_text())
-OUT = "power_safety_architecture_rbtheron" if RB else "power_safety_architecture_mir250" if MIR else "power_safety_architecture"
+RM = "--rangermini" in sys.argv
+RB = "--rbtheron" in sys.argv or RM
+NET = yaml.safe_load((HERE / ("netlist_rangermini.yaml" if RM else "netlist_rbtheron.yaml" if RB else "netlist_mir250.yaml" if MIR else "netlist.yaml")).read_text())
+OUT = ("power_safety_architecture_rangermini" if RM else "power_safety_architecture_rbtheron" if RB
+       else "power_safety_architecture_mir250" if MIR else "power_safety_architecture")
+BNAME = "Ranger Mini" if RM else "RB-THERON"
 C = {c["id"]: c for c in NET["components"]}
 FZ = {f["id"]: C[f["component"]] for f in NET["fuses"]}
 B = NET["battery"]
@@ -81,18 +84,26 @@ def txt(x, y, s, size=9.0, color=INK, bold=False, ha="left"):
 
 
 # ================================================================== title
-txt(40, 40, "Giorgio  -  power & safety architecture" + ("  (RB-THERON base, own 48 V pack)" if RB else "  (product: MiR250 base)" if MIR else "  (prototype: Tracer 2.0 base)"), size=24, bold=True)
+txt(40, 40, "Giorgio  -  power & safety architecture" + (f"  ({BNAME} base, own 48 V pack)" if RB else "  (product: MiR250 base)" if MIR else "  (prototype: Tracer 2.0 base)"), size=24, bold=True)
 txt(40, 72, f"15s{B['parallel']}p LiFePO4 48 V {AH:.0f} Ah ({E_KWH:.2f} kWh)   ·   every on-board circuit PELV <= 60 V DC   ·   "
             f"safety functions PL d / Cat 3 (EN ISO 13849-1)   ·   stop category 1 (SS1-t) for arms   ·   rev {NET['meta']['revision'].split(' ')[0]}",
     size=12, color=MUTED)
 
 # ================================================================== station / base (RB-THERON)
 if RB:
-    box(30, 112, 330, 92, "Robotnik charging station (included)", ["contact dock; robotnik_charge (ROS 2, BSD-3)", "switches a charge relay; power UNVERIFIED (600 W ass.)"], dom="AC", fill="white", title_size=11)
+    if RM:
+        box(30, 112, 330, 92, "AgileX charging kit (NAVIS)", ["auto-docking via NAVIS; price/specs UNVERIFIED", "54.9 V x 10.9 A = 598 W assumed (API example)"], dom="AC", fill="white", title_size=11)
+    else:
+        box(30, 112, 330, 92, "Robotnik charging station (included)", ["contact dock; robotnik_charge (ROS 2, BSD-3)", "switches a charge relay; power UNVERIFIED (600 W ass.)"], dom="AC", fill="white", title_size=11)
     arrow((195, 204), (195, 228), "AC")
-    box(30, 228, 330, 150, "Robotnik RB-THERON (base)", ["48 V 15 Ah = 0.72 kWh, 70 kg, 200 kg payload", "safety PLC + 2 safety LiDARs, i7 PC, CE",
-        "outputs 12 V / 24 V / VBATT (ratings UNVERIFIED)", "own load ~70 W + traction 60-350 W [A]", "external safety I/O for payload: NOT documented",
-        "ROS 2 over Ethernet (cmd_vel, stop, SoC)"], dom="T24", title_size=11.5)
+    if RM:
+        box(30, 228, 330, 150, "AgileX Ranger Mini 3.0 (base)", ["LFP 48 V 24 Ah = 1.15 kWh, 75 kg, 120 kg payload", "accessory out 46-50 V <= 15 A / 720 W",
+            "(cut below 10 % SOC); 4WD/4WS, 2 m/s", "own ~40 W (incl. NAVIS) + traction 100-600 W [A]", "no external E-stop / safety input",
+            "CAN 500 kbit/s (ranger_ros2) + NAVIS"], dom="T24", title_size=11.5)
+    else:
+        box(30, 228, 330, 150, "Robotnik RB-THERON (base)", ["48 V 15 Ah = 0.72 kWh, 70 kg, 200 kg payload", "safety PLC + 2 safety LiDARs, i7 PC, CE",
+            "outputs 12 V / 24 V / VBATT (ratings UNVERIFIED)", "own load ~70 W + traction 60-350 W [A]", "external safety I/O for payload: NOT documented",
+            "ROS 2 over Ethernet (cmd_vel, stop, SoC)"], dom="T24", title_size=11.5)
     wire([(360, 352), (395, 352), (395, 430)], "T24", lw=2.4)
     fuse(395, 372, "", above=True)
     ax.add_patch(FancyBboxPatch((372, 395), 46, 30, boxstyle="round,pad=0,rounding_size=4", fc="white", ec=COL["T24"], lw=1.4, zorder=5))
@@ -100,8 +111,9 @@ if RB:
     wire([(395, 425), (395, 520)], "B48", lw=2.4)
     arrow((395, 500), (395, 532), "B48")
     wire([(395, 532), (360, 532)], "B48", lw=2.4)
-    for k_, t_ in enumerate(["VBATT -> F17 -> Orion-Tr 48/48-6 (isolated)", "6 A / 54.0 V -> F18 -> our pack:",
-                             "the ONE Robotnik dock charges both.", "Jetson: on when docked / balancing,", "off while traction > 100 W."]):
+    for k_, t_ in enumerate([("48 V port" if RM else "VBATT") + " -> F17 -> Orion-Tr 48/48-6 (isolated)", "6 A / 54.0 V -> F18 -> our pack:",
+                             "the ONE " + ("AgileX" if RM else "Robotnik") + " dock charges both.", "Jetson: on when docked / balancing,",
+                             "off while traction > " + ("150" if RM else "100") + " W."]):
         txt(40, 392 + k_ * 15, t_, size=8.4, color=MUTED)
 else:
     # ================================================================== station
@@ -228,7 +240,7 @@ for xx, yy in ((SX + 127, SY + 108), (SX + 368, SY + 108), (SX + 127, SY + 170),
 
 txt(SX + 18, SY + 300, "Stop sequence on any trip", size=10.5, bold=True)
 outs = [("t = 0", "SS1 request -> Jetson: controlled stop of both arms via CAN"),
-        (("t = 0", "relay output -> MiR250 auxiliary E-stop (PL d)") if MIR else ("t = 0", "RB-THERON: ROS 2 stop; safety-PLC link TBC (not rated)") if RB
+        (("t = 0", "relay output -> MiR250 auxiliary E-stop (PL d)") if MIR else ("t = 0", "Ranger Mini: CAN zero-speed - not safety-rated") if RM else ("t = 0", "RB-THERON: ROS 2 stop; safety-PLC link TBC (not rated)") if RB
          else ("t = 0", "Tracer: CAN zero-speed (500 ms timeout) - not rated")),
         ("t = 0", "coffee: K4 opens + DC-DC off (stop category 0)"),
         ("t = 0.45 s", "DC-DC remote OFF (non-safety, pre-empts arcing)"),
@@ -240,11 +252,12 @@ for i, (t, s) in enumerate(outs):
 
 box(SX + 16, SY + 460, 463, 118, "Stays powered in any stop", [
     "PNOZ, scanners, E-stop circuit, Jetson, cameras, face and status",
-    "LEDs, BMS, Wi-Fi." + (" MiR250: stopped by its own safety system." if MIR else " RB-THERON: own PLC; ours via ROS 2." if RB else " Tracer: held at zero speed via CAN only."),
+    "LEDs, BMS, Wi-Fi." + (" MiR250: stopped by its own safety system." if MIR else " Ranger Mini: held at zero speed via CAN." if RM else " RB-THERON: own PLC; ours via ROS 2." if RB else " Tracer: held at zero speed via CAN only."),
     "Arms: power removed after SS1. No brakes -> park pose on",
     "mechanical rests before the cut; cup placed, not handed over."], dom="S24", fill="white")
 box(SX + 16, SY + 592, 463, 150, "Open certification issues", [
     *(["MiR250: safe protective-stop OUTPUT to the PNOZ not documented", "(SF2 FAIL in CHECKS_MIR250.md) -> MiR user guide / quote."] if MIR else
+      ["Ranger Mini: no external safety-stop input (SF3 FAIL in", "CHECKS_RANGERMINI.md) -> ask AgileX; dock kit unverified."] if RM else
       ["RB-THERON safety PLC: no documented payload E-stop / safe I/O", "(SF3 FAIL in CHECKS_RBTHERON.md) -> ask Robotnik; P2 4.9 h < 6 h."] if RB else
       ["Tracer 2.0 has no external safety input: base stop path", "unrated (SF3 FAIL) - accepted for the prototype; product: MiR250."]),
     "OpenArm: no STO / brakes / safety-rated monitoring -> no PFL;",
@@ -274,7 +287,7 @@ notes = ["Grounding: battery 0 V bonded to chassis at one point (distribution bl
          "autonomy and PFHd are checked by calc.py -> CHECKS.md."]
 for i, s in enumerate(notes):
     txt(LX, LY + 184 + i * 17, s, size=8.6, color=MUTED)
-txt(1890, 1050, "generated from electrical/" + ("netlist_rbtheron.yaml" if RB else "netlist_mir250.yaml" if MIR else "netlist.yaml") + " by diagram.py  ·  part numbers indicative, see ARCHITECTURE.md",
+txt(1890, 1050, "generated from electrical/" + ("netlist_rangermini.yaml" if RM else "netlist_rbtheron.yaml" if RB else "netlist_mir250.yaml" if MIR else "netlist.yaml") + " by diagram.py  ·  part numbers indicative, see ARCHITECTURE.md",
     size=9, color=MUTED, ha="right")
 
 if MIR:

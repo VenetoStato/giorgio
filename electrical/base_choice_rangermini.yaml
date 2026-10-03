@@ -1,0 +1,53 @@
+# Base choice for make_bom.py - owner decision (latest): AgileX Ranger Mini 3.0 + our own 15s 30 Ah pack charged
+# from the base 48 V accessory output; the AgileX charging kit (NAVIS) charges both batteries.
+name: "AgileX Ranger Mini 3.0 + own 48 V 15s 30 Ah pack charged from the base port; AgileX charging kit (NAVIS)"
+lines:
+  - {item: "AgileX Ranger Mini 3.0 (LFP 48 V 24 Ah, 120 kg payload, 4WD/4WS, accessory 46-50 V <= 15 A / 720 W)", unit: 12480,
+     source: "https://www.generationrobots.com/en/404051-ranger-mini-mobile-robot-ugv.html (EUR 12,480 excl. VAT, via cad/BASE_OPTIONS.md)", mpn: "Ranger Mini 3.0"}
+own_dock: false
+oem_dock_lines:
+  - {item: "AgileX charging kit / auto-charging pile + NAVIS module (robot-side kit included)", unit: 0,
+     source: "price and datasheet NOT published - quote requested (AGILEX_REQUEST.md)", note: "NOT included in the sum"}
+barista_netlist_ids: [DCDC_COF, K_COF, FUSE_ATO20]
+cad_to_net: {E09: ORION_4848}
+drop_netlist: []
+drop_cad: [P10_charge_collector_bracket]
+drop_reason: "removed with our own dock / RoboPad (the AgileX dock charges through the base)"
+config_deltas:
+  - name: "Archived: RB-THERON instead of Ranger Mini (dock included)"
+    delta: 13470
+    what: "EUR 25,950 - 12,480; plus the unknown AgileX kit price is no longer needed"
+# ---- cost-down (owner: "the whole thing must cost little")
+jetson: {item: "NVIDIA Jetson Orin NX 16 GB module + compact carrier (replaces AGX Orin 64 GB)", unit: 900,
+         source: "estimate (Orin NX 16 GB module ~USD 600-700 + carrier ~USD 150-250; not quoted)", mpn: "900-13767-0000-000 + carrier TBD"}
+can_lines:
+  - {item: "USB CAN-FD adapter, SocketCAN gs_usb class (CANable 2.0 / candleLight FD) for the 2nd arm bus (the OpenArm kit ships one)", qty: 1, unit: 40,
+     source: "estimate; mainline Linux gs_usb driver", mpn: "CANable 2.0 class"}
+  - {item: "3.3 V CAN transceiver module for the Orin NX CAN (pack BMS bus)", qty: 1, unit: 15, source: "estimate", mpn: "SN65HVD230 class"}
+pnoz_es_eth: false
+standard_choices:
+  - "Jetson Orin NX 16 GB (100 TOPS class) instead of AGX Orin 64 GB: it runs Gemini 336L depth + 2 fisheye + 2 wrist cams, YOLO-class detection + grasp pose (TensorRT INT8), one ACT/diffusion policy at 10-30 Hz and ASR/TTS; the LLM agent runs in the cloud. Saves ~EUR 2,250 and ~1 kg; 12 V rail drops to a DDR-60L-12 (EUR 30)."
+  - "CAN: one gs_usb CAN-FD adapter (EUR 40) next to the adapter in the OpenArm kit, instead of 2 x PEAK PCAN-USB FD (EUR 520)."
+  - "PNOZ status to the Jetson via 2 safe semiconductor outputs + optocouplers to GPIO (already in the BOM) instead of the PNOZ m ES ETH Modbus module (EUR 400)."
+  - "Kept because nothing cheaper passes: Siemens 3RT2036 (S2) contactors (45 A worst-case break at 54.75 V; S0 only ~35 A), Mean Well DDR-480C-24 (only DIN unit with 720 W for 5 s at 48 V in), class T main fuse (2.55 kA Isc), 15s 30 Ah pack (C-rate and 6 h barista)."
+cost_down:
+  - {lever: "Safety logic: 2 x Schmersal SRB-E-301ST configurable safety relays (PL e, stop cat. 0/1 delay, EDM) instead of PNOZmulti 2 B0 + EF 4DI4DOR", save: 460, mass_kg: -0.1,
+     loss: "no programmable logic: fixed SS1-t delay, simpler mode handling; scanner field sets switched by the Jetson (non-safety, as now). Same PL d target; recompute in SISTEMA. Prices estimated", verdict: lean}
+  - {lever: "Shells: dyed/unpainted MJF PA12 instead of painted SLS", save: 400, mass_kg: 0, loss: "appearance only", verdict: lean}
+  - {lever: "EMC input filter (Schaffner FN2200 class) bought only if the EMC pre-scan fails", save: 60, mass_kg: -0.2, loss: "risk of a re-spin after the pre-scan", verdict: lean}
+  - {lever: "Drop the 2 DRDN40-24 ORing modules (27.5 V clamp alone keeps the arm bus below the DDR OVP)", save: 110, mass_kg: -0.6,
+     loss: "regen current then reaches the DDR-480C output; needs a bench test that the DDR tolerates it without OVP latch", verdict: option}
+  - {lever: "Mount the two DDR-480C upright (vertical rating) and drop the 2 fans", save: 24, mass_kg: -0.1, loss: "needs ~130 mm height in the base layout (CAD change)", verdict: option}
+  - {lever: "Coffee brewed at the dock (stock 230 V machine) instead of the on-board 24 V module", save: 763, mass_kg: -7.3,
+     loss: "no brewing on the move; robot must go to the dock per order; machine next to the AgileX dock. Faster to certify", verdict: option}
+  - {lever: "Jetson Orin Nano Super 8 GB dev kit instead of Orin NX 16 GB", save: 640, mass_kg: -0.1,
+     loss: "8 GB RAM / 67 TOPS: cannot run depth + detection + arm policy + ASR concurrently at target rates; policies must be smaller or offloaded", verdict: option}
+  - {lever: "Pack 15s4p 24 Ah (cells >= 2.5 C pulse) instead of 15s5p 30 Ah", save: 230, mass_kg: -2.6,
+     loss: "P2 barista autonomy ~5.8 h (< 6 h target); all-peak 2.3 C needs higher-rate cells", verdict: option}
+  - {lever: "Cheaper PL d safety scanners (e.g. IDEC SE2L / Hokuyo UAM class) instead of 2 x nanoScan3 Pro I/O", save: 1000, mass_kg: 0,
+     loss: "prices unverified; new integration, fewer field sets, less mature ROS 2 driver; must still be Type 3 / PL d", verdict: option}
+  - {lever: "ONE nanoScan3 instead of two", save: 2300, mass_kg: -0.7,
+     loss: "275 deg field leaves an ~85 deg blind sector; people approach the coffee backpack from behind and the arms need 360 deg separation monitoring. No safety argument", verdict: "no"}
+  - {lever: "Remove PNOZ / contactors (rely on the Damiao firmware stop)", save: 1300, mass_kg: -1.2, loss: "no PL d stop function: not certifiable", verdict: "no"}
+  - {lever: "Cheaper arms than OpenArm 2.0", save: 0, mass_kg: 0,
+     loss: "OpenArm (EUR 5,950 for two arms incl. torso) is already the cheapest validated option; certified arms (UR3e) cost ~4-6x", verdict: "no"}

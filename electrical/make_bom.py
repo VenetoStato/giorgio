@@ -57,8 +57,10 @@ _j = BASE.get("jetson", {"item": "NVIDIA Jetson AGX Orin 64 GB developer kit", "
 add(S, _j["item"], 1, _j["unit"], _j["source"], _j.get("mpn", ""))
 add(S, "Orbbec Gemini 336L stereo depth camera", 1, 340, "https://store.orbbec.com/products/gemini-336l (USD 379)", "Gemini 336L")
 add(S, "USB UVC fisheye camera ~180 deg 1080p (front + back), replaces Insta360 X4", 2, 50, "estimate (FEASIBILITY.md section 3.7 option A)", "Arducam/e-con class")
-add(S, "PEAK PCAN-USB FD (one CAN-FD bus per arm)", 2, 260, "https://www.esacademystore.eu/en/PCAN-USB-FD (FEASIBILITY.md section 5)", "IPEH-004022")
-add(S, "3.3 V CAN transceiver module for Orin MTTCAN (BMS bus + spare)", 2, 40, "estimate (FEASIBILITY.md section 5: +600 incl. 2 PCAN)", "SN65HVD230 class")
+for c_ in BASE.get("can_lines", [
+        {"item": "PEAK PCAN-USB FD (one CAN-FD bus per arm)", "qty": 2, "unit": 260, "source": "https://www.esacademystore.eu/en/PCAN-USB-FD (FEASIBILITY.md section 5)", "mpn": "IPEH-004022"},
+        {"item": "3.3 V CAN transceiver module for Orin MTTCAN (BMS bus + spare)", "qty": 2, "unit": 40, "source": "estimate (FEASIBILITY.md section 5: +600 incl. 2 PCAN)", "mpn": "SN65HVD230 class"}]):
+    add(S, c_["item"], c_["qty"], c_["unit"], c_["source"], c_.get("mpn", ""))
 add(S, "Industrial Ethernet switch 5-8 port, 24 V DIN (scanners, PNOZ, Jetson)", 1, 80, "estimate (FEASIBILITY.md section 5)")
 add(S, "Powered USB 3 hub, 7 port, 12 V input", 1, 60, "estimate (FEASIBILITY.md section 6: 9-11 USB devices)")
 
@@ -78,7 +80,8 @@ add(S, "Paper cups + capsules starter stock", 1, 0, "consumable, not counted", c
 
 # ============================================================================ 2. electrical (netlist)
 CAD_TO_NET = {"E01": "PACK", "E02": "DCDC_ARM", "E03": "DCDC_ARM", "E05": "PNOZ", "E06": "K_ARM", "E07": "K_ARM",
-              "E09": "CHG_TRACER", "S02": "SCANNER", "S03": "DOCK_CONTACTS", "E10": "BUFFER"}     # by CAD part-number prefix
+              "E09": "CHG_TRACER", "S02": "SCANNER", "S03": "DOCK_CONTACTS", "E10": "BUFFER",
+              "E11": "DCDC_COF", "E12": "DCDC_S24"}     # by CAD part-number prefix (E12 = the 24/12/5 V DC-DC group)
 CAD_TO_NET.update(BASE.get("cad_to_net", {}))
 SEC_OF = {"battery": "F. Power", "fuse": "F. Power", "disconnect": "F. Power", "control": "F. Power", "protection": "F. Power",
           "dcdc": "F. Power", "charger": "F. Power", "contactor": "G. Safety", "relay": "F. Power", "resistor": "F. Power",
@@ -101,7 +104,8 @@ for c in NET["components"]:
         src += " (" + c["price_note"] + ")"
     add(sec, c.get("desc") or c["mpn"], c.get("qty", 1), c.get("price_eur", 0), src, c["mpn"],
         "price estimate" if c.get("assumed") else "", "barista" if c["id"] in BARISTA_ONLY else "all")
-add("G. Safety", "Pilz PNOZ m ES ETH (Modbus TCP status to Jetson)", 1, 400, "estimate (FEASIBILITY.md section 3.5)", "772134 (unverified)")
+if BASE.get("pnoz_es_eth", True):
+    add("G. Safety", "Pilz PNOZ m ES ETH (Modbus TCP status to Jetson)", 1, 400, "estimate (FEASIBILITY.md section 3.5)", "772134 (unverified)")
 add("G. Safety", "Optocouplers 24 V -> 3.3 V for PNOZ status into Jetson GPIO", 1, 15, "estimate (FEASIBILITY.md section 6)")
 add("F. Power", "DIN rail 35x7.5 + end stops (E04 in CAD)", 2, 6, "estimate", "EN 60715")
 if BASE.get("own_dock", True):
@@ -120,7 +124,8 @@ SUBSYS_MAP = {"tracer2_base": "A. Mobile base", "B00_ranger_air_base": "A. Mobil
               "E08_jetson_agx_orin": "C. Jetson", "E08_jetson_agx_orin_module": "C. Jetson",
               "S05_orbbec_gemini_336L": "C. Gemini 336L", "S07_coffee_machine_inissia_EN80": "E. 24 V capsule machine",
               "S08_MGN12_rail_190": "E. MGN12", "S09_MGN12H_carriage": "E. MGN12", "S10_actuonix_P16_150": "E. Actuonix",
-              "S10b_actuonix_rod": "E. Actuonix", "E04_din_rail_pnoz": "F. Power / DIN rail line"}
+              "S10b_actuonix_rod": "E. Actuonix", "E04_din_rail_pnoz": "F. Power / DIN rail line",
+              "E13_ethernet_switch": "C. Ethernet switch line"}
 REMOVE = {"S04_insta360_X4": "replaced by 2 UVC fisheyes (FEASIBILITY.md section 5)",
           "P17_insta360_mast": "mast not needed once the Insta360 X4 is removed (fisheyes mount in the head shell)"}
 COFFEE_PARTS = ("P21_", "P22_", "P23_", "P24_", "P25_", "P26_", "SH06_")
@@ -259,6 +264,19 @@ md = ["# Giorgio - consolidated bill of materials", "",
       f"| **Sum of parts, barista configuration (default)** - no margin, no labour" + (" - **excluding** " + ", ".join(EXCL) + " (prices not published)" if EXCL else "") + f" | **{tot_all:,.0f}** |",
       f"| of which barista-only items (coffee backpack, coffee DC-DC/relay/fuse, backpack structure) | {tot_barista_only:,.0f} |",
       f"| Optional: assembly and test labour, {LABOUR_H} h x {LABOUR_RATE} EUR/h (README v7) | {LABOUR_H * LABOUR_RATE:,.0f} |", ""]
+CD = BASE.get("cost_down", [])
+if CD:
+    lean_save = sum(c["save"] for c in CD if c["verdict"] == "lean")
+    lean_mass = sum(c.get("mass_kg", 0) for c in CD if c["verdict"] == "lean")
+    md += ["## Cost-down options (owner: \"the whole thing must cost little\"; safety functions stay PL d)", "",
+           "The **standard** configuration above already uses the cheapest parts that pass every check in `CHECKS_*.md`:",
+           "", *[f"- {x}" for x in BASE.get("standard_choices", [])], "",
+           "| Lever | EUR saved | Mass | What we lose / risk added | Verdict |", "|---|---|---|---|---|"]
+    for c in CD:
+        md.append(f"| {c['lever']} | {c['save']:,.0f} | {c.get('mass_kg', 0):+.1f} kg | {c['loss']} | {dict(lean='**in LEAN**', option='option (not in lean)', no='**NOT acceptable**')[c['verdict']]} |")
+    md += ["", f"**LEAN configuration (barista kept): EUR {tot_all - lean_save:,.0f}** sum of parts = standard {tot_all:,.0f} - {lean_save:,.0f}"
+           f" ({lean_mass:+.1f} kg)" + ("; excluding " + ", ".join(EXCL) + " (prices not published)" if EXCL else "") + ".",
+           f"Lean without on-board coffee (brew at the dock): EUR {tot_all - lean_save - tot_barista_only + 150:,.0f}.", ""]
 md += ["## Subtotals by section", "", "| Section | EUR |", "|---|---|"]
 for s in SECTIONS:
     md.append(f"| {s} | {sum(l['total'] for l in lines if l['section'] == s):,.0f} |")

@@ -203,3 +203,104 @@ rb = make_rbtheron()
 r = subprocess.run([sys.executable, str(HERE / "calc.py"), str(HERE / "netlist_rbtheron.yaml"), str(HERE / "CHECKS_RBTHERON.md")],
                    capture_output=True, text=True)
 print(r.stdout, r.stderr[-2000:])
+
+
+# =====================================================================================================
+# RANGER MINI 3.0 (owner decision, latest): same architecture as the RB-THERON variant
+# (own 15s 30 Ah pack, isolated charger from the base 48 V accessory output, AgileX dock charges everything)
+# =====================================================================================================
+def make_rangermini():
+    n = copy.deepcopy(make_rbtheron())
+    n["meta"]["revision"] = "E4.0 (2026-10-03) Ranger Mini 3.0, own 15s 30 Ah pack charged from the base accessory output"
+    n["meta"]["variant"] = "AgileX Ranger Mini 3.0 + own 48 V pack; the AgileX charging kit (NAVIS) charges both batteries"
+    for k in ("rb_theron", "rb_theron_gr", "robotnik_charge", "robotnik_safety_module"):
+        n["sources"].pop(k, None)
+    n["sources"].update({
+        "ranger_mini_manual": "https://cdn.shopify.com/s/files/1/0551/0630/6141/files/RANGER_MINI_3.0_User_Manual.pdf?v=1773112703",
+        "ranger_mini_price": "https://www.generationrobots.com/en/404051-ranger-mini-mobile-robot-ugv.html",
+        "navis_api": "https://raw.githubusercontent.com/agilexrobotics/Navis/master/user_api.html",
+        "base_options": "cad/BASE_OPTIONS.md"})
+    n["tracer"] = {"label": "Ranger Mini", "v_nom": 48.0, "ah": 24, "usable_dod": 0.9, "charger_component": "ORION_4848",
+                   "transfer": "base_to_pack", "source": "ranger_mini_manual"}
+    n["base_battery"] = {"v_min": 44.0, "ah": 24, "c_cont": 1.0, "c_pulse": 2.0,
+                         "note": "LFP 48 V 24 Ah (manual); C-rates NOT published: 1 C / 2 C assumed; accessory output cut below 10 % SOC"}
+    for b in n["buses"]:
+        if b["id"] == "T24":
+            b.update({"desc": "Ranger Mini 3.0 internal LFP 48 V 24 Ah; accessory output 46-50 V <= 15 A / 720 W", "v_nom": 48.0, "v_min": 44.0, "v_max": 50.0})
+    for l in n["loads"]:
+        if l["id"] == "BASE_TRACTION":
+            l.update({"desc": "Ranger Mini 3.0 traction (4WD/4WS, 4 drive + 4 steer motors), ~160 kg robot", "p_typ_w": 100, "p_cont_w": 250, "p_peak_w": 600,
+                      "note": "not published: 4WD rolling + steering ~100 W at 1 m/s; accel 0.5 m/s2 at 1.5 m/s ~ 600 W elec peak (ASSUMED)"})
+        if l["id"] == "BASE_HOTEL":
+            l.update({"desc": "Ranger Mini own electronics (VCU, drives idle, lights) + NAVIS module (computer + lidar) for auto-docking",
+                      "p_typ_w": 40, "p_cont_w": 50, "p_peak_w": 60,
+                      "note": "chassis ~15 W + NAVIS ~25 W, ASSUMED (not published)"})
+        if l["id"] == "BASE_TO_PACK":
+            l.update({"desc": "Isolated DC-DC charger input (Orion-Tr 48/48-6, 324 W out) drawn from the 46-50 V accessory output (<= 15 A / 720 W)"})
+    n["profiles"][0]["p_avg"]["BASE_TRACTION"] = 30     # P1: 30 % driving x 100 W
+    n["profiles"][1]["p_avg"]["BASE_TRACTION"] = 20     # P2: 20 %
+    for b in n["branches"]:
+        if b["id"] == "W17":
+            b["desc"] = "Ranger Mini rear accessory port (46-50 V, <= 15 A) -> F17 -> Orion-Tr 48/48-6 input"
+            b["current"] = {"from": "fixed", "i_cont_a": 8.4, "i_peak_a": 8.4, "peak_s": 3600}
+            b["note"] = "port limit 15 A / 720 W (manual): charger draws 370 W = 51 % of the port; base battery Isc unknown -> 5 kA assumed"
+    for c in n["components"]:
+        if c["id"] == "RB_THERON":
+            c.update({"id": "RANGER_MINI", "mpn": "AgileX Ranger Mini 3.0 (48 V 24 Ah LFP, 120 kg payload, accessory 46-50 V <= 15 A)", "source": "ranger_mini_price"})
+        if c["id"] == "ORION_4848":
+            c["note"] = "galvanic isolation; 370 W input = 51 % of the 720 W accessory port (owner limit <= 400-450 W); remote on/off from the Jetson"
+    n["oem_dock"] = {"p_w": 598, "hotel_w": 160, "target_h": 6, "target_20_80_min": 240,
+                     "note": "AgileX charging kit (NAVIS) specs NOT published; NAVIS API example 54.9 V x 10.9 A = 598 W used. Whether the accessory output (our charger) stays on while docked is UNVERIFIED"}
+    for sc in n["scenarios"]:
+        sc["desc"] = sc["desc"].replace("base accelerating at full speed", "Ranger Mini accelerating").replace("base at 150 W traction", "base at 250 W traction")
+        if sc["id"] == "S4":
+            sc["requires"] = "the AgileX dock must supply >= base hotel + 370 W charger + base charge current; dock power UNVERIFIED (598 W assumed); accessory output must stay on while docked"
+        if sc["id"] == "S2":
+            sc["requires"] = "INTERLOCK (power manager, non-safety): Orion charger off while base traction > 150 W (keeps the base battery < 0.5 C and the port well below 15 A)"
+        if sc["id"] == "S3":
+            sc["base_loads"] = {"BASE_TRACTION": 20, "BASE_HOTEL": "typ"}
+        if sc["id"] == "S2x":
+            sc["desc"] = "same as S2 WITHOUT the charger interlock (is the interlock needed?)"
+            sc["requires"] = "on the Ranger Mini the interlock is NOT strictly needed (base battery 0.63 C); kept to reserve base energy for traction"
+    n["safety"]["functions"][2] = {
+        "id": "SF3", "desc": "Giorgio E-stop / protective field -> Ranger Mini drive stop", "plr": "d", "cat": 3,
+        "chain": [{"name": "nanoScan3", "pfhd": 8.0e-8, "source": "sick_nanoscan3"},
+                  {"name": "PNOZ m B0 + EF 4DI4DOR relay output", "pfhd": 1.3e-8, "assumed": True},
+                  {"name": "Ranger Mini 3.0: no external E-stop / safety input documented (rear port: 46-50 V + CAN only); CAN stop only", "pfhd": None}]}
+    # ---- cost-down (owner: "must cost little"): cheapest compute that runs the workload, smaller 12 V DC-DC
+    for l in n["loads"]:
+        if l["id"] == "JETSON":
+            l.update({"desc": "Jetson Orin NX 16 GB module + compact carrier (MAXN Super 40 W; 25 W mode default)", "p_typ_w": 15, "p_cont_w": 25, "p_peak_w": 40,
+                      "source": "jetson_orin_nx", "assumed": True,
+                      "note": "workload: Gemini 336L depth + 2 UVC fisheye + 2 wrist cams, YOLO-class detection + grasp pose (TensorRT), "
+                              "one ACT/diffusion arm policy at 10-30 Hz, ASR/TTS; LLM agent in the cloud"})
+    for c in n["converters"]:
+        if c["id"] == "DCDC_CPU":
+            c.update({"iout_a": 5, "peak_factor": 1.0, "peak_s": 0, "eta": 0.91, "vin_min": 18, "vin_max": 75})
+    for c in n["components"]:
+        if c["id"] == "DCDC_CPU":
+            c.update({"short": "DDR-60L-12", "mpn": "DDR-60L-12", "price_eur": 30, "source": "mw_ddr60"})
+        if c["id"] == "JETSON_AGX":
+            c.update({"mpn": "Jetson Orin NX 16 GB", "source": "jetson_orin_nx"})
+    for b in n["branches"]:
+        if b["id"] == "W06":
+            b["desc"] = "B48 -> F3 -> DDR-60L-12 (compute)"
+        if b["id"] == "W11":
+            b["desc"] = "C12 -> F30 -> Jetson Orin NX"
+    for p_, w_ in zip(n["profiles"], (20, 18, 12)):
+        p_["p_avg"]["JETSON"] = w_
+    for sc in n["scenarios"]:
+        if sc["id"] == "S3":
+            sc["pack_loads"]["JETSON"] = 18
+            sc["desc"] = sc["desc"].replace("Jetson 30 W", "Jetson 18 W")
+    n["sources"]["jetson_orin_nx"] = "https://developer.nvidia.com/embedded/jetson-modules (Orin NX 16 GB: 10-25 W, 40 W MAXN Super)"
+    n["autonomy_note"] = "usable: our pack 1296 Wh + Ranger Mini 1037 Wh (0.9 x 1152 Wh, port cut below 10 %); base energy moved to our pack through the Orion (eta 0.88)"
+    return n
+
+
+rm = make_rangermini()
+(HERE / "netlist_rangermini.yaml").write_text(
+    "# GENERATED by variants.py from netlist.yaml - do not edit by hand\n" + yaml.safe_dump(rm, sort_keys=False, allow_unicode=True, width=160))
+r = subprocess.run([sys.executable, str(HERE / "calc.py"), str(HERE / "netlist_rangermini.yaml"), str(HERE / "CHECKS_RANGERMINI.md")],
+                   capture_output=True, text=True)
+print(r.stdout, r.stderr[-2000:])
