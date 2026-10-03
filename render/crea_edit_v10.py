@@ -13,7 +13,7 @@ def kick(t0, t1, text, above=120):
 
 
 def card(dur, *texts, **k):
-    d = dict(type="card", dur=dur, color=BLACK, texts=list(texts)); d.update(k); return d
+    d = dict(type="card", dur=dur, color=BLACK, texts=list(texts), xfade=0.2); d.update(k); return d
 
 
 def big(t0, t1, text, size=96, **k):
@@ -101,10 +101,10 @@ S.append(dict(type="card", dur=4.2, bg="stills_v10/os_safety.png", dim=0.0, zoom
               texts=[T(0.3, 4.2, "THE BIG RED BUTTON IS SOFTWARE. THE REAL ONE IS ON THE ROBOT.", [122, 985], 26, "X", color=GREY, shadow=False, band=False, align="left")]))
 # --- mani RL
 S.append(card(2.8, big(0.2, 2.8, "DEXTERITY IS TRAINED,\nNOT HAND-CODED.", 80)))
-S.append(shot("v9/rl_prima/f_*.jpg", "SIM // REINFORCEMENT LEARNING", kick(0.3, 4.3, "ORCA HAND · BEFORE"), T(0.3, 4.3, "UNTRAINED.", size=64)))
+S.append(shot("v10/rlp2/f_*.jpg", "SIM // REINFORCEMENT LEARNING", kick(0.3, 4.3, "ORCA HAND · BEFORE"), T(0.3, 4.3, "UNTRAINED.", size=64)))
 S.append(dict(type="card", dur=5.0, bg="stills_v10/rl_curva_dark.png", dim=0.0,
               texts=[mono(0.2, 5.0, "236 M SIMULATED ATTEMPTS · 4,096 PARALLEL ENVIRONMENTS · 81 MIN · ONE GPU", pos="upper", size=26)]))
-S.append(shot("v9/rl_dopo/f_*.jpg", "SIM // REINFORCEMENT LEARNING", kick(0.3, 9.8, "ORCA HAND · AFTER"), T(0.3, 5.0, "IN-HAND ROTATION, LEARNED.", size=60),
+S.append(shot("v10/rld2/f_*.jpg", "SIM // REINFORCEMENT LEARNING", kick(0.3, 9.8, "ORCA HAND · AFTER"), T(0.3, 5.0, "IN-HAND ROTATION, LEARNED.", size=60),
               T(5.1, 9.8, "NEXT: TEACHING IT\nTO A REAL HAND.", size=60)))
 # --- caffe' (comico)
 S.append(card(3.2, mono(0.2, 3.2, "AND NOW", pos="upper", size=26), big(0.5, 3.2, "THE MISSION-CRITICAL\nCAPABILITY.", 84)))
@@ -115,8 +115,9 @@ S.append(shot("v10/c_eroga/f_*.jpg", "SIM // 3×", kick(0.2, 7.6, "STEPS 2–4")
 S.append(shot("v10/c_prende/f_*.jpg", "SIM", kick(0.3, 5.5, "STEP 5"), T(0.3, 5.5, "PICK UP THE FULL CUP.", size=60),
               T(1.0, 5.5, "Carefully. It's the most expensive cup in the building.", [122, 960], 32, "N", band=False)))
 S.append(shot("v10/c_consegna/f_*.jpg", "SIM // 2×", kick(0.3, 7.5, "STEP 6"), T(0.3, 3.4, "DELIVER.", size=72), T(3.5, 7.5, "ENJOY, MARCO.", size=72)))
-S.append(dict(type="frames", glob="v10/h_back/f_*.jpg", tag="RENDER",
-              texts=[big(0.6, 5.0, "WORST CASE,", 70), T(1.6, 5.0, "IT'S A VERY EXPENSIVE COFFEE MACHINE.", "sub", 46, "N", color=WHITE, band=False, shadow=True)]))
+S.append(dict(type="card", dur=5.0, bg="stills_v10/cfg1_barista.png", dim=0.15, zoom=0.05,
+              texts=[T(0.5, 5.0, "WORST CASE,", [1300, 700], 80, "H", color=WHITE, shadow=False, band=False, track=3, align="left"),
+                     T(1.5, 5.0, "IT'S A VERY EXPENSIVE\nCOFFEE MACHINE.", [1304, 800], 46, "N", color=WHITE, shadow=False, band=False, align="left")]))
 S.append(card(5.5, images=[dict(path="logo/logo_full_chiaro.png", t0=0.3, t1=5.5, pos=[960, 470], w=1100)],
               texts=[mono(1.2, 5.5, "PRICE: LESS THAN A BARISTA. MORE THAN A MOKA POT.", pos="sub2", size=28)]))
 json.dump(dict(fps=30, size=[1920, 1080], music="music_v10.wav", xfade=0.45, ui=dict(head="GIORGIO // REV.10"), segments=S),

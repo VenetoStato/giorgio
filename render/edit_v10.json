@@ -53,7 +53,8 @@
      "band": false,
      "track": 3
     }
-   ]
+   ],
+   "xfade": 0.2
   },
   {
    "type": "card",
@@ -81,7 +82,8 @@
      "band": false,
      "track": 3
     }
-   ]
+   ],
+   "xfade": 0.2
   },
   {
    "type": "card",
@@ -126,7 +128,8 @@
      "band": false,
      "track": 1
     }
-   ]
+   ],
+   "xfade": 0.2
   },
   {
    "type": "frames",
@@ -337,7 +340,8 @@
      "band": false,
      "track": 1
     }
-   ]
+   ],
+   "xfade": 0.2
   },
   {
    "type": "card",
@@ -658,7 +662,8 @@
      "band": false,
      "track": 1
     }
-   ]
+   ],
+   "xfade": 0.2
   },
   {
    "type": "frames",
@@ -905,7 +910,8 @@
      "band": false,
      "track": 1
     }
-   ]
+   ],
+   "xfade": 0.2
   },
   {
    "type": "card",
@@ -950,7 +956,8 @@
      "band": false,
      "track": 1
     }
-   ]
+   ],
+   "xfade": 0.2
   },
   {
    "type": "frames",
@@ -1370,7 +1377,8 @@
      "shadow": false,
      "band": false
     }
-   ]
+   ],
+   "xfade": 0.2
   },
   {
    "type": "card",
@@ -1398,7 +1406,8 @@
      "band": false,
      "track": 3
     }
-   ]
+   ],
+   "xfade": 0.2
   },
   {
    "type": "frames",
@@ -1746,11 +1755,12 @@
      "band": false,
      "track": 3
     }
-   ]
+   ],
+   "xfade": 0.2
   },
   {
    "type": "frames",
-   "glob": "v9/rl_prima/f_*.jpg",
+   "glob": "v10/rlp2/f_*.jpg",
    "tag": "SIM // REINFORCEMENT LEARNING",
    "texts": [
     {
@@ -1809,7 +1819,7 @@
   },
   {
    "type": "frames",
-   "glob": "v9/rl_dopo/f_*.jpg",
+   "glob": "v10/rld2/f_*.jpg",
    "tag": "SIM // REINFORCEMENT LEARNING",
    "texts": [
     {
@@ -1893,7 +1903,8 @@
      "band": false,
      "track": 3
     }
-   ]
+   ],
+   "xfade": 0.2
   },
   {
    "type": "frames",
@@ -2085,18 +2096,23 @@
    ]
   },
   {
-   "type": "frames",
-   "glob": "v10/h_back/f_*.jpg",
-   "tag": "RENDER",
+   "type": "card",
+   "dur": 5.0,
+   "bg": "stills_v10/cfg1_barista.png",
+   "dim": 0.15,
+   "zoom": 0.05,
    "texts": [
     {
-     "t0": 0.6,
+     "t0": 0.5,
      "t1": 5.0,
      "text": "WORST CASE,",
-     "pos": "center",
-     "size": 70,
+     "pos": [
+      1300,
+      700
+     ],
+     "size": 80,
      "weight": "H",
-     "align": "center",
+     "align": "left",
      "color": [
       245,
       245,
@@ -2107,20 +2123,23 @@
      "track": 3
     },
     {
-     "t0": 1.6,
+     "t0": 1.5,
      "t1": 5.0,
-     "text": "IT'S A VERY EXPENSIVE COFFEE MACHINE.",
-     "pos": "sub",
+     "text": "IT'S A VERY EXPENSIVE\nCOFFEE MACHINE.",
+     "pos": [
+      1304,
+      800
+     ],
      "size": 46,
      "weight": "N",
-     "align": "center",
+     "align": "left",
      "color": [
       245,
       245,
       242
      ],
-     "band": false,
-     "shadow": true
+     "shadow": false,
+     "band": false
     }
    ]
   },
@@ -2151,6 +2170,7 @@
      "track": 1
     }
    ],
+   "xfade": 0.2,
    "images": [
     {
      "path": "logo/logo_full_chiaro.png",
