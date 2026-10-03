@@ -1,0 +1,11 @@
+# Base choice consumed by make_bom.py - per cad/BASE_DECISION.md (2026-10-03):
+#   prototype / demos: AgileX Tracer 2.0 (priced default); sellable product: MiR250 (delta below)
+name: "AgileX Tracer 2.0 (prototype/demo build, cad/BASE_DECISION.md)"
+lines:
+  - {item: "AgileX Tracer 2.0 AMR (24 V 30 Ah LFP, 2x 400 W, 10 A charger incl.)", unit: 7500, source: "README v7 BOM (estimate; AgileX price not public)", mpn: "Tracer 2.0"}
+drop_netlist: []
+drop_cad: []
+config_deltas:
+  - name: "Product base: MiR250 instead of Tracer 2.0"
+    delta_text: "-12,610 + MiR250 price (not public; low-confidence memory 35-50 k) + MiR charging station (not public)"
+    what: "remove Tracer 7,500, Orion-Tr 230, F5/F7 22, 2x nanoScan3 4,600, scanner pod brackets 58, isolated CAN 250; add MiR interface wiring 40; keep our pack, DC-DCs, PNOZ, RoboPad + IC1200 (combined station). +1-2 nanoScan3 (2,300-4,600) if MiR has no safe protective-stop output (ARCHITECTURE 8.7)"

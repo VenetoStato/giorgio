@@ -93,6 +93,15 @@ class Net:
         c = self.conv[cid]
         return self.conv_out_current(cid, kind) * self.bus[c["out_bus"]]["v_nom"] / c["eta"]
 
+    def excl_saving(self, kind):
+        """pack-side W that can never flow together (energy-management interlocks): sum of the smaller members"""
+        sav = 0.0
+        for g in self.d.get("exclusive", []):
+            vals = [self.load[l][f"p_{kind}_w"] for l in g.get("loads", [])]
+            vals += [self.conv_in_power(c, kind) for c in g.get("convs", [])]
+            sav += sum(vals) - max(vals)
+        return sav
+
     def branch_current(self, bid):
         br = self.br[bid]
         cur = br["current"]
@@ -111,9 +120,9 @@ class Net:
             ic, ip, ps = l["p_cont_w"] / v, l["p_peak_w"] / v, l.get("peak_s", 1)
         elif f == "sum":
             parts = [self.branch_current(x) for x in cur["branches"]]
-            ic = sum(p[0] for p in parts)
-            ip = sum(p[1] for p in parts)
-            ps = max(p[2] for p in parts)
+            ic = sum(p[0] for p in parts) - self.excl_saving("cont") / self.v_min
+            ip = sum(p[1] for p in parts) - self.excl_saving("peak") / self.v_min
+            ps = max([p[2] for p in parts if p[1] > p[0] + 1e-9] or [1])
         elif f == "fixed":
             ic, ip, ps = cur["i_cont_a"], cur["i_peak_a"], cur.get("peak_s", 1)
         else:
@@ -163,12 +172,12 @@ def main(path_yaml, path_md):
 
     # ================================================================ pack current
     loads_b48 = [l for l in n.load.values() if l["bus"] == "B48"]
-    p_peak = sum(n.conv_in_power(c, "peak") for c in n.conv) + sum(l["p_peak_w"] for l in loads_b48)
-    p_cont = sum(n.conv_in_power(c, "cont") for c in n.conv) + sum(l["p_cont_w"] for l in loads_b48)
+    p_peak = sum(n.conv_in_power(c, "peak") for c in n.conv) + sum(l["p_peak_w"] for l in loads_b48) - n.excl_saving("peak")
+    p_cont = sum(n.conv_in_power(c, "cont") for c in n.conv) + sum(l["p_cont_w"] for l in loads_b48) - n.excl_saving("cont")
     i_peak, i_cont = p_peak / n.v_min, p_cont / n.v_min
     bms = comp[b["bms_component"]]["ratings"]
     cell = b["cell"]
-    rec("Pack current", "ALL peaks at once (both arms 720 W, compute, UI, Tracer charger) at V_min",
+    rec("Pack current", "ALL peaks at once (both arms 720 W, compute, UI, coffee or Tracer charger) at V_min",
         f"{p_peak:.0f} W -> {i_peak:.1f} A = {i_peak / n.ah:.2f} C",
         f"<= min(BMS {bms['i_peak_a']} A/{bms['t_peak_s']} s, cell {cell['c_pulse']} C = {cell['c_pulse'] * n.ah:.0f} A)",
         i_peak <= min(bms["i_peak_a"], cell["c_pulse"] * n.ah), "physically unlikely combination; design worst case")
@@ -281,8 +290,11 @@ def main(path_yaml, path_md):
     rec("Regen (24 V arm buses)", f"Clamp average at {rg['stops_per_min']} hard stops/min", f"{pav:.1f} W", f"<= {cl['p_cont_w']} W", pav <= cl["p_cont_w"])
 
     # ================================================================ autonomy
-    tr = d["tracer"]
-    eta_tc = comp[tr["charger_component"]]["ratings"]["eta"]
+    tr = d.get("tracer")
+    has_tr = bool(tr)
+    if not has_tr:   # base with its own battery and charger, not fed from our pack (e.g. MiR250)
+        tr = {"v_nom": 0, "ah": 0, "usable_dod": 0}
+    eta_tc = comp[tr["charger_component"]]["ratings"]["eta"] if has_tr else 1.0
     e_pack = n.e_nom * b["usable_dod"]
     e_tr = tr["v_nom"] * tr["ah"] * tr["usable_dod"]
     conv_of = {c["out_bus"]: c for c in n.conv.values()}
@@ -304,7 +316,8 @@ def main(path_yaml, path_md):
         rec("Autonomy", f"{pr['id']} {pr['desc']}",
             f"pack {p_pack:.0f} W -> {h_pack:.1f} h; Tracer {p_tr:.0f} W -> {h_tr:.1f} h; combined {h_comb:.1f} h",
             f">= {pr['target_h']} h (combined, with balancing)", h_sys >= pr["target_h"],
-            f"usable pack {e_pack:.0f} Wh, Tracer {e_tr:.0f} Wh; Tracer topped up from pack via isolated charger (eta {eta_tc})")
+            (f"usable pack {e_pack:.0f} Wh, Tracer {e_tr:.0f} Wh; Tracer topped up from pack via isolated charger (eta {eta_tc})"
+             if has_tr else f"usable pack {e_pack:.0f} Wh; base has its own battery (not counted)"))
 
     # ================================================================ charging
     ch = d["charging"]
@@ -326,22 +339,29 @@ def main(path_yaml, path_md):
     rec("Charging", "Opportunity charge 20 % -> 80 % (Tracer deferred)", f"{t_20_80 * 60:.0f} min", f"<= {ch['target_20_80_min']} min",
         t_20_80 * 60 <= ch["target_20_80_min"])
     rec("Charging", "Full charge 0 -> 100 % (CC, Tracer from 80 %, CV tail)", f"{t_full:.2f} h", f"<= {ch['target_full_h']} h", t_full <= ch["target_full_h"])
-    t_tr = tr["v_nom"] * tr["ah"] * 0.8 / ch["tracer_charge_w"]
-    rec("Charging", "Tracer battery 10 -> 90 % via onboard charger (10 A)", f"{t_tr:.2f} h", f"<= {ch['target_full_h']} h (AgileX charger: 3 h)", t_tr <= ch["target_full_h"])
+    t_tr = tr["v_nom"] * tr["ah"] * 0.8 / ch["tracer_charge_w"] if has_tr else 0.0
+    if has_tr:
+        rec("Charging", "Tracer battery 10 -> 90 % via onboard charger (10 A)", f"{t_tr:.2f} h", f"<= {ch['target_full_h']} h (AgileX charger: 3 h)", t_tr <= ch["target_full_h"])
 
     # ================================================================ coffee options
     cf = d["coffee"]
-    base_main = n.branch_current("W01")
+    coffee_convs = [c for c in n.conv if n.conv[c]["out_bus"] == "COF24"]
+    coffee_loads = [l for l in n.load if n.load[l]["bus"] == "COF24"]
+    i_peak_nc = (p_peak - sum(n.conv_in_power(c, "peak") for c in coffee_convs) + n.excl_saving("peak")) / n.v_min
+    i_cont_nc = (p_cont - sum(n.conv_in_power(c, "cont") for c in coffee_convs) + n.excl_saving("cont")) / n.v_min
+    p2 = next(pr for pr in d["profiles"] if pr["id"] == "P2")
+    p2_nc = prof_out["P2"][0] - sum(p2["p_avg"].get(l, 0) for l in coffee_loads) / (n.conv[coffee_convs[0]]["eta"] if coffee_convs else 1)
+    base_main = (i_cont_nc, i_peak_nc)
     f0 = comp[n.fuse["F0"]["component"]]["ratings"]["in_a"]
     w01 = n.br["W01"]
     iz_main = d["wiring"]["ampacity_table"][w01["method"]][float(w01["csa_mm2"])] * interp(d["wiring"]["ambient_correction"], w01["ambient_c"])
     for o in cf["options"]:
         p_dc = o["machine_w"] / o["eta_conv"] if o["machine_w"] else 0.0
         i_dc = p_dc / n.v_min
-        i_all = i_peak + i_dc
+        i_all = i_peak_nc + i_dc
         wh_pack = o["wh_per_cup"] / o["eta_conv"] if o["wh_per_cup"] else 0.0
         cups = e_pack / wh_pack if wh_pack else float("inf")
-        p_serv = prof_out["P2"][0] + wh_pack * cf["cups_per_hour_service"] + o["idle_w"]
+        p_serv = p2_nc + wh_pack * cf["cups_per_hour_service"] + o["idle_w"]
         h_serv = (e_pack + e_tr * eta_tc) / (p_serv + prof_out["P2"][1] / eta_tc)
         main_cont = base_main[0] + i_dc
         f0_need = 1.25 * main_cont

@@ -6,7 +6,7 @@
 #   price_eur: indicative unit price excl. VAT (estimate unless 'price_source' given)
 meta:
   project: Giorgio mobile bimanual service robot
-  revision: E1.0 (2026-10-03)
+  revision: E1.1 (2026-10-03)
   author: electrical design (generated with Claude, to be reviewed by a qualified engineer)
   isc_ka_note: "5.8"
 
@@ -43,6 +43,8 @@ sources:
   kinova_gen3: https://www.kinovarobotics.com/uploads/User-Guide-Gen3-R07.pdf
   eu_battery_reg: https://eur-lex.europa.eu/eli/reg/2023/1542/oj
   schaltbau_c195: https://www.schaltbau.com/en/products/contactors/c195/
+  robopad: https://docs.galco.com/techdoc/rbtq/robopads_dat.pdf
+  tracer_ds: https://static.generation-robots.com/media/datasheet-tracer-2-0-agilex-robotics.pdf
 
 # ------------------------------------------------------------------------------------------- battery
 battery:
@@ -101,14 +103,17 @@ loads:
   - {id: JETSON, desc: "Jetson AGX Orin 64 GB module + carrier (7-20 V input, 15-60 W modes)", bus: C12, p_typ_w: 35, p_cont_w: 75, p_peak_w: 100, peak_s: 3, source: jetson_agx_orin_ds,
      note: "60 W MAXN module + carrier/NVMe/Wi-Fi; carrier peak assumed"}
   - {id: GEMINI, desc: "Orbbec Gemini 336L via USB (<3 W avg, <6 W peak)", bus: C12, p_typ_w: 3, p_cont_w: 3, p_peak_w: 6, peak_s: 1, source: orbbec_336l}
-  - {id: INSTA, desc: "Insta360 X4 webcam mode via USB 5 V 3 A", bus: C12, p_typ_w: 6, p_cont_w: 8, p_peak_w: 15, peak_s: 3, source: insta360_x4_power, assumed: true,
-     note: "webcam-mode draw not published; 5 V/3 A recommended for shooting while charging"}
+  - {id: FISHEYE, desc: "2x USB UVC fisheye cameras (front/back; replace Insta360 X4 per FEASIBILITY.md) + powered USB 3 hub", bus: C12, p_typ_w: 5, p_cont_w: 8, p_peak_w: 12, peak_s: 3, assumed: true,
+     note: "~1.5 W per UVC camera + hub overhead"}
   - {id: LEDFACE, desc: "32x16 P4 HUB75 LED face", bus: L5, p_typ_w: 3, p_cont_w: 10, p_peak_w: 10, peak_s: 1, source: waveshare_p4, assumed: true,
      note: "scaled from 64x32 P4 (5 V 4 A max): 1/4 pixels -> 2 A budget"}
   - {id: EYES, desc: "2x GC9A01 round displays + ESP32", bus: L5, p_typ_w: 1.5, p_cont_w: 2, p_peak_w: 3, peak_s: 1, assumed: true}
   - {id: LEDSTRIP, desc: "Mustache / base status LED strips", bus: L5, p_typ_w: 2, p_cont_w: 6, p_peak_w: 6, peak_s: 1, assumed: true}
   - {id: TRACER_CHG_IN, desc: "Tracer battery charger input (Orion-Tr 48/24-16 set to 10 A)", bus: B48, p_typ_w: 0, p_cont_w: 330, p_peak_w: 330, peak_s: 3600,
      assumed: true, note: "284 W out (28.4 V x 10 A) / 0.87. Energy balancing is handled by the autonomy model, not by p_typ."}
+  - {id: COFFEE, desc: "24 V DC capsule machine (truck type, 300 W heater + pump), barista configuration", bus: COF24, p_typ_w: 0, p_cont_w: 300, p_peak_w: 330, peak_s: 5,
+     source: truck_24v_capsule, note: "p_typ 0: brewing energy is set per profile (cups/h x Wh/cup)"}
+  - {id: COFFEE_IO, desc: "Coffee shuttle MCU (RP2040), Actuonix P16-150 12 V via buck, cup sensor", bus: COF24, p_typ_w: 1, p_cont_w: 6, p_peak_w: 12, peak_s: 3, assumed: true}
   - {id: TRACER_DRIVE, desc: "Tracer 2.0 traction (2x 400 W BLDC), own battery", bus: T24, p_typ_w: 60, p_cont_w: 400, p_peak_w: 800, peak_s: 3, source: tracer_manual,
      note: "40-80 W typical on flat floor (docs/alimentazione); peak = 2x motor rating"}
   - {id: TRACER_ELEC, desc: "Tracer controller, lights", bus: T24, p_typ_w: 15, p_cont_w: 15, p_peak_w: 20, peak_s: 1, assumed: true}
@@ -121,6 +126,7 @@ converters:
      peak_note: "150 % for 5 s"}
   - {id: DCDC_S24, component: DCDC_S24, out_bus: S24, iout_a: 5, peak_factor: 1.5, peak_s: 3, eta: 0.91, vin_min: 33.6, vin_max: 67.2}
   - {id: DCDC_CPU, component: DCDC_CPU, out_bus: C12, iout_a: 10, peak_factor: 1.5, peak_s: 3, eta: 0.895, vin_min: 33.6, vin_max: 67.2}
+  - {id: DCDC_COF, component: DCDC_COF, out_bus: COF24, iout_a: 20, peak_factor: 1.5, peak_s: 5, eta: 0.92, vin_min: 33.6, vin_max: 67.2}
   - {id: DCDC_5V, component: DCDC_5V, out_bus: L5, iout_a: 12, peak_factor: 1.0, peak_s: 0, eta: 0.875, vin_min: 18, vin_max: 75}
 
 # ------------------------------------------------------------------------------------------- wiring rules
@@ -136,7 +142,7 @@ wiring:
 # ------------------------------------------------------------------------------------------- branches
 # current.from: conv_in (DC-DC input at V_min), conv_out (DC-DC output to loads), load, sum, fixed
 branches:
-  - {id: W01, desc: "Pack -> F0 -> Q0 (MSD) -> B48 busbar", bus: B48, current: {from: sum, branches: [W02, W05, W06, W07, W08]},
+  - {id: W01, desc: "Pack -> F0 -> Q0 (MSD) -> B48 busbar", bus: B48, current: {from: sum, branches: [W02, W05, W06, W07, W08, W14]},
      csa_mm2: 16, length_m: 0.6, method: B1, ambient_c: 40, grouped: 1, fuse: F0, vdrop_limit_pct: 3,
      upstream_r_mohm: []}
   - {id: W02, desc: "B48 -> F1 -> K1/K2 -> arm DC-DC pair", bus: B48, current: {from: conv_in, convs: [DCDC_ARM_L, DCDC_ARM_R]},
@@ -157,7 +163,7 @@ branches:
      csa_mm2: 1.5, length_m: 0.4, method: B1, ambient_c: 45, grouped: 4, fuse: F4, vdrop_limit_pct: 5, upstream_r_mohm: [0.3, 0.2, 0.75]}
   - {id: W08, desc: "B48 -> F5 -> Orion-Tr 48/24-16 (Tracer charger)", bus: B48, current: {from: load, load: TRACER_CHG_IN},
      csa_mm2: 4, length_m: 0.5, method: B1, ambient_c: 45, grouped: 4, fuse: F5, vdrop_limit_pct: 3, upstream_r_mohm: [0.3, 0.2, 0.75]}
-  - {id: W09, desc: "Orion-Tr out -> F7 -> Tracer charge port (fuse at Tracer battery end)", bus: T24, current: {from: fixed, i_cont_a: 10, i_peak_a: 10, peak_s: 3600},
+  - {id: W09, desc: "Orion-Tr out -> F7 -> Tracer external 2-pin charging port (no vehicle modification)", bus: T24, current: {from: fixed, i_cont_a: 10, i_peak_a: 10, peak_s: 3600},
      csa_mm2: 2.5, length_m: 0.8, method: B1, ambient_c: 45, grouped: 1, fuse: F7, vdrop_limit_pct: 3, isc_override_a: 3000,
      note: "Tracer battery prospective Isc unknown; 3 kA assumed"}
   - {id: W10, desc: "S24 -> F20 -> front scanner + PNOZ + coils (distribution)", bus: S24, current: {from: conv_out, conv: DCDC_S24},
@@ -166,6 +172,10 @@ branches:
      csa_mm2: 2.5, length_m: 0.6, method: B1, ambient_c: 50, grouped: 2, fuse: F30, vdrop_limit_pct: 5, isc_override_a: 15}
   - {id: W12, desc: "L5 -> F40 -> head (LED face, eyes, ESP32) up the column", bus: L5, current: {from: conv_out, conv: DCDC_5V},
      csa_mm2: 1.5, length_m: 1.4, method: B1, ambient_c: 40, grouped: 2, fuse: F40, vdrop_limit_pct: 5, isc_override_a: 13}
+  - {id: W14, desc: "B48 -> F6 -> DDR-480C-24 (coffee module, cut by PNOZ)", bus: B48, current: {from: conv_in, convs: [DCDC_COF]},
+     csa_mm2: 4, length_m: 0.6, method: B1, ambient_c: 45, grouped: 4, fuse: F6, vdrop_limit_pct: 3, upstream_r_mohm: [0.3, 0.2, 0.75]}
+  - {id: W15, desc: "COF24 -> K4 -> F60 -> coffee machine (backpack)", bus: COF24, current: {from: conv_out, conv: DCDC_COF},
+     csa_mm2: 4, length_m: 1.0, method: B1, ambient_c: 40, grouped: 1, fuse: F60, vdrop_limit_pct: 3, isc_override_a: 27}
   - {id: W13, desc: "Dock contacts -> ideal diode -> F9 (at pack) -> BMS charge input", bus: B48, current: {from: fixed, i_cont_a: 21, i_peak_a: 21, peak_s: 7200},
      csa_mm2: 10, length_m: 0.7, method: B1, ambient_c: 45, grouped: 1, fuse: F9, vdrop_limit_pct: 3, upstream_r_mohm: [0.3]}
 
@@ -178,6 +188,8 @@ fuses:
   - {id: F3, component: FUSE_SPF006}
   - {id: F4, component: FUSE_SPF003}
   - {id: F5, component: FUSE_SPF012}
+  - {id: F6, component: FUSE_SPF012}
+  - {id: F60, component: FUSE_ATO20}
   - {id: F7, component: FUSE_SPF015}
   - {id: F9, component: FUSE_SPF030}
   - {id: F10, component: FUSE_ATO25}
@@ -207,6 +219,12 @@ regen:
   clamp_component: CLAMP
   oring: "Mean Well DRDN40-24 ideal-diode redundancy module per arm keeps regen off the DC-DC output (no OVP trip)"
 
+# ------------------------------------------------------------------------------------------- energy management
+# Mutually exclusive B48 consumers (Jetson power manager, non-safety): only the larger of each group counts
+# in pack-level sustained/peak sums and in the main feeder W01. Tracer charging is paused while brewing.
+exclusive:
+  - {loads: [TRACER_CHG_IN], convs: [DCDC_COF], note: "Orion-Tr remote-off while the coffee heater runs"}
+
 # ------------------------------------------------------------------------------------------- duty profiles
 # p_avg: average W per load over the profile; loads not listed use p_typ_w
 profiles:
@@ -215,13 +233,13 @@ profiles:
     target_h: 4
     p_avg: {ARM_L: 70, ARM_R: 70, JETSON: 45, TRACER_DRIVE: 18, TRACER_CHG_IN: 0}
   - id: P2
-    desc: "Service / coffee runs (coffee brewed at dock), arms active 25 %, driving 20 %"
+    desc: "Barista service: 8 cups/h brewed on board (8 x 15 Wh = 120 W avg), arms active 25 %, driving 20 %"
     target_h: 6
-    p_avg: {ARM_L: 30, ARM_R: 30, JETSON: 35, TRACER_DRIVE: 12, TRACER_CHG_IN: 0}
+    p_avg: {ARM_L: 30, ARM_R: 30, JETSON: 35, TRACER_DRIVE: 12, TRACER_CHG_IN: 0, COFFEE: 120, COFFEE_IO: 2}
   - id: P3
     desc: "Reception / standby, arms parked and powered, no driving, face on"
     target_h: 8
-    p_avg: {ARM_L: 10, ARM_R: 10, JETSON: 25, TRACER_DRIVE: 0, TRACER_CHG_IN: 0, INSTA: 6}
+    p_avg: {ARM_L: 10, ARM_R: 10, JETSON: 25, TRACER_DRIVE: 0, TRACER_CHG_IN: 0, FISHEYE: 5}
 
 # ------------------------------------------------------------------------------------------- charging
 charging:
@@ -264,7 +282,7 @@ coffee:
       wh_per_cup: 0
       brew_min: 1.0
       source: [nespresso_essenza_mini]
-  default: C
+  default: B
 
 # ------------------------------------------------------------------------------------------- safety functions
 safety:
@@ -293,7 +311,7 @@ safety:
       chain:
         - {name: "nanoScan3", pfhd: 8.0e-8, source: sick_nanoscan3}
         - {name: "PNOZ m B0 + EF 4DI4DOR relay output", pfhd: 1.3e-8, assumed: true}
-        - {name: "Tracer 2.0 power cut via its E-stop loop (no documented safety input, not rated)", pfhd: null}
+        - {name: "Tracer 2.0: CAN zero-speed + 500 ms timeout only (no external safety input, manual V1.0.0 p.11; internal modification forbidden)", pfhd: null}
 
 # ------------------------------------------------------------------------------------------- components / BOM
 # ratings used by calc.py; 'short' = label used in the diagram
@@ -318,7 +336,7 @@ components:
      ratings: {in_a: 30, v_dc: 1000, ir_dc_a: 20000, no_blow_ratio: 1.3}, assumed: true}
   - {id: FUSE_SPF015, short: "15 A gPV", category: fuse, qty: 1, manufacturer: Littelfuse, mpn: SPF015, price_eur: 6,
      ratings: {in_a: 15, v_dc: 1000, ir_dc_a: 20000, no_blow_ratio: 1.3}, assumed: true}
-  - {id: FUSE_SPF012, short: "12 A gPV", category: fuse, qty: 1, manufacturer: Littelfuse, mpn: SPF012, price_eur: 6,
+  - {id: FUSE_SPF012, short: "12 A gPV", category: fuse, qty: 2, manufacturer: Littelfuse, mpn: SPF012, price_eur: 6,
      ratings: {in_a: 12, v_dc: 1000, ir_dc_a: 20000, no_blow_ratio: 1.3}, assumed: true}
   - {id: FUSE_SPF006, short: "6 A gPV", category: fuse, qty: 2, manufacturer: Littelfuse, mpn: SPF006, price_eur: 6,
      ratings: {in_a: 6, v_dc: 1000, ir_dc_a: 20000, no_blow_ratio: 1.3}, assumed: true}
@@ -328,6 +346,8 @@ components:
   - {id: FUSEHOLDER_T, short: "", category: fuse, qty: 2, manufacturer: Littelfuse, mpn: "LFT60 class T holder (35-60 A)", price_eur: 35, source: lf_jlln}
   - {id: FUSE_ATO25, short: "25 A ATO", category: fuse, qty: 2, manufacturer: Littelfuse, mpn: "0257025 (ATO 32 V)", price_eur: 1,
      ratings: {in_a: 25, v_dc: 32, ir_dc_a: 1000, no_blow_ratio: 1.3, no_blow_note: "ATO: 110 % 100 h, 135 % 0.75-120 s"}, assumed: true}
+  - {id: FUSE_ATO20, short: "20 A ATO", category: fuse, qty: 1, manufacturer: Littelfuse, mpn: "0257020", price_eur: 1,
+     ratings: {in_a: 20, v_dc: 32, ir_dc_a: 1000, no_blow_ratio: 1.3}, assumed: true}
   - {id: FUSE_ATO10, short: "10 A ATO", category: fuse, qty: 1, manufacturer: Littelfuse, mpn: "0257010", price_eur: 1,
      ratings: {in_a: 10, v_dc: 32, ir_dc_a: 1000, no_blow_ratio: 1.3}, assumed: true}
   - {id: FUSE_ATO5, short: "5 A ATO", category: fuse, qty: 2, manufacturer: Littelfuse, mpn: "0257005", price_eur: 1,
@@ -348,16 +368,18 @@ components:
      certs: "IEC/UL 62368-1, EN 55032 class B"}
   - {id: DCDC_5V, short: "DDR-60L-5", category: dcdc, qty: 1, manufacturer: Mean Well, mpn: DDR-60L-5, price_eur: 30, source: mw_ddr60,
      certs: "IEC/UL 62368-1, EN 55032 class A (B with 30 cm I/O cable)"}
-  - {id: DCDC_COF, short: "DDR-480C-24", category: dcdc, qty: 0, manufacturer: Mean Well, mpn: DDR-480C-24, price_eur: 140, source: mw_ddr480,
-     note: "only for coffee OPTION B"}
+  - {id: DCDC_COF, short: "DDR-480C-24", category: dcdc, qty: 1, manufacturer: Mean Well, mpn: DDR-480C-24, price_eur: 140, source: mw_ddr480,
+     note: "coffee module supply (barista configuration); remote OFF + K4 driven by PNOZ"}
+  - {id: K_COF, short: "K4", category: relay, qty: 1, manufacturer: Finder, mpn: "62.32.9.024.0040 (16 A, coffee 24 V cut, PNOZ safe output)", price_eur: 25, assumed: true}
   - {id: CHG_TRACER, short: "Orion-Tr 48/24-16", category: charger, qty: 1, manufacturer: Victron Energy, mpn: "ORI482441120 Orion-Tr Smart 48/24-16 (400 W) isolated",
      ratings: {eta: 0.87, i_out_a: 16, v_out_set: 28.4}, price_eur: 230, assumed: true,
      note: "set to 10 A / 28.4 V absorption, LFP; confirm Tracer BMS charge limit with AgileX"}
   - {id: CHG_DOCK, short: "(Delta-Q IC1200)", category: charger, qty: 1, manufacturer: Delta-Q Technologies, mpn: "IC1200 48 V (custom 15s LFP profile 54.0 V, CAN)",
      ratings: {p_out_w: 1200, i_out_a: 21}, price_eur: 650, assumed: true,
      certs: "CE (LVD, EMC), UL/IEC 60335-2-29 per manufacturer - verify", note: "in the station; IP-rated; CAN handshake with BMS"}
-  - {id: DOCK_CONTACTS, short: "40 A spring contacts", category: connector, qty: 1, manufacturer: "Conductix-Wampfler / Staubli (TBD)", mpn: "AGV charging contact set, 3-pole (+, -, pilot), >= 40 A",
-     ratings: {i_cont_a: 40, v_dc: 60}, price_eur: 250, assumed: true}
+  - {id: DOCK_CONTACTS, short: "RoboPad", category: connector, qty: 1, manufacturer: Roboteq, mpn: "RoboPad RPCOL90-100 collector (robot) + RPBAS90-100 base (station)",
+     ratings: {i_cont_a: 75, v_dc: 75}, price_eur: 260, source: robopad, price_note: "price estimate",
+     note: "2 poles, 100 A max / 75 A cont, 75 V, 10 mm stroke, +/-5 mm lateral tolerance (CAD SOURCES.md). No pilot pole: handshake on the power poles (see ARCHITECTURE 9)"}
   # --- safety
   - {id: K_ARM, short: "3RT2036-1BB40", category: contactor, qty: 2, manufacturer: Siemens, mpn: "3RT2036-1BB40 (S2, 24 V DC coil, 1NO+1NC mirror)",
      ratings: {i_cont_a: 50, i_break_a: 50, v_break_v: 60, i_make_a: 300, aux: "1NO+1NC integrated (mirror contact IEC 60947-4-1 Annex F)", mirror_contact: true,
@@ -387,7 +409,7 @@ components:
   - {id: BUSBAR, short: "", category: distribution, qty: 1, manufacturer: "Phoenix Contact", mpn: "PTFIX / UT DIN distribution block + 2x Cu busbar (B48 +/-)", price_eur: 60, assumed: true}
   - {id: SHUNT_BOND, short: "", category: grounding, qty: 1, manufacturer: "-", mpn: "0 V to chassis single-point bond strap 6 mm2", price_eur: 5, assumed: true}
   - {id: EMI_FILTER, short: "", category: emc, qty: 1, manufacturer: Schaffner, mpn: "FN2200-50 DC/AC filter on arm DC-DC inputs (if class B conducted needed)", price_eur: 60, assumed: true}
-  - {id: CAN_ISO, short: "", category: interface, qty: 1, manufacturer: "PEAK-System", mpn: "PCAN-USB FD / isolated CAN to Tracer", price_eur: 250, assumed: true}
+  - {id: CAN_ISO, short: "", category: interface, qty: 1, manufacturer: "PEAK-System", mpn: "PCAN-USB FD / isolated CAN to Tracer rear 4-pin aviation connector (CAN pins only, 500 kbit/s)", price_eur: 250, assumed: true}
   # --- loads referenced (bought as part of subsystems, priced elsewhere in the README BOM)
   - {id: OPENARM, short: "", category: load, qty: 1, manufacturer: Enactic, mpn: "OpenArm 2.0 bimanual (16 Damiao motors)", price_eur: 0, source: openarm_motor}
   - {id: JETSON_AGX, short: "", category: load, qty: 1, manufacturer: NVIDIA, mpn: "Jetson AGX Orin 64GB", price_eur: 0, source: jetson_agx_orin_ds}

@@ -13,7 +13,10 @@ from matplotlib.patches import FancyBboxPatch, Rectangle
 import yaml
 
 HERE = Path(__file__).resolve().parent
-NET = yaml.safe_load((HERE / "netlist.yaml").read_text())
+import sys
+MIR = "--mir250" in sys.argv
+NET = yaml.safe_load((HERE / ("netlist_mir250.yaml" if MIR else "netlist.yaml")).read_text())
+OUT = "power_safety_architecture_mir250" if MIR else "power_safety_architecture"
 C = {c["id"]: c for c in NET["components"]}
 FZ = {f["id"]: C[f["component"]] for f in NET["fuses"]}
 B = NET["battery"]
@@ -76,7 +79,7 @@ def txt(x, y, s, size=9.0, color=INK, bold=False, ha="left"):
 
 
 # ================================================================== title
-txt(40, 40, "Giorgio  -  power & safety architecture", size=24, bold=True)
+txt(40, 40, "Giorgio  -  power & safety architecture" + ("  (product: MiR250 base)" if MIR else "  (prototype: Tracer 2.0 base)"), size=24, bold=True)
 txt(40, 72, f"15s LiFePO4 48 V {B['cell']['ah']:.0f} Ah ({E_KWH:.2f} kWh)   ·   every on-board circuit PELV <= 60 V DC   ·   "
             f"safety functions PL d / Cat 3 (EN ISO 13849-1)   ·   stop category 1 (SS1-t) for arms   ·   rev {NET['meta']['revision']}",
     size=12, color=MUTED)
@@ -84,8 +87,8 @@ txt(40, 72, f"15s LiFePO4 48 V {B['cell']['ah']:.0f} Ah ({E_KWH:.2f} kWh)   ·  
 # ================================================================== station
 box(30, 112, 330, 312, "Docking station  (230 V mains)", dom="AC", fill="white", title_size=12)
 box(48, 148, 294, 66, "LFP charger  " + C["CHG_DOCK"]["short"], ["CC/CV 54.0 V (3.60 V/cell), 21 A, 1.2 kW", "charge profile + limits from BMS over CAN"], dom="AC")
-box(48, 232, 294, 66, "Station controller + relay", ["contacts energised ONLY after pilot + Wi-Fi", "handshake; off < 100 ms on loss of pilot"], dom="AC")
-box(48, 316, 294, 90, "Spring contacts  + / - / pilot", ["3-pole set, >= 40 A, finger-safe recessed", "pilot shorter: first-break, last-make", "robot side dead when undocked"], dom="AC")
+box(48, 232, 294, 66, "Station controller + relay", ["contacts energised ONLY after signature +", "Wi-Fi handshake; off < 100 ms on loss"], dom="AC")
+box(48, 316, 294, 90, "Roboteq RoboPad contacts", ["RPCOL90-100 + RPBAS90-100, 75 A, 75 V", "2 poles, 10 mm stroke, +/-5 mm", "robot side dead when undocked"], dom="AC")
 wire([(195, 214), (195, 232)], "AC", lw=2)
 wire([(195, 298), (195, 316)], "AC", lw=2)
 
@@ -143,12 +146,15 @@ for y0, side, fid, cid in ((172, "LEFT", "F1L", "F10"), (292, "RIGHT", "F1R", "F
 rows = [
     (430, "F2", "DC-DC safety 24 V", ["Mean Well DDR-120C-24", "always on, also in E-stop"], "S24", None),
     (552, "F3", "DC-DC 12 V", ["Mean Well DDR-120C-12", "12 V 10 A, 15 A for 3 s"], "LV",
-     ("Jetson AGX Orin 64 GB", ["15-60 W · USB: Gemini 336L,", "Insta360 X4 (webcam mode)"])),
+     ("Jetson AGX Orin 64 GB", ["15-60 W · USB: Gemini 336L,", "2x UVC fisheye, PCAN-USB FD x2"])),
     (668, "F4", "DC-DC 5 V", ["Mean Well DDR-60L-5", "5 V 12 A"], "LV",
      ("Face & status UI", ["32x16 LED face, 2x GC9A01 eyes,", "status LEDs, ESP32"])),
-    (784, "F5", "Tracer charger", ["Victron Orion-Tr 48/24-16", "isolated, set 28.4 V / 10 A"], "T24",
-     ("AgileX Tracer 2.0", ["own 24 V 30 Ah LFP + BMS, 2x 400 W", "E-stop loop <- PNOZ (open issue)"])),
-]
+] + ([] if MIR else [
+    (784, "F5", "Tracer charger", ["Victron Orion-Tr 48/24-16", "10 A -> Tracer 2-pin charge port"], "T24",
+     ("AgileX Tracer 2.0", ["own 24 V 30 Ah LFP + BMS", "stop via CAN only (no safety input)"])),
+])
+if MIR:
+    box(1090, 752, 238, 64, "MiR250 base (product)", ["own Li-ion battery + MiR charger,", "aux E-stop input <- PNOZ (PL d)"], dom="T24")
 for y0, fid, title, lines, dom, load in rows:
     wire([(BX, y0), (800, y0)], "B48", lw=2.6)
     fuse(560, y0, fl(fid))
@@ -158,15 +164,19 @@ for y0, fid, title, lines, dom, load in rows:
         box(1090, y0 - 32, 238, 64, load[0], load[1], dom=dom)
 fuse(1043, 552, fl("F30"), "LV")
 fuse(1043, 668, fl("F40"), "LV")
-fuse(1043, 784, fl("F7"), "T24")
+if not MIR:
+    fuse(1043, 784, fl("F7"), "T24")
 
 # coffee (default at dock)
 Y_COF = 900
-wire([(BX, Y_COF), (800, Y_COF)], "B48", lw=2, ls=(0, (4, 3)))
-fuse(560, Y_COF, "F6  option B only")
-box(800, Y_COF - 34, 528, 68, "Coffee  -  DEFAULT: brewed at the dock (stock 230 V machine)",
-    ["no load on the pack, no mains on board  ·  option B: 300 W 24 V DC capsule unit (DDR-480C-24)",
-     "option A (230 V inverter on board) rejected: 1.4 kW DC, 2.35 C peaks, mains on robot"], dom="B48", dashed=True, fill="white", title_size=10.5)
+wire([(BX, Y_COF), (800, Y_COF)], "B48", lw=2.6)
+fuse(560, Y_COF, fl("F6"))
+box(800, Y_COF - 32, 196, 64, "DC-DC coffee 24 V", ["Mean Well DDR-480C-24", "remote OFF + K4 by PNOZ"], dom="A24")
+wire([(996, Y_COF), (1090, Y_COF)], "A24", lw=3)
+fuse(1043, Y_COF, fl("F60"), "A24")
+box(1090, Y_COF - 32, 238, 64, "Coffee backpack (barista)", ["24 V DC capsule machine 300 W,", "shuttle MCU · ~3 min, 16 Wh / cup"], dom="A24")
+txt(800, Y_COF + 50, "alternatives: brew at the dock with a stock 230 V machine (no load on robot) · 230 V inverter on board rejected (1.4 kW, 2.35 C)",
+    size=8.4, color=MUTED)
 
 # S24 distribution towards safety panel
 wire([(996, 430), (1030, 430), (1030, 392), (1395, 392)], "S24", lw=2.4)
@@ -177,14 +187,17 @@ wire([(1328, 545), (1342, 545), (1342, 292)], "CAN", lw=1.8, ls=(0, (1, 2.2)))
 wire([(1342, 292), (1328, 292)], "CAN", lw=1.8, ls=(0, (1, 2.2)))
 wire([(1342, 172), (1342, 292)], "CAN", lw=1.8, ls=(0, (1, 2.2)))
 wire([(1342, 172), (1328, 172)], "CAN", lw=1.8, ls=(0, (1, 2.2)))
-wire([(1328, 562), (1342, 562), (1342, 784), (1328, 784)], "CAN", lw=1.8, ls=(0, (1, 2.2)))
+wire([(1328, 562), (1342, 562), (1342, 784), (1328, 784)], "CAN", lw=1.8, ls=(0, (1, 2.2)))  # MiR: Ethernet REST on the same route
 txt(1336, 470, "CAN", size=8.4, color=COL["CAN"], bold=True, ha="right")
 
 # ================================================================== safety panel
 SX, SY, SW = 1395, 112, 495
 box(SX, SY, SW, 760, "Safety chain   (PL d, Cat 3)", dom="SAFE", fill="white", title_size=13)
 box(SX + 16, SY + 42, 222, 66, "2x E-stop  (2 NC)", ["Eaton M22-PV/K02 (IEC 60947-5-5)", "front + rear, stop category 1"], dom="SAFE")
-box(SX + 257, SY + 42, 222, 66, "2x SICK nanoScan3", ["Type 3, PL d, PFHd 8e-8, OSSDs", "fields: drive / dock / work"], dom="SAFE")
+if MIR:
+    box(SX + 257, SY + 42, 222, 66, "MiR250 safety system", ["2x nanoScan3 inside the base", "safe stop output: TBC with MiR"], dom="SAFE")
+else:
+    box(SX + 257, SY + 42, 222, 66, "2x SICK nanoScan3", ["Type 3, PL d, PFHd 8e-8, OSSDs", "fields: drive / dock / work"], dom="SAFE")
 box(SX + 16, SY + 120, 222, 50, "Reset + mode key", ["manual reset, no auto-restart"], dom="SAFE")
 box(SX + 257, SY + 120, 222, 50, "K1/K2 mirror contacts", ["EDM feedback before reset"], dom="SAFE")
 PN = (SX + 92, SY + 200, 310, 74)
@@ -194,8 +207,8 @@ for xx, yy in ((SX + 127, SY + 108), (SX + 368, SY + 108), (SX + 127, SY + 170),
 
 txt(SX + 18, SY + 300, "Stop sequence on any trip", size=10.5, bold=True)
 outs = [("t = 0", "SS1 request -> Jetson: controlled stop of both arms via CAN"),
-        ("t = 0", "relay output -> Tracer E-stop loop  +  CAN zero-speed"),
-        ("t = 0", "coffee module contactor (only if option B on board)"),
+        (("t = 0", "relay output -> MiR250 auxiliary E-stop (PL d)") if MIR else ("t = 0", "Tracer: CAN zero-speed (500 ms timeout) - not rated")),
+        ("t = 0", "coffee: K4 opens + DC-DC off (stop category 0)"),
         ("t = 0.45 s", "DC-DC remote OFF (non-safety, pre-empts arcing)"),
         ("t = 0.5 s", "delayed safe outputs open K1 + K2: arm power removed")]
 for i, (t, s) in enumerate(outs):
@@ -205,12 +218,12 @@ for i, (t, s) in enumerate(outs):
 
 box(SX + 16, SY + 460, 463, 118, "Stays powered in any stop", [
     "PNOZ, scanners, E-stop circuit, Jetson, cameras, face and status",
-    "LEDs, BMS, Wi-Fi. Tracer logic stays on, drive power is cut.",
+    "LEDs, BMS, Wi-Fi." + (" MiR250: stopped by its own safety system." if MIR else " Tracer: held at zero speed via CAN only."),
     "Arms: power removed after SS1. No brakes -> park pose on",
     "mechanical rests before the cut; cup placed, not handed over."], dom="S24", fill="white")
 box(SX + 16, SY + 592, 463, 150, "Open certification issues", [
-    "Tracer 2.0 has no documented safety input: base stop path",
-    "is unrated (SF3 FAIL in CHECKS.md) -> AgileX interface or other base.",
+    *(["MiR250: safe protective-stop OUTPUT to the PNOZ not documented", "(SF2 FAIL in CHECKS_MIR250.md) -> MiR user guide / quote."] if MIR else
+      ["Tracer 2.0 has no external safety input: base stop path", "unrated (SF3 FAIL) - accepted for the prototype; product: MiR250."]),
     "OpenArm: no STO / brakes / safety-rated monitoring -> no PFL;",
     "arms only move when protective field is clear (SSM by scanners).",
     "Contactor DC-1 rating and gPV fuse IR: verify datasheets.",
@@ -219,14 +232,13 @@ box(SX + 16, SY + 592, 463, 150, "Open certification issues", [
 # safety signal routes (dashed red)
 wire([(SX, SY + 404), (1368, SY + 404), (1368, 100), (651, 100), (651, Y_ARM - 70)], "SAFE", lw=1.5, ls=(0, (6, 3)))
 txt(1000, 92, "K1/K2 coils  <-  PNOZ safe semiconductor outputs (t = 0.5 s)", size=8.8, color=COL["SAFE"], bold=True, ha="center")
-wire([(SX, SY + 351), (1380, SY + 351), (1380, 816), (1328, 816)], "SAFE", lw=1.5, ls=(0, (6, 3)))
 
 # ================================================================== legend + notes
 LX, LY = 30, 728
 txt(LX, LY, "Legend", size=11, bold=True)
 items = [("B48", "-", "48 V battery bus, fused branches"), ("A24", "-", "24 V arm buses (safety-switched)"),
          ("S24", "-", "24 V safety + sensors (always on)"), ("LV", "-", "12 V / 5 V compute and UI"),
-         ("T24", "-", "Tracer 24 V domain (isolated)"), ("SAFE", "--", "safety signals, dual channel"),
+         ("T24", "-", "base domain (own battery)" if MIR else "Tracer 24 V domain (isolated)"), ("SAFE", "--", "safety signals, dual channel"),
          ("CAN", ":", "CAN bus")]
 for i, (k, st, t) in enumerate(items):
     yy = LY + 24 + i * 21
@@ -242,6 +254,8 @@ for i, s in enumerate(notes):
 txt(1890, 1050, "generated from electrical/netlist.yaml by diagram.py  ·  part numbers indicative, see ARCHITECTURE.md",
     size=9, color=MUTED, ha="right")
 
-fig.savefig(HERE / "power_safety_architecture.svg", facecolor=BG)
-fig.savefig(HERE / "power_safety_architecture.png", dpi=100, facecolor=BG)
-print("wrote power_safety_architecture.svg/.png")
+if MIR:
+    wire([(SX, SY + 351), (1380, SY + 351), (1380, 784), (1328, 784)], "SAFE", lw=1.5, ls=(0, (6, 3)))
+fig.savefig(HERE / (OUT + ".svg"), facecolor=BG)
+fig.savefig(HERE / (OUT + ".png"), dpi=100, facecolor=BG)
+print("wrote " + OUT + ".svg/.png")

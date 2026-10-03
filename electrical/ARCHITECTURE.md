@@ -1,9 +1,19 @@
 # Giorgio: electrical architecture (power, safety, charging)
 
-Revision E1.0, 2026-10-03. Companion files:
-- `netlist.yaml` is the single source of truth: parts, ratings, branches, profiles.
-- `calc.py` checks the design and writes `CHECKS.md`. The current result is 156 PASS, 1 FAIL, 9 INFO; the one FAIL is the Tracer stop path, see section 8.6.
-- `diagram.py` draws `power_safety_architecture.svg/.png`.
+Revision E1.1, 2026-10-03. Updated after the base decision in `cad/BASE_DECISION.md`: the **prototype/demo** stays on the AgileX Tracer 2.0, and the **sellable product** moves to the MiR250. The default configuration is now **barista**, with the coffee module on board.
+
+Companion files:
+- `netlist.yaml` is the single source of truth for the Tracer prototype: parts, ratings, branches, profiles.
+- `variants.py` derives `netlist_mir250.yaml` (the MiR250 product) from it.
+- `calc.py` checks both:
+
+| Build | Checks file | Result | FAIL |
+|---|---|---|---|
+| Tracer prototype | `CHECKS.md` | 173 PASS, 1 FAIL | SF3, the Tracer base stop, section 8.6 |
+| MiR250 product | `CHECKS_MIR250.md` | 157 PASS, 2 FAIL | SF2, a MiR safe output not documented; P2 autonomy 5.9 h vs 6 h. See section 8.7. |
+
+- `diagram.py` draws `power_safety_architecture.svg/.png` (Tracer); `diagram.py --mir250` draws `power_safety_architecture_mir250.svg/.png`.
+- `make_bom.py` writes the consolidated `../docs/BOM.md` and `../docs/bom.csv`.
 
 This is an engineering design proposal. It is not a signed-off design. Every value is labelled either **[S]** (sourced: the URL is in `netlist.yaml > sources` and in section 13) or **[A]** (assumed: an estimate or a value recalled but not verified against a primary source). Before ordering parts or going to a notified body or test lab, a qualified electrical engineer must review it and must verify every [A] value.
 
@@ -23,6 +33,9 @@ This is an engineering design proposal. It is not a signed-off design. Every val
 | 6 | The PNOZ "stops the base" | The Tracer 2.0 manual documents **no external E-stop or safety input**. It has its own E-stop buttons that cut power, and CAN with a 500 ms command timeout [S tracer_manual]. | The base stop path is **not rated** (SF3 FAIL). This is the main certification blocker; see section 8.6. |
 | 7 | OpenArm "safe stop" | The Damiao drives have **no STO and no brake option** (none in the dmBots repositories). Enactic itself warns: "if power is lost due to an emergency stop, the load being held will fall rapidly" [S openarm_safety]. | SS1-t (stop category 1), a park pose on mechanical rests, and no hand-to-hand handover; see section 12. |
 | 8 | Safety contactors of unspecified type | Hermetic EV contactors (TE LEV100, Gigavac GX) have only plain auxiliary contacts. The PNOZ feedback loop (EDM) needs **mirror contacts** (IEC 60947-4-1 Annex F). | Siemens 3RT2 contactors with an integrated mirror NC contact [A: DC-1 rating to be verified]. |
+| 9 | Coffee "decision 2" | The CAD (`cad/README.md`) carries the machine on the robot's back and assumes the 24 V DC option. The owner's default configuration is barista. | **On-board 24 V DC module is now the default** (option B: DDR-480C-24, K4, PNOZ cut). Brewing at the dock (C) stays as the fastest-to-certify alternative (section 11). |
+| 10 | Generic spring dock contacts with a pilot pole | The CAD uses a Roboteq RoboPad collector: 2 poles, 75 A continuous, 75 V, ±5 mm lateral tolerance. | The handshake runs on the power poles (resistor signature + Wi-Fi); section 9. |
+| 11 | One base for prototype and product | Tracer 2.0: no external safety input, internal modification forbidden (manual V1.0.0 p.3/p.11). MiR250: 1 auxiliary E-stop input, internal 2× nanoScan3, ISO 3691-4 design. | Tracer kept for the prototype with a documented gap (SF3). MiR250 variant for the product (section 8.7). |
 
 ---
 
@@ -30,7 +43,7 @@ This is an engineering design proposal. It is not a signed-off design. Every val
 
 ```
  DOCK (230 V)                                   ROBOT (all PELV, <= 54.75 V DC)
- IC1200 charger 54.0 V / 21 A ─ relay ─(+ - pilot)═╗
+ IC1200 charger 54.0 V / 21 A ─ relay ─(RoboPad + -)═╗
                                                     ║ W13 10 mm2
                                        ideal diode ─╨─ F9 30 A gPV ─┐ (charge input, BMS)
                                                                      │
@@ -39,10 +52,10 @@ This is an engineering design proposal. It is not a signed-off design. Every val
    ├─ F1 35 A T ─ K1 ─ K2(‖K3+47 Ω) ─┬─ F1L 20 A ─ DDR-480C-24 ─ ORing ─ F10 25 A ─ ARM L (8 Damiao) + 27.5 V clamp
    │   (safety contactors, PNOZ)     └─ F1R 20 A ─ DDR-480C-24 ─ ORing ─ F11 25 A ─ ARM R (8 Damiao) + 27.5 V clamp
    ├─ F2 6 A gPV ─ DDR-120C-24 ─ S24 (always on): PNOZ, 2x nanoScan3, E-stops, K1/K2/K3 coils, beacon
-   ├─ F3 6 A gPV ─ DDR-120C-12 ─ F30 10 A ─ Jetson AGX Orin (USB: Gemini 336L, Insta360 X4)
+   ├─ F3 6 A gPV ─ DDR-120C-12 ─ F30 10 A ─ Jetson AGX Orin (USB: Gemini 336L, 2 UVC fisheyes, 2 PCAN-USB FD)
    ├─ F4 3 A gPV ─ DDR-60L-5 ── F40 5 A ── LED face, GC9A01 eyes, LED strips, ESP32
    ├─ F5 12 A gPV ─ Orion-Tr Smart 48/24-16 (isolated, 28.4 V / 10 A) ─ F7 15 A ─ Tracer 24 V 30 Ah battery ─ Tracer drive
-   └─ F6 (option B only) ─ DDR-480C-24 ─ 24 V capsule module            [default: coffee brewed at the dock]
+   └─ F6 12 A gPV ─ DDR-480C-24 ─ K4 ─ F60 20 A ─ 24 V capsule machine 300 W + shuttle MCU (barista default; cut by PNOZ)
  0 V: single bond to chassis at the distribution block. The Tracer domain is galvanically separate (via the Orion-Tr).
 ```
 
@@ -56,7 +69,7 @@ This is an engineering design proposal. It is not a signed-off design. Every val
 | C12 | 12 V (Jetson module 7–20 V) | DDR-120C-12 | no | Jetson AGX Orin, USB cameras |
 | L5 | 5.1 V | DDR-60L-5 | no | LED face, eyes, strips, ESP32 |
 | T24 | 22–29.2 V (Tracer LFP) | Tracer battery; charged by the Orion-Tr | Tracer's own E-stop | Tracer drive and controller |
-| COF24 | 24 V (option B only) | DDR-480C-24 | yes (PNOZ, cat 0) | 24 V capsule machine |
+| COF24 | 24 V (barista default) | DDR-480C-24 | yes (PNOZ: remote OFF + K4, cat 0) | 24 V capsule machine, shuttle MCU, Actuonix |
 
 The whole robot stays below 60 V ripple-free DC. That is the IEC 60204-1 §6.4 PELV limit for dry locations where large-area body contact is not expected [A: clause recalled]. Live parts are still covered to IP2X / IPXXB, because the dock contacts are exposed (section 9).
 
@@ -75,7 +88,9 @@ The whole robot stays below 60 V ripple-free DC. That is the IEC 60204-1 §6.4 P
 | Beacon, dock handshake MCU | S24 | 2 | 4 | 5 | [A] |
 | Jetson AGX Orin 64 GB + carrier | C12 | 35 | 75 | 100 | Module 15–60 W, input 7–20 V [S jetson_agx_orin_ds]. Carrier peak [A]. |
 | Orbbec Gemini 336L (USB) | C12 | 3 | 3 | 6 | < 3 W average, < 6 W peak [S orbbec_336l] |
-| Insta360 X4 (USB webcam) | C12 | 6 | 8 | 15 | 5 V / 3 A charging spec [S]. Webcam-mode draw unpublished [A]. |
+| 2 × USB UVC fisheye + powered USB hub (replace the Insta360 X4, FEASIBILITY.md §5) | C12 | 5 | 8 | 12 | [A] |
+| 24 V DC capsule machine (truck type) | COF24 | per profile (8 cups/h ≈ 120 W) | 300 | 330 | 300 W / 12.5 A [S truck_24v_capsule] |
+| Coffee shuttle MCU + Actuonix P16 | COF24 | 1 | 6 | 12 | [A] |
 | 32×16 P4 LED face | L5 | 3 | 10 | 10 | Scaled from a 64×32 P4 panel (5 V 4 A) [S waveshare_p4, A] |
 | GC9A01 eyes + ESP32, LED strips | L5 | 3.5 | 8 | 9 | [A] |
 | Tracer charger (Orion-Tr input) | B48 | balancing | 330 | 330 | 28.4 V × 10 A / 0.87 [A] |
@@ -99,8 +114,8 @@ Both are listed in the sources of the research notes. With either hand, the Open
 
 | Case | Power | Current at 37.5 V | C-rate | Limit |
 |---|---|---|---|---|
-| All peaks at once: both arms at 720 W, plus compute, UI and Tracer charger | 2118 W | 56.5 A | 1.41 C | cell 2 C pulse (80 A) [A], BMS 200 A / 10 s [A] |
-| All loads at maximum sustained | 1284 W | 34.2 A | 0.86 C | 1 C continuous [A] |
+| All peaks at once: both arms at 720 W, plus compute, UI, and coffee or Tracer charger | 2156 W | 57.5 A | 1.44 C | cell 2 C pulse (80 A) [A], BMS 200 A / 10 s [A] |
+| All loads at maximum sustained | 1287 W | 34.3 A | 0.86 C | 1 C continuous [A] |
 
 - Under the all-peak load, the pack sags to 43.8 V at 10 % SoC, well above the DC-DC turn-off of 33 V.
 - At cut-off (2.5 V/cell) the pack sits at 36.3 V. So the BMS and Jetson start a controlled shutdown at 10 % SoC.
@@ -112,8 +127,10 @@ Both are listed in the sources of the research notes. With either hand, the Open
 | Profile | Pack draw | Tracer draw | Pack alone | Combined |
 |---|---|---|---|---|
 | P1: logistics kitting, arms active 100 %, driving 30 % | 266 W | 33 W | 6.5 h | **7.6 h** |
-| P2: service and coffee runs (coffee at the dock), arms 25 %, driving 20 % | 168 W | 27 W | 10.3 h | **11.6 h** |
+| P2: barista, 8 cups/h brewed on board (≈ 120 W), arms 25 %, driving 20 % | 299 W | 27 W | 5.8 h | **7.0 h** |
 | P3: reception or standby, arms parked and powered | 113 W | 15 W | 15.3 h | **17.6 h** |
+
+**Energy-management interlock (non-safety, Jetson).** The Orion-Tr is switched off while the coffee heater runs. Otherwise the sustained case would reach 43 A (1.08 C).
 
 Arm averages are an estimate: 70 / 30 / 10 W per arm [A], from the copper-loss model of section 3. The doc's earlier "~250 W, 6–7 h" estimate is consistent with P1.
 
@@ -135,6 +152,14 @@ Arm averages are an estimate: 70 / 30 / 10 W per arm [A], from the copper-loss m
 - At ≤ 2 kWh, the pack stays out of the battery-passport (Art. 77, from 18 Feb 2027) and carbon-footprint duties that EU 2023/1542 sets for industrial batteries **> 2 kWh** [S eu_battery_reg via thebatterypass.eu].
 - Extended producer responsibility (registration, take-back) and labelling apply at any size.
 - If an off-the-shelf 2.4 kWh module is bought instead (e.g. a 15s 50 Ah rack module), those duties fall on its manufacturer. Most such modules are certified for stationary ESS, not mobile use; check vibration and shock coverage.
+
+**Mass and size versus the CAD.**
+- The CAD now budgets the pack at **13 kg**, in a flat 270 × 400 × 85 mm envelope (`cad/VALIDATION.md` mass budget). For 1.92 kWh that is about **148 Wh/kg at pack level**, at the top of what LFP packs reach (cells about 160–180 Wh/kg). Treat it as **optimistic until a supplier quotes it**.
+- `cad/out/bom_parts.csv` still calls it "16S". The electrical design requires **15s**.
+- **Fallback if 13 kg cannot be met** (calc run on a copy of the netlist): **15s 30 Ah** (1.44 kWh, about 11–13 kg).
+  - It needs cells rated **≥ 1.2 C continuous / 2 C pulse**: sustained 1.14 C, all-peak 1.92 C.
+  - P2 barista autonomy drops to 5.6 h; P1 6.1 h and P3 14.2 h still pass.
+- **15s 20 Ah is not acceptable**: 2.9 C peaks, 1.05 C dock charge, 4.3 h barista.
 
 **BMS requirements** (pack supplier, [A]):
 - Cell voltage and temperature monitoring.
@@ -213,9 +238,9 @@ Resistor duty:
 
 | ID | Function | Initiation → reaction | PLr / Cat | Result (calc) |
 |---|---|---|---|---|
-| SF1 | Emergency stop | 2 × E-stop (2 NC) → PNOZ → SS1-t (t = 0.5 s) → K1 + K2 open; base: Tracer E-stop loop | d / 3 | arm part PFHd ≈ 2.0e-7 PASS [A] |
+| SF1 | Emergency stop | 2 × E-stop (2 NC) → PNOZ → SS1-t (t = 0.5 s) → K1 + K2 open; base: CAN zero-speed only (no hardwired input on the Tracer) | d / 3 | arm part PFHd ≈ 2.0e-7 PASS [A] |
 | SF2 | Protective stop on person detection | nanoScan3 OSSD (front, rear) → PNOZ → same as SF1 | d / 3 | ≈ 1.8e-7 PASS (scanner 8.0e-8 [S]) |
-| SF3 | Base stop | scanner / E-stop → PNOZ relay output → Tracer | d / 3 | **FAIL: the Tracer stop element is unrated** |
+| SF3 | Base stop | scanner / E-stop → PNOZ → Jetson → CAN zero-speed (0x111) / 500 ms command timeout | d / 3 | **FAIL: no rated stop path into the Tracer** |
 | SF4 | Mode-dependent fields (drive / dock / work) | PNOZ selects the nanoScan3 field set | d | needs a safe speed signal (8.5) |
 | SF5 | Manual reset, no automatic restart | reset button + EDM | — | ISO 13849-1 §5.2.2 |
 
@@ -238,15 +263,15 @@ That gives **PLr d**. It is also the default of ISO 10218-1 (PL d, Cat 3) and th
     - t = 0.5 s: delayed safe semiconductor outputs open K1 and K2.
   - Timing is enforced by the PNOZ (safety-rated). The deceleration itself is not, which is acceptable for SS1-t.
   - If the CAN path fails, Damiao drives exit Enable on CAN timeout, which removes torque [S dm_j8009p_manual]. Power removal at 0.5 s is guaranteed.
-- **Base: category 0 via the Tracer's own E-stop loop**, plus a parallel CAN zero-speed command at t = 0. Stopping distance at maximum speed must be measured (ISO 3691-4) and fed into the protective field length (ISO 13855: S = K·T + C). In the sim, the current fields are 1.72 m protective and 2.82 m warning.
-- **Coffee module (option B only):** category 0 (heater and pump off).
+- **Base (Tracer 2.0): only a non-safety stop is possible.** At t = 0 the Jetson sends zero speed on CAN (500 kbit/s, frame 0x111). If the Jetson or the CAN link fails, the Tracer's 500 ms command timeout stops it [S tracer_manual]. The Tracer's own E-stop switch is on the vehicle and cannot be wired to the PNOZ without opening the vehicle, which the manual forbids. Braking distance per the datasheet: **0.9 m from 2 m/s, empty**; it is longer at 100 kg payload and must be measured. Worst-case field length (ISO 13855: S = K·T + C) must include the 500 ms timeout: at 1 m/s, 0.5 m of travel before braking even starts. In the sim, the current fields are 1.72 m protective and 2.82 m warning.
+- **Coffee module (barista default):** category 0 (DC-DC remote OFF + K4: heater, pump and shuttle off).
 
 ### 8.3 What stays powered in a stop
 
 Stays powered:
 - PNOZ, scanners, E-stop circuit, contactor-coil supply (S24).
 - Jetson, cameras, Wi-Fi, face/status LEDs (C12, L5).
-- BMS. Tracer logic: the Tracer's E-stop cuts its drive power; whether its controller stays alive is to be confirmed with AgileX.
+- BMS. Tracer: stays fully powered, held at zero speed by CAN (no safe power removal is available, see 8.6).
 
 Loses power:
 - Arm buses.
@@ -258,10 +283,10 @@ The robot stays able to explain itself: the face shows "stopped", the logs keep 
 
 - **E-stops.** Two Eaton M22-PV/K02 (2 NC, IEC 60947-5-5) with a yellow guard: one on the back of the head/column, one on the base rear. Wired dual-channel with PNOZ test pulses (cross-fault detection).
   - Optional handheld wireless E-stop rated PL d for the operator.
-  - The Tracer's own two E-stop buttons stay in its own loop.
+  - The Tracer's own E-stop switch stays as AgileX built it (vehicle-mounted, not wired to the PNOZ).
 - **Reset.** Blue illuminated pushbutton, outside the hazard zone, with a view of the robot.
 - **Scanners.** Two SICK nanoScan3, Pro I/O variant NANS3-CAAZ30AN1 with field-set switching [S]: Type 3, SIL 2, PL d, 70 ms response, 3.9 W typical.
-- **Logic.** Pilz PNOZ m B0 (772100: 20 safe inputs, 4 safe semiconductor outputs) [S datasheet] plus PNOZ m EF 4DI4DOR [A: part number] for potential-free relay contacts to the Tracer loop.
+- **Logic.** Pilz PNOZ m B0 (772100: 20 safe inputs, 4 safe semiconductor outputs) [S datasheet] plus PNOZ m EF 4DI4DOR [A: part number] for potential-free relay outputs (coffee module, beacon; a rated base-stop input if a future base offers one).
 
 ### 8.5 Field switching needs a safe speed
 
@@ -273,15 +298,39 @@ Both need validation.
 
 ### 8.6 Blocking issue: the Tracer 2.0 has no rated stop input
 
-The manual shows E-stop buttons that "shut down power of the robot immediately" and a CAN interface with a 500 ms command timeout. It shows no external E-stop/safety terminals [S tracer_manual]. Wiring PNOZ relay contacts into the Tracer's internal E-stop loop is technically simple but:
-- modifies a bought-in machine (it voids AgileX's declaration/warranty);
-- relies on an unrated circuit, whose category and diagnostic coverage are unknown.
+Verified in the Tracer 2.0 user manual V1.0.0 (2025.03):
+- The rear 4-pin aviation connector carries only pin 1 VCC (23–29.2 V, max 5 A), pin 2 GND, pin 3 CAN_H, pin 4 CAN_L (p.11).
+- The E-stop is a switch on the vehicle. No external E-stop or safety input is documented.
+- The manual forbids modifying the internal structure.
+
+So the only stop path is CAN (non-safety) plus the 500 ms command timeout. Wiring PNOZ contacts into the internal E-stop circuit is excluded: it would modify a bought-in machine against the manual and would rely on an unrated circuit.
+
+Giorgio uses only the rear connector's CAN pins (through an isolated CAN adapter). The VCC pin is not used: the 5 A / 120 W accessory limit is irrelevant, because the superstructure runs from its own pack.
 
 Actions:
 1. Ask AgileX for an external E-stop/safety interface, its PL/category, braking behaviour and stopping distances, and a declaration of incorporation with ISO 3691-4 information.
 2. If they cannot provide it, plan a base with documented safety I/O for the certifiable product.
 
 `calc.py` keeps SF3 as **FAIL** until a rated element exists.
+
+**Decision (cad/BASE_DECISION.md):** the gap is **accepted for the R&D prototype and demos only**, recorded in the risk assessment. The base is stopped by CAN plus the 500 ms timeout; the PNOZ safely removes arm power. Operating limits:
+- 2 × 3 kg objects per arm, software-enforced;
+- reduced speed near people;
+- the AgileX payload confirmation in writing.
+
+### 8.7 Product variant on the MiR250 (`netlist_mir250.yaml`, `CHECKS_MIR250.md`, `power_safety_architecture_mir250.png`)
+
+**What changes electrically**
+- **Removed:** the Tracer battery island (Orion-Tr, F5/F7, W08/W09), our 2 nanoScan3 and their pods (the MiR has 2 integrated), and the isolated CAN adapter. The MiR is driven over Ethernet/REST.
+- **Base stop (SF3 → PASS [A]).** PNOZ m EF 4DI4DOR relay contacts open the **MiR250 auxiliary emergency-stop input** [S mir250]. The MiR safety system (12 safety functions to ISO 13849-1, ISO 3691-4 design with listed exceptions) stops the base. The PFHd of the MiR chain is a placeholder (2e-7) until MiR provides its value.
+- **Arm stop on person detection (SF2 → FAIL, pending).** The MiR's own scanners must trigger SS1 of the arms. That needs a **dual-channel safe output** from the MiR safety system ("protective stop active"). The spec page lists only 4 DI / 4 DO (not stated as safety-rated) plus the auxiliary E-stop **input**. Ask MiR for the user guide (top-module safety I/O).
+  - If no safe output exists, keep **one or two of our own nanoScan3** for the arm zone: +€2.3–4.6k. With the arm-zone scanners back, SF2 is the same as on the Tracer and passes.
+- **Charging.** A combined station: the MiR charging station charges the MiR battery, and our IC1200 on the RoboPad charges our pack. MiR VL-marker docking (±3 mm [S]) is inside the RoboPad tolerance (±5 mm).
+- **Autonomy.** The MiR battery no longer subsidises our pack. P2 barista is **5.9 h, just under the 6 h target** (FAIL, deliberately not hidden). Ways to close it:
+  - one 15-min top-up per shift (+0.85 h);
+  - superstructure power from the MiR top-module supply, if MiR offers one with ≥ 300 W (UNVERIFIED);
+  - fewer cups per hour.
+- **Deck height.** The deck is 131 mm higher: re-check the 24 V arm cable length (W04 at 1.8 m has margin: 0.77 % drop).
 
 ## 9. Charging and docking
 
@@ -291,17 +340,21 @@ Actions:
   - Charging blocked below 0 °C (BMS cell temperature).
 - A station controller and output relay keep the contacts **de-energised by default**.
 
-**Contacts.**
-- Three poles: `+` and `−` (≥ 40 A, sprung, self-cleaning, recessed and finger-safe), plus a **pilot** that is **shorter**, so it breaks first and makes last.
-- Off-the-shelf AGV charging contact sets exist (Conductix-Wampfler, Stäubli) [A: part not selected].
+**Contacts.** Roboteq **RoboPad**, the part chosen in the CAD: collector RPCOL90-100 on the robot nose plus base RPBAS90-100 on the station [S robopad].
+- 2 poles, 100 A max / 75 A continuous, 75 V, 10 mm sprung stroke, ±5 mm lateral tolerance. Calc: 21 A ≤ 75 A.
+- The sim's docking test reached ≤ 2.0 mm lateral error. The sim's 20 mm acceptance window must be tightened to the RoboPad's ±5 mm.
+- There is **no pilot pole**, so the handshake runs on the power poles.
 
 **Handshake** (contact voltage only after it):
-1. The station applies only a current-limited sense signal on the pilot: 12 V through 2.2 kΩ, ≤ 5 mA.
-2. The robot presents a signature: a diode plus resistor between pilot and `−`.
-3. In parallel, the robot confirms over Wi-Fi/BLE: docked, filtered contact compression OK (as in the sim's 10-reading filter), BMS charge-enable, SoC.
-4. The station closes its relay and enables the charger. Its current ramps in about 1 s, so the contacts never make or break under load.
+1. While idle, the station applies only a current-limited sense voltage to the poles: 12 V through 2.2 kΩ, ≤ 5 mA, not hazardous.
+2. The robot presents a signature: a 10 kΩ resistor across its poles, upstream of the ideal diode. The station sees the expected divider voltage.
+3. In parallel, the robot confirms over Wi-Fi/BLE: docked, filtered contact compression OK (the sim's 10-reading filter), BMS charge-enable, SoC.
+4. Only then does the station close its output relay and enable the charger. The current ramps in about 1 s.
 
-**Undock or loss of pilot.** The pilot breaks first, the station opens its relay in < 100 ms, and the main contacts then separate at zero current.
+**Undock.** The robot first asks the station to stop over Wi-Fi. It moves only after the charger current reads zero (BMS CAN).
+- If the robot is pushed away while charging, the station sees the current collapse and the voltage rise. It opens the relay in < 100 ms.
+- The RoboPad is designed for this charge-contact duty at 75 V. A small arc at ≤ 21 A / 54 V is still possible in this fault case, so contact wear is to be inspected in maintenance.
+- An optional third sprung pilot pin (first-break) can be added beside the RoboPad if the risk assessment asks for it.
 
 **Robot side.**
 - An **ideal-diode module** (Mean Well DRDN40-48 [A]) plus F9 sit between the contacts and the pack. The robot's exposed contacts are therefore **never back-fed** by the pack: they are dead when undocked.
@@ -309,11 +362,16 @@ Actions:
 
 **Tracer battery.**
 - Charged by the onboard **Victron Orion-Tr Smart 48/24-16** (isolated, LiFePO4 profile, absorption 28.4 V) [A: Orion data not fetched].
-- Current set to 10 A, the rating of AgileX's own charger [S].
+- It connects **through the Tracer's external 2-pin aviation charging port**, using a mating plug on Giorgio's harness, exactly where AgileX's charger plugs in (manual p.11, p.15). The vehicle is not opened.
+- Current set to 10 A, the rating of AgileX's own 10 A charger [S].
+- Charging is inhibited below 0 °C ambient (manual: charge only above 0 °C); the BMS temperature or a base thermistor gates the Orion enable.
+- Fuse F7 is at the Orion end of the harness. The Tracer battery's own BMS protects the vehicle side.
 - Enabled when docked and the pack is above 80 %, or whenever the Tracer is below 30 % (energy balancing).
-- **Open item:** confirm with AgileX the Tracer BMS charge voltage, current and connector. The manual requires a "dedicated lithium battery charger" and gives no charge voltage [S].
+- **Open items:**
+  - Confirm with AgileX that a third-party CC/CV source (28.4–29.2 V, 10 A) on the charging port is acceptable. The manual requires a "dedicated lithium battery charger" and gives no charge voltage [S].
+  - Confirm whether the Tracer may drive while the charging plug is energised. If not, charge it only while docked.
 
-**Alternative v2.** Remove the Tracer battery and feed the base from B48 through a 48→24 V 800 W peak DC-DC. This would need AgileX approval and changes the Tracer's declaration.
+**Alternative v2.** Remove the Tracer battery and feed the base from B48. That would modify the vehicle's internal structure, so it is excluded unless AgileX approves it.
 
 ## 10. Grounding, bonding, EMC
 
@@ -331,13 +389,13 @@ Actions:
   - The DDR-120C is class B [S].
 - Twist the +/− pairs of all power runs. Keep the 24 V arm power and the CAN in separate cable channels in the column.
 - CAN: shielded twisted pair, 120 Ω termination at both ends, shield clamped 360° at the base entry.
-- Ferrites on the USB cables (Insta360, Gemini) and on the HUB75 ribbon.
+- Ferrites on the USB cables (UVC fisheyes, Gemini) and on the HUB75 ribbon.
 - ESD (8 kV air): touchable metal bonded to the chassis; the dock contacts are recessed.
 - Radio: Jetson Wi-Fi/BLE and any LTE router need **RED** conformity of the modules plus EN 18031 (cybersecurity), already listed in the earlier doc.
 
 ## 11. Coffee machine power decision
 
-| | A: 230 V machine on board + inverter | B: 24 V DC capsule machine on board | **C: stock 230 V machine at the dock (DEFAULT)** |
+| | A: 230 V machine on board + inverter | **B: 24 V DC capsule machine on board (DEFAULT, barista)** | C: stock 230 V machine at the dock |
 |---|---|---|---|
 | Hardware | Essenza-class 1200–1310 W [S] + Victron Phoenix Smart 48/2000 (13 kg, EN 60335-1, ECE R10) [S] | Truck-type 24 V 300 W (12.5 A) or Handpresso Auto 120 W [S, CE/EN 60335-2-15 not stated], fed by DDR-480C-24 | Essenza-class machine in the station, on the station mains |
 | DC draw | 1409 W (37.6 A at 37.5 V) | 326 W (8.7 A) | 0 |
@@ -347,10 +405,13 @@ Actions:
 | Autonomy P2 + 8 cups/h | 7.5 h | 7.4 h | **11.6 h** |
 | Certification impact | 230 V AC on a mobile machine: no longer PELV. Full IEC 60204-1 protective bonding, insulation and dielectric tests, an RCD or IT system with insulation monitoring on the inverter output, LVD scope, and an appliance used outside its intended (stationary) use. Inverter EMC. **+3–6 months.** | Stays PELV. No LVD (< 75 V DC). Scald and pressure hazards are covered in the machinery risk assessment. **But** no 24 V machine found declares EN 60335-2-15, and these are consumer gadgets. Reliability and documentation risk. | Robot stays PELV. The machine is an unmodified CE appliance (EN 60335-2-15) in its intended stationary use. The station is a separate piece of equipment (charger + appliance, LVD/EMC, mostly supplier declarations). **Fastest.** |
 
-**Recommendation: C (default).** Giorgio brews at the docking station: the arm loads the cup and presses the button, which keeps the robotic "show". It then carries the cup to the person. That is zero electrical impact on the robot, and coffee runs naturally become opportunity-charging stops.
-- If the owner insists on a machine on the back, choose **B**. It needs a clamped 24 V module and a cat 0 cut by the PNOZ, and it is slower.
-- **A is rejected**: weight, peak current, and mains on board.
-- **Sim impact:** move the coffee module from the robot's back to the charger post (README lists the energy constants).
+**Default (rev E1.1): B, an on-board 24 V DC module.** This follows the barista configuration and the CAD backpack.
+- It stays PELV and passes every electrical check: 8.7 A from the pack, all-peak 1.44 C (with the Tracer charger paused), F0 60 A unchanged.
+- Cut by the PNOZ: DC-DC remote OFF plus relay K4, stop category 0.
+- Brewing takes about 3 min per cup, so the robot can brew while driving to the customer (the cup sits in the shuttle; spill risk to be assessed).
+- **Open item:** no 24 V machine found declares EN 60335-2-15. Before series production, buy one that does, or have the module tested (scald, pressure, temperature).
+- **C (stock 230 V machine at the dock)** remains the **fastest to certify** and costs about €850 less (BOM delta). Switch to it if the B appliance cannot be documented.
+- **A is rejected**: 1.4 kW, 2.35 C peaks, a 13 kg inverter, and mains on board.
 
 ## 12. Arms: is OpenArm certifiable, and what to do
 
@@ -415,22 +476,26 @@ Actions:
 - **Fuses:** Littelfuse SPF gPV 20 kA DC rating; ATO time-current behaviour.
 - **Contactors and precharge:** Siemens 3RT2036 DC-1 50 A at 60 V (3 poles in series) and its coil power; Arcol HS50 pulse energy; DDR input capacitance.
 - **Regen:** regen energy and peak per arm; clamp design.
-- **Loads:** arm typical power (copper-loss model); Jetson carrier peak; Insta360 webcam draw; LED face current.
+- **Loads:** arm typical power (copper-loss model); Jetson carrier peak; UVC fisheye + hub draw; LED face current.
 - **Chargers and connectors:** Orion-Tr data and its 10 A setting; Delta-Q IC1200 output (21 A); dock contact rating; Anderson/Amass ratings.
 - **Safety:** all PFHd values except the nanoScan3.
 - **Prices:** all except where stated.
 
 ## 14. Open issues (ordered by impact on time-to-certification)
 
-1. **Tracer stop interface** (SF3 FAIL). Get a rated external stop and braking data from AgileX, or change the base.
-2. **Arms** (section 12). Decide between OpenArm guard-only without handover and certified UR3e-class arms for collaborative service.
-3. **Safe speed for field switching** (8.5).
-4. **Pack supplier** with IEC 62619 / UN 38.3 reports. Freeze cell, BMS and precharge spec.
-5. **Verify the [A] ratings** with the actual datasheets. The main ones:
+1. **Base.**
+   - Prototype on the Tracer: SF3 gap accepted in the risk assessment.
+   - Product on the MiR250: obtain the MiR user guide (safe protective-stop output for SF2, top-module CoG limits, top power), its PFHd, and a quote. Ask Robotnik for the RB-THERON+ payload.
+2. **Battery mass.** Get a supplier quote for a 15s 40 Ah pack at ≤ 13 kg, flat 270 × 400 × 85 mm. Fallback: 15s 30 Ah with ≥ 1.2 C cells (section 5). Fix the "16S" label in the CAD.
+3. **24 V coffee machine** with documented EN 60335-2-15 conformity (or test the module).
+4. **Arms** (section 12). Decide between OpenArm guard-only without handover and certified UR3e-class arms for collaborative service.
+5. **Safe speed for field switching** (8.5). Tracer prototype only; the MiR handles its own fields.
+6. **Pack supplier** with IEC 62619 / UN 38.3 reports. Freeze cell, BMS and precharge spec.
+7. **Verify the [A] ratings** with the actual datasheets. The main ones:
    - Siemens 3RT2 DC-1 rating and mirror-contact declaration;
    - Littelfuse SPF DC interrupting rating;
    - DDR input capacitance;
    - Delta-Q / Orion data.
-6. **Tracer charging spec** (voltage, current, connector) from AgileX.
-7. **SISTEMA calculation** for SF1–SF3 with manufacturer libraries. Then a stopping-distance test campaign for the field sizes (ISO 3691-4 and ISO 13855).
-8. **EMC pre-scan** of the robot plus dock: conducted emissions on the DC port, DDR class A.
+8. **Tracer charging spec** (voltage, current, connector) from AgileX.
+9. **SISTEMA calculation** for SF1–SF3 with manufacturer libraries. Then a stopping-distance test campaign for the field sizes (ISO 3691-4 and ISO 13855).
+10. **EMC pre-scan** of the robot plus dock: conducted emissions on the DC port, DDR class A.
