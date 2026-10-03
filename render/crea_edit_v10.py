@@ -69,7 +69,19 @@ S.append(shot("v10/r_close/f_*.jpg", "SIM", kick(0.3, 7.8, "DOCK"), T(0.3, 4.0, 
               T(4.1, 7.8, "THE CONTACTS STAY DEAD\nUNTIL IT'S DOCKED.", size=60),
               battery=dict(json="ricarica_energia.json", src0=600, src_step=1, travel_text="LOW · RETURNING TO DOCK", charging_text="DOCKED · CHARGING 48 V")))
 S.append(card(3.0, big(0.2, 3.0, "SAFETY LIVES IN HARDWARE.", 80), mono(0.9, 3.0, "NOT IN THE AI. THE AI IS NOT ALLOWED NEAR IT.")))
-S.append(dict(_CAD=True))
+S.append(card(2.6, big(0.2, 2.6, "MECHANICAL."), mono(0.8, 2.6, "~100 PARTS · 128 BOLTED JOINTS · EVERY ONE CHECKED")))
+S.append(shot("v10/k_cad/f_*.jpg", "CAD // CADQUERY", kick(0.4, 5.6, "ASSEMBLY"), T(0.4, 5.6, "REAL PARTS. REAL BOLTS.", size=60),
+              T(1.2, 5.6, "Off-the-shelf where possible, laser-cut and printed where not.", [122, 960], 32, "N", band=False)))
+LINES = [("INTERFERENCE · EXACT B-REP · 3 POSES", "0 OVERLAPS"), ("BOLT AXES, MATING PARTS", "0.000 mm OFFSET"),
+         ("HOLES · ISO 273 / TAP DRILLS / INSERTS", "OK"), ("THREAD ENGAGEMENT · EDGE DISTANCE", "OK"),
+         ("ARM SWEEP vs STRUCTURE · 833 POSES", "3.1 mm MIN"), ("COFFEE SHUTTLE · 140 mm STROKE", "2.0 mm MIN"),
+         ("TIPPING · NOMINAL", "6.7 m/s²"), ("MASS · ALL-IN", "146 kg"), ("OPEN ISSUES", "LISTED. HONESTLY.")]
+tx = [T(0.2, 7.5, "VALIDATION REPORT", [160, 150], 26, "X", color=ACC, shadow=False, band=False, track=2, align="left")]
+for i, (a, b) in enumerate(LINES):
+    t0 = 0.5 + 0.45 * i; y = 230 + 72 * i
+    tx.append(T(t0, 7.5, a + " " + "." * (44 - len(a)), [160, y], 34, "X", color=[200, 202, 206], shadow=False, band=False, align="left"))
+    tx.append(T(t0 + 0.2, 7.5, b, [1240, y], 34, "X", color=WHITE if i < 8 else ACC, shadow=False, band=False, align="left"))
+S.append(card(7.5, *tx))
 # --- cosa fa
 S.append(card(2.4, big(0.2, 2.4, "WHAT IT DOES.")))
 S.append(shot("v10/l_carico/f_*.jpg", "SIM // 4×", kick(0.4, 4.8, "LOGISTICS"), T(0.4, 4.8, "LOADS ITSELF.", size=64),
@@ -106,7 +118,7 @@ S.append(shot("v10/c_consegna/f_*.jpg", "SIM // 2×", kick(0.3, 7.5, "STEP 6"), 
 S.append(dict(type="frames", glob="v10/h_back/f_*.jpg", tag="RENDER",
               texts=[big(0.6, 5.0, "WORST CASE,", 70), T(1.6, 5.0, "IT'S A VERY EXPENSIVE COFFEE MACHINE.", "sub", 46, "N", color=WHITE, band=False, shadow=True)]))
 S.append(card(5.5, images=[dict(path="logo/logo_full_chiaro.png", t0=0.3, t1=5.5, pos=[960, 470], w=1100)],
-              texts=[mono(1.2, 5.5, "FROM €39,900  ·  INDICATIVE PRICE, EXCL. VAT", pos="sub2", size=28)]))
+              texts=[mono(1.2, 5.5, "PRICE: LESS THAN A BARISTA. MORE THAN A MOKA POT.", pos="sub2", size=28)]))
 json.dump(dict(fps=30, size=[1920, 1080], music="music_v10.wav", xfade=0.45, ui=dict(head="GIORGIO // REV.10"), segments=S),
           open("edit_v10.json", "w"), ensure_ascii=False, indent=1)
 print(len(S), "segmenti")

@@ -908,7 +908,469 @@
    ]
   },
   {
-   "_CAD": true
+   "type": "card",
+   "dur": 2.6,
+   "color": [
+    6,
+    6,
+    8
+   ],
+   "texts": [
+    {
+     "t0": 0.2,
+     "t1": 2.6,
+     "text": "MECHANICAL.",
+     "pos": "center",
+     "size": 96,
+     "weight": "H",
+     "align": "center",
+     "color": [
+      245,
+      245,
+      242
+     ],
+     "shadow": false,
+     "band": false,
+     "track": 3
+    },
+    {
+     "t0": 0.8,
+     "t1": 2.6,
+     "text": "~100 PARTS · 128 BOLTED JOINTS · EVERY ONE CHECKED",
+     "pos": "sub2",
+     "size": 26,
+     "weight": "X",
+     "align": "center",
+     "color": [
+      150,
+      152,
+      158
+     ],
+     "shadow": false,
+     "band": false,
+     "track": 1
+    }
+   ]
+  },
+  {
+   "type": "frames",
+   "glob": "v10/k_cad/f_*.jpg",
+   "tag": "CAD // CADQUERY",
+   "texts": [
+    {
+     "t0": 0.4,
+     "t1": 5.6,
+     "text": "ASSEMBLY",
+     "pos": "kick",
+     "size": 24,
+     "weight": "X",
+     "align": "left",
+     "color": [
+      255,
+      122,
+      26
+     ],
+     "shadow": false,
+     "band": false,
+     "above": 120,
+     "track": 2
+    },
+    {
+     "t0": 0.4,
+     "t1": 5.6,
+     "text": "REAL PARTS. REAL BOLTS.",
+     "pos": "ll",
+     "size": 60,
+     "weight": "H",
+     "align": "left"
+    },
+    {
+     "t0": 1.2,
+     "t1": 5.6,
+     "text": "Off-the-shelf where possible, laser-cut and printed where not.",
+     "pos": [
+      122,
+      960
+     ],
+     "size": 32,
+     "weight": "N",
+     "align": "center",
+     "band": false
+    }
+   ]
+  },
+  {
+   "type": "card",
+   "dur": 7.5,
+   "color": [
+    6,
+    6,
+    8
+   ],
+   "texts": [
+    {
+     "t0": 0.2,
+     "t1": 7.5,
+     "text": "VALIDATION REPORT",
+     "pos": [
+      160,
+      150
+     ],
+     "size": 26,
+     "weight": "X",
+     "align": "left",
+     "color": [
+      255,
+      122,
+      26
+     ],
+     "shadow": false,
+     "band": false,
+     "track": 2
+    },
+    {
+     "t0": 0.5,
+     "t1": 7.5,
+     "text": "INTERFERENCE · EXACT B-REP · 3 POSES ........",
+     "pos": [
+      160,
+      230
+     ],
+     "size": 34,
+     "weight": "X",
+     "align": "left",
+     "color": [
+      200,
+      202,
+      206
+     ],
+     "shadow": false,
+     "band": false
+    },
+    {
+     "t0": 0.7,
+     "t1": 7.5,
+     "text": "0 OVERLAPS",
+     "pos": [
+      1240,
+      230
+     ],
+     "size": 34,
+     "weight": "X",
+     "align": "left",
+     "color": [
+      245,
+      245,
+      242
+     ],
+     "shadow": false,
+     "band": false
+    },
+    {
+     "t0": 0.95,
+     "t1": 7.5,
+     "text": "BOLT AXES, MATING PARTS .....................",
+     "pos": [
+      160,
+      302
+     ],
+     "size": 34,
+     "weight": "X",
+     "align": "left",
+     "color": [
+      200,
+      202,
+      206
+     ],
+     "shadow": false,
+     "band": false
+    },
+    {
+     "t0": 1.15,
+     "t1": 7.5,
+     "text": "0.000 mm OFFSET",
+     "pos": [
+      1240,
+      302
+     ],
+     "size": 34,
+     "weight": "X",
+     "align": "left",
+     "color": [
+      245,
+      245,
+      242
+     ],
+     "shadow": false,
+     "band": false
+    },
+    {
+     "t0": 1.4,
+     "t1": 7.5,
+     "text": "HOLES · ISO 273 / TAP DRILLS / INSERTS ......",
+     "pos": [
+      160,
+      374
+     ],
+     "size": 34,
+     "weight": "X",
+     "align": "left",
+     "color": [
+      200,
+      202,
+      206
+     ],
+     "shadow": false,
+     "band": false
+    },
+    {
+     "t0": 1.5999999999999999,
+     "t1": 7.5,
+     "text": "OK",
+     "pos": [
+      1240,
+      374
+     ],
+     "size": 34,
+     "weight": "X",
+     "align": "left",
+     "color": [
+      245,
+      245,
+      242
+     ],
+     "shadow": false,
+     "band": false
+    },
+    {
+     "t0": 1.85,
+     "t1": 7.5,
+     "text": "THREAD ENGAGEMENT · EDGE DISTANCE ...........",
+     "pos": [
+      160,
+      446
+     ],
+     "size": 34,
+     "weight": "X",
+     "align": "left",
+     "color": [
+      200,
+      202,
+      206
+     ],
+     "shadow": false,
+     "band": false
+    },
+    {
+     "t0": 2.0500000000000003,
+     "t1": 7.5,
+     "text": "OK",
+     "pos": [
+      1240,
+      446
+     ],
+     "size": 34,
+     "weight": "X",
+     "align": "left",
+     "color": [
+      245,
+      245,
+      242
+     ],
+     "shadow": false,
+     "band": false
+    },
+    {
+     "t0": 2.3,
+     "t1": 7.5,
+     "text": "ARM SWEEP vs STRUCTURE · 833 POSES ..........",
+     "pos": [
+      160,
+      518
+     ],
+     "size": 34,
+     "weight": "X",
+     "align": "left",
+     "color": [
+      200,
+      202,
+      206
+     ],
+     "shadow": false,
+     "band": false
+    },
+    {
+     "t0": 2.5,
+     "t1": 7.5,
+     "text": "3.1 mm MIN",
+     "pos": [
+      1240,
+      518
+     ],
+     "size": 34,
+     "weight": "X",
+     "align": "left",
+     "color": [
+      245,
+      245,
+      242
+     ],
+     "shadow": false,
+     "band": false
+    },
+    {
+     "t0": 2.75,
+     "t1": 7.5,
+     "text": "COFFEE SHUTTLE · 140 mm STROKE ..............",
+     "pos": [
+      160,
+      590
+     ],
+     "size": 34,
+     "weight": "X",
+     "align": "left",
+     "color": [
+      200,
+      202,
+      206
+     ],
+     "shadow": false,
+     "band": false
+    },
+    {
+     "t0": 2.95,
+     "t1": 7.5,
+     "text": "2.0 mm MIN",
+     "pos": [
+      1240,
+      590
+     ],
+     "size": 34,
+     "weight": "X",
+     "align": "left",
+     "color": [
+      245,
+      245,
+      242
+     ],
+     "shadow": false,
+     "band": false
+    },
+    {
+     "t0": 3.2,
+     "t1": 7.5,
+     "text": "TIPPING · NOMINAL ...........................",
+     "pos": [
+      160,
+      662
+     ],
+     "size": 34,
+     "weight": "X",
+     "align": "left",
+     "color": [
+      200,
+      202,
+      206
+     ],
+     "shadow": false,
+     "band": false
+    },
+    {
+     "t0": 3.4000000000000004,
+     "t1": 7.5,
+     "text": "6.7 m/s²",
+     "pos": [
+      1240,
+      662
+     ],
+     "size": 34,
+     "weight": "X",
+     "align": "left",
+     "color": [
+      245,
+      245,
+      242
+     ],
+     "shadow": false,
+     "band": false
+    },
+    {
+     "t0": 3.65,
+     "t1": 7.5,
+     "text": "MASS · ALL-IN ...............................",
+     "pos": [
+      160,
+      734
+     ],
+     "size": 34,
+     "weight": "X",
+     "align": "left",
+     "color": [
+      200,
+      202,
+      206
+     ],
+     "shadow": false,
+     "band": false
+    },
+    {
+     "t0": 3.85,
+     "t1": 7.5,
+     "text": "146 kg",
+     "pos": [
+      1240,
+      734
+     ],
+     "size": 34,
+     "weight": "X",
+     "align": "left",
+     "color": [
+      245,
+      245,
+      242
+     ],
+     "shadow": false,
+     "band": false
+    },
+    {
+     "t0": 4.1,
+     "t1": 7.5,
+     "text": "OPEN ISSUES .................................",
+     "pos": [
+      160,
+      806
+     ],
+     "size": 34,
+     "weight": "X",
+     "align": "left",
+     "color": [
+      200,
+      202,
+      206
+     ],
+     "shadow": false,
+     "band": false
+    },
+    {
+     "t0": 4.3,
+     "t1": 7.5,
+     "text": "LISTED. HONESTLY.",
+     "pos": [
+      1240,
+      806
+     ],
+     "size": 34,
+     "weight": "X",
+     "align": "left",
+     "color": [
+      255,
+      122,
+      26
+     ],
+     "shadow": false,
+     "band": false
+    }
+   ]
   },
   {
    "type": "card",
@@ -1674,7 +2136,7 @@
     {
      "t0": 1.2,
      "t1": 5.5,
-     "text": "FROM €39,900  ·  INDICATIVE PRICE, EXCL. VAT",
+     "text": "PRICE: LESS THAN A BARISTA. MORE THAN A MOKA POT.",
      "pos": "sub2",
      "size": 28,
      "weight": "X",

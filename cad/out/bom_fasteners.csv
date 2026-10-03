@@ -1,0 +1,32 @@
+fastener,grade,with,joint group,qty
+ISO 10642 M5x20,8.8,"slot-6 T-nut M5 (Tracer rail, ASSUMED)",G1 adapter->Tracer rails,16
+ISO 4762 M5x10,8.8,ISO 7089 washer 200HV,G10 scanner 0->pod,4
+ISO 4762 M5x10,8.8,ISO 7089 washer 200HV,G10 scanner 1->pod,4
+ISO 4762 M6x14,8.8,ISO 7089 washer 200HV,G11 pod 0->adapter,2
+ISO 4762 M6x14,8.8,ISO 7089 washer 200HV,G11 pod 1->adapter,2
+ISO 4762 M4x10,8.8,ISO 7089 washer 200HV,G12 collector->bracket,4
+ISO 4762 M6x14,8.8,ISO 7089 washer 200HV,G12b collector bracket->adapter,2
+ISO 7380 M5x16,8.8,ISO 7089 washer 200HV,G13 skirt->standoffs,6
+ISO 4762 M4x16,8.8,ISO 7089 washer 200HV,G14 waist cover->bracket,4
+ISO 4762 M4x18,8.8,ISO 7089 washer 200HV,G15 neck plate->body_link0,4
+ISO 4762 M4x12,8.8,ISO 7089 washer 200HV + Kerb Konus 860 M4 insert,G16 head shell->neck plate,4
+ISO 4762 M4x6,8.8,,G18 Gemini->bracket,2
+ISO 4762 M6x10,8.8,"ISO 7089 washer 200HV + slot-8 T-nut M6 (OpenArm post, ASSUMED)",G19 Gemini bracket->post,2
+ISO 4762 M8x25,8.8,ISO 7089 washer 200HV,G2 column foot->adapter,8
+ISO 4762 M6x10,8.8,"ISO 7089 washer 200HV + slot-8 T-nut M6 (OpenArm post, ASSUMED)",G20 tray carrier->post,4
+ISO 4762 M6x14,8.8,ISO 7089 washer 200HV,G21 coffee uprights->adapter,4
+ISO 4762 M4x8,8.8,,G22 shelf->uprights,4
+ISO 4762 M3x16,8.8,,G23 MGN12 rail->shelf,3
+ISO 4762 M3x8,8.8,ISO 7089 washer 200HV,G24 cup carrier->carriage,4
+ISO 4762 M4x10,8.8,ISO 7089 washer 200HV,G25 actuator bracket->shelf,2
+ISO 4762 M4x16,8.8,ISO 7089 washer 200HV + Kerb Konus 860 M4 insert,G26 cup holder->shelf,3
+ISO 4762 M4x16,8.8,ISO 7089 washer 200HV,G27 housing->shelf,3
+ISO 4762 M6x10,8.8,"ISO 7089 washer 200HV + slot-8 T-nut M6 (OpenArm post, ASSUMED)",G28 torso shell bracket front->post,2
+ISO 4762 M6x10,8.8,"ISO 7089 washer 200HV + slot-8 T-nut M6 (OpenArm post, ASSUMED)",G28 torso shell bracket rear->post,2
+ISO 4762 M4x12,8.8,ISO 7089 washer 200HV + Kerb Konus 860 M4 insert,G29 torso shell front half->bracket,1
+ISO 4762 M4x12,8.8,ISO 7089 washer 200HV + Kerb Konus 860 M4 insert,G29 torso shell rear half->bracket,1
+DIN 7984 M12x30,8.8,,G3 profile->torso bracket,1
+ISO 4762 M6x30,8.8,ISO 7089 washer 200HV,G4 torso bracket->body_link0,8
+ISO 4762 M6x12,8.8,ISO 7089 washer 200HV,G8 battery tray->adapter,6
+ISO 4762 M5x12,8.8,ISO 4032 M5 nut-8 + ISO 7089 washer,G8b battery hold-down,4
+ISO 4762 M5x12,8.8,ISO 7089 washer 200HV,G9 e-plates->adapter,12
