@@ -58,18 +58,19 @@ AMR_MASS = 55.0                               # Tracer 2.0: 54-56 kg
 CART_MASS = 45.0                              # carrello: telaio alluminio + batteria/alimentatori + 25 kg di zavorra in basso
 FOOT_X, FOOT_Y = 0.42, 0.40
 WHEEL_R = 0.085
-COF_SH = 0.61                                 # mensola dello zaino caffe'
+COF_SH = 0.69                                 # mensola dello zaino caffe'
 COF_X = -0.225
 COF_Y_IN, COF_Y_OUT = -0.10, -0.24             # navetta: sotto l'erogatore / fuori, presa dall'alto
 COF_STACK = (-0.105, -0.27)                    # pila bicchieri
-COF_LIFT = 0.09                                # supporto tazzina ribaltabile della Inissia: navetta 9 cm sopra la vaschetta
+COF_LIFT = 0.020
+COF_MH = 0.229                                # altezza reale della macchina a capsule (pulsanti sopra la testa)                               # supporto tazzina ribaltabile della Inissia: navetta 9 cm sopra la vaschetta
 COF_STACK_Z = 0.12                             # piedistallo della pila
 BUF_Z = 0.95                                  # fondo degli alloggi del buffer a bordo
 BUFFER_SLOTS = [(0.19, y) for y in (0.11, 0.185, 0.26)]   # vassoio frontale: per lato (y con segno), riferimento base   # per lato (y con segno), nel riferimento della base                   # piedini stabilizzatori su bracci sporgenti (poligono 0.84 x 0.80 m)
 SHELL_DIR = str(Path(__file__).resolve().parent / "assets/shells")
-COLUMN_STROKE = 0.40
+COLUMN_STROKE = 0.15
 SCAN_Z = 0.18
-SCANNERS = [((AMR_L / 2 - 0.03, -(AMR_W / 2 - 0.03)), -math.pi / 4), ((-(AMR_L / 2 - 0.03), AMR_W / 2 - 0.03), 3 * math.pi / 4)]
+SCANNERS = [((0.3467, -0.3467), -math.pi / 4), ((-0.3407, 0.3407), 3 * math.pi / 4)]     # pod d'angolo fuori dal Tracer (CAD): piano a 180 mm
 PED_TOP = 0.698                               # quota spalle OpenArm sopra la base del busto originale
 GROUP_ENV, GROUP_HUMAN, GROUP_ROBOT = 0, 1, 2  # i raggi degli scanner vedono solo i gruppi 0 e 1
 
@@ -155,7 +156,7 @@ def build(look="gb", hands="gripper", humans=2, fixed_base=True, base="cart", bu
     # carenatura della base (guscio unico, Tracer nascosto): fascia scura degli scanner, striscia LED di stato, paraurti in gomma
     for nm_ in ("base_skirt", "scan_band", "led_band", "bumper"):
         sp.add_mesh(name=nm_, file=SHELL_DIR + f"/{nm_}.obj")
-    amr.add_geom(name="base_cover", type=mujoco.mjtGeom.mjGEOM_MESH, meshname="base_skirt", pos=[0, 0, 0.165], material="armor",
+    amr.add_geom(name="base_cover", type=mujoco.mjtGeom.mjGEOM_MESH, meshname="base_skirt", pos=[0, 0, 0.170], material="armor",
                  contype=0, conaffinity=0, group=GROUP_ROBOT, mass=0)
     amr.add_geom(name="scan_window", type=mujoco.mjtGeom.mjGEOM_MESH, meshname="scan_band", pos=[0, 0, SCAN_Z], material="visor",
                  contype=0, conaffinity=0, group=GROUP_ROBOT, mass=0)
@@ -165,26 +166,26 @@ def build(look="gb", hands="gripper", humans=2, fixed_base=True, base="cart", bu
     for k_, (col_, z_) in enumerate((((0.0, 0.55, 0.27), 0.132), ((0.97, 0.97, 0.95), 0.108), ((0.80, 0.09, 0.12), 0.084))):   # tricolore attorno alla base
         amr.add_geom(name=f"tricolore{k_}", type=mujoco.mjtGeom.mjGEOM_MESH, meshname="tricolor_band", pos=[0, 0, z_],
                      rgba=list(col_) + [1], contype=0, conaffinity=0, group=GROUP_ROBOT, mass=0)
-    for k_, sy_ in enumerate((-0.06, 0.06)):          # pattini di ricarica (rame) sul paraurti frontale: 48 V verso la stazione
-        amr.add_geom(name=f"charge_pad{k_}", type=mujoco.mjtGeom.mjGEOM_BOX, pos=[0.378, sy_, 0.14], size=[0.004, 0.025, 0.012],
+    for k_, sy_ in enumerate((-0.020, 0.020)):        # collettore Roboteq RoboPad (2 poli, 75 A, +-5 mm) sul muso: faccia a x 0.406 (CAD)
+        amr.add_geom(name=f"charge_pad{k_}", type=mujoco.mjtGeom.mjGEOM_BOX, pos=[0.402, sy_, 0.14], size=[0.004, 0.008, 0.012],
                      rgba=[0.72, 0.45, 0.2, 1], contype=0, conaffinity=0, group=GROUP_ROBOT, mass=0)
     # impianto elettrico sotto la carenatura (visibile nei render in trasparenza): 48 V SELV, un solo punto di ricarica
-    PW = [("pw_battery", (-0.10, 0.0, 0.245), (0.20, 0.11, 0.040), (0.15, 0.32, 0.62)),      # pacco LiFePO4 48 V 40 Ah (1,92 kWh) + BMS
-          ("pw_bms", (0.13, 0.0, 0.232), (0.035, 0.07, 0.012), (0.10, 0.45, 0.20)),
-          ("pw_dcdc0", (0.19, 0.12, 0.235), (0.035, 0.045, 0.022), (0.75, 0.75, 0.78)),        # DC-DC 48 -> 24 V bracci
-          ("pw_dcdc1", (0.19, -0.12, 0.235), (0.035, 0.045, 0.022), (0.75, 0.75, 0.78)),       # DC-DC 48 -> 24 V sensori / 19 V Jetson / 5 V
-          ("pw_contactor", (0.27, 0.0, 0.235), (0.025, 0.05, 0.022), (0.85, 0.12, 0.10)),      # contattori DC di sicurezza (PNOZ)
-          ("pw_pnoz", (0.27, 0.17, 0.235), (0.02, 0.045, 0.022), (0.95, 0.80, 0.10)),          # relè di sicurezza Pilz PNOZmulti
-          ("pw_charger", (-0.26, 0.15, 0.235), (0.05, 0.05, 0.022), (0.25, 0.25, 0.27)),       # caricatore 48 -> 24 V della batteria Tracer
-          ("pw_jetson", (-0.26, -0.15, 0.235), (0.05, 0.05, 0.020), (0.12, 0.12, 0.13)),       # NVIDIA Jetson AGX Orin
-          ("pw_tracer", (0.0, 0.0, 0.135), (0.33, 0.28, 0.07), (0.10, 0.10, 0.11))]            # base AgileX Tracer 2.0 (commerciale, SDK ROS 2 aperto)
+    PW = [("pw_battery", (0.184, 0.0, 0.2195), (0.135, 0.20, 0.0375), (0.15, 0.32, 0.62)),      # LiFePO4 15s 30 Ah (1,44 kWh), 13 kg (CAD)
+          ("pw_bms", (0.184, 0.0, 0.262), (0.06, 0.08, 0.005), (0.10, 0.45, 0.20)),
+          ("pw_dcdc0", (-0.10, 0.13, 0.232), (0.035, 0.045, 0.022), (0.75, 0.75, 0.78)),       # DC-DC 48 -> 24 V, braccio sinistro
+          ("pw_dcdc1", (-0.10, -0.13, 0.232), (0.035, 0.045, 0.022), (0.75, 0.75, 0.78)),      # DC-DC 48 -> 24 V, braccio destro
+          ("pw_contactor", (0.02, 0.15, 0.232), (0.025, 0.04, 0.022), (0.85, 0.12, 0.10)),     # contattori di sicurezza K1/K2
+          ("pw_pnoz", (0.02, -0.15, 0.232), (0.02, 0.045, 0.022), (0.95, 0.80, 0.10)),         # Pilz PNOZmulti
+          ("pw_charger", (-0.26, 0.15, 0.232), (0.05, 0.05, 0.022), (0.25, 0.25, 0.27)),       # caricatore isolato per la batteria del Tracer
+          ("pw_jetson", (-0.26, -0.15, 0.232), (0.05, 0.05, 0.020), (0.12, 0.12, 0.13)),       # NVIDIA Jetson AGX Orin
+          ("pw_tracer", (0.0, 0.0, 0.135), (0.33, 0.28, 0.07), (0.10, 0.10, 0.11))]            # AgileX Tracer 2.0
     for nm_, p_, h_, c_ in PW:
         amr.add_geom(name=nm_, type=mujoco.mjtGeom.mjGEOM_BOX, pos=list(p_), size=list(h_), rgba=list(c_) + [1],
                      contype=0, conaffinity=0, group=GROUP_ROBOT, mass=0)
-    for k_, (a_, b_) in enumerate((((0.37, -0.06, 0.14), (0.27, -0.03, 0.235)), ((0.37, 0.06, 0.14), (0.27, 0.03, 0.235)),   # pattini -> contattori
-                                   ((0.25, 0.0, 0.235), (0.10, 0.0, 0.245)),                                                 # contattori -> batteria
-                                   ((0.10, 0.04, 0.27), (0.19, 0.12, 0.25)), ((0.10, -0.04, 0.27), (0.19, -0.12, 0.25)),     # batteria -> DC-DC
-                                   ((0.19, 0.12, 0.257), (-0.06, 0.03, 0.29)), ((0.19, -0.12, 0.257), (-0.06, -0.03, 0.29)))):   # DC-DC -> colonna
+    for k_, (a_, b_) in enumerate((((0.40, -0.02, 0.14), (0.30, -0.02, 0.215)), ((0.40, 0.02, 0.14), (0.30, 0.02, 0.215)),     # RoboPad -> batteria
+                                   ((0.05, 0.10, 0.225), (0.02, 0.15, 0.232)),                                               # batteria -> contattori
+                                   ((0.02, 0.12, 0.25), (-0.10, 0.13, 0.25)), ((0.05, -0.10, 0.225), (-0.10, -0.13, 0.25)),  # -> DC-DC
+                                   ((-0.10, 0.13, 0.255), (-0.06, 0.03, 0.29)), ((-0.10, -0.13, 0.255), (-0.06, -0.03, 0.29)))):  # DC-DC -> colonna
         a_, b_ = np.array(a_), np.array(b_)
         amr.add_geom(name=f"pw_cable{k_}", type=mujoco.mjtGeom.mjGEOM_CAPSULE, fromto=list(a_) + list(b_), size=[0.005, 0, 0],
                      rgba=[0.95, 0.45, 0.1, 1], contype=0, conaffinity=0, group=GROUP_ROBOT, mass=0)
@@ -288,18 +289,18 @@ def build(look="gb", hands="gripper", humans=2, fixed_base=True, base="cart", bu
         mx = COF_X
         cg("cm_mount", B, (-0.235, -0.17, sh - 0.008), (0.085, 0.135, 0.008), "armor", mass=1.2)            # mensola (sotto navetta e pila)
         sp.add_mesh(name="coffee_housing", file=SHELL_DIR + "/coffee_housing.obj")
-        cg("cm_housing", MSH, (-0.255, 0.058, 0.615), (0, 0, 0), "armor", mesh="coffee_housing")              # guscio dello zaino
-        cg("cm_band", B, (-0.255, -0.0635, 0.80), (0.07, 0.0015, 0.012), "accent")                            # fascia accento Giorgio
-        cg("logo_back", B, (-0.255, -0.0640, 0.665), (0.055, 0.0012, 0.055), rgba=[1, 1, 1, 1])               # logo Giorgio (tazzina) sullo zaino
-        cg("cm_vent", B, (-0.255, -0.0635, 0.45), (0.05, 0.0015, 0.03), "dark")                              # griglia di aerazione
-        cg("cm_body", MSH, (mx, 0.035, sh + 0.135), (0, 0, 0), rgba=[0.20, 0.21, 0.22, 1], mesh="inissia_body", mass=2.4)   # macchina generica, grafite
-        cg("cm_head", MSH, (mx, -0.075, sh + 0.255), (0, 0, 0), rgba=[0.08, 0.08, 0.09, 1], mesh="inissia_head")
-        cg("cm_tank", MSH, (mx, 0.155, sh + 0.115), (0, 0, 0), rgba=[0.65, 0.8, 0.95, 0.45], mesh="inissia_tank")
-        cg("cm_lever", B, (mx, -0.055, sh + 0.302), (0.045, 0.04, 0.004), rgba=[0.10, 0.10, 0.11, 1])
-        cg("cm_btn1", CY, (mx + 0.02, -0.105, sh + 0.301), (0.009, 0.003, 0), rgba=[1.0, 0.55, 0.2, 1])      # espresso
-        cg("cm_btn2", CY, (mx - 0.02, -0.105, sh + 0.301), (0.009, 0.003, 0), rgba=[0.3, 0.3, 0.32, 1])      # lungo
-        cg("cm_spout", CY, (mx, COF_Y_IN, sh + 0.205), (0.009, 0.012, 0), "steel")
-        cg("cm_stream", CY, (mx, COF_Y_IN, sh + COF_LIFT + 0.05), (0.0022, 0.05, 0), rgba=[0.35, 0.18, 0.07, 0.0])
+        cg("cm_housing", MSH, (-0.255, 0.058, COF_SH - 0.029), (0, 0, 0), "armor", mesh="coffee_housing")              # guscio dello zaino (z 0.300-0.862)
+        cg("cm_band", B, (-0.255, -0.0635, COF_SH + 0.19), (0.07, 0.0015, 0.012), "accent")                            # fascia accento Giorgio
+        cg("logo_back", B, (-0.255, -0.0640, COF_SH + 0.055), (0.055, 0.0012, 0.055), rgba=[1, 1, 1, 1])               # logo Giorgio (tazzina) sullo zaino
+        cg("cm_vent", B, (-0.255, -0.0635, COF_SH - 0.16), (0.05, 0.0015, 0.03), "dark")                              # griglia di aerazione
+        cg("cm_body", MSH, (mx, 0.035, sh + 0.097), (0, 0, 0), rgba=[0.20, 0.21, 0.22, 1], mesh="inissia_body", mass=2.4)   # macchina generica, grafite
+        cg("cm_head", MSH, (mx, -0.075, sh + 0.192), (0, 0, 0), rgba=[0.08, 0.08, 0.09, 1], mesh="inissia_head")
+        cg("cm_tank", MSH, (mx, 0.155, sh + 0.087), (0, 0, 0), rgba=[0.65, 0.8, 0.95, 0.45], mesh="inissia_tank")
+        cg("cm_lever", B, (mx, -0.055, sh + COF_MH - 0.004), (0.045, 0.04, 0.004), rgba=[0.10, 0.10, 0.11, 1])
+        cg("cm_btn1", CY, (mx + 0.02, -0.105, sh + COF_MH), (0.009, 0.003, 0), rgba=[1.0, 0.55, 0.2, 1])      # espresso
+        cg("cm_btn2", CY, (mx - 0.02, -0.105, sh + COF_MH), (0.009, 0.003, 0), rgba=[0.3, 0.3, 0.32, 1])      # lungo
+        cg("cm_spout", CY, (mx, COF_Y_IN, sh + 0.150), (0.009, 0.012, 0), "steel")
+        cg("cm_stream", CY, (mx, COF_Y_IN, sh + (0.035 + 0.138) / 2), (0.0022, (0.138 - 0.035) / 2, 0), rgba=[0.35, 0.18, 0.07, 0.0])
         cg("cm_drip", B, (mx, -0.10, sh + 0.004), (0.05, 0.045, 0.004), "steel")
         cg("cm_bin", B, (mx, 0.04, sh + 0.03), (0.05, 0.05, 0.03), rgba=[0.08, 0.08, 0.09, 1])                # capsule usate
         cg("cm_support", B, (mx, COF_Y_IN, sh + COF_LIFT / 2), (0.006, 0.03, COF_LIFT / 2), "steel")
@@ -318,18 +319,22 @@ def build(look="gb", hands="gripper", humans=2, fixed_base=True, base="cart", bu
         sx_, sy_ = COF_STACK
         zs = sh + COF_STACK_Z
         cg("cup_post", CY, (sx_, sy_, sh + COF_STACK_Z / 2), (0.03, COF_STACK_Z / 2, 0), "armor")
-        cg("cup_ring", CY, (sx_, sy_, zs + 0.035), (0.038, 0.035, 0), rgba=[0.75, 0.85, 0.95, 0.25])
+        cg("cup_ring", CY, (sx_, sy_, zs + 0.0225), (0.038, 0.0225, 0), rgba=[0.75, 0.85, 0.95, 0.25])
         for i in range(5):
             cg(f"cup_stack{i}", CY, (sx_, sy_, zs + 0.04 + 0.012 * i), (0.029, 0.04, 0), rgba=[0.97, 0.96, 0.93, 1])
         cg("cup_rest", CY, (sx_, sy_, zs + 0.006 + 0.012 * 5 - 0.002), (0.02, 0.002, 0), rgba=[0, 0, 0, 0], collide=True)
     # colonna: profilo alluminio 80x80 con slitta e morsetti (regolazione manuale), carter di design
-    sp.add_mesh(name="column_cover", file=SHELL_DIR + "/column_neck.obj")
-    amr.add_geom(name="column_cover", type=mujoco.mjtGeom.mjGEOM_MESH, meshname="column_cover", pos=[-0.06, 0, AMR_H + 0.335],
+    sp.add_mesh(name="column_cover", file=SHELL_DIR + "/column_fixed.obj")                  # carter fisso 180 x 200, z 0.300-0.540 (CAD)
+    amr.add_geom(name="column_cover", type=mujoco.mjtGeom.mjGEOM_MESH, meshname="column_cover", pos=[-0.06, 0, 0.42],
                  material="armor", contype=0, conaffinity=0, group=GROUP_ROBOT, mass=0)
+    amr.add_geom(name="column_sleeve", type=mujoco.mjtGeom.mjGEOM_BOX, pos=[-0.06, 0, 0.366], size=[0.05, 0.05, 0.189],
+                 material="dark", contype=0, conaffinity=0, group=GROUP_ROBOT, mass=2.40)      # tubo 100x100x3 + flangia
+    amr.add_geom(name="base_equipment_mass", type=mujoco.mjtGeom.mjGEOM_BOX, pos=[-0.002, 0.002, 0.271], size=[0.05, 0.05, 0.02],
+                 rgba=[0, 0, 0, 0], contype=0, conaffinity=0, group=3, mass=37.7)              # massa fissa sulla base (CAD 46,1 kg meno le parti che in sim hanno gia' massa propria)
     col = amr.add_body(name="column", pos=[-0.06, 0, AMR_H + 0.05])
     col.add_joint(name="lift", type=mujoco.mjtJoint.mjJNT_SLIDE, axis=[0, 0, 1], range=[0, COLUMN_STROKE], damping=200, armature=5)
-    col.add_geom(name="column_inner", type=mujoco.mjtGeom.mjGEOM_BOX, pos=[0, 0, 0.2], size=[0.04, 0.04, 0.2],
-                 material="steel", mass=6.0, contype=0, conaffinity=0, group=GROUP_ROBOT)
+    col.add_geom(name="column_inner", type=mujoco.mjtGeom.mjGEOM_BOX, pos=[0, 0, 0.080], size=[0.04, 0.04, 0.185],
+                 material="steel", mass=1.97, contype=0, conaffinity=0, group=GROUP_ROBOT)
 
     for nm, body_, pos, half in (("col_coll", amr, (-0.06, 0, AMR_H + 0.22), (0.085, 0.10, 0.22)),):
         body_.add_geom(name=nm, type=mujoco.mjtGeom.mjGEOM_BOX, pos=list(pos), size=list(half), group=3, mass=0, rgba=[1, 0, 0, 0.3],
@@ -378,20 +383,19 @@ def build(look="gb", hands="gripper", humans=2, fixed_base=True, base="cart", bu
             oa.delete(t)
     sp.add_mesh(name="body_link0", file=str(OA / "assets/visual/body/body_link0.stl"), scale=[0.001] * 3)
     torso.add_geom(name="torso_link0", type=mujoco.mjtGeom.mjGEOM_MESH, meshname="body_link0", material="dark",
-                   contype=0, conaffinity=0, group=GROUP_ROBOT, mass=8.0)
+                   contype=0, conaffinity=0, group=GROUP_ROBOT, mass=13.89)
     fr = torso.add_frame(pos=[0, 0, PED_TOP])
     sp.attach(oa, frame=fr, prefix="")
     # gusci di design (mesh da shells.py)
     for nm in ("torso", "crown", "crown_glass", "pauldron"):
         sp.add_mesh(name=f"shell_{nm}", file=SHELL_DIR + f"/{nm}.obj")
-    for nm_, z_ in (("waist_cover", 0.005), ("neck_cover", 0.75)):     # colletti: piastra base OpenArm e collo restano coperti
-        sp.add_mesh(name=nm_, file=SHELL_DIR + f"/{nm_}.obj")
-        torso.add_geom(name=nm_, type=mujoco.mjtGeom.mjGEOM_MESH, meshname=nm_, pos=[0, 0, z_], material="armor",
-                       contype=0, conaffinity=0, group=GROUP_ROBOT, mass=0)
-    torso.add_geom(name="shell_torso", type=mujoco.mjtGeom.mjGEOM_MESH, meshname="shell_torso", pos=[-0.03, 0, PED_TOP - 0.195],
+    sp.add_mesh(name="waist_cover", file=SHELL_DIR + "/waist_cover.obj")      # carter di vita 268 x 200: contiene la piastra base OpenArm
+    torso.add_geom(name="waist_cover", type=mujoco.mjtGeom.mjGEOM_MESH, meshname="waist_cover", pos=[-0.028, 0, 0.12], material="armor",
+                   contype=0, conaffinity=0, group=GROUP_ROBOT, mass=0)
+    torso.add_geom(name="shell_torso", type=mujoco.mjtGeom.mjGEOM_MESH, meshname="shell_torso", pos=[0.0, 0, 0.529],
                    material="armor", contype=0, conaffinity=0, group=GROUP_ROBOT, mass=0)
-    vbox(torso, "torso_accent", (0.087, 0, PED_TOP - 0.07), (0.002, 0.06, 0.003), "accent")
-    torso.add_geom(name="logo_chest", type=mujoco.mjtGeom.mjGEOM_BOX, pos=[0.0975, 0, PED_TOP - 0.20], size=[0.0012, 0.07, 0.07],
+    vbox(torso, "torso_accent", (0.104, 0, PED_TOP - 0.07), (0.002, 0.06, 0.003), "accent")
+    torso.add_geom(name="logo_chest", type=mujoco.mjtGeom.mjGEOM_BOX, pos=[0.0995, 0, PED_TOP - 0.20], size=[0.0012, 0.065, 0.065],
                    rgba=[1, 1, 1, 1], contype=0, conaffinity=0, group=GROUP_ROBOT, mass=0)   # logo Giorgio (tazzina) sul petto
     for s, sy in (("left", 1), ("right", -1)):
         sp.body(f"openarm_{s}_link2").add_geom(name=f"pauldron_{s}", type=mujoco.mjtGeom.mjGEOM_MESH, meshname="shell_pauldron",

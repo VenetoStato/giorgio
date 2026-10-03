@@ -17,7 +17,7 @@ def world_mesh(gname):
     return v @ R.T + p
 
 
-SHELLS = [n for n in ("shell_torso", "column_cover", "base_cover", "cm_housing", "shell_crown", "crown_shell", "head_shell", "waist_cover", "neck_cover") if mujoco.mj_name2id(m, mujoco.mjtObj.mjOBJ_GEOM, n) >= 0]
+SHELLS = [n for n in ("shell_torso", "column_cover", "base_cover", "cm_housing", "head_shell", "waist_cover") if mujoco.mj_name2id(m, mujoco.mjtObj.mjOBJ_GEOM, n) >= 0]
 shells = {n: world_mesh(n) for n in SHELLS}
 hulls = {n: Delaunay(v) for n, v in shells.items()}          # carene quasi convesse: test sull'inviluppo convesso
 pts = world_mesh("torso_link0")[::3]

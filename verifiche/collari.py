@@ -6,7 +6,7 @@ recs = sys.argv[1:]
 sys.argv = ["x", "--seconds", "0", "--no_humans"]
 src = open("giorgio_v5.py").read().split("# ---------------------------------------------------------------- uscite")[0]
 exec(compile(src, "v5", "exec"))
-targets = [m.geom(n).id for n in ("waist_cover", "neck_cover", "shell_torso")]
+targets = [m.geom(n).id for n in ("waist_cover", "shell_torso", "column_cover")]
 arm = [g for g in range(m.ngeom) if m.body(m.geom_bodyid[g]).name.startswith(("openarm_left_link", "openarm_right_link", "openarm_left_ee", "openarm_right_ee"))
        and m.geom_type[g] == mujoco.mjtGeom.mjGEOM_MESH and m.body(m.geom_bodyid[g]).name not in ("openarm_left_link1", "openarm_right_link1")]
 ft = np.zeros(6); qadr = np.r_[arms["right"].ik.qadr, arms["left"].ik.qadr]

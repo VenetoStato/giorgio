@@ -36,6 +36,12 @@ def superellipsoid(a, b, c, e1=0.35, e2=0.35, nu=48, nv=96, taper=None, z0=0.0):
     return P, np.array(F)
 
 
+def cut(P, F, drop):
+    """toglie le facce il cui baricentro soddisfa drop(c) (aperture nei gusci); c = baricentro (x, y, z) nel frame della mesh"""
+    C = P[F].mean(1)
+    return P, F[~np.array([drop(c) for c in C], bool)]
+
+
 def save_obj(name, P, F):
     OUT.mkdir(parents=True, exist_ok=True)
     with open(OUT / f"{name}.obj", "w") as f:
@@ -78,7 +84,12 @@ SHELLS = {
     "moustache_l": lambda: moustache(1),
     "moustache_r": lambda: moustache(-1),
     # busto a V: vita stretta, petto largo, profilo morbido (centro a meta' altezza)
-    "torso": lambda: superellipsoid(0.135, 0.17, 0.235, e1=0.45, e2=0.5, taper=lambda t: 0.80 + 0.20 * np.clip((t + 1) / 1.6, 0, 1) ** 0.8),
+    # busto (CAD rev. 2026-10-03): 105 x 105 mm, centro z 0.529 nel frame del busto, aperto sotto 0.312 e sopra 0.771,
+    # aperture per le spalle: cilindri r 0.082 lungo y attorno a (0, y, 0.698) per |y| >= 0.058
+    "torso": lambda: cut(*superellipsoid(0.105, 0.105, 0.261, e1=0.45, e2=0.5, nu=72, nv=144,
+                                         taper=lambda t: 0.80 + 0.20 * np.clip((t + 1) / 1.6, 0, 1) ** 0.8),
+                         lambda c: (c[2] + 0.529 < 0.312) or (c[2] + 0.529 > 0.771)
+                         or (abs(c[1]) >= 0.058 and c[0] ** 2 + (c[2] + 0.529 - 0.698) ** 2 < 0.082 ** 2)),
     # corona sensori: fascia bassa e larga che ospita la Gemini 336L (vetro scuro davanti)
     "crown": lambda: superellipsoid(0.07, 0.095, 0.045, e1=0.4, e2=0.45),
     "crown_glass": lambda: superellipsoid(0.02, 0.085, 0.026, e1=0.3, e2=0.3),
@@ -87,11 +98,12 @@ SHELLS = {
     "face": lambda: superellipsoid(0.03, 0.078, 0.058, e1=0.7, e2=0.7),
     "eye": lambda: superellipsoid(0.004, 0.0125, 0.017, e1=0.8, e2=0.8),
     # macchina a capsule De'Longhi Inissia EN80 (120 x 230 x 320 mm): corpo arrotondato, testa erogatore, vaschetta
-    "inissia_body": lambda: superellipsoid(0.060, 0.088, 0.135, e1=0.25, e2=0.35),
-    "inissia_head": lambda: superellipsoid(0.058, 0.055, 0.045, e1=0.35, e2=0.45),
-    "inissia_tank": lambda: superellipsoid(0.045, 0.045, 0.11, e1=0.2, e2=0.3),
+    # macchina a capsule compatta, misure reali 0.119 x 0.320 x 0.229 m (CAD)
+    "inissia_body": lambda: superellipsoid(0.059, 0.088, 0.095, e1=0.25, e2=0.35),
+    "inissia_head": lambda: superellipsoid(0.058, 0.055, 0.035, e1=0.35, e2=0.45),
+    "inissia_tank": lambda: superellipsoid(0.045, 0.045, 0.085, e1=0.2, e2=0.3),
     # base carenata: un unico guscio sopra il Tracer fino a 4 cm da terra, fascia scanner, LED, paraurti
-    "base_skirt": lambda: superellipsoid(0.375, 0.33, 0.125, e1=0.28, e2=0.3),
+    "base_skirt": lambda: superellipsoid(0.375, 0.33, 0.130, e1=0.15, e2=0.3),
     "scan_band": lambda: superellipsoid(0.379, 0.334, 0.028, e1=0.12, e2=0.3),
     "led_band": lambda: superellipsoid(0.377, 0.332, 0.005, e1=0.1, e2=0.3),
     "tricolor_band": lambda: superellipsoid(0.3785, 0.3335, 0.011, e1=0.1, e2=0.3),
@@ -99,15 +111,15 @@ SHELLS = {
     # colonna: raccordo rastremato base -> busto
     "column_neck": lambda: superellipsoid(0.085, 0.10, 0.30, e1=0.3, e2=0.4, taper=lambda t: 1.0 + 0.75 * np.clip((0.2 - t) / 1.2, 0, 1) ** 1.5),
     # zaino caffe': guscio che racchiude la De'Longhi Inissia (resta fuori solo la testa erogatrice e la navetta)
-    "coffee_housing": lambda: superellipsoid(0.112, 0.12, 0.31, e1=0.22, e2=0.3),
+    "coffee_housing": lambda: superellipsoid(0.112, 0.12, 0.281, e1=0.22, e2=0.3),     # z 0.300-0.862 come nel CAD
     # spallacci
     "pauldron": lambda: superellipsoid(0.07, 0.055, 0.055, e1=0.55, e2=0.6),
     # carter del carrello e della colonna
     "base_cover": lambda: superellipsoid(0.36, 0.31, 0.06, e1=0.25, e2=0.3),
     "column_cover": lambda: superellipsoid(0.085, 0.10, 0.22, e1=0.2, e2=0.35),
     # colletti: coprono la piastra di base dell'OpenArm (190 x 190 mm) e il collo tra busto e testa (verifiche/carene.py)
-    "waist_cover": lambda: superellipsoid(0.125, 0.125, 0.042, e1=0.3, e2=0.35),
-    "neck_cover": lambda: superellipsoid(0.078, 0.088, 0.04, e1=0.35, e2=0.4),
+    "waist_cover": lambda: superellipsoid(0.134, 0.100, 0.138, e1=0.12, e2=0.12),      # 268 x 200 mm, r 8 (CAD), sul busto
+    "column_fixed": lambda: superellipsoid(0.090, 0.100, 0.120, e1=0.15, e2=0.45),     # 180 x 200 mm, r 45, z 0.300-0.540 (CAD)
 }
 
 

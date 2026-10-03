@@ -20,7 +20,7 @@ from scipy import ndimage
 from scipy.spatial.transform import Rotation as Rot
 
 from giorgio_ik import ArmIK
-from giorgio_model import BUF_Z, BUFFER_SLOTS, COF_LIFT, COF_SH, COF_STACK, COF_STACK_Z, COF_X, COF_Y_IN, COF_Y_OUT, GROUP_ENV, GROUP_HUMAN, LOOKS, SCANNERS, build
+from giorgio_model import BUF_Z, BUFFER_SLOTS, COF_LIFT, COF_MH, COF_SH, COF_STACK, COF_STACK_Z, COF_X, COF_Y_IN, COF_Y_OUT, GROUP_ENV, GROUP_HUMAN, LOOKS, SCANNERS, build
 
 ap = argparse.ArgumentParser()
 ap.add_argument("--look", default="gb", choices=list(LOOKS))
@@ -32,7 +32,7 @@ ap.add_argument("--no_humans", action="store_true")
 ap.add_argument("--seed", type=int, default=3)
 ap.add_argument("--agent", default="", help="comandi a tempo per l'agente: 't:testo|t:testo'")
 ap.add_argument("--soc", type=float, default=0.85, help="stato di carica iniziale della batteria (0-1)")
-ap.add_argument("--bat_wh", type=float, default=1920.0, help="capacita' batteria di sistema [Wh] (48 V LiFePO4 15s 40 Ah, vedi electrical/)")
+ap.add_argument("--bat_wh", type=float, default=1440.0, help="capacita' batteria di sistema [Wh] (48 V LiFePO4 15s 30 Ah, vedi cad/ ed electrical/)")
 ap.add_argument("--hands", default="gripper", help="gripper | orca+amazing | ... (destra+sinistra)")
 ap.add_argument("--speedup", type=int, default=1, help="video: un fotogramma ogni N/30 s (timelapse)")
 args = ap.parse_args()
@@ -146,13 +146,13 @@ for i, y in enumerate(np.arange(-3.0, 3.01, 0.5)):          # segnaletica: corsi
     box(f"aisle{i}", (-1.6, y, 0.002), (0.04, 0.18, 0.002), "yellow", collide=False)
 # stazione di ricarica C: piastra di contatto + colonnina con LED
 CHG = np.array([-3.0, -2.6, -math.pi / 2])
-pc = local_to_world(CHG, 0.475, 0.0)                     # colonnina 20 mm dietro le lamelle: il paraurti non la tocca prima dei contatti
+pc = local_to_world(CHG, 0.503, 0.0)                     # colonnina 20 mm dietro le lamelle: il paraurti non la tocca prima dei contatti
 box("charger_post", (pc[0], pc[1], 0.35), (0.06, 0.12, 0.35), "armor", yaw=CHG[2])
-pl = local_to_world(CHG, 0.395, 0.0)                     # piastra a molla con due lamelle di contatto, all'altezza dei pattini del robot
+pl = local_to_world(CHG, 0.423, 0.0)                     # piastra a molla con due lamelle di contatto, all'altezza dei pattini del robot
 box("charger_plate", (pl[0], pl[1], 0.14), (0.012, 0.09, 0.035), "dark", collide=False, yaw=CHG[2])
-for k_, sy_ in enumerate((-0.06, 0.06)):
-    q_ = local_to_world(CHG, 0.383, sy_)
-    g_ = box(f"charger_lamella{k_}", (q_[0], q_[1], 0.14), (0.002, 0.03, 0.015), "steel", collide=False, yaw=CHG[2])
+for k_, sy_ in enumerate((-0.020, 0.020)):                 # piastre RoboPad della stazione, allineate ai poli del robot
+    q_ = local_to_world(CHG, 0.411, sy_)
+    g_ = box(f"charger_lamella{k_}", (q_[0], q_[1], 0.14), (0.002, 0.012, 0.015), "steel", collide=False, yaw=CHG[2])
     g_.material = ""; g_.rgba = [0.75, 0.48, 0.22, 1]
 box("charger_led", (pc[0], pc[1], 0.66), (0.062, 0.1, 0.01), "accent", collide=False, yaw=CHG[2])
 
@@ -645,14 +645,14 @@ def dock_error():
     c, s_ = math.cos(CHG[2]), math.sin(CHG[2])
     dx, dy = x - CHG[0], y - CHG[1]
     lx, ly = c * dx + s_ * dy, -s_ * dx + c * dy
-    gap = 0.381 - (lx + 0.382)                           # faccia lamelle (0.381) - punta pattini (centro robot + 0.382)
+    gap = 0.409 - (lx + 0.410)                           # faccia piastre stazione (0.409) - punta collettore RoboPad (centro robot + 0.410)
     return gap, ly, wrap(th - CHG[2])
 
 
 def docked_at_charger():
-    """contatti chiusi: pattini a contatto (molla 10 mm), allineati entro 20 mm e 3 gradi"""
+    """contatti chiusi: collettore RoboPad a contatto (molla 10 mm), allineato entro 5 mm (tolleranza RoboPad) e 3 gradi"""
     gap, ly, dth = dock_error()
-    return -0.010 < gap < 0.004 and abs(ly) < 0.020 and abs(dth) < math.radians(3)
+    return -0.010 < gap < 0.004 and abs(ly) < 0.005 and abs(dth) < math.radians(3)
 
 
 def energy_step():
@@ -1889,8 +1889,8 @@ def coffee_skill(sk_, k):
     if sk_.phase == 0 and not a.busy:
         cp = d.body("cup").xpos.copy()
         s1, q1 = a.pick(cp[:2], "cup", a.q, cp[2] - CUP_H / 2, h=CUP_H)
-        s2, q2 = a.place(a.robot_pt(COF_X, COF_Y_OUT, 0)[:2], "cup", q1, PLATE_Z, "cup_on_grid", drop=0.004, h=CUP_H)
-        btn = a.robot_pt(COF_X + 0.02, -0.105, COF_SH + 0.304 + 0.004)    # pinza chiusa: le dita premono il pulsante
+        s2, q2 = a.place(a.robot_pt(COF_X, COF_Y_OUT, 0)[:2], "cup", q1, PLATE_Z, "cup_on_grid", drop=0.004, h=CUP_H, down_first=True)
+        btn = a.robot_pt(COF_X + 0.02, -0.105, COF_SH + COF_MH + 0.003 + 0.004)    # pinza chiusa: le dita premono il pulsante
         q3 = a.solve(btn + [0, 0, 0.025], q2)
         s3, q4 = a.line(btn + [0, 0, 0.025], btn - [0, 0, 0.004], q3, 0.6)
         s4, q5 = a.line(btn - [0, 0, 0.004], btn + [0, 0, 0.03], q4, 0.4)
