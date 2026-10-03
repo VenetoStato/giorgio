@@ -36,3 +36,4 @@ cad/out/
 cad/data/
 cad/__pycache__/
 giorgio_os/.venv/
+rl_openarm/runs/
