@@ -122,6 +122,18 @@ ASSUMED / ESTIMATE (must be confirmed before ordering — each is flagged in par
 - Contactor and Tracer-charger envelopes; insert pull-out forces (1.0/1.5/2.0 kN for M3/M4/M5 — not published, test them); item core bore Ø10.2; Inissia cup recess (625–735 mm); P16 section 20 × 26.
 - Bolt-load model parameters: Φ = 0.2, μ = 0.15, K = 0.2, docking push 200 N, person leaning on the skirt 300 N.
 
+## Base options (2026-10-03, owner: AgileX only, OEM self-charging dock mandatory)
+
+- **[BASE_OPTIONS.md](BASE_OPTIONS.md)** replaces the MiR verdict of BASE_DECISION.md. It covers:
+  - Tracer 2.0, Ranger Mini 3.0, Ranger, Ranger Air and UMR data from the official manuals;
+  - mass, payload margin and static tipping of Giorgio on each base (`base_options.py` → `out/base_options.json`);
+  - Option A (Tracer ≤ 80 kg);
+  - self-charging and the base power architecture;
+  - the recommendation.
+- **[AGILEX_REQUEST.md](AGILEX_REQUEST.md)**: the questions AgileX must answer in writing.
+- **[PAYLOAD_TEST_PLAN.md](PAYLOAD_TEST_PLAN.md)**: ballast acceptance test before integration.
+- The validated CAD (VALIDATION.md) is still the Tracer 2.0 design. The RoboPad nose contacts in it are **obsolete under the OEM-dock rule**. They will be removed, and the dock receiver added, once AgileX's kit drawing is available.
+
 ## Proposed changes to the sim model (exact values, base frame, metres)
 
 The sim files were not modified. To make `giorgio_model.py` / `shells.py` match the CAD:

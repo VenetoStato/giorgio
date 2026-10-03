@@ -1,4 +1,4 @@
-# Giorgio — mobile base decision
+# Giorgio — mobile base decision (SUPERSEDED: the owner rejected MiR and requires the base maker's own dock — see BASE_OPTIONS.md)
 
 Date 2026-10-03. Question from the owner: "if we say we can do something, we must be sure". Two requirements from the
 AgileX Tracer 2.0 manual (V1.0.0, 2025-03) checked by the lead: **payload ≤ 100 kg (p.3, binding)** and **extension centroid at
