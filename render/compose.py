@@ -47,6 +47,7 @@ def draw_texts(img, texts, t):
     if not texts:
         return img
     layer = Image.new("RGBA", img.size, (0, 0, 0, 0)); dr = ImageDraw.Draw(layer)
+    halo = Image.new("RGBA", img.size, (0, 0, 0, 0)); dh = ImageDraw.Draw(halo)   # alone scuro sfumato (opzione "halo")
     for tx in texts:
         t0, t1 = tx.get("t0", 0), tx.get("t1", 1e9)
         if not (t0 <= t < t1):
@@ -101,11 +102,15 @@ def draw_texts(img, texts, t):
                     dr.text((cxp, y + i * lh + dy), ch, font=f, fill=col + (int(255 * a),))
                     cxp += dr.textlength(ch, font=f) + trk
                 continue
+            if tx.get("halo"):
+                dh.text((lx, y + i * lh + dy + 2), l, font=f, fill=(0, 0, 0, int(200 * a)), stroke_width=6, stroke_fill=(0, 0, 0, int(200 * a)))
             if tx.get("shadow", True):
                 dr.text((lx + 2, y + i * lh + dy + 2), l, font=f, fill=(0, 0, 0, int(110 * a)))
             dr.text((lx, y + i * lh + dy), l, font=f, fill=col + (int(255 * a),))
     sh = layer.filter(ImageFilter.GaussianBlur(6)) if any(tx.get("glow") for tx in texts) else None
     out = img.convert("RGBA")
+    if halo.getbbox():
+        out = Image.alpha_composite(out, halo.filter(ImageFilter.GaussianBlur(14)))
     if sh is not None:
         out = Image.alpha_composite(out, sh)
     return Image.alpha_composite(out, layer).convert("RGB")
