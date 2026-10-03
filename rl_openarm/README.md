@@ -17,7 +17,8 @@ All results below are 100 randomized episodes each, with noise and latency on:
 
 | policy | standalone OpenArm 2.0 | Giorgio (as built, with its front buffer tray) | Giorgio without the tray |
 |---|---|---|---|
-| **delivered (v5)** | **99 %** (seed 2: 100 %) | **91 %** (seed 2: 90 %) | **99 %** (seed 2: 97 %) |
+| **delivered (v5), current Giorgio (AgileX Ranger Mini 3.0 base, 2026-10-03)** | **99 %** (seed 2: 100 %) | **89 %** (seed 2: 92 %) | **99 %** |
+| delivered (v5), previous base (Tracer) | same | 91 % (seed 2: 90 %) | 99 % (seed 2: 97 %) |
 | first version (v1) | 99 % | **18 %** | 93 % |
 
 Notes on the table:
@@ -145,6 +146,18 @@ Success rate:
 | v4 | 98 % / 97 % | 78 % / 66 % | 98 % [93.0–99.4] | natural motion, less robust to the tray |
 | **v5 (delivered)** | **99 % [94.6–99.8] / 100 % [96.3–100]** | **91 % [83.8–95.2] / 90 % [82.6–94.5]** | **99 % [94.6–99.8] / 97 % [91.5–99.0]** | |
 | v5, nominal (no randomization/noise/latency, 50 ep.) | 100 % [92.9–100] | 90 % [78.6–95.7] | — | |
+| **v5 on the current Giorgio (Ranger Mini 3.0 base)** | (unchanged) | **89 % [81.4–93.7] / 92 % [85.0–95.9]** | **99 % [94.6–99.8]** | no retraining |
+| v5 on the current Giorgio, nominal (50 ep.) | — | 94 % [83.8–97.9] | — | |
+
+All rows above the "current Giorgio" rows were measured on the **previous base** (AgileX Tracer, before 2026-10-03).
+The Giorgio model was then updated:
+- base: AgileX Ranger Mini 3.0, driven as a kinematic mocap target when mobile; fixed in this test;
+- also new: deck cover, fixed column, scanner pods, coffee module on the 0.69 m shelf;
+- unchanged: arms, torso, 1.278 m shoulder height, bench and front tray.
+
+We re-ran v5 on it **without retraining**, and `scene.py` needed no change. The result is within the statistical noise of
+the previous base: 89 % and 92 % now against 91 % and 90 % before, with overlapping intervals. Files:
+`valutazione/v5_rangermini_*.json`. `giorgio_transfer.mp4` and `.pkl` were regenerated on the current model.
 
 "a / b" = two independent batches of 100 episodes (seeds 0 and 1).
 
@@ -266,7 +279,7 @@ visuomotor checkpoint (the Enactic ACT model above) is not "plug and play" on Gi
 | `runs/r1..r5/` | training logs (CSV) and checkpoints |
 | `learning_curve_dark.png` | learning curve |
 | `openarm_standalone.mp4` | the delivered policy on the standalone OpenArm 2.0 (10 s, several episodes) |
-| `giorgio_transfer.mp4` | the same weights on Giorgio's right arm, at the bench (10 s, light background) |
+| `giorgio_transfer.mp4` | the same weights on Giorgio's right arm, at the bench (10 s, light background; current Ranger Mini 3.0 model, front tray present) |
 | `giorgio_transfer.pkl` | the same Giorgio run in the `giorgio_v5.py --record` format (geoms + per-frame xpos/xquat at 30 fps). Convert with `render/to_npz.py` for Blender. |
 
 ## 6. How to rerun
