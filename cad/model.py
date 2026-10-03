@@ -84,7 +84,8 @@ def adapter_plate():
     s = poly_plate(poly, AD_Z0, AD_T)
     # alleggerimenti: finestre dove sopra non c'e' nulla di fissato (sotto la batteria la vasca fa da ponte)
     for (x0, x1, y0, y1) in ((80, 200, -95, -20), (80, 200, 20, 95), (225, 300, -95, -20), (225, 300, 20, 95),
-                             (-140, -40, 140, 230), (-140, -40, -230, -140)):
+                             (-140, -40, 140, 230), (-140, -40, -230, -140), (-310, -215, -70, 25), (-310, -180, 48, 96),
+                             (80, 300, 135, 195), (80, 300, -195, -135), (-122, -28, -62, 62)):
         s = s.cut(G.rounded_rect((x0 + x1) / 2, (y0 + y1) / 2, x1 - x0, y1 - y0, AD_T + 2, AD_Z0 - 1, 12))
     p = add(Part("P01_base_adapter_plate", s, "EN AW-6082-T6", "waterjet/laser cut 10 mm + CNC drill/tap (M5/M6/M8)",
                  color=(0.70, 0.71, 0.73), explode=(0, 0, -120),
@@ -103,7 +104,7 @@ def adapter_plate():
             drill(tn, Hole("t", (x, sy * TR_RAIL_Y, TR_H - 2.5), DOWN, 4.2, 4.0, "tap", "M5"))
             tr_ = PARTS["tracer2_base"]
             tr_.holes[f"lip_{hn}"] = Hole(f"lip_{hn}", (x, sy * TR_RAIL_Y, TR_H), DOWN, 6.2, 2.5, "bore")
-            b = bolt(f"B_rail_{hn}", "M5", 20, [(p.name, hn), ("tracer2_base", f"lip_{hn}"), (tn.name, "t")], female="tnut", std="ISO 10642", washer=False, preload_frac=0.07,
+            b = bolt(f"B_rail_{hn}", "M5", 16, [(p.name, hn), ("tracer2_base", f"lip_{hn}"), (tn.name, "t")], female="tnut", std="ISO 10642", washer=False, preload_frac=0.07,
                      nut_spec="slot-6 T-nut M5 (Tracer rail, ASSUMED)", group="G1 adapter->Tracer rails",
                      assumed="Tracer rail slot/T-nut type not published")
     return p
@@ -129,13 +130,14 @@ def column():
     idx_blk = box(COL_X - 18, COL_X + 18, -h - 22, -h, ZI - 18, ZI + 18)
     s = fl.fuse(tube).fuse(clamp_blk).fuse(idx_blk)
     w = add(Part("W01_column_sleeve_weldment", s, "EN AW-6082-T6",
-                 "TIG-welded: 12 mm 6082 flange + 6060 tube 100x100x5 + 2 boss blocks; machine bores after welding",
+                 "TIG-welded: 12 mm 6082 flange (8x M8 tapped) + 6060 tube 100x100x3 + 2 boss blocks; machine after welding",
                  color=(0.75, 0.76, 0.78), explode=(0, 0, 60)))
     for k, (bx, by) in enumerate([(COL_X + sx * 80, sy * 80) for sx in (-1, 0, 1) for sy in (-1, 0, 1) if (sx, sy) != (0, 0)]):
         hn = f"fl{k}"
-        drill(w, Hole(hn, (bx, by, AD_Z1 + FL_T), DOWN, 9.0, FL_T, "clear", "M8"))
-        tap_adapter(f"col{k}", bx, by, "M8")
-        bolt(f"B_colfoot_{k}", "M8", 25, [(w.name, hn), ("P01_base_adapter_plate", f"col{k}")], group="G2 column foot->adapter")
+        drill(w, Hole(hn, (bx, by, AD_Z1), UP, F.ISO["M8"]["tap"], FL_T, "tap", "M8"))
+        drill(PARTS["P01_base_adapter_plate"], Hole(f"col{k}", (bx, by, AD_Z0), UP, 9.0, AD_T, "clear", "M8"))
+        bolt(f"B_colfoot_{k}", "M8", 20, [("P01_base_adapter_plate", f"col{k}"), (w.name, hn)], std="DIN 7984", group="G2 column foot->adapter",
+             assumed="bolted from below before P01 goes on the Tracer: heads (6.6 mm) need the ASSUMED 20 mm rail height under P01")
     # viti di bloccaggio M10 (leva a scatto) e perno d'indicizzazione GN 617 (M16x1.5) - fori
     for k, z in enumerate((SLEEVE_TOP - 45, SLEEVE_TOP - 15)):
         drill(w, Hole(f"clamp{k}", (COL_X, h + 20, z), (0, -1, 0), 8.5, 20, "tap", "M10"))
@@ -188,7 +190,10 @@ def column():
     x0, x1, y0, y1, _ = BL_PLATE
     s = box(x0, x1, y0, y1, BRK_Z0, TORSO_Z)
     s = s.cut(box(COL_X - PROF / 2 - 0.2, COL_X + PROF / 2 + 0.2, -PROF / 2 - 0.2, PROF / 2 + 0.2, BRK_Z0 - 1, BRK_Z0 + 5))
-    s = s.cut(box(-10, 60, -60, 60, BRK_Z0 - 1, BRK_Z0 + 12))                       # alleggerimento sotto (davanti)
+    s = s.cut(G.rounded_rect(25, 0, 74, 124, 15, BRK_Z0 - 1, 8))                     # tasche sotto: velo 6 mm sopra
+    for sy in (-1, 1):
+        s = s.cut(G.rounded_rect(-17, sy * 64, 150, 26, 15, BRK_Z0 - 1, 6))
+    s = s.cut(G.rounded_rect(-118, 0, 22, 60, 15, BRK_Z0 - 1, 5))
     br = add(Part("P02_column_to_torso_bracket", s, "EN AW-6082-T6",
                   "CNC milled from 20 mm plate: 80x80 spigot pocket 5 mm, M12 cbore, 8x M6 clearance, 4x M4 tapped",
                   color=(0.72, 0.73, 0.75), explode=(0, 0, 280), motion="lift"))
@@ -267,40 +272,41 @@ def power():
             tap_adapter(f"bt{hn}", x, y, "M6")
             bolt(f"B_batt_tray_{hn}", "M6", 12, [(tr.name, hn), ("P01_base_adapter_plate", f"bt{hn}")], group="G8 battery tray->adapter")
     bx0, by0 = (tx0 + tx1) / 2 - BATT["L"] / 2, -BATT["W"] / 2
-    purchased_box("E01_battery_48V_40Ah_LFP", bx0, bx0 + BATT["L"], by0, by0 + BATT["W"], z + t + 3, z + t + 3 + BATT["H"], BATT["mass"],
-                  "ESTIMATE custom flat 16S LFP pack", color=(0.15, 0.32, 0.62))
+    purchased_box("E01_battery_48V_15s30Ah_LFP", bx0, bx0 + BATT["L"], by0, by0 + BATT["W"], z + t + 3, z + t + 3 + BATT["H"], BATT["mass"],
+                  "ESTIMATE custom flat 15s 30 Ah LFP pack (1.44 kWh)", color=(0.15, 0.32, 0.62))
     add(Part("P04_battery_pad_EPDM", box(bx0 + 10, bx0 + BATT["L"] - 10, by0 + 10, by0 + BATT["W"] - 10, z + t, z + t + 3).cut(
         G.rounded_rect((tx0 + tx1) / 2, 0, 200, 300, 5, z, 20)), "TPU 90A / EPDM", "die-cut 3 mm EPDM sheet", color=(0.05, 0.05, 0.05),
         explode=(0, 0, 130)))
     # barre di ritenuta sopra la batteria (2), estremita' piegate e imbullonate alle pareti della vasca
     ztop = z + t + 3 + BATT["H"]
     for k, x in enumerate((110.0, 270.0)):
-        bar = box(x - 15, x + 15, -ty - t, ty + t, ztop, ztop + 3)
+        bar = box(x - 15, x + 15, -ty - 3, ty + 3, ztop, ztop + 3)
         for sy in (-1, 1):
-            yy = sy * (ty + t)
-            bar = bar.fuse(box(x - 15, x + 15, yy, yy + 3 * sy, ztop - 30, ztop + 3))
+            yy = sy * ty
+            bar = bar.fuse(box(x - 15, x + 15, yy, yy + 3 * sy, z + 28, ztop + 3))
         pb = add(Part(f"P05_battery_hold_down_{k}", bar, "EN AW-5754-H22", "laser cut + bent 3 mm sheet",
                       color=(0.6, 0.62, 0.65), explode=(0, 0, 220)))
         for sy in (-1, 1):
-            yy = sy * (ty + t + 3)
+            yy = sy * (ty + 3)
             hn = f"e{'L' if sy > 0 else 'R'}"
-            drill(pb, Hole(hn, (x, yy, ztop - 15), (0, -sy, 0), 5.5, 3, "clear", "M5"))
-            drill(tr, Hole(f"hd{k}{hn}", (x, sy * (ty + t), ztop - 15), (0, -sy, 0), 5.5, t, "nut", "M5"))
+            drill(pb, Hole(hn, (x, yy, z + 38), (0, -sy, 0), 5.5, 3, "clear", "M5"))
+            drill(tr, Hole(f"hd{k}{hn}", (x, sy * ty, z + 38), (0, -sy, 0), 5.5, t, "nut", "M5"))
             bolt(f"B_hold_down_{k}{hn}", "M5", 12, [(pb.name, hn), (tr.name, f"hd{k}{hn}")], female="nut", washer=False, group="G8b battery hold-down")
     # piastre elettroniche (3): destra, sinistra, posteriore - 3 mm 5754, componenti fissati con M4 (non verificati)
+    ET = 2.0
     def eplate(name, x0, x1, y0, y1, bolts_xy):
-        s = G.rounded_rect((x0 + x1) / 2, (y0 + y1) / 2, x1 - x0, y1 - y0, 3, z, 6)
-        e = add(Part(name, s, "EN AW-5754-H22", "laser cut 3 mm sheet + PEM nuts for components",
+        s = G.rounded_rect((x0 + x1) / 2, (y0 + y1) / 2, x1 - x0, y1 - y0, ET, z, 6)
+        e = add(Part(name, s, "EN AW-5754-H22", "laser cut 2 mm sheet + PEM nuts M4 for components",
                      color=(0.55, 0.57, 0.6), explode=(0, 0, 100)))
         for k, (x, y) in enumerate(bolts_xy):
-            drill(e, Hole(f"m{k}", (x, y, z + 3), DOWN, 5.5, 3, "clear", "M5"))
+            drill(e, Hole(f"m{k}", (x, y, z + ET), DOWN, 5.5, ET, "clear", "M5"))
             tap_adapter(f"{name[:3]}m{k}", x, y, "M5")
-            bolt(f"B_{name[:3]}_{k}", "M5", 12, [(e.name, f"m{k}"), ("P01_base_adapter_plate", f"{name[:3]}m{k}")], group="G9 e-plates->adapter")
+            bolt(f"B_{name[:3]}_{k}", "M5", 10, [(e.name, f"m{k}"), ("P01_base_adapter_plate", f"{name[:3]}m{k}")], group="G9 e-plates->adapter")
         return e
     eplate("P06_eplate_right", -160, 43, -266, -108, [(-153, -115), (-153, -259), (-10, -115), (-10, -259)])
     eplate("P07_eplate_left", -160, 43, 108, 266, [(-153, 115), (-153, 259), (-10, 115), (-10, 259)])
     eplate("P08_eplate_rear", -330, -160, -88, 152, [(-200, -80), (-170, -10), (-323, 36), (-323, 144)])
-    ze = z + 3
+    ze = z + ET
     purchased_box("E02_dcdc_DDR480C_A", -146, -146 + DCDC["L"], -120 - DCDC["W"], -120, ze, ze + DCDC["H"], DCDC["mass"], "Mean Well DDR-480C-24 (SOURCED)", (0.75, 0.75, 0.78))
     purchased_box("E03_dcdc_DDR480C_B", -146, -146 + DCDC["L"], 120, 120 + DCDC["W"], ze, ze + DCDC["H"], DCDC["mass"], "Mean Well DDR-480C-24 (SOURCED)", (0.75, 0.75, 0.78))
     purchased_box("E04_din_rail_pnoz", -5, 40, -255, -248, ze, ze + 7.5, 0.05, "DIN rail 35x7.5 (EN 60715)", (0.7, 0.7, 0.7))
@@ -442,7 +448,7 @@ def se_shell(a, b, c, e1, e2, center, t, taper=None):
 
 
 # ====================================================================== shells
-SK = dict(a=375.0, b=330.0, c=130.0, e1=0.15, e2=0.30, zc=170.0, t=3.0)     # proposed: e1 0.28->0.15, c 125->130, zc 165->170
+SK = dict(a=375.0, b=330.0, c=130.0, e1=0.15, e2=0.30, zc=170.0, t=2.5)     # proposed: e1 0.28->0.15, c 125->130, zc 165->170
 
 
 def base_skirt():
@@ -480,18 +486,18 @@ def base_skirt():
         tap_adapter(f"sk{k}", x, y, "M5")
         bolt(f"B_skirt_{k}", "M5", 16, [(sk.name, f"m{k}"), (so.name, "top")], std="ISO 7380", group="G13 skirt->standoffs", preload_frac=0.15)
     # paraurti EPDM incollato sul bordo inferiore
-    ring = G.superellipsoid_solid(a + 6, b + 6, 60, 0.12, e2, center=(0, 0, 58)).intersect(box(-500, 500, -500, 500, 40, 76)).cut(
+    ring = G.superellipsoid_solid(a + 3, b + 3, 60, 0.12, e2, center=(0, 0, 58)).intersect(box(-500, 500, -500, 500, 40, 76)).cut(
         G.superellipsoid_solid(a, b, c, e1, e2, center=(0, 0, zc))).cut(poly_plate(oct_poly(-2.0), 0, 200))
     for k, (cx, cy, head) in enumerate(scanner_centres()):
         R = G.rotz(head)
         ring = ring.cut(G.transform_shape(box(-NS3_AXIS_FROM_REAR - NS3_PLUG - 20, 150, -NS3_W / 2 - 12, NS3_W / 2 + 12, 30, 260), R, (cx, cy, 0)))
-    add(Part("P12_bumper_EPDM", ring, "TPU 90A / EPDM", "extruded EPDM D-profile, bonded", color=(0.05, 0.05, 0.06), explode=(0, 0, -80)))
+    add(Part("P12_bumper_EPDM", ring, "TPU 90A / EPDM", "extruded EPDM D-profile 3 mm wall (modelled solid 3 x 36 mm), bonded", color=(0.05, 0.05, 0.06), explode=(0, 0, -80)))
     return sk
 
 
 def column_covers():
     # carter fisso (sul guscio base) attorno al manicotto: tubo superellittico, 2 semigusci
-    t = 3.0
+    t = 2.0
     zc0 = max(se_inside_z(SK["a"], SK["b"], SK["c"], SK["e1"], SK["e2"], COL_X + sx * 90, sy * 100, SK["zc"]) for sx in (-1, 0, 1) for sy in (-1, 0, 1)) + 0.3
     zc1 = 540.0
     o = cq.Workplane("XY", origin=(COL_X, 0, zc0)).rect(180, 200).extrude(zc1 - zc0).edges("|Z").fillet(45).val()
@@ -525,8 +531,8 @@ def column_covers():
     return cc, wc
 
 
-TORSO_SH = dict(a=105.0, b=105.0, c=235.0, e1=0.45, e2=0.5, cx=0.0,          # proposed (sim: a 135, b 170, cx -30): arms hang/reach alongside
-                zc=TORSO_Z + 503.0, t=3.0)
+TORSO_SH = dict(a=105.0, b=105.0, c=261.0, e1=0.45, e2=0.5, cx=0.0,          # proposed (sim: a 135, b 170, c 235, cx -30): arms clear + covers body_link0 top
+                zc=TORSO_Z + 529.0, t=2.0)
 
 
 def torso_taper(t):
@@ -540,7 +546,7 @@ def torso_shell():
     s = s.cut(box(-200, 200, -200, 200, 0, TORSO_Z + 312))
     for sy in (-1, 1):
         s = s.cut(cyl(82, 200, (0, sy * 58, ARM_SHOULDER_Z), (0, sy, 0)))
-    s = s.cut(box(-100, 80, -92, 92, TORSO_Z + 690, TORSO_Z + 900))
+    s = s.cut(box(-200, 200, -200, 200, TORSO_Z + 771, TORSO_Z + 900))           # bordo superiore a 1351: la testa (da 1356) lo chiude
     R = G.roty(GEM_TILT)
     s = s.cut(G.transform_shape(box(-30, 40, -66, 66, -18, 18), R, GEM_POS))
     for sy in (-1, 1):
@@ -580,7 +586,7 @@ def torso_shell():
     return sh
 
 
-HEAD = dict(a=85.0, b=95.0, c=82.0, e1=0.85, e2=0.9, z=TORSO_Z + 828.0, t=3.0)
+HEAD = dict(a=85.0, b=95.0, c=82.0, e1=0.85, e2=0.9, z=TORSO_Z + 828.0, t=2.0)
 
 
 def head():
@@ -724,7 +730,7 @@ def coffee():
                   explode=(-250, 0, 120)))
     # montanti a C (lamiera 3 mm) dall'adattatore alla mensola
     for k, (yc) in enumerate((-118.0, 175.0)):
-        t3 = 3.0
+        t3 = 2.0
         x0, x1 = -290.0, -210.0
         web = box(x0, x1, yc - t3 / 2, yc + t3 / 2, AD_Z1, zs - t)
         fl1 = box(x0, x0 + t3, yc - 12, yc + 12, AD_Z1 + 25, zs - t - 25)
@@ -732,11 +738,11 @@ def coffee():
         foot = box(x0, x1, yc - 20, yc + 20, AD_Z1, AD_Z1 + t3)
         top = box(x0, x1, yc - 20, yc + 20, zs - t - t3, zs - t)
         up = add(Part(f"P22_coffee_upright_{k}", web.fuse(fl1).fuse(fl2).fuse(foot).fuse(top), "EN AW-5754-H22",
-                      "laser cut + bent 3 mm sheet (C-channel 80x24 with feet)", color=(0.55, 0.57, 0.6), explode=(-250, 0, 60)))
+                      "laser cut + bent 2 mm sheet (C-channel 80x24 with feet)", color=(0.55, 0.57, 0.6), explode=(-250, 0, 60)))
         for j, (xx, yy) in enumerate(((x0 + 15, yc - 10), (x1 - 15, yc + 10))):
-            drill(up, Hole(f"f{j}", (xx, yy, AD_Z1 + t3), DOWN, 6.6, t3, "clear", "M6"))
-            tap_adapter(f"cu{k}{j}", xx, yy, "M6")
-            bolt(f"B_upright{k}_foot{j}", "M6", 14, [(up.name, f"f{j}"), ("P01_base_adapter_plate", f"cu{k}{j}")], group="G21 coffee uprights->adapter")
+            drill(up, Hole(f"f{j}", (xx, yy, AD_Z1 + t3), DOWN, 5.5, t3, "clear", "M5"))
+            tap_adapter(f"cu{k}{j}", xx, yy, "M5")
+            bolt(f"B_upright{k}_foot{j}", "M5", 10, [(up.name, f"f{j}"), ("P01_base_adapter_plate", f"cu{k}{j}")], washer=False, group="G21 coffee uprights->adapter")
         for j, (xx, yy) in enumerate(((x0 + 15, yc + 10), (x1 - 15, yc - 10))):
             drill(up, Hole(f"t{j}", (xx, yy, zs - t - t3), UP, 4.5, t3, "clear", "M4"))
             drill(sh, Hole(f"u{k}{j}", (xx, yy, zs - t), UP, F.ISO["M4"]["tap"], t, "tap", "M4"))
@@ -811,8 +817,9 @@ def coffee():
     sx_, sy_ = COF_STACK
     stem = cyl(15, COF_STACK_Z, (sx_, sy_, zs)).fuse(cyl(30, 14, (sx_, sy_, zs)))
     ring = cyl(40, 45, (sx_, sy_, zs + COF_STACK_Z)).cut(cyl(37, 47, (sx_, sy_, zs + COF_STACK_Z + 3)))
+    ring = ring.cut(box(sx_ - 45, sx_ - 16, sy_ - 22, sy_ + 22, zs + COF_STACK_Z - 1, zs + COF_STACK_Z + 50)).cut(box(sx_ + 16, sx_ + 45, sy_ - 22, sy_ + 22, zs + COF_STACK_Z - 1, zs + COF_STACK_Z + 50))   # feritoie per le dita (presa lungo x)
     ch = add(Part("P26_cup_stack_holder", stem.fuse(ring).fuse(box(sx_ - 3, sx_ + 3, sy_ - 37, sy_ + 37, zs + 4, zs + COF_STACK_Z)), "PA12 (SLS/MJF)",
-                  "MJF PA12, D80 ring 45 mm + stem, 3 inserts M4", color=(0.86, 0.86, 0.84), explode=(-200, -200, 180)))
+                  "MJF PA12, D80 ring 45 mm with 44 mm finger slots on +-x, stem, 3 inserts M4", color=(0.86, 0.86, 0.84), explode=(-200, -200, 180)))
     for k, ang in enumerate((0, 120, 240)):
         x, y = sx_ + 22 * math.cos(math.radians(ang)), sy_ + 22 * math.sin(math.radians(ang))
         drill(sh, Hole(f"cs{k}", (x, y, zs - t), UP, 4.5, t, "clear", "M4"))
@@ -820,8 +827,8 @@ def coffee():
     for k in range(3):
         bolt(f"B_cupholder_{k}", "M4", 16, [(sh.name, f"cs{k}"), (ch.name, f"cs{k}")], female="insert", group="G26 cup holder->shelf", preload_frac=0.07)
     # guscio dello zaino: scatola arrotondata aperta davanti (la chiude la cintura) e sul lato erogatore
-    tt = 3.0
-    xo0, xo1, yo0, yo1, zo0, zo1 = -330.0, -166.0, -135.0, 205.0, 300.0, 862.0
+    tt = 2.0
+    xo0, xo1, yo0, yo1, zo0, zo1 = -330.0, -166.0, -135.0, 205.0, COF_SH - 310.0, COF_SH + 252.0   # 380 .. 942 (as in the sim)
     o = cq.Workplane("XY", origin=((xo0 + xo1) / 2, (yo0 + yo1) / 2, zo0)).rect(xo1 - xo0, yo1 - yo0).extrude(zo1 - zo0).edges("|Z").fillet(8).edges(">Z").fillet(6).val()
     i = cq.Workplane("XY", origin=((xo0 + xo1) / 2, (yo0 + yo1) / 2, zo0 - 1)).rect(xo1 - xo0 - 2 * tt, yo1 - yo0 - 2 * tt).extrude(zo1 - zo0 - tt + 1).edges("|Z").fillet(5).val()
     s = o.cut(i)
@@ -829,6 +836,7 @@ def coffee():
     s = s.cut(box(INI_X0 - 2, INI_X0 + INISSIA["W"] + 2, yo0 - 5, yo0 + 10, zs - 10, zs + INISSIA["H"] + 2))   # lato erogatore aperto
     s = s.cut(box(-320, -230, yo0 - 5, yo0 + 10, zs - 40, zs + 30))                                 # passaggio attuatore/navetta
     s = s.cut(box(-316, -240, -40, 200, zo1 - 10, zo1 + 5))                                         # sportello serbatoio (coperchio a parte)
+    s = s.cut(box(INI_X0 - 8, xo1 + 5, yo0 - 5, -45, zs + INISSIA["H"] - 30, zo1 + 5))          # testa/pulsanti accessibili dall'alto (pressione del pulsante)
     hz = add(Part("SH06_coffee_housing", s, "PA12 (SLS/MJF)", "SLS PA12 3 mm (2 pieces), hangs on the shelf edge with 4 M4 inserts",
                   category="shell", color=(0.86, 0.86, 0.84), explode=(-450, 0, 250)))
     for k, (x, y) in enumerate(((-312.0, -60.0), (-312.0, 120.0), (-300.0, 192.0))):

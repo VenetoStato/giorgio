@@ -155,3 +155,13 @@ Sources: ISO 273 at https://engineeringhardware.com/fastener/clearance-hole-size
 | Jetson AGX Orin dev kit | 110 x 110 x 71.65 mm (incl. feet); about 1.58 kg without packaging | Weight: NVIDIA staff on https://forums.developer.nvidia.com/t/weight-of-jetson-agx-orin-dev-kit/209142 . Dims: https://www.sparkfun.com/nvidia-jetson-agx-orin-64gb-developer-kit.html | SOURCED (NVIDIA staff) / SECONDARY (dims) |
 | Pilz PNOZ m B0 (772100) | W 45 x H 101.4 x D 120 mm; 235 g net; DIN rail 35 x 7.5 EN 50022. PNOZmulti 2 expansion/comms modules are 22.5 mm wide | Pilz datasheet copy https://dienelectric.com/pdf/Pilz-PNOZ-m-B0-772100-Datasheet.pdf | SOURCED (Pilz datasheet, third-party hosted) |
 | Mean Well DDR-480C-24 (48 V in, 33.6-67.2 V; 24 V 20 A) | 85.5 x 125.2 x 129.2 mm (W x H x D); 1.375 kg; DIN rail. Note: DDR-480D is the 110 V-input version; use **C** for 48 V | https://www.meanwell.com/Upload/PDF/DDR-480/DDR-480-SPEC.PDF | SOURCED |
+
+## Added 2026-10-03 (lead's verification + base research)
+
+| Item | Value | Source | Confidence |
+|---|---|---|---|
+| Tracer 2.0 payload | "The maximum load of TRACER 2.0 is 100KG" (binding); extension centroid must be at the centre of rotation | AgileX Tracer 2.0 user manual V1.0.0 (2025-03) p.3, checked page by page by the lead; https://cdn.shopify.com/s/files/1/0551/0630/6141/files/TRACER_2.0_User_Manual.pdf | SOURCED |
+| Tracer 2.0 payload (other) | 80 kg on https://global.agilex.ai/products/tracer-2-0 ; 150 kg in the datasheet | web page / datasheet | SOURCED, conflicting |
+| Tracer accessory power / IO | ≤ 5 A, ≤ 120 W, cut at low battery (p.5); rear 4-pin = VCC 23–29.2 V max 5 A, GND, CAN_H, CAN_L; no external E-stop (p.11); charging 2-pin plug, 10 A charger (p.15) | manual | SOURCED (lead) |
+| Tracer braking | 0.9 m from 2 m/s (≈ 2.2 m/s²), empty | datasheet | SOURCED |
+| Alternative bases (MiR250, Robotnik RB-THERON/KAIROS/VOGUI, Ranger Mini 3.0, Ridgeback, ZLTECH hub motor, Synapticon Integro STO drive) | see BASE_DECISION.md "Sources" | official pages fetched 2026-10-03 | per row |

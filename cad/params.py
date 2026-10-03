@@ -22,14 +22,14 @@ TR_WHEEL_R = 80.0                                              # ESTIMATE (not p
 TR_COG_Z = 80.0                                                # ESTIMATE (battery/motors low)
 
 # ---------------------------------------------------------------- base adapter plate
-AD_T = 10.0
-AD_Z0, AD_Z1 = TR_H, TR_H + AD_T                               # 169 .. 179
+AD_T = 8.0                                                      # was 10: column foot now tapped in its own flange
+AD_Z0, AD_Z1 = TR_H, TR_H + AD_T                               # 169 .. 177
 AD_INSET = 5.0
 
 # ---------------------------------------------------------------- column (telescopic, manual adjust)
 COL_X = -60.0                                                  # sim: column at x = -0.06
 FL_T, FL_HALF = 12.0, 100.0                                    # foot flange 200 x 200 x 12
-TUBE_OUT, TUBE_T = 100.0, 5.0                                  # sleeve: EN AW-6060 square tube 100x100x5 (EN 755-2 standard size)
+TUBE_OUT, TUBE_T = 100.0, 3.0                                  # sleeve: EN AW-6060 square tube 100x100x3 (EN 755-2 standard size; was 5)
 SLEEVE_TOP = 555.0
 PROF = 80.0                                                    # item Profil 8 80x80 leicht 0.0.265.80: 5.33 kg/m, Ix 134.06 cm4 (SOURCED)
 PROF_KG_M = 5.33
@@ -37,7 +37,7 @@ PROF_CORE_D = 10.2                                             # ESTIMATE core b
 PROF_BOT = 195.0
 STROKE = 150.0                                                 # proposed (sim: 400, not realisable, see README)
 INDEX_PITCH = 25.0
-LINER_T = 4.8                                                  # POM-C liners/pads, 0.2 mm running clearance per side
+LINER_T = (TUBE_OUT - 2 * TUBE_T - PROF) / 2 - 0.2              # POM-C liners/pads (6.8), 0.2 mm running clearance per side
 BRK_T = 20.0                                                   # torso bracket thickness
 TORSO_Z = 580.0                                                # sim torso origin (body_link0 underside) at lift 0
 BRK_Z0 = TORSO_Z - BRK_T                                       # 560
@@ -65,7 +65,7 @@ GEM_TILT = 50.0
 X4 = dict(W=46.0, D=37.6, H=123.6, mass=0.203)                  # SOURCED Insta360 X4
 
 # ---------------------------------------------------------------- power / electronics envelopes
-BATT = dict(L=270.0, W=400.0, H=85.0, mass=17.0)               # ESTIMATE custom flat 16S LFP 40 Ah (1.92 kWh), cells lying in 2 layers
+BATT = dict(L=270.0, W=400.0, H=75.0, mass=13.0, cap="15s 30 Ah LFP, 48 V nominal, 1.44 kWh")   # ESTIMATE custom flat pack (was 15s 40 Ah 1.92 kWh 17 kg)
 DCDC = dict(L=129.2, W=125.2, H=85.5, mass=1.375)              # SOURCED Mean Well DDR-480C-24 (mounted lying)
 PNOZ = dict(L=45.0, W=120.0, H=101.4, mass=0.235)              # SOURCED Pilz PNOZ m B0 772100 (upright on DIN rail)
 JETSON = dict(L=110.0, W=110.0, H=71.65, mass=1.58)            # SECONDARY dims / SOURCED mass
@@ -74,15 +74,15 @@ CONTACTOR = dict(L=45.0, W=70.0, H=80.0, mass=0.35)            # ESTIMATE DC con
 ROBOPAD = dict(W=90.0, H=56.0, D=42.0, mass=0.3, pitch=(74.0, 56.0))   # SOURCED Roboteq RPCOL90-100 (mass ESTIMATE)
 
 # ---------------------------------------------------------------- coffee backpack
-COF_SH = 610.0                                                 # sim shelf top
+COF_SH = 690.0                                                 # shelf top (lead 2026-10-03: +80 mm so the right arm reaches the shuttle; sim updated)
 COF_X = -225.0                                                 # sim machine/spout x
 COF_Y_IN, COF_Y_OUT = -100.0, -240.0                           # sim shuttle: under spout / out
 COF_STACK = (-105.0, -270.0)
 COF_STACK_Z = 120.0
 INISSIA = dict(W=119.0, D=320.0, H=229.0, mass=2.4)             # SOURCED De'Longhi EN80 119 x 320 x 229
 INI_X0, INI_Y0 = COF_X - 60.0, -130.0                          # machine envelope: x -285..-166, y -130..190 (front = spout side, -y)
-INI_RECESS = (625.0, 735.0, -130.0, -53.0)                     # ESTIMATE cup recess under the spout (z0, z1, y0, y1)
-SHUTTLE_PLATE_Z = 640.0                                        # proposed (sim 0.70 m): cup <= 85 mm under the real spout
+INI_RECESS = (COF_SH + 15.0, COF_SH + 125.0, -130.0, -53.0)                     # ESTIMATE cup recess under the spout (z0, z1, y0, y1)
+SHUTTLE_PLATE_Z = COF_SH + 30.0                                        # proposed (sim 0.70 m): cup <= 85 mm under the real spout
 P16 = dict(closed=197.0, stroke=150.0, w=20.0, h=26.0, mass=0.125)  # SOURCED Actuonix P16-150 (section ESTIMATE)
 MGN12 = dict(rail_w=12.0, rail_h=8.0, car_w=27.0, car_l=45.4, H=13.0)   # HIWIN MGN12H (catalogue values, SECONDARY)
 
@@ -96,6 +96,9 @@ POCKET, WALL, POCKET_H, CHAMF = 60.0, 9.0, 60.0, 16.0
 GRAV = 9.81
 ARM_PAYLOAD_PEAK = 6.0                                         # SOURCED OpenArm 2.0 peak payload incl. end effector
 ARM_PAYLOAD_NOM = 4.1
+PRODUCT_PAYLOAD_ARM = 3.0                                      # product rating per arm (object only; gripper is in the arm mass), software-limited
+TRAY_PAYLOAD = 6 * 0.35                                        # 6 flasks in the chest tray
+MASS_LIMIT, MASS_TARGET = 100.0, 90.0                          # Tracer manual p.3 (binding) / 10 % margin
 J_PEAK = {"J1": 40.0, "J2": 40.0}                              # DM-J8009P peak torques used in the sim (SOURCED sim/Enactic)
 BRAKE_G, BUMP_G = 0.5, 2.0
 

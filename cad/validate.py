@@ -29,6 +29,8 @@ HERE = Path(__file__).resolve().parent
 OUT = HERE / "out"
 DATA = HERE / "data"
 REPORT = []
+REPORT_ROWS = []
+BUTTON_PRESS = set()
 CHECKS = []          # (section, name, status, detail)
 
 
@@ -154,6 +156,13 @@ def arm_sweep(parts, nposes=200):
                 arm_nb.set_transform(b, z[b][k])
         for n, cmn in statics.items():
             mgr = arm_nb if n.startswith("OA_body") else arm
+            if n == "S07_coffee_machine_inissia_EN80":
+                # pressione del pulsante: contatto voluto delle dita con la testa della macchina (ultimi 25 mm in alto, lato erogatore)
+                c_, nms_, data_ = mgr.in_collision_other(cmn, return_names=True, return_data=True)
+                ztop = COF_SH + INISSIA["H"]
+                if c_ and all(dd.point[2] >= ztop - 25 and dd.point[1] <= -45 and any("finger" in x for x in dd.names) for dd in data_):
+                    BUTTON_PRESS.add(f"{src[k]}#{k}")
+                    continue
             d, nm = mgr.min_distance_other(cmn, return_names=True)
             if d < per_obj[n][0]:
                 per_obj[n] = (d, (nm[0], f"{src[k]}#{k}"))
@@ -305,6 +314,7 @@ LOAD_CASES = [   # name, base acceleration a (in g); loads on body = m (a - g)
     ("LC3 bump +2g", (0, 0, 2.0)),
     ("LC4 bump+braking", (-0.5, 0, 2.0)), ("LC4 bump+lateral", (0, 0.5, 2.0)),
     ("LC5 rebound (net -1g)", (0, 0, -2.0)),
+    ("LC6 Tracer e-stop 2.2 m/s2 (2 m/s in 0.9 m)", (-2.2 / 9.81, 0, 0)),
 ]
 
 
@@ -579,7 +589,39 @@ def main():
             nh = len(hits.get(sname, ()))
             ok = d >= 5.0 and nh == 0
             warn = (not ok) and nh == 0 and d > 0
-            check("Arm sweep", f"arms vs {sname}", ok, f"min clearance {d:.1f} mm ({who[0]} @ {who[1]}); poses in contact: {nh}/{npose}", warn=warn)
+            check("Arm sweep", f"arms vs {sname}", ok, f"min clearance {d:.1f} mm ({who[0]} @ {who[1]}); poses in contact: {nh}/{npose}"
+                  + (f"; {len(BUTTON_PRESS)} poses with the intended finger contact on the machine top (button press) excluded" if sname.startswith("S07") else ""), warn=warn)
+
+    # ---------------- copertura di body_link0 (piastra di base e cima) da parte dei gusci
+    log("body_link0 coverage...")
+    blm = body_link0_mesh()
+    S_ = M.TORSO_SH
+    tor = G.superellipsoid_solid(S_["a"], S_["b"], S_["c"], S_["e1"], S_["e2"], center=(S_["cx"], 0, S_["zc"]), taper=M.torso_taper)
+    waist = G.box(-28 - 134, -28 + 134, -100, 100, 562, 838)
+    ztop_cut = TORSO_Z + 771
+    def covered(p):
+        x, y, z = p
+        if 562 <= z <= 838 and waist.isInside(G.V(*p), 0.1):
+            return True
+        if z <= ztop_cut and tor.isInside(G.V(*p), 0.1):
+            return True
+        if z >= ztop_cut and math.hypot(x, y) <= 64:
+            return True
+        return False
+    V_ = blm.vertices
+    plate = V_[V_[:, 2] <= TORSO_Z + 8.5]
+    top = V_[(V_[:, 2] >= TORSO_Z + 730) & (np.abs(V_[:, 1]) <= 68)]
+    rng = np.random.default_rng(0)
+    def frac(P):
+        P = P[rng.choice(len(P), min(len(P), 1500), replace=False)]
+        c = [covered(p) for p in P]
+        return sum(c) / len(c), P[~np.array(c)]
+    fp, mp = frac(plate)
+    ft, mt = frac(top)
+    check("Covers", "OpenArm body_link0 base plate (250x190 at z 580-588) inside the waist cover", fp >= 0.999,
+          f"{fp * 100:.1f}% of {min(len(plate), 1500)} sampled STL vertices covered" + (f"; exposed e.g. {np.round(mp[:3], 0).tolist()}" if len(mp) else ""))
+    check("Covers", "OpenArm body_link0 top (z 1310-1353, |y|<=68) inside torso shell / under neck plate", ft >= 0.999,
+          f"{ft * 100:.1f}% of {min(len(top), 1500)} sampled STL vertices covered" + (f"; exposed e.g. {np.round(mt[:3], 0).tolist()}" if len(mt) else ""))
 
     # ---------------- footprint
     log("footprint...")
@@ -596,6 +638,8 @@ def main():
     arm_rows = [(f"arm:{b}", v[0], np.array(v[1:]), "lift") for b, v in st["arm_body_mass_com"].items()]
     misc = [("wiring+connectors+LEDs+displays (ESTIMATE)", 3.0, np.array([-50.0, 0, 230.0]), "")]
     rows = mass_props(parts, arm_rows + misc)
+    global REPORT_ROWS
+    REPORT_ROWS = rows
     m0_, c0 = total(rows, 0.0)
     m_up = sum(r[1] for r in rows if r[3] == "lift")
     REPORT.append(("mass", rows, m0_, c0))
@@ -623,9 +667,23 @@ def main():
     REPORT.append(("tipping", [("nominal (lift 0, arms home, no payload)", m0_, c0, tip0), ("work (lift 0, 2 x 4.1 kg at hands)", m1_, c1, tip1),
                                (f"worst (lift {STROKE:.0f}, arms forward, 2 x 6 kg at 0.55 m reach)", m2_, c2, tip2)]))
     sup = m0_ - TR_MASS
-    check("Mass", "superstructure + 2 x 6 kg peak payload <= Tracer payload (100 kg manual / 150 kg datasheet)", sup + 2 * ARM_PAYLOAD_PEAK <= TR_PAYLOAD,
+    pay = 2 * PRODUCT_PAYLOAD_ARM + TRAY_PAYLOAD
+    ext_rows = [r for r in rows if r[0] != "tracer2_base"] + [("tray payload", TRAY_PAYLOAD, np.array([BUF_X, 0.0, BUF_Z + 40]), "lift")]
+    me, ce = total(ext_rows, 0.0)
+    ext_w = ext_rows + [("arm obj L", PRODUCT_PAYLOAD_ARM, np.array([300.0, 150.0, 1030.0]), "lift"), ("arm obj R", PRODUCT_PAYLOAD_ARM, np.array([300.0, -150.0, 1030.0]), "lift")]
+    mw, cw = total(ext_w, 0.0)
+    ext_b = [r for r in ext_rows if not r[0].startswith(("P2", "S07", "S08", "S09", "S10", "SH06"))] if False else None
+    REPORT.append(("budget", sup, pay, me, ce, mw, cw))
+    check("Mass", f"HARD: superstructure + product payload (2 x {PRODUCT_PAYLOAD_ARM:g} kg arms + {TRAY_PAYLOAD:.1f} kg tray) <= {MASS_LIMIT:.0f} kg (Tracer manual p.3); target <= {MASS_TARGET:.0f} kg",
+          sup + pay <= MASS_TARGET, f"superstructure {sup:.1f} kg + payload {pay:.1f} kg = {sup + pay:.1f} kg (margin {MASS_LIMIT - sup - pay:.1f} kg to 100 kg)",
+          warn=sup + pay <= MASS_LIMIT)
+    check("Mass", "extension CoG within ±20 mm of the Tracer centre of rotation (drive axle, ASSUMED at x=0,y=0), nominal: arms home, tray loaded",
+          abs(ce[0]) <= 20 and abs(ce[1]) <= 20, f"extension {me:.1f} kg, CoG ({ce[0]:.1f}, {ce[1]:.1f}, {ce[2]:.0f}) mm")
+    check("Mass", "extension CoG, work posture (2 x 3 kg held at x 300 mm)", abs(cw[0]) <= 20 and abs(cw[1]) <= 20,
+          f"{mw:.1f} kg, CoG ({cw[0]:.1f}, {cw[1]:.1f}, {cw[2]:.0f}) mm (transient while handling)", warn=True)
+    check("Mass", "info: superstructure + 2 x 6 kg OpenArm PEAK payload (not the product rating)", True,
           f"robot {m0_:.1f} kg, superstructure {sup:.1f} kg, + peak payload = {sup + 2 * ARM_PAYLOAD_PEAK:.1f} kg, + nominal 2 x 4.1 kg = {sup + 2 * ARM_PAYLOAD_NOM:.1f} kg; sim robot {st['sim_robot_mass_kg']:.1f} kg",
-          warn=sup + 2 * ARM_PAYLOAD_PEAK <= 150.0)
+          )
     check("Stability", "no tipping at 0.5 g braking/lateral (nominal)", min(tip0["fwd"], tip0["back"], tip0["left"], tip0["right"]) >= 0.5 * GRAV,
           f"tipping accel fwd/back/left/right = {tip0['fwd']:.2f}/{tip0['back']:.2f}/{tip0['left']:.2f}/{tip0['right']:.2f} m/s2; CoG {np.round(c0, 0)} mm")
     check("Stability", "no tipping at 0.5 g (worst: lift max, arms forward, 2 x 6 kg)", min(tip2["fwd"], tip2["back"], tip2["left"], tip2["right"]) >= 0.5 * GRAV,
@@ -730,6 +788,35 @@ def write_report(parts, bolts, gres, dt, inter):
                 L.append(f"| {k} | {v:.2f} |")
             rest = sum(v for k, v in big[30:])
             L.append(f"| (other {len(big) - 30} items: bolts, T-nuts, liners, small brackets) | {rest:.2f} |\n")
+        if item[0] == "budget":
+            _, sup, pay, me, ce, mw, cw = item
+            import json as _j
+            bef = _j.loads((HERE / "mass_budget_before.json").read_text())["per_item"]
+            now = {r[0]: r[1] for r in REPORT_ROWS}
+            def cat(n):
+                n0 = n.split("__")[0]
+                if n0.startswith("arm:"): return "OpenArm arms + grippers"
+                if n0.startswith("B_") or n0.startswith("tnut"): return "fasteners + T-nuts"
+                for k, v in (("E01", "48 V battery"), ("E0", "electronics"), ("P01", "base adapter plate"), ("W01", "column sleeve"), ("S01", "column profile"),
+                             ("P13", "column liners/pads"), ("P14", "column liners/pads"), ("P15", "column liners/pads"), ("P02", "column-to-torso bracket"), ("OA_body", "OpenArm body_link0"),
+                             ("SH0", "shells"), ("P12", "bumper"), ("P2", "coffee module + tray/shell brackets"), ("S07", "coffee module + tray/shell brackets"),
+                             ("S08", "coffee module + tray/shell brackets"), ("S09", "coffee module + tray/shell brackets"), ("S10", "coffee module + tray/shell brackets"),
+                             ("tracer", "Tracer 2.0"), ("wiring", "wiring allowance")):
+                    if n0.startswith(k): return v
+                return "brackets, sensors, misc"
+            cb, cn = defaultdict(float), defaultdict(float)
+            for k_, v_ in bef.items(): cb[cat(k_)] += v_
+            for k_, v_ in now.items(): cn[cat(k_)] += v_
+            L.append("## Mass budget (Tracer manual: payload <= 100 kg binding; target <= 90 kg)\n")
+            L.append("| group | before (kg) | now (kg) | delta |\n|---|---|---|---|")
+            for k_ in sorted(set(cb) | set(cn), key=lambda k: -cn.get(k, 0)):
+                L.append(f"| {k_} | {cb.get(k_, 0):.2f} | {cn.get(k_, 0):.2f} | {cn.get(k_, 0) - cb.get(k_, 0):+.2f} |")
+            tb, tn = sum(cb.values()), sum(cn.values())
+            L.append(f"| **robot total** | **{tb:.1f}** | **{tn:.1f}** | **{tn - tb:+.1f}** |")
+            L.append(f"| superstructure (total − Tracer 55 kg) | {tb - 55:.1f} | {sup:.1f} | {sup - tb + 55:+.1f} |")
+            L.append(f"| + product payload (2 × {PRODUCT_PAYLOAD_ARM:g} kg arms + {TRAY_PAYLOAD:.1f} kg tray) | {tb - 55 + pay:.1f} | **{sup + pay:.1f}** | |")
+            L.append(f"\nExtension (superstructure + tray payload) CoG nominal ({ce[0]:.1f}, {ce[1]:.1f}, {ce[2]:.0f}) mm; with 2 × 3 kg held at x = 300 mm: ({cw[0]:.1f}, {cw[1]:.1f}, {cw[2]:.0f}) mm. "
+                     "Centre of rotation ASSUMED at the plan centre (drive axle mid-length, as in the sim; the manual shows no axle position).\n")
         if item[0] == "tipping":
             L.append("## Static tipping (support polygon x ±281, y ±255 mm: Tracer casters, as in the sim's stability test)\n")
             L.append("| configuration | mass kg | CoG mm | a_tip fwd / back / left / right (m/s2) | max lateral slope |\n|---|---|---|---|---|")

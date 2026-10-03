@@ -22,7 +22,10 @@ sys.path.insert(0, str(ROOT))
 import giorgio_model as gm  # noqa: E402
 
 OUT = CAD / "data"
-RECS = ["logistica_v9", "caffe_v9", "espr_v9"]   # registrazioni delle missioni (base libera, colonna a 0)
+RECS = ["logistica_v9"]                         # registrazioni delle missioni (base libera, colonna a 0)
+# caffe_v9 / espr_v9 sono state registrate con la mensola a 0.61 m: superate. Le nuove pose del caffe' (mensola 0.69 m)
+# vengono da cad/data/rec_caffe_sh069.pkl (giorgio_v5.py --record, sim aggiornata dal lead il 2026-10-03)
+PKLS = ["rec_caffe_sh069"]
 STEP = 10                                        # un fotogramma ogni 10 (~0.3 s)
 
 
@@ -110,6 +113,24 @@ def main():
                 shuttle.append((Ra.T @ (xp[k, ish] - pa) * 1000.0))
             else:
                 shuttle.append([np.nan] * 3)
+        print(rec, xp.shape[0], "fotogrammi")
+    import pickle
+    for rec in PKLS:
+        f = OUT / f"{rec}.pkl"
+        if not f.exists():
+            print("manca", f); continue
+        D = pickle.load(open(f, "rb"))
+        names = list(D["body_names"])
+        ia = names.index("amr")
+        xp, xq = np.asarray(D["xpos"]), np.asarray(D["xquat"])
+        for k in range(0, xp.shape[0], STEP):
+            Ra = quat2mat(xq[k, ia]); pa = xp[k, ia]
+            for bn in arm_bodies:
+                ib = names.index(bn)
+                traj[bn].append(T(Ra.T @ (xp[k, ib] - pa) * 1000.0, Ra.T @ quat2mat(xq[k, ib])))
+            src.append(rec)
+            ish = names.index("cm_shuttle") if "cm_shuttle" in names else None
+            shuttle.append((Ra.T @ (xp[k, ish] - pa) * 1000.0) if ish is not None else [np.nan] * 3)
         print(rec, xp.shape[0], "fotogrammi")
     # posa iniziale del modello (bracci in posa di partenza)
     for bn in arm_bodies:

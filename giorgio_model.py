@@ -329,8 +329,8 @@ def build(look="gb", hands="gripper", humans=2, fixed_base=True, base="cart", bu
                  material="armor", contype=0, conaffinity=0, group=GROUP_ROBOT, mass=0)
     amr.add_geom(name="column_sleeve", type=mujoco.mjtGeom.mjGEOM_BOX, pos=[-0.06, 0, 0.366], size=[0.05, 0.05, 0.189],
                  material="dark", contype=0, conaffinity=0, group=GROUP_ROBOT, mass=2.40)      # tubo 100x100x3 + flangia
-    amr.add_geom(name="base_equipment_mass", type=mujoco.mjtGeom.mjGEOM_BOX, pos=[-0.002, 0.002, 0.271], size=[0.05, 0.05, 0.02],
-                 rgba=[0, 0, 0, 0], contype=0, conaffinity=0, group=3, mass=37.7)              # massa fissa sulla base (CAD 46,1 kg meno le parti che in sim hanno gia' massa propria)
+    amr.add_geom(name="base_equipment_mass", type=mujoco.mjtGeom.mjGEOM_BOX, pos=[-0.002, 0.002, 0.281], size=[0.05, 0.05, 0.02],
+                 rgba=[0, 0, 0, 0], contype=0, conaffinity=0, group=3, mass=37.8)              # massa fissa sulla base (CAD 46,1 kg meno le parti che in sim hanno gia' massa propria)
     col = amr.add_body(name="column", pos=[-0.06, 0, AMR_H + 0.05])
     col.add_joint(name="lift", type=mujoco.mjtJoint.mjJNT_SLIDE, axis=[0, 0, 1], range=[0, COLUMN_STROKE], damping=200, armature=5)
     col.add_geom(name="column_inner", type=mujoco.mjtGeom.mjGEOM_BOX, pos=[0, 0, 0.080], size=[0.04, 0.04, 0.185],
