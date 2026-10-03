@@ -25,10 +25,10 @@ sc = bpy.context.scene
 sc.render.engine = "BLENDER_WORKBENCH"
 sh = sc.display.shading
 sh.light = "STUDIO"; sh.color_type = "OBJECT"; sh.show_shadows = False; sh.show_cavity = True; sh.cavity_type = "BOTH"
-sh.show_object_outline = True; sh.object_outline_color = (0.0, 0.0, 0.0); sh.show_specular_highlight = True
-sh.show_xray = True; sh.xray_alpha = 0.55                 # vista in trasparenza: si vedono anche batteria ed elettronica dentro la base
+sh.show_object_outline = True; sh.object_outline_color = (0.10, 0.10, 0.12); sh.show_specular_highlight = True
+sh.show_xray = False                                       # trasparenza per oggetto (alfa del colore): sagome velate, gruppo acceso pieno                 # vista in trasparenza: si vedono anche batteria ed elettronica dentro la base
 sc.render.resolution_x, sc.render.resolution_y = 1920, 1080
-sc.world = bpy.data.worlds.new("w"); sc.world.color = (0.018, 0.018, 0.022)
+sc.world = bpy.data.worlds.new("w"); sc.world.color = (0.075, 0.078, 0.088)
 sc.render.image_settings.file_format = "JPEG"; sc.render.image_settings.quality = 92
 objs = {}
 for p in meta["parts"]:
@@ -41,14 +41,15 @@ for p in meta["parts"]:
     objs[ob] = (g, p["color"])
 NG = len(GROUPS); NF = NG * HOLD + 30
 sc.frame_start, sc.frame_end = 1, NF
-DIM = (0.07, 0.07, 0.08)
+DIM = (0.62, 0.64, 0.68)                                # sagoma grigio chiaro: si capisce dove sta il pezzo
 HI = (1.0, 0.50, 0.12)                                  # gruppo acceso: arancio Giorgio
 for fr in range(1, NF + 1):
     gi = min(NG - 1, max(0, (fr - 15) // HOLD)); g_on = GROUPS[gi][0]
     u = min(1.0, max(0.0, ((fr - 15) - gi * HOLD) / FADE))
     for ob, (g, col) in objs.items():
-        c = [DIM[i] + (HI[i] - DIM[i]) * u for i in range(3)] if g == g_on else list(DIM)
-        ob.color = (c[0], c[1], c[2], 1.0)
+        on = u if g == g_on else 0.0
+        c = [DIM[i] + (HI[i] - DIM[i]) * on for i in range(3)]
+        ob.color = (c[0], c[1], c[2], 0.16 + 0.84 * on)
         ob.keyframe_insert("color", frame=fr)
 lo, hi = Vector((1e9,) * 3), Vector((-1e9,) * 3)
 for ob in objs:
@@ -65,5 +66,8 @@ for fr in range(1, NF + 1):
     cam.keyframe_insert("location", frame=fr); cam.keyframe_insert("rotation_euler", frame=fr)
 json.dump({"hold": HOLD, "start": 15, "groups": [k for k, _ in GROUPS], "nf": NF}, open(OUTD / "gruppi.json", "w"))
 sc.render.filepath = str(OUTD / "f_####")
+import os
+if os.environ.get("ANAT_TEST"):                          # solo un fotogramma di prova
+    sc.frame_start = sc.frame_end = int(os.environ["ANAT_TEST"])
 bpy.ops.render.render(animation=True)
 print("ANATOMIA_OK")
