@@ -384,6 +384,10 @@ def build(look="gb", hands="gripper", humans=2, fixed_base=True, base="cart", bu
     # gusci di design (mesh da shells.py)
     for nm in ("torso", "crown", "crown_glass", "pauldron"):
         sp.add_mesh(name=f"shell_{nm}", file=SHELL_DIR + f"/{nm}.obj")
+    for nm_, z_ in (("waist_cover", 0.005), ("neck_cover", 0.75)):     # colletti: piastra base OpenArm e collo restano coperti
+        sp.add_mesh(name=nm_, file=SHELL_DIR + f"/{nm_}.obj")
+        torso.add_geom(name=nm_, type=mujoco.mjtGeom.mjGEOM_MESH, meshname=nm_, pos=[0, 0, z_], material="armor",
+                       contype=0, conaffinity=0, group=GROUP_ROBOT, mass=0)
     torso.add_geom(name="shell_torso", type=mujoco.mjtGeom.mjGEOM_MESH, meshname="shell_torso", pos=[-0.03, 0, PED_TOP - 0.195],
                    material="armor", contype=0, conaffinity=0, group=GROUP_ROBOT, mass=0)
     vbox(torso, "torso_accent", (0.087, 0, PED_TOP - 0.07), (0.002, 0.06, 0.003), "accent")

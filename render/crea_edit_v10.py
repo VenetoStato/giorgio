@@ -33,11 +33,13 @@ S = []
 S.append(card(3.2, mono(0.2, 3.2, "GIORGIO // SERVICE ROBOT // REV.10", pos="upper", size=24), big(0.6, 3.2, "WE COULDN'T BUILD THE PARTS.")))
 S.append(card(2.4, big(0.2, 2.4, "SO WE BOUGHT THEM.")))
 S.append(card(3.4, big(0.2, 3.4, "AND HOPED THEY'D GET ALONG."), mono(1.4, 3.4, "(THEY MOSTLY DO.)")))
+S.append(card(2.6, big(0.2, 2.6, "ITALY DESERVES ITS OWN ROBOT.", 84)))
+S.append(card(2.2, big(0.2, 2.2, "NOT A FERRARI.", 96)))
+S.append(card(3.6, big(0.2, 3.6, "MORE LIKE A FIAT PANDA.", 96), mono(1.0, 3.6, "CHEAP. OPEN. YOU CAN FIX IT YOURSELF.")))
 S.append(shot("v10/h_hero/f_*.jpg", "RENDER", kick(0.5, 5.8, "MOBILE BIMANUAL SERVICE ROBOT"),
-              T(0.5, 5.8, "GIORGIO.", size=110), T(1.6, 5.8, "Made entirely of other people's good ideas.", "ll", 34, "N", above=0, band=False)))
-S[-1]["texts"][2]["pos"] = [122, 960]
+              T(0.5, 5.8, "GIORGIO.", size=110), T(1.6, 5.8, "Made entirely of other people's good ideas.", "llsub", 34, "N", band=False)))
 S.append(shot("v10/h_face/f_*.jpg", "RENDER", kick(0.3, 5.8, "FACE"), T(0.3, 5.8, "32×16 RGB LED MATRIX", size=64),
-              T(1.2, 5.8, "Expressions, attention, status. The moustache is non-negotiable.", [122, 960], 32, "N", band=False)))
+              T(1.2, 5.8, "Expressions, attention, status. The moustache is non-negotiable.", "llsub", 32, "N", band=False)))
 S.append(shot("v10/h_expl/f_*.jpg", "RENDER // EXPLODED", kick(0.3, 7.5, "BILL OF MATERIALS"), T(0.3, 7.5, "0% INVENTED HERE.", size=72),
               labels="lab_expl10.json", label_style="colonne", lab_t0=3.0,
               names={"testa": ["HEAD", "32×16 LED face · Insta360 X4 360° cam"], "braccio_sx": ["ARMS", "Enactic OpenArm 2.0 · open hardware"],
@@ -71,7 +73,7 @@ S.append(shot("v10/r_close/f_*.jpg", "SIM", kick(0.3, 7.8, "DOCK"), T(0.3, 4.0, 
 S.append(card(3.0, big(0.2, 3.0, "SAFETY LIVES IN HARDWARE.", 80), mono(0.9, 3.0, "NOT IN THE AI. THE AI IS NOT ALLOWED NEAR IT.")))
 S.append(card(2.6, big(0.2, 2.6, "MECHANICAL."), mono(0.8, 2.6, "~100 PARTS · 128 BOLTED JOINTS · EVERY ONE CHECKED")))
 S.append(shot("v10/k_cad/f_*.jpg", "CAD // CADQUERY", kick(0.4, 5.6, "ASSEMBLY"), T(0.4, 5.6, "REAL PARTS. REAL BOLTS.", size=60),
-              T(1.2, 5.6, "Off-the-shelf where possible, laser-cut and printed where not.", [122, 960], 32, "N", band=False)))
+              T(1.2, 5.6, "Off-the-shelf where possible, laser-cut and printed where not.", "llsub", 32, "N", band=False)))
 LINES = [("INTERFERENCE · EXACT B-REP · 3 POSES", "0 OVERLAPS"), ("BOLT AXES, MATING PARTS", "0.000 mm OFFSET"),
          ("HOLES · ISO 273 / TAP DRILLS / INSERTS", "OK"), ("THREAD ENGAGEMENT · EDGE DISTANCE", "OK"),
          ("ARM SWEEP vs STRUCTURE · 833 POSES", "3.1 mm MIN"), ("COFFEE SHUTTLE · 140 mm STROKE", "2.0 mm MIN"),
@@ -85,14 +87,14 @@ S.append(card(7.5, *tx))
 # --- cosa fa
 S.append(card(2.4, big(0.2, 2.4, "WHAT IT DOES.")))
 S.append(shot("v10/l_carico/f_*.jpg", "SIM // 4×", kick(0.4, 4.8, "LOGISTICS"), T(0.4, 4.8, "LOADS ITSELF.", size=64),
-              T(1.0, 4.8, "3D vision finds the parts. The arms plan around everything else.", [122, 960], 32, "N", band=False)))
+              T(1.0, 4.8, "3D vision finds the parts. The arms plan around everything else.", "llsub", 32, "N", band=False)))
 S.append(shot("v10/l_cross/f_*.jpg", "SIM", kick(0.3, 6.5, "SPEED & SEPARATION MONITORING"), T(0.3, 6.5, "SLOWS DOWN WHEN YOU'RE NEAR.\nSTOPS WHEN YOU'RE TOO NEAR.", size=54)))
 S.append(shot("v10/l_drive/f_*.jpg", "SIM // 2×", kick(0.3, 5.0, "NAVIGATION"), T(0.3, 5.0, "A TO B. NO DRAMA.", size=64)))
 S.append(shot("v10/l_ins/f_*.jpg", "SIM // 0.5×", kick(0.3, 5.6, "PRECISION"), T(0.3, 5.6, "VISION-GUIDED INSERTION.", size=60),
-              T(1.0, 5.6, "Millimetre clearances. No jigs.", [122, 960], 32, "N", band=False), slow=2))
+              T(1.0, 5.6, "Millimetre clearances. No jigs.", "llsub", 32, "N", band=False), slow=2))
 S.append(shot("v10/l_oper/f_*.jpg", "SIM // 6×", kick(0.4, 7.5, "COLLABORATION"), T(0.4, 7.5, "WORKS NEXT TO PEOPLE.\nNOT INSTEAD OF THEM.", size=58)))
 S.append(shot("v10/s_smista/f_*.jpg", "SIM // 4×", kick(0.4, 7.5, "SORTING"), T(0.4, 7.5, "SORTS BY COLOUR.", size=64),
-              T(1.0, 7.5, "Without knocking over what it already sorted. (That took a while.)", [122, 960], 32, "N", band=False)))
+              T(1.0, 7.5, "Without knocking over what it already sorted. (That took a while.)", "llsub", 32, "N", band=False)))
 # --- software
 S.append(dict(type="card", dur=4.6, bg="stills_v10/os_console.png", dim=0.0, zoom=0.04,
               texts=[T(0.3, 4.6, "GIORGIO-OS", [122, 975], 40, "H", color=WHITE, shadow=False, band=False, track=3, align="left"),
@@ -110,16 +112,21 @@ S.append(shot("v10/rld2/f_*.jpg", "SIM // REINFORCEMENT LEARNING", kick(0.3, 9.8
 S.append(card(3.2, mono(0.2, 3.2, "AND NOW", pos="upper", size=26), big(0.5, 3.2, "THE MISSION-CRITICAL\nCAPABILITY.", 84)))
 S.append(shot("v10/c_bicchiere/f_*.jpg", "SIM", kick(0.3, 5.3, "STEP 1"), T(0.3, 5.3, "CUP FROM STACK TO SHUTTLE.", size=60)))
 S.append(shot("v10/c_eroga/f_*.jpg", "SIM // 3×", kick(0.2, 7.6, "STEPS 2–4"), T(0.2, 2.5, "START THE MACHINE.", size=60),
-              T(0.6, 2.5, "Any capsule machine. We're not picky.", [122, 960], 32, "N", band=False),
+              T(0.6, 2.5, "Any capsule machine. We're not picky.", "llsub", 32, "N", band=False),
               T(2.6, 4.6, "SHUTTLE UNDER THE SPOUT.", size=60), T(4.7, 7.6, "ESPRESSO.", size=80)))
 S.append(shot("v10/c_prende/f_*.jpg", "SIM", kick(0.3, 5.5, "STEP 5"), T(0.3, 5.5, "PICK UP THE FULL CUP.", size=60),
-              T(1.0, 5.5, "Carefully. It's the most expensive cup in the building.", [122, 960], 32, "N", band=False)))
+              T(1.0, 5.5, "Carefully. It's the most expensive cup in the building.", "llsub", 32, "N", band=False)))
 S.append(shot("v10/c_consegna/f_*.jpg", "SIM // 2×", kick(0.3, 7.5, "STEP 6"), T(0.3, 3.4, "DELIVER.", size=72), T(3.5, 7.5, "ENJOY, MARCO.", size=72)))
 S.append(dict(type="card", dur=5.0, bg="stills_v10/cfg1_barista.png", dim=0.15, zoom=0.05,
               texts=[T(0.5, 5.0, "WORST CASE,", [1300, 700], 80, "H", color=WHITE, shadow=False, band=False, track=3, align="left"),
                      T(1.5, 5.0, "IT'S A VERY EXPENSIVE\nCOFFEE MACHINE.", [1304, 800], 46, "N", color=WHITE, shadow=False, band=False, align="left")]))
-S.append(card(5.5, images=[dict(path="logo/logo_full_chiaro.png", t0=0.3, t1=5.5, pos=[960, 470], w=1100)],
-              texts=[mono(1.2, 5.5, "PRICE: LESS THAN A BARISTA. MORE THAN A MOKA POT.", pos="sub2", size=28)]))
+S.append(card(3.0, big(0.2, 3.0, "IS IT OPEN?", 96), mono(1.2, 3.0, "YES. CAD, SCHEMATICS, CODE, BILL OF MATERIALS. ALL OF IT.")))
+S.append(card(2.6, big(0.2, 1.3, "DID WE BUILD ONE?", 96), big(1.4, 2.6, "NO.", 140)))
+S.append(card(5.0, big(0.2, 5.0, "SO DO US A FAVOUR.", 84), mono(1.0, 5.0, "BUILD ONE. TELL US WHAT BREAKS. WE'LL BUILD V2 FROM YOUR PROBLEMS.")))
+BOM_TOTAL = open("bom_totale.txt").read().strip() if os.path.exists("bom_totale.txt") else "€[BOM]"
+S.append(card(4.5, mono(0.2, 4.5, "BILL OF MATERIALS", pos="upper", size=26), big(0.4, 4.5, BOM_TOTAL + " IN PARTS.", 96),
+              mono(1.2, 4.5, "SUM OF PARTS. NO MARGIN. ASSEMBLY NOT INCLUDED: THAT'S YOUR PART.")))
+S.append(card(5.0, images=[dict(path="logo/logo_full_chiaro.png", t0=0.3, t1=5.0, pos=[960, 500], w=1100)]))
 json.dump(dict(fps=30, size=[1920, 1080], music="music_v10.wav", xfade=0.45, ui=dict(head="GIORGIO // REV.10"), segments=S),
           open("edit_v10.json", "w"), ensure_ascii=False, indent=1)
 print(len(S), "segmenti")

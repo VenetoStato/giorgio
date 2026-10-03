@@ -77,8 +77,41 @@ for f, g in ((36.71, 0.8), (73.42, 0.6), (110.0, 0.35), (174.61, 0.22), (220.0, 
     drone += g * (saw(f, N, 0.002) + saw(f, N, -0.003)) / 2
 drone = lp(drone, 420) * (0.55 + 0.45 * np.sin(2 * np.pi * tt / 9.0) ** 2)
 fade_in = np.clip(tt / 6.0, 0, 1)
-drone *= 0.16 * fade_in * duck
+drone *= 0.11 * fade_in * duck
 L += drone; R += drone * 0.96
+# 1b) pad armonico: re minore - si bemolle - fa - do, due battute per accordo, attacco lento, filtrato e largo
+bar = 60 / 90 * 4
+CH = [(146.83, 174.61, 220.0, 293.66), (116.54, 146.83, 174.61, 233.08), (130.81, 174.61, 220.0, 261.63), (130.81, 164.81, 196.0, 261.63)]
+padL = np.zeros(N); padR = np.zeros(N)
+t_pad0 = starts[3] if len(starts) > 3 else 8.0
+k = 0; tp = t_pad0
+while tp < TOT:
+    n = int(2 * bar * SR); i0 = int(tp * SR); n = min(n + int(0.8 * SR), N - i0)
+    if n <= 0:
+        break
+    ts = np.arange(n) / SR
+    env = np.clip(ts / 1.2, 0, 1) * np.clip((2 * bar + 0.8 - ts) / 0.8, 0, 1)
+    for j, f in enumerate(CH[k % 4]):
+        for det, side in ((-0.004, 0), (0.004, 1)):
+            x = np.zeros(n); ph = 2 * np.pi * f * (1 + det) * ts
+            for h in range(1, 7):
+                x += np.sin(h * ph) / h ** 1.3
+            (padL if side == 0 else padR)[i0:i0 + n] += x * env * 0.05
+    tp += 2 * bar; k += 1
+padL, padR = lp(padL, 1600), lp(padR, 1600)
+L += padL * duck; R += padR * duck
+# 1c) arpeggio morbido (seno + armoniche smorzate) nella parte centrale, sedicesimi a 90 bpm
+t_arp0 = starts[min(12, len(starts) - 1)]; t_arp1 = coffee0 - 2.0
+sixteenth = 60 / 90 / 4
+tp = t_arp0; k = 0
+while tp < t_arp1:
+    chord = CH[int((tp - t_pad0) / (2 * bar)) % 4]
+    f = chord[[0, 1, 2, 3, 2, 1][k % 6]] * 2
+    n = int(0.35 * SR); ts = np.arange(n) / SR
+    x = (np.sin(2 * np.pi * f * ts) + 0.25 * np.sin(4 * np.pi * f * ts)) * np.exp(-ts / 0.09) * np.clip(ts / 0.004, 0, 1)
+    g = 0.045 * min(1, (tp - t_arp0) / 8) * duck[int(tp * SR)]
+    pan = 0.5 + 0.15 * np.sin(k * 0.7)
+    add(x * g, tp, 1 - pan + 0.3, pan + 0.3); tp += sixteenth; k += 1
 # 2) basso pulsante a crome (90 bpm) dalla prima scena in poi, piu' forte nella parte centrale
 beat = 60 / 90 / 2
 t_pulse0 = starts[3] if len(starts) > 3 else 10.0
@@ -86,14 +119,14 @@ k = 0; tp = t_pulse0
 notes = [36.71, 36.71, 36.71, 43.65, 36.71, 36.71, 49.0, 43.65]
 while tp < logo_t:
     f = notes[k % 8]; n = int(0.30 * SR)
-    x = (np.sin(2 * np.pi * f * np.arange(n) / SR) + 0.35 * np.sin(4 * np.pi * f * np.arange(n) / SR)) * env_ad(n, 0.004, 0.09)
-    g = 0.22 * min(1, (tp - t_pulse0) / 20 + 0.4) * duck[int(tp * SR)]
+    x = (np.sin(2 * np.pi * f * np.arange(n) / SR) + 0.15 * np.sin(4 * np.pi * f * np.arange(n) / SR)) * env_ad(n, 0.006, 0.11)
+    g = 0.17 * min(1, (tp - t_pulse0) / 20 + 0.4) * duck[int(tp * SR)]
     add(x, tp, g, g); tp += beat; k += 1
 # 3) charleston di rumore a semicrome (tensione), solo nella parte centrale
 tp = starts[min(8, len(starts) - 1)]
 while tp < logo_t:
     n = int(0.05 * SR); x = hp(rng.standard_normal(n), 7000) * env_ad(n, 0.001, 0.012)
-    g = 0.02 * duck[int(tp * SR)] * (1.0 if int(tp / (beat / 2)) % 2 else 0.55)
+    g = 0.012 * duck[int(tp * SR)] * (1.0 if int(tp / (beat / 2)) % 2 else 0.55)
     add(x, tp, g * 0.8, g); tp += beat / 2
 # 4) impatti sui cartelli neri + salita prima
 def impact(t0, g=1.0):
@@ -106,10 +139,10 @@ def impact(t0, g=1.0):
     noise = rng.standard_normal(nr)
     rs = np.zeros(nr)
     for j in range(0, nr, 2400):                             # rumore filtrato con taglio che sale
-        fc = 300 + 5000 * (j / nr) ** 2
+        fc = 200 + 2200 * (j / nr) ** 2
         rs[j:j + 2400] = hp(noise[j:j + 2400], fc, 1)
     if t0 > 1.5:
-        add(rs * (tr / 1.4) ** 2.5 * 0.10 * g, t0 - 1.4, 0.9, 1)
+        add(lp(rs, 5000) * (tr / 1.4) ** 2.5 * 0.08 * g, t0 - 1.4, 0.95, 1)
 for h in hits:
     if not (coffee0 - 0.5 <= h < coffee1):
         impact(h, 1.0 if h < 20 else 0.8)
@@ -145,10 +178,13 @@ while tp < coffee1 - 0.6:
     add(pluck(f, 0.6) * 0.40, tp, 1, 0.8); tp += 3 * eighth; k += 1
 # 6) riverbero + mastering
 ir_n = int(2.4 * SR); ir = lp(rng.standard_normal(ir_n), 4500) * np.exp(-np.arange(ir_n) / (0.55 * SR)); ir /= np.abs(ir).sum() ** 0.5 * 25
-Lw, Rw = fftconvolve(L, ir)[:N], fftconvolve(R, ir[::-1].copy())[:N]
+ir2 = np.roll(ir, int(0.011 * SR)); Lw, Rw = fftconvolve(L, ir)[:N], fftconvolve(R, 0.6 * ir + 0.4 * ir2)[:N]
 L2, R2 = L * 0.8 + Lw * 0.45, R * 0.8 + Rw * 0.45
 fo = np.clip((TOT - tt) / 3.0, 0, 1)
-mix = np.stack([L2 * fo, R2 * fo], 1)
-mix = np.tanh(mix / (np.abs(mix).max() + 1e-9) * 1.6) * 0.92
+M_, S_ = (L2 + R2) / 2, (L2 - R2) / 2 * 0.75
+mix = np.stack([(M_ + S_) * fo, (M_ - S_) * fo], 1)
+mix = mix / (np.percentile(np.abs(mix), 99.9) + 1e-9)
+mix = np.tanh(mix * 0.9)
+mix = mix / (np.abs(mix).max() + 1e-9) * 0.89                   # limitatore morbido, picco -1 dB
 wavfile.write(OUT, SR, (mix * 32767).astype(np.int16))
 print("scritto", OUT)

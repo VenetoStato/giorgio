@@ -105,6 +105,9 @@ SHELLS = {
     # carter del carrello e della colonna
     "base_cover": lambda: superellipsoid(0.36, 0.31, 0.06, e1=0.25, e2=0.3),
     "column_cover": lambda: superellipsoid(0.085, 0.10, 0.22, e1=0.2, e2=0.35),
+    # colletti: coprono la piastra di base dell'OpenArm (190 x 190 mm) e il collo tra busto e testa (verifiche/carene.py)
+    "waist_cover": lambda: superellipsoid(0.125, 0.125, 0.042, e1=0.3, e2=0.35),
+    "neck_cover": lambda: superellipsoid(0.078, 0.088, 0.04, e1=0.35, e2=0.4),
 }
 
 

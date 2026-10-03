@@ -76,7 +76,7 @@ def draw_texts(img, texts, t):
             x, y = 122, H - 130 - tx.get("above", 120) - th
         else:
             x, y = pos
-        if pos == "ll" and tx.get("band", True):        # sfumatura scura dal basso, solo a sinistra
+        if (pos == "ll" or tx.get("_ll")) and tx.get("band", True):        # sfumatura scura dal basso, solo a sinistra
             band = Image.new("L", (W, H), 0); bd = ImageDraw.Draw(band)
             for yy in range(int(H * 0.45), H, 2):
                 k_ = (yy - H * 0.45) / (H * 0.55)
@@ -230,6 +230,32 @@ def draw_battery(img, hud, src_i, t):
     return Image.alpha_composite(img.convert("RGBA"), layer).convert("RGB")
 
 
+def _th(tx):
+    return int(tx.get("size", 60) * 1.22) * len(tx["text"].split("\n"))
+
+
+def layout_segment(sg, seg_len, xf_next):
+    """impaginazione automatica in basso a sinistra: occhiello (kick) sopra il titolo (ll), sottotitolo (llsub) sotto;
+    ogni testo finisce prima della dissolvenza verso il segmento successivo"""
+    tx_ = sg.get("texts", [])
+    for t in tx_:
+        t["t1"] = min(t.get("t1", 1e9), max(t.get("t0", 0) + 0.6, seg_len - xf_next - 0.05))
+    def over(a, b):
+        return a.get("t0", 0) < b.get("t1", 1e9) and b.get("t0", 0) < a.get("t1", 1e9)
+    subs = [t for t in tx_ if t.get("pos") == "llsub"]
+    for t in subs:
+        t["pos"] = [122, H - 105 - _th(t)]; t["align"] = "left"
+    titles = [t for t in tx_ if t.get("pos") == "ll"]
+    for t in titles:
+        below = [u for u in subs if over(t, u)]
+        bottom = min(u["pos"][1] for u in below) - 14 if below else H - 130
+        t["pos"] = [120, bottom - _th(t)]; t["align"] = "left"; t["_ll"] = True
+    for t in [t for t in tx_ if t.get("pos") == "kick"]:
+        tops = [u["pos"][1] for u in titles if over(t, u)]
+        top = min(tops) if tops else H - 260
+        t["pos"] = [122, top - 12 - _th(t)]; t["align"] = "left"
+
+
 def seg_frames(sg):
     """genera i fotogrammi PIL del segmento"""
     if sg["type"] == "card":
@@ -310,6 +336,18 @@ def draw_chat(img, chat, t):
 tmp = OUT + ".noaudio.mp4"
 wr = imageio.get_writer(tmp, fps=FPS, quality=None, macro_block_size=8, codec="libx264", pixelformat="yuv420p",
                         output_params=["-crf", "20", "-preset", "slow", "-movflags", "+faststart"])
+def seg_len(sg):
+    if sg["type"] == "card":
+        return sg["dur"]
+    fl = sorted(glob.glob(os.path.join(HERE, sg["glob"])))[sg.get("start", 0)::sg.get("step", 1)]
+    if sg.get("count"):
+        fl = fl[:sg["count"]]
+    return len(fl) * sg.get("slow", 1) / FPS
+
+
+for _i, _sg in enumerate(E["segments"]):
+    _nx = E["segments"][_i + 1].get("xfade", XF / FPS) if _i + 1 < len(E["segments"]) else 0.0
+    layout_segment(_sg, seg_len(_sg), _nx)
 tail = []                                     # ultimi fotogrammi del segmento precedente (dissolvenza incrociata)
 nframes = 0
 for si, sg in enumerate(E["segments"]):
