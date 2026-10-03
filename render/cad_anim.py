@@ -33,7 +33,10 @@ for p in meta["parts"]:
     bpy.ops.wm.stl_import(filepath=str(f))
     ob = bpy.context.selected_objects[0]; ob.name = p["name"]; ob.scale = (0.001,) * 3
     c = p["color"]; ob.color = (c[0] * 1.05, c[1] * 1.05, c[2] * 1.05, 1.0)
-    objs.append((ob, Vector(p["explode"]) * 0.001))
+    ev = Vector(p["explode"]) * 0.001
+    if ev.z < 0:                                       # base e parti sotto il robot: scendono molto, fuori dal resto dell'esploso
+        ev = Vector((ev.x, ev.y, ev.z * 2.8))
+    objs.append((ob, ev))
 for fr in range(1, NF + 1):
     u = ease((fr - 30) / 90)
     for ob, ev in objs:

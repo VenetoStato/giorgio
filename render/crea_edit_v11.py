@@ -72,7 +72,7 @@ S.append(shot("v11/r_close/f_*.jpg", "SIM", kick(0.3, 7.8, "DOCK"), T(0.3, 4.0, 
               battery=dict(json="ricarica_energia_v11.json", src0=600, src_step=1, travel_text="LOW · RETURNING TO DOCK", charging_text="DOCKED · CHARGING 48 V")))
 S.append(card(3.0, big(0.2, 3.0, "SAFETY LIVES IN HARDWARE.", 80), mono(0.9, 3.0, "NOT IN THE AI. THE AI IS NOT ALLOWED NEAR IT.")))
 S.append(card(2.6, big(0.2, 2.6, "MECHANICAL."), mono(0.8, 2.6, "~100 PARTS · 128 BOLTED JOINTS · EVERY ONE CHECKED")))
-S.append(shot("v11/k_cad/f_*.jpg", "CAD // CADQUERY", kick(0.4, 5.6, "ASSEMBLY"), T(0.4, 5.6, "REAL PARTS. REAL BOLTS.", size=60),
+S.append(shot("v11/k_cad2/f_*.jpg", "CAD // CADQUERY", kick(0.4, 5.6, "ASSEMBLY"), T(0.4, 5.6, "REAL PARTS. REAL BOLTS.", size=60),
               T(1.2, 5.6, "Off-the-shelf where possible, laser-cut and printed where not.", "llsub", 32, "N", band=False)))
 LINES = [("INTERFERENCE · EXACT B-REP · 3 POSES", "0 OVERLAPS"), ("BOLT AXES, MATING PARTS", "0.000 mm OFFSET"),
          ("HOLES · ISO 273 / TAP DRILLS / INSERTS", "OK"), ("ARM SWEEP vs STRUCTURE · 793 POSES", "2.4 mm MIN"),

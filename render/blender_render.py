@@ -553,25 +553,25 @@ if args.explode:
         bn = o.parent.name[5:] if o.parent else ""
         n = o.name
         if n.startswith("tray"):
-            return "vassoio", (0.30, 0, 0.0)
+            return "vassoio", (0.30, 0, 0.32)
         if n.startswith(("coffee", "cup", "capsule", "steam", "cm_")):
-            return "caffe", (-0.38, 0, 0.0)
+            return "caffe", (-0.40, 0, 0.22)
         if n.startswith("scanner"):
-            return "scanner", (0.15 * np.sign(o.location.x or 1), 0.15 * np.sign(o.location.y or 1), 0.0)
+            return "scanner", (0.22 * np.sign(o.location.x or 1), 0.22 * np.sign(o.location.y or 1), 0.0)
         if bn.startswith("part_"):
             return None, None
         if bn == "amr" or bn.startswith("drive"):
-            return "base", (0, 0, -0.10)
+            return "base", (0, 0, 0.0)          # la base resta a terra: tutto il resto sale
         if bn == "column":
-            return "colonna", (0, 0, 0.05)
+            return "colonna", (0, 0, 0.22)
         if bn == "crown":
-            return "testa", (0.0, 0, 0.38)
+            return "testa", (0.0, 0, 0.80)
         if bn.startswith("openarm_left") or bn.startswith("left_"):
-            return "braccio_sx", (0, 0.32, 0.10)
+            return "braccio_sx", (0, 0.36, 0.42)
         if bn.startswith("openarm_right") or bn.startswith("right_"):
-            return "braccio_dx", (0, -0.32, 0.10)
+            return "braccio_dx", (0, -0.36, 0.42)
         if bn == "torso":
-            return "busto", (0, 0, 0.16)
+            return "busto", (0, 0, 0.45)
         return None, None
     n_ = len(F)
     sc.frame_set(0); bpy.context.view_layer.update()
