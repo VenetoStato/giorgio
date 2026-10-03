@@ -421,7 +421,7 @@ if not args.no_cap:
     add_cap()
 
 # ---------------------------------------------------------------- tricolore: tre fasce alte 22 mm attorno alla base (ben visibili)
-for k_, (z_, col_, rough_) in enumerate(((0.1395, (0.0, 0.287, 0.061), 0.3), (0.114, (0.88, 0.885, 0.88), 0.25), (0.0885, (0.617, 0.024, 0.038), 0.3))):
+for k_, (z_, col_, rough_) in enumerate(((0.445, (0.0, 0.287, 0.061), 0.3), (0.4195, (0.88, 0.885, 0.88), 0.25), (0.394, (0.617, 0.024, 0.038), 0.3))):   # sulla cover del Ranger Mini
     o_ = bpy.data.objects.get(f"tricolore{k_}")
     if o_ is None:
         continue

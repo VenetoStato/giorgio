@@ -119,7 +119,11 @@ SHELLS = {
     "column_cover": lambda: superellipsoid(0.085, 0.10, 0.22, e1=0.2, e2=0.35),
     # colletti: coprono la piastra di base dell'OpenArm (190 x 190 mm) e il collo tra busto e testa (verifiche/carene.py)
     "waist_cover": lambda: superellipsoid(0.134, 0.100, 0.138, e1=0.12, e2=0.12),      # 268 x 200 mm, r 8 (CAD), sul busto
-    "column_fixed": lambda: superellipsoid(0.090, 0.100, 0.120, e1=0.15, e2=0.45),     # 180 x 200 mm, r 45, z 0.300-0.540 (CAD)
+    "column_fixed": lambda: superellipsoid(0.060, 0.060, 0.046, e1=0.15, e2=0.30),     # carter colonna 120 x 120 mm, z 0.470-0.562 (CAD Ranger Mini)
+    # Ranger Mini 3.0: cover del ponte in lamiera 1,5 mm verniciata (0.718 x 0.498, z 0.329-0.470), tricolore e LED dipinti/applicati sopra
+    "deck_cover": lambda: superellipsoid(0.359, 0.249, 0.0705, e1=0.10, e2=0.12),
+    "tricolor_deck": lambda: superellipsoid(0.3605, 0.2505, 0.011, e1=0.05, e2=0.12),
+    "led_deck": lambda: superellipsoid(0.3605, 0.2505, 0.004, e1=0.05, e2=0.12),
 }
 
 

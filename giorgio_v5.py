@@ -146,13 +146,13 @@ for i, y in enumerate(np.arange(-3.0, 3.01, 0.5)):          # segnaletica: corsi
     box(f"aisle{i}", (-1.6, y, 0.002), (0.04, 0.18, 0.002), "yellow", collide=False)
 # stazione di ricarica C: piastra di contatto + colonnina con LED
 CHG = np.array([-3.0, -2.6, -math.pi / 2])
-pc = local_to_world(CHG, 0.503, 0.0)                     # colonnina 20 mm dietro le lamelle: il paraurti non la tocca prima dei contatti
+pc = local_to_world(CHG, 0.46, 0.0)                      # stazione di ricarica AgileX (kit NAVIS): il robot ci entra in retromarcia
 box("charger_post", (pc[0], pc[1], 0.35), (0.06, 0.12, 0.35), "armor", yaw=CHG[2])
-pl = local_to_world(CHG, 0.423, 0.0)                     # piastra a molla con due lamelle di contatto, all'altezza dei pattini del robot
-box("charger_plate", (pl[0], pl[1], 0.14), (0.012, 0.09, 0.035), "dark", collide=False, yaw=CHG[2])
-for k_, sy_ in enumerate((-0.020, 0.020)):                 # piastre RoboPad della stazione, allineate ai poli del robot
-    q_ = local_to_world(CHG, 0.411, sy_)
-    g_ = box(f"charger_lamella{k_}", (q_[0], q_[1], 0.14), (0.002, 0.012, 0.015), "steel", collide=False, yaw=CHG[2])
+pl = local_to_world(CHG, 0.375, 0.0)                     # piastra a molla con due lamelle di contatto, all'altezza dei pattini del robot
+box("charger_plate", (pl[0], pl[1], 0.15), (0.009, 0.09, 0.04), "dark", collide=False, yaw=CHG[2])
+for k_, sy_ in enumerate((-0.03, 0.03)):                   # contatti della stazione, contro la piastra a spazzole posteriore del robot
+    q_ = local_to_world(CHG, 0.365, sy_)
+    g_ = box(f"charger_lamella{k_}", (q_[0], q_[1], 0.15), (0.002, 0.02, 0.02), "steel", collide=False, yaw=CHG[2])
     g_.material = ""; g_.rgba = [0.75, 0.48, 0.22, 1]
 box("charger_led", (pc[0], pc[1], 0.66), (0.062, 0.1, 0.01), "accent", collide=False, yaw=CHG[2])
 
@@ -640,19 +640,20 @@ def soc():
 
 
 def dock_error():
-    """posizione dei pattini rispetto alle lamelle, nel frame della stazione: (spazio frontale, scarto laterale, angolo)"""
+    """piastra posteriore del robot rispetto ai contatti della stazione, nel frame della stazione: (spazio, scarto laterale, angolo).
+    Il robot si aggancia in retromarcia: guarda verso -x della stazione."""
     x, y, th = base_pose()
     c, s_ = math.cos(CHG[2]), math.sin(CHG[2])
     dx, dy = x - CHG[0], y - CHG[1]
     lx, ly = c * dx + s_ * dy, -s_ * dx + c * dy
-    gap = 0.409 - (lx + 0.410)                           # faccia piastre stazione (0.409) - punta collettore RoboPad (centro robot + 0.410)
-    return gap, ly, wrap(th - CHG[2])
+    gap = 0.363 - (lx + 0.365)                           # contatti stazione (0.363) - piastra a spazzole posteriore (centro robot + 0.365)
+    return gap, ly, wrap(th - CHG[2] - math.pi)
 
 
 def docked_at_charger():
-    """contatti chiusi: collettore RoboPad a contatto (molla 10 mm), allineato entro 5 mm (tolleranza RoboPad) e 3 gradi"""
+    """contatti chiusi: piastra a spazzole sui contatti (corsa 10 mm), allineata entro 20 mm e 3 gradi (tolleranze AgileX NON pubblicate: ASSUNTE)"""
     gap, ly, dth = dock_error()
-    return -0.010 < gap < 0.004 and abs(ly) < 0.005 and abs(dth) < math.radians(3)
+    return -0.010 < gap < 0.004 and abs(ly) < 0.020 and abs(dth) < math.radians(3)
 
 
 def energy_step():
@@ -1009,7 +1010,22 @@ def on_event(a, ev, part):
 
 # ---------------------------------------------------------------- guida AMR fluida
 WL, WR = m.actuator("drive_left_vel").id, m.actuator("drive_right_vel").id
-B_HALF, WHEEL_R = 0.61 / 2 - 0.04, 0.085
+BT = {"p": None}
+MOC_BT = m.body("base_target").mocapid[0] if mujoco.mj_name2id(m, mujoco.mjtObj.mjOBJ_BODY, "base_target") >= 0 else -1
+
+
+def base_target_step():
+    """Ranger Mini: integra v e omega comandati (dalle velocita' ruota) nel bersaglio cinematico della base"""
+    if MOC_BT < 0:
+        return
+    x, y, th = base_pose()
+    if BT["p"] is None or np.linalg.norm(BT["p"][:2] - [x, y]) > 0.10:      # avvio o spostamento manuale: riallinea
+        BT["p"] = np.array([x, y, th])
+    wl, wr = d.ctrl[WL], d.ctrl[WR]
+    v = WHEEL_R * (wl + wr) / 2; w = WHEEL_R * (wr - wl) / (2 * B_HALF)
+    p_ = BT["p"]; p_[0] += v * math.cos(p_[2]) * DT; p_[1] += v * math.sin(p_[2]) * DT; p_[2] = wrap(p_[2] + w * DT)
+    d.mocap_pos[MOC_BT] = [p_[0], p_[1], 0.0]; d.mocap_quat[MOC_BT] = [math.cos(p_[2] / 2), 0, 0, math.sin(p_[2] / 2)]
+B_HALF, WHEEL_R = 0.182, 0.100                       # Ranger Mini 3.0: carreggiata 364 mm, ruote D 200 (cinematica differenziale equivalente)
 drive = {"v": 0.0, "w": 0.0}
 V_MAX, A_LON, A_LAT, W_MAX, A_ROT = 0.6, 0.25, 0.25, 0.7, 0.7
 JERK = 0.6                                           # m/s^3: niente "imbarcate" in frenata
@@ -2022,8 +2038,9 @@ def dock_sense():
 def dock_skill(sk_, k):
     """aggancio alla stazione di ricarica: punto di attesa 60 cm davanti, poi avvicinamento lento in anello chiuso fino a contatti chiusi"""
     if sk_.phase == 0:
-        stage = np.array([*(CHG[:2] - 0.60 * np.array([math.cos(CHG[2]), math.sin(CHG[2])])), CHG[2]])
-        mission["route"] = route_pose(stage); FIELDS["mode"] = "marcia"; mission["state"] = "drive_ag"; sk_.phase = 1; sk_.n_ok = 0
+        stage = np.array([*(CHG[:2] - 0.60 * np.array([math.cos(CHG[2]), math.sin(CHG[2])])), CHG[2]])   # arriva di fronte alla stazione...
+        mission["route"] = route_pose(stage) + [Turn(wrap(CHG[2] + math.pi))]                        # ...poi si gira: retromarcia sui contatti
+        FIELDS["mode"] = "marcia"; mission["state"] = "drive_ag"; sk_.phase = 1; sk_.n_ok = 0
         if hasattr(sk_, "gf"):
             del sk_.gf
         ag_say("Vado alla stazione di ricarica.")
@@ -2033,8 +2050,8 @@ def dock_skill(sk_, k):
         g_m, ly, dth = dock_sense()
         sk_.gf = g_m if not hasattr(sk_, "gf") else 0.8 * sk_.gf + 0.2 * g_m      # misura filtrata (rumore 3 mm)
         gap = sk_.gf
-        v = float(np.clip(0.9 * (gap + 0.006), 0.012, 0.08)) * k
-        w = float(np.clip(-2.5 * dth - 6.0 * ly * (1 if v > 0 else 0), -0.25, 0.25)) * k
+        v = -float(np.clip(0.9 * (gap + 0.006), 0.012, 0.08)) * k          # retromarcia verso la stazione
+        w = float(np.clip(-2.5 * dth - 6.0 * ly, -0.25, 0.25)) * k
         sk_.n_ok = getattr(sk_, "n_ok", 0) + 1 if gap < -0.004 else 0
         if sk_.n_ok >= 10:                                # molla compressa ~5 mm per 10 letture di fila: contatti chiusi, fermo
             v = w = 0.0; sk_.phase = 3; sk_.t = 0.0
@@ -2124,6 +2141,7 @@ def control_step():
     for a in arms.values():
         a.step(DT, k); a.apply()
     clips_step(); handover_step()
+    base_target_step()
     mujoco.mj_step(m, d)
     energy_step()
 

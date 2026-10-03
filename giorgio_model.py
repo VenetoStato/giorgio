@@ -53,11 +53,11 @@ LOOKS = {   # corazza, accento, scuro (giunti), visiera, neon ambiente, metallo
 }
 
 # dimensioni (m)
-AMR_L, AMR_W, AMR_H = 0.702, 0.61, 0.25        # AgileX Tracer 2.0: 702 x 610 x 169 mm + piastra e carter (0.25 m)
-AMR_MASS = 55.0                               # Tracer 2.0: 54-56 kg
+AMR_L, AMR_W, AMR_H = 0.720, 0.500, 0.345      # AgileX Ranger Mini 3.0: 720 x 500 mm, piano delle guide a 0.345 m (CAD)
+AMR_MASS = 75.0                               # Ranger Mini 3.0: 75 kg, baricentro a 0.213 m
 CART_MASS = 45.0                              # carrello: telaio alluminio + batteria/alimentatori + 25 kg di zavorra in basso
 FOOT_X, FOOT_Y = 0.42, 0.40
-WHEEL_R = 0.085
+WHEEL_R = 0.100                               # ruote Ranger Mini D 200 mm
 COF_SH = 0.69                                 # mensola dello zaino caffe'
 COF_X = -0.225
 COF_Y_IN, COF_Y_OUT = -0.10, -0.24             # navetta: sotto l'erogatore / fuori, presa dall'alto
@@ -68,9 +68,9 @@ COF_STACK_Z = 0.12                             # piedistallo della pila
 BUF_Z = 0.95                                  # fondo degli alloggi del buffer a bordo
 BUFFER_SLOTS = [(0.19, y) for y in (0.11, 0.185, 0.26)]   # vassoio frontale: per lato (y con segno), riferimento base   # per lato (y con segno), nel riferimento della base                   # piedini stabilizzatori su bracci sporgenti (poligono 0.84 x 0.80 m)
 SHELL_DIR = str(Path(__file__).resolve().parent / "assets/shells")
-COLUMN_STROKE = 0.15
+COLUMN_STROKE = 0.001                         # colonna fissa sul Ranger Mini (CAD)
 SCAN_Z = 0.18
-SCANNERS = [((0.3467, -0.3467), -math.pi / 4), ((-0.3407, 0.3407), 3 * math.pi / 4)]     # pod d'angolo fuori dal Tracer (CAD): piano a 180 mm
+SCANNERS = [((0.3597, -0.3597), -math.pi / 4), ((-0.3597, 0.3597), 3 * math.pi / 4)]     # pod d'angolo fuori dalla base (CAD Ranger Mini): piano a 180 mm
 PED_TOP = 0.698                               # quota spalle OpenArm sopra la base del busto originale
 GROUP_ENV, GROUP_HUMAN, GROUP_ROBOT = 0, 1, 2  # i raggi degli scanner vedono solo i gruppi 0 e 1
 
@@ -149,47 +149,44 @@ def build(look="gb", hands="gripper", humans=2, fixed_base=True, base="cart", bu
         amr.add_freejoint(name="amr_free")
     cart = base == "cart"
     base_mass = CART_MASS if cart else AMR_MASS
-    ch = amr.add_geom(name="amr_chassis", type=mujoco.mjtGeom.mjGEOM_BOX, pos=[0, 0, 0.13], size=[AMR_L / 2 - 0.02, AMR_W / 2 - 0.02, 0.07],
+    ch = amr.add_geom(name="amr_chassis", type=mujoco.mjtGeom.mjGEOM_BOX, pos=[0, 0, 0.217], size=[AMR_L / 2 - 0.01, AMR_W / 2 - 0.01, 0.112],
                       material="dark", mass=base_mass, group=GROUP_ROBOT)
     if fixed_base:
         ch.contype = ch.conaffinity = 0
-    # carenatura della base (guscio unico, Tracer nascosto): fascia scura degli scanner, striscia LED di stato, paraurti in gomma
-    for nm_ in ("base_skirt", "scan_band", "led_band", "bumper"):
+    # Ranger Mini 3.0 a vista (corpo scuro, guide in alluminio); sopra: cover del ponte in lamiera con tricolore e striscia LED (CAD)
+    for sy_ in (-1, 1):
+        amr.add_geom(name=f"base_rail{sy_}", type=mujoco.mjtGeom.mjGEOM_BOX, pos=[0, sy_ * 0.115, 0.337], size=[0.35, 0.015, 0.008],
+                     material="steel", contype=0, conaffinity=0, group=GROUP_ROBOT, mass=0)
+    for nm_ in ("deck_cover", "tricolor_deck", "led_deck"):
         sp.add_mesh(name=nm_, file=SHELL_DIR + f"/{nm_}.obj")
-    amr.add_geom(name="base_cover", type=mujoco.mjtGeom.mjGEOM_MESH, meshname="base_skirt", pos=[0, 0, 0.170], material="armor",
+    amr.add_geom(name="base_cover", type=mujoco.mjtGeom.mjGEOM_MESH, meshname="deck_cover", pos=[0, 0, 0.3995], material="armor",
                  contype=0, conaffinity=0, group=GROUP_ROBOT, mass=0)
-    amr.add_geom(name="scan_window", type=mujoco.mjtGeom.mjGEOM_MESH, meshname="scan_band", pos=[0, 0, SCAN_Z], material="visor",
-                 contype=0, conaffinity=0, group=GROUP_ROBOT, mass=0)
-    amr.add_geom(name="bumper", type=mujoco.mjtGeom.mjGEOM_MESH, meshname="bumper", pos=[0, 0, 0.058], material="dark",
-                 contype=0, conaffinity=0, group=GROUP_ROBOT, mass=0)
-    sp.add_mesh(name="tricolor_band", file=SHELL_DIR + "/tricolor_band.obj")
-    for k_, (col_, z_) in enumerate((((0.0, 0.55, 0.27), 0.132), ((0.97, 0.97, 0.95), 0.108), ((0.80, 0.09, 0.12), 0.084))):   # tricolore attorno alla base
-        amr.add_geom(name=f"tricolore{k_}", type=mujoco.mjtGeom.mjGEOM_MESH, meshname="tricolor_band", pos=[0, 0, z_],
+    for k_, (col_, z_) in enumerate((((0.0, 0.55, 0.27), 0.445), ((0.97, 0.97, 0.95), 0.4195), ((0.80, 0.09, 0.12), 0.394))):   # tricolore sulla cover
+        amr.add_geom(name=f"tricolore{k_}", type=mujoco.mjtGeom.mjGEOM_MESH, meshname="tricolor_deck", pos=[0, 0, z_],
                      rgba=list(col_) + [1], contype=0, conaffinity=0, group=GROUP_ROBOT, mass=0)
-    for k_, sy_ in enumerate((-0.020, 0.020)):        # collettore Roboteq RoboPad (2 poli, 75 A, +-5 mm) sul muso: faccia a x 0.406 (CAD)
-        amr.add_geom(name=f"charge_pad{k_}", type=mujoco.mjtGeom.mjGEOM_BOX, pos=[0.402, sy_, 0.14], size=[0.004, 0.008, 0.012],
-                     rgba=[0.72, 0.45, 0.2, 1], contype=0, conaffinity=0, group=GROUP_ROBOT, mass=0)
+    amr.add_geom(name="charge_brush", type=mujoco.mjtGeom.mjGEOM_BOX, pos=[-0.362, 0, 0.15], size=[0.003, 0.068, 0.03],
+                 rgba=[0.72, 0.45, 0.2, 1], contype=0, conaffinity=0, group=GROUP_ROBOT, mass=0)   # piastra a spazzole del kit di ricarica AgileX (posteriore, ASSUNTA)
     # impianto elettrico sotto la carenatura (visibile nei render in trasparenza): 48 V SELV, un solo punto di ricarica
-    PW = [("pw_battery", (0.184, 0.0, 0.2195), (0.135, 0.20, 0.0375), (0.15, 0.32, 0.62)),      # LiFePO4 15s 30 Ah (1,44 kWh), 13 kg (CAD)
-          ("pw_bms", (0.184, 0.0, 0.262), (0.06, 0.08, 0.005), (0.10, 0.45, 0.20)),
-          ("pw_dcdc0", (-0.10, 0.13, 0.232), (0.035, 0.045, 0.022), (0.75, 0.75, 0.78)),       # DC-DC 48 -> 24 V, braccio sinistro
-          ("pw_dcdc1", (-0.10, -0.13, 0.232), (0.035, 0.045, 0.022), (0.75, 0.75, 0.78)),      # DC-DC 48 -> 24 V, braccio destro
-          ("pw_contactor", (0.02, 0.15, 0.232), (0.025, 0.04, 0.022), (0.85, 0.12, 0.10)),     # contattori di sicurezza K1/K2
-          ("pw_pnoz", (0.02, -0.15, 0.232), (0.02, 0.045, 0.022), (0.95, 0.80, 0.10)),         # Pilz PNOZmulti
-          ("pw_charger", (-0.26, 0.15, 0.232), (0.05, 0.05, 0.022), (0.25, 0.25, 0.27)),       # caricatore isolato per la batteria del Tracer
-          ("pw_jetson", (-0.26, -0.15, 0.232), (0.05, 0.05, 0.020), (0.12, 0.12, 0.13)),       # NVIDIA Jetson AGX Orin
-          ("pw_tracer", (0.0, 0.0, 0.135), (0.33, 0.28, 0.07), (0.10, 0.10, 0.11))]            # AgileX Tracer 2.0
+    PW = [("pw_battery", (0.15, 0.0, 0.384), (0.135, 0.20, 0.0375), (0.15, 0.32, 0.62)),       # LiFePO4 15s 30 Ah (1,44 kWh), 13 kg (CAD)
+          ("pw_bms", (0.15, 0.0, 0.426), (0.06, 0.08, 0.005), (0.10, 0.45, 0.20)),
+          ("pw_dcdc0", (-0.12, 0.13, 0.372), (0.035, 0.045, 0.022), (0.75, 0.75, 0.78)),       # DC-DC 48 -> 24 V, braccio sinistro
+          ("pw_dcdc1", (-0.12, -0.13, 0.372), (0.035, 0.045, 0.022), (0.75, 0.75, 0.78)),      # DC-DC 48 -> 24 V, braccio destro
+          ("pw_contactor", (-0.04, 0.19, 0.372), (0.025, 0.04, 0.022), (0.85, 0.12, 0.10)),    # contattori di sicurezza K1/K2
+          ("pw_pnoz", (-0.04, -0.19, 0.372), (0.02, 0.045, 0.022), (0.95, 0.80, 0.10)),        # Pilz PNOZmulti
+          ("pw_charger", (-0.27, 0.14, 0.372), (0.06, 0.05, 0.03), (0.25, 0.25, 0.27)),        # Victron Orion-Tr 48/48: carica il nostro pacco dalla base
+          ("pw_jetson", (-0.27, -0.14, 0.372), (0.05, 0.05, 0.02), (0.12, 0.12, 0.13)),        # NVIDIA Jetson Orin NX
+          ("pw_tracer", (0.0, 0.0, 0.217), (0.355, 0.245, 0.112), (0.10, 0.10, 0.11))]         # AgileX Ranger Mini 3.0 (nome storico del geom)
     for nm_, p_, h_, c_ in PW:
         amr.add_geom(name=nm_, type=mujoco.mjtGeom.mjGEOM_BOX, pos=list(p_), size=list(h_), rgba=list(c_) + [1],
                      contype=0, conaffinity=0, group=GROUP_ROBOT, mass=0)
-    for k_, (a_, b_) in enumerate((((0.40, -0.02, 0.14), (0.30, -0.02, 0.215)), ((0.40, 0.02, 0.14), (0.30, 0.02, 0.215)),     # RoboPad -> batteria
-                                   ((0.05, 0.10, 0.225), (0.02, 0.15, 0.232)),                                               # batteria -> contattori
-                                   ((0.02, 0.12, 0.25), (-0.10, 0.13, 0.25)), ((0.05, -0.10, 0.225), (-0.10, -0.13, 0.25)),  # -> DC-DC
-                                   ((-0.10, 0.13, 0.255), (-0.06, 0.03, 0.29)), ((-0.10, -0.13, 0.255), (-0.06, -0.03, 0.29)))):  # DC-DC -> colonna
+    for k_, (a_, b_) in enumerate((((-0.36, -0.03, 0.17), (-0.27, 0.10, 0.36)), ((-0.24, 0.14, 0.372), (0.02, 0.0, 0.384)),   # spazzole -> base, Orion -> pacco
+                                   ((0.05, 0.10, 0.39), (-0.04, 0.19, 0.372)),                                                # pacco -> contattori
+                                   ((-0.04, 0.17, 0.39), (-0.12, 0.13, 0.39)), ((0.05, -0.10, 0.39), (-0.12, -0.13, 0.39)),   # -> DC-DC
+                                   ((-0.12, 0.13, 0.395), (-0.06, 0.03, 0.47)), ((-0.12, -0.13, 0.395), (-0.06, -0.03, 0.47)))):  # DC-DC -> colonna
         a_, b_ = np.array(a_), np.array(b_)
         amr.add_geom(name=f"pw_cable{k_}", type=mujoco.mjtGeom.mjGEOM_CAPSULE, fromto=list(a_) + list(b_), size=[0.005, 0, 0],
                      rgba=[0.95, 0.45, 0.1, 1], contype=0, conaffinity=0, group=GROUP_ROBOT, mass=0)
-    amr.add_geom(name="status_led0", type=mujoco.mjtGeom.mjGEOM_MESH, meshname="led_band", pos=[0, 0, 0.262],
+    amr.add_geom(name="status_led0", type=mujoco.mjtGeom.mjGEOM_MESH, meshname="led_deck", pos=[0, 0, 0.466],
                  rgba=[0.2, 1.0, 0.45, 1], contype=0, conaffinity=0, group=GROUP_ROBOT, mass=0)
     for k_ in (1, 2, 3):                                   # compatibilita': una sola striscia continua
         amr.add_geom(name=f"status_led{k_}", type=mujoco.mjtGeom.mjGEOM_BOX, pos=[0, 0, 0.2], size=[1e-4, 1e-4, 1e-4],
@@ -214,27 +211,33 @@ def build(look="gb", hands="gripper", humans=2, fixed_base=True, base="cart", bu
                 amr.add_geom(name=f"amr_wheel{sy}", type=mujoco.mjtGeom.mjGEOM_CYLINDER, pos=[0, sy * (AMR_W / 2 - 0.04), 0.085],
                              quat=[0.7071, 0.7071, 0, 0], size=[0.085, 0.03, 0], material="dark", contype=0, conaffinity=0, group=GROUP_ROBOT, mass=0)
         else:
+            # Ranger Mini 3.0: 4 ruote motrici D 200 agli angoli (494 x 364 mm). In sim: sterzo "skid" equivalente, per lato le due
+            # ruote sono accoppiate (vincolo di uguaglianza sui giunti) e comandate da un solo attuatore di velocita'
             for sy, nm in ((1, "left"), (-1, "right")):
-                wb_ = amr.add_body(name=f"drive_{nm}", pos=[0, sy * (AMR_W / 2 - 0.04), WHEEL_R])
-                wb_.add_joint(name=f"drive_{nm}", axis=[0, 1, 0], damping=0.5, armature=0.05)
-                wb_.add_geom(name=f"drive_{nm}_vis", type=mujoco.mjtGeom.mjGEOM_CYLINDER, quat=[0.7071, 0.7071, 0, 0], size=[WHEEL_R, 0.03, 0],
-                             material="dark", mass=0, contype=0, conaffinity=0, group=GROUP_ROBOT)
-                # contatto ruota-pavimento come sfera: il cilindro in MuJoCo rotola "a scatti" e fa vibrare tutta la base
-                wb_.add_geom(name=f"drive_{nm}_g", type=mujoco.mjtGeom.mjGEOM_SPHERE, size=[WHEEL_R, 0, 0],
-                             mass=2.0, friction=[1.2, 0.01, 0.001], condim=3, group=3, rgba=[0, 0, 0, 0])
-                # motore mozzo Tracer: velocita' comandata, coppia limitata
+                for sx, sfx in ((1, ""), (-1, "_r")):
+                    wb_ = amr.add_body(name=f"drive_{nm}{sfx}", pos=[sx * 0.247, sy * 0.182, WHEEL_R])
+                    wb_.add_joint(name=f"drive_{nm}{sfx}", axis=[0, 1, 0], damping=0.5, armature=0.05)
+                    wb_.add_geom(name=f"drive_{nm}{sfx}_vis", type=mujoco.mjtGeom.mjGEOM_CYLINDER, quat=[0.7071, 0.7071, 0, 0],
+                                 size=[WHEEL_R, 0.04, 0], material="dark", mass=0, contype=0, conaffinity=0, group=GROUP_ROBOT)
+                    wb_.add_geom(name=f"drive_{nm}{sfx}_g", type=mujoco.mjtGeom.mjGEOM_SPHERE, size=[WHEEL_R, 0, 0], contype=0, conaffinity=0,
+                                 mass=2.0, group=3, rgba=[0, 0, 0, 0])     # ruote solo visive: la base segue il bersaglio cinematico
+                sp.add_equality(type=mujoco.mjtEq.mjEQ_JOINT, name1=f"drive_{nm}_r", name2=f"drive_{nm}", data=[0, 1, 0, 0, 0] + [0] * 6)
                 sp.add_actuator(name=f"drive_{nm}_vel", target=f"drive_{nm}", trntype=mujoco.mjtTrn.mjTRN_JOINT,
-                                gaintype=mujoco.mjtGain.mjGAIN_FIXED, gainprm=[40.0] + [0] * 9, biastype=mujoco.mjtBias.mjBIAS_AFFINE,
-                                biasprm=[0, 0, -40.0] + [0] * 7, ctrlrange=[-25, 25], ctrllimited=1, forcerange=[-60, 60], forcelimited=1)
-            for sx in (-1, 1):
-                for sy in (-1, 1):   # piroette sospese (molla + smorzatore): sempre a terra, niente beccheggio in frenata
-                    cb = amr.add_body(name=f"caster_{sx}_{sy}", pos=[sx * (AMR_L / 2 - 0.07), sy * (AMR_W / 2 - 0.07), 0.040])
-                    cb.add_joint(name=f"caster_susp_{sx}_{sy}", type=mujoco.mjtJoint.mjJNT_SLIDE, axis=[0, 0, 1], range=[-0.02, 0.02],
-                                 stiffness=8000.0, springref=-0.006, damping=700.0, armature=0.5)
-                    cb.add_geom(name=f"caster_{sx}_{sy}_g", type=mujoco.mjtGeom.mjGEOM_SPHERE, size=[0.035, 0, 0], mass=0.3,
-                                friction=[0.02, 0.001, 0.001], condim=1, material="dark", group=GROUP_ROBOT)
+                                gaintype=mujoco.mjtGain.mjGAIN_FIXED, gainprm=[60.0] + [0] * 9, biastype=mujoco.mjtBias.mjBIAS_AFFINE,
+                                biasprm=[0, 0, -60.0] + [0] * 7, ctrlrange=[-25, 25], ctrllimited=1, forcerange=[-120, 120], forcelimited=1)
+    if not fixed_base and not cart:
+        # Ranger Mini 3.0 = 4 ruote sterzanti: il suo controllore insegue v e omega senza slittare. In sim la base segue un bersaglio
+        # cinematico (mocap) con un vincolo rigido; il ribaltamento e' verificato a parte (CAD, limiti 1.5 m/s2)
+        wb.add_body(name="base_target", mocap=True, pos=[0, 0, 0])
+        appoggio = amr.add_geom(name="amr_support", type=mujoco.mjtGeom.mjGEOM_BOX, pos=[0, 0, 0.004], size=[0.30, 0.20, 0.004],
+                                rgba=[0, 0, 0, 0], group=3, mass=0, contype=0, conaffinity=0)
+        sp.add_equality(type=mujoco.mjtEq.mjEQ_WELD, name1="base_target", name2="amr", objtype=mujoco.mjtObj.mjOBJ_BODY,
+                        solref=[0.01, 1.0], data=[0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1])
     for k, ((sx, sy), h) in enumerate(SCANNERS):      # SICK nanoScan3: 80 x 80 x 85 mm, giallo
-        vbox(amr, f"scanner{k}_body", (sx, sy, SCAN_Z), (0.035, 0.035, 0.04), "dark")      # dentro la carenatura, dietro la fascia scura
+        amr.add_geom(name=f"scanner{k}_body", type=mujoco.mjtGeom.mjGEOM_BOX, pos=[sx, sy, SCAN_Z], size=[0.040, 0.040, 0.043],
+                     rgba=[0.95, 0.76, 0.08, 1], contype=0, conaffinity=0, group=GROUP_ROBOT, mass=0)   # SICK nanoScan3 nel pod d'angolo (giallo)
+        amr.add_geom(name=f"scanner{k}_pod", type=mujoco.mjtGeom.mjGEOM_BOX, pos=[sx * 0.93, sy * 0.93, SCAN_Z + 0.06], size=[0.05, 0.05, 0.004],
+                     material="dark", contype=0, conaffinity=0, group=GROUP_ROBOT, mass=0)
         amr.add_site(name=f"scanner{k}", pos=[sx + 0.045 * math.cos(h), sy + 0.045 * math.sin(h), SCAN_Z],
                      euler=[0, 0, h], size=[0.01, 0, 0], group=4)
     # vassoio frontale (buffer a bordo): ripiano davanti al petto, tra le braccia, 6 alloggi profondi 90 mm
@@ -325,18 +328,16 @@ def build(look="gb", hands="gripper", humans=2, fixed_base=True, base="cart", bu
         cg("cup_rest", CY, (sx_, sy_, zs + 0.006 + 0.012 * 5 - 0.002), (0.02, 0.002, 0), rgba=[0, 0, 0, 0], collide=True)
     # colonna: profilo alluminio 80x80 con slitta e morsetti (regolazione manuale), carter di design
     sp.add_mesh(name="column_cover", file=SHELL_DIR + "/column_fixed.obj")                  # carter fisso 180 x 200, z 0.300-0.540 (CAD)
-    amr.add_geom(name="column_cover", type=mujoco.mjtGeom.mjGEOM_MESH, meshname="column_cover", pos=[-0.06, 0, 0.42],
+    amr.add_geom(name="column_cover", type=mujoco.mjtGeom.mjGEOM_MESH, meshname="column_cover", pos=[-0.06, 0, 0.516],
                  material="armor", contype=0, conaffinity=0, group=GROUP_ROBOT, mass=0)
-    amr.add_geom(name="column_sleeve", type=mujoco.mjtGeom.mjGEOM_BOX, pos=[-0.06, 0, 0.366], size=[0.05, 0.05, 0.189],
-                 material="dark", contype=0, conaffinity=0, group=GROUP_ROBOT, mass=2.40)      # tubo 100x100x3 + flangia
-    amr.add_geom(name="base_equipment_mass", type=mujoco.mjtGeom.mjGEOM_BOX, pos=[-0.002, 0.002, 0.281], size=[0.05, 0.05, 0.02],
-                 rgba=[0, 0, 0, 0], contype=0, conaffinity=0, group=3, mass=37.8)              # massa fissa sulla base (CAD 46,1 kg meno le parti che in sim hanno gia' massa propria)
-    col = amr.add_body(name="column", pos=[-0.06, 0, AMR_H + 0.05])
+    amr.add_geom(name="base_equipment_mass", type=mujoco.mjtGeom.mjGEOM_BOX, pos=[-0.011, 0.006, 0.445], size=[0.05, 0.05, 0.02],
+                 rgba=[0, 0, 0, 0], contype=0, conaffinity=0, group=3, mass=38.2)              # massa fissa sulla base (CAD 46,1 kg meno le parti che in sim hanno gia' massa propria)
+    col = amr.add_body(name="column", pos=[-0.06, 0, 0.30])           # spalle a 1.278 m come nel CAD validato
     col.add_joint(name="lift", type=mujoco.mjtJoint.mjJNT_SLIDE, axis=[0, 0, 1], range=[0, COLUMN_STROKE], damping=200, armature=5)
-    col.add_geom(name="column_inner", type=mujoco.mjtGeom.mjGEOM_BOX, pos=[0, 0, 0.080], size=[0.04, 0.04, 0.185],
-                 material="steel", mass=1.97, contype=0, conaffinity=0, group=GROUP_ROBOT)
+    col.add_geom(name="column_inner", type=mujoco.mjtGeom.mjGEOM_BOX, pos=[0, 0, 0.1665], size=[0.04, 0.04, 0.0985],
+                 material="steel", mass=1.56, contype=0, conaffinity=0, group=GROUP_ROBOT)
 
-    for nm, body_, pos, half in (("col_coll", amr, (-0.06, 0, AMR_H + 0.22), (0.085, 0.10, 0.22)),):
+    for nm, body_, pos, half in (("col_coll", amr, (-0.06, 0, 0.56), (0.07, 0.07, 0.10)),):
         body_.add_geom(name=nm, type=mujoco.mjtGeom.mjGEOM_BOX, pos=list(pos), size=list(half), group=3, mass=0, rgba=[1, 0, 0, 0.3],
                        contype=2, conaffinity=0)   # urta solo l'ambiente (conaffinity bit 2), non le braccia
     # ---------------------------------------------------------- busto + braccia OpenArm 2.0 (originali)
