@@ -7,7 +7,7 @@ import math
 import numpy as np
 
 NX, NY = 64, 32
-COL = {7: (90, 255, 140), 0: (110, 205, 255), 1: (140, 235, 255), 2: (255, 165, 55), 3: (255, 45, 35), 4: (175, 150, 255), 5: (255, 85, 160), 6: (255, 205, 50)}
+COL = {11: (235, 240, 255), 12: (235, 228, 205), 13: (225, 245, 255), 14: (255, 60, 200), 10: (150, 225, 255), 8: (255, 205, 50), 9: (140, 235, 255), 7: (90, 255, 140), 0: (110, 205, 255), 1: (140, 235, 255), 2: (255, 165, 55), 3: (255, 45, 35), 4: (175, 150, 255), 5: (255, 85, 160), 6: (255, 205, 50)}
 YY, XX = np.mgrid[0:NY, 0:NX].astype(np.float32) + 0.5
 
 
@@ -199,13 +199,113 @@ MUST = {"neutral": _bm(["#......................#", "##....................##", 
                      "#......................#"])}
 
 
-STYLE = "mario"
+# baffi a manubrio, sottili con le punte arricciate (NON i baffoni folti alla Mario: stile "mario" tenuto solo per i render vecchi)
+# baffi a manubrio: spessi sotto il naso, sottili verso l'esterno, punte arricciate all'insu'
+MANUBRIO = {
+    "neutral": _bm(['#........##..##........#', '#....######..######....#', '.#.########..########.#.', '..#####..........#####..']),
+    "up": _bm(['#......................#', '#........##..##........#', '.#..#######..#######..#.', '..#######......#######..']),
+    "down": _bm(['.........##..##.........', '.....######..######.....', '...########..########...', '.####..............####.', '##....................##']),
+}
+STYLE = "mario"          # volto di default: baffoni pixel (piace al proprietario); "manubrio" = variante sottile
 
+
+
+def _fx(code, t):
+    """facce speciali (omaggi in pixel art) 16 x 32 x 3; None se il codice non e' speciale"""
+    yy, xx = np.mgrid[0:16, 0:32] + 0.5
+    if code == 11:                                            # scheletro sorridente (stile Undertale)
+        m = np.ones((16, 32), np.float32) * 0.9
+        for ex in (10.0, 22.0):
+            m[((xx - ex) / 3.2) ** 2 + ((yy - 5.5) / 3.0) ** 2 <= 1.0] = 0.0
+            if int(t * 1.5) % 4 != 3:                          # pupille bianche piccole (ogni tanto spariscono)
+                m[5, int(ex)] = 1.0
+        g = (((xx - 16) / 11.5) ** 2 + ((yy - 8.5) / 4.6) ** 2 <= 1.0) & (yy > 10.5) & (yy < 13.5)
+        m[g] = 0.0
+        m[11:13, 6:27] = np.where(m[11:13, 6:27] == 0.0, 0.0, m[11:13, 6:27])
+        m[12, 6:27] = 0.0
+        for x in range(8, 26, 3):                              # denti: separatori verticali
+            m[11:13, x] = 0.0
+        m[11, 7:26] = np.where((np.arange(7, 26) % 3) == 2, 0.0, 0.9)
+        m[14:16, :] = 0.0; m[:, :2] = 0.0; m[:, 30:] = 0.0    # contorno arrotondato del cranio
+        m[0, :5] = m[0, 27:] = 0.0; m[1, :3] = m[1, 29:] = 0.0; m[13, :4] = m[13, 28:] = 0.0
+        return np.clip(m[..., None] * np.array(COL[11], np.float32) / 255.0, 0, 1)
+    if code == 12:                                            # occhi a binocolo (stile WALL-E)
+        m = np.zeros((16, 32), np.float32)
+        tilt = 0.6 * math.sin(t * 1.3)
+        for k, ex in enumerate((9.0, 23.0)):
+            sgn = 1 if k == 0 else -1
+            yc = 7.5 + sgn * 0.0
+            outer = (np.abs(xx - ex) / 6.2) ** 4 + (np.abs(yy - yc) / 6.0) ** 4 <= 1.0
+            inner = (np.abs(xx - ex) / 5.0) ** 4 + (np.abs(yy - yc) / 4.8) ** 4 <= 1.0
+            droop = (yy < 3.2 + sgn * (xx - ex) * 0.35 + tilt)   # palpebra inclinata verso l'interno
+            m[outer & ~inner & ~droop] = 0.75
+            lens = ((xx - ex) ** 2 + (yy - yc - 0.5) ** 2) <= 2.6 ** 2
+            ring = lens & (((xx - ex) ** 2 + (yy - yc - 0.5) ** 2) >= 1.4 ** 2)
+            m[ring & ~droop] = 1.0
+            m[int(yc - 1), int(ex + 1)] = 1.0                  # riflesso
+        return np.clip(m[..., None] * np.array(COL[12], np.float32) / 255.0, 0, 1)
+    if code == 13:                                            # maschera a LED (stile Watch Dogs): occhi > < e bocca a zig-zag
+        m = np.zeros((16, 32), np.float32)
+        for i in range(4):
+            m[2 + i, 6 + i] = m[8 - i, 6 + i] = 1.0           # >
+            m[2 + i, 25 - i] = m[8 - i, 25 - i] = 1.0         # <
+            m[2 + i, 7 + i] = m[8 - i, 7 + i] = 1.0
+            m[2 + i, 24 - i] = m[8 - i, 24 - i] = 1.0
+        ph = int(t * 6) % 2
+        for x in range(5, 27):
+            y = 11 + ((x + ph) % 4 if (x + ph) % 4 < 2 else 3 - (x + ph) % 4)
+            m[y, x] = 1.0; m[min(15, y + 1), x] = 0.5
+        return np.clip(m[..., None] * np.array(COL[13], np.float32) / 255.0, 0, 1)
+    if code == 14:                                            # neon glitch (stile cyberpunk): occhi a taglio, scansione, aberrazione
+        m = np.zeros((16, 32), np.float32)
+        for k, ex in enumerate((10, 22)):
+            sgn = 1 if k == 0 else -1
+            for i in range(7):
+                x = ex - 3 + i
+                y = 5 + int(round(sgn * (i - 3) * 0.35))
+                m[y, x] = 1.0; m[y + 1, x] = 0.8
+        m[11, 9:23] = 1.0; m[12, 12:20] = 0.6
+        sh = np.zeros_like(m)
+        gl = int(t * 8) % 16                                   # riga che "salta"
+        m[gl] = np.roll(m[gl], 2)
+        m[1::2] *= 0.75                                        # righe di scansione
+        rgb = np.zeros((16, 32, 3), np.float32)
+        rgb += m[..., None] * np.array(COL[14], np.float32) / 255.0
+        rgb[..., 1:] += 0.6 * np.roll(m, -1, axis=1)[..., None] * np.array([0.9, 1.0], np.float32)   # fantasma ciano
+        return np.clip(rgb, 0, 1)
+    return None
 
 def draw_px(code, gx=0.0, gy=0.0, blink=0.0, t=0.0):
     """volto 16 x 32 x 3 (0..1) in pixel-art"""
     code = int(code)
+    fx = _fx(code, t)
+    if fx is not None:
+        return fx
     img = np.zeros((16, 32), np.float32)
+    if code == 10:                                            # "retro": schermo acceso, lineamenti scuri, sorriso enorme (omaggio di stile)
+        img[:] = 0.85
+        yy, xx = np.mgrid[0:16, 0:32] + 0.5
+        for ex in (10.0, 22.0):                               # occhi tondi con il riflesso acceso + sopracciglia ad arco
+            e = ((xx - ex) / 2.2) ** 2 + ((yy - 6.0) / 2.4) ** 2 <= 1.0
+            img[e] = 0.0
+            img[5, int(ex - 1)] = 0.85
+            xi = int(ex)
+            for x_, y_ in ((xi - 3, 2), (xi - 2, 1), (xi - 1, 1), (xi, 1), (xi + 1, 1), (xi + 2, 2)):
+                img[y_, x_] = 0.0
+        lift = 0.6 * math.sin(t * 2.0)
+        outer = ((xx - 16) / 12.5) ** 2 + ((yy - 7.6 - lift * 0.2) / 6.6) ** 2 <= 1.0
+        inner = ((xx - 16) / 11.0) ** 2 + ((yy - 6.2 - lift * 0.2) / 6.0) ** 2 <= 1.0
+        grin = outer & ~inner & (yy > 8.6)
+        img[grin] = 0.0
+        mouth = outer & (yy > 9.6) & (yy < 13.2) & (((xx - 16) / 9.5) ** 2 + ((yy - 9.6) / 3.4) ** 2 <= 1.0)
+        img[mouth] = 0.0                                       # bocca aperta (scura)
+        teeth = mouth & (yy > 9.6) & (yy < 11.0) & (np.abs(xx - 16) < 8.5)
+        img[teeth] = 0.85                                      # fila di denti in alto
+        for xc in (3, 29):                                     # fossette agli angoli
+            if 0 <= xc < 32:
+                img[8, xc] = 0.0
+        c = np.array(COL[10], np.float32) / 255.0
+        return np.clip(img[..., None] * c, 0, 1)
 
     def put(bm, x0, y0, v=1.0):
         h, w = bm.shape
@@ -215,14 +315,15 @@ def draw_px(code, gx=0.0, gy=0.0, blink=0.0, t=0.0):
                 if 0 <= X < 32 and 0 <= Y < 16 and bm[yy, xx] > 0:
                     img[Y, X] = max(img[Y, X], bm[yy, xx] * v)
     dx, dy = int(round(1.4 * gx)), int(round(-1.0 * gy))
-    kind = {1: "happy", 2: "relax", 3: "small", 5: "heart", 6: "squint"}.get(code, "open")
+    kind = {1: "happy", 2: "relax", 3: "small", 5: "heart", 6: "squint", 9: "small"}.get(code, "open")
     if kind == "open" and blink > 0.5:
         kind = "shut"
     for ex in (5, 21):
-        bm = EYE[kind]
+        bm = EYE["happy" if (code == 8 and ex == 5) else ("shut" if code == 8 else kind)] if code == 8 else EYE[kind]
         h, w = bm.shape
         x0 = ex + (6 - w) // 2 + dx
-        y0 = {"open": 1, "happy": 3, "relax": 4, "small": 3, "squint": 3, "heart": 1, "shut": 4}[kind] + dy
+        k_ = ("happy" if ex == 5 else "shut") if code == 8 else kind
+        y0 = {"open": 1, "happy": 3, "relax": 4, "small": 3, "squint": 3, "heart": 1, "shut": 4}[k_] + dy
         put(bm, x0, y0)
         if kind == "open":                                    # riflesso: un LED piu' tenue
             img[y0 + 1, x0 + 1] *= 0.35
@@ -249,7 +350,15 @@ def draw_px(code, gx=0.0, gy=0.0, blink=0.0, t=0.0):
     mk = {1: "up", 3: "down", 5: "up"}.get(code, "neutral")
     if code == 2 and int(t * 4) % 2:                          # caffe': i baffi "ballano"
         mk = "up"
-    if STYLE == "mario":
+    if code == 9:                                             # sorpreso: sopracciglia alte
+        for x in (5, 6, 7, 8, 9, 10, 21, 22, 23, 24, 25, 26):
+            img[0, x] = 1.0
+    if code == 8:
+        mk = "up"
+    if STYLE == "manubrio":
+        mb = MANUBRIO[mk]
+        put(mb, 4, {"up": 11, "down": 11}.get(mk, 11))
+    elif STYLE == "mario":
         y0 = {"up": 8, "down": 10}.get(mk, 9)
         put(MARIO, 5, y0)
     else:

@@ -42,7 +42,10 @@ ap.add_argument("--hide", default="", help="prefissi di oggetti da nascondere (v
 ap.add_argument("--dark", action="store_true", help="studio scuro (stile prodotto): fondale nero, luci di taglio")
 ap.add_argument("--no_rings", action="store_true", help="niente anelli dei campi di sicurezza sul pavimento")
 ap.add_argument("--objlabels", default="", help="oggetti da etichettare (nomi separati da virgola) -> json in --labels")
-ap.add_argument("--no_cap", action="store_true", help="senza cappellino")
+ap.add_argument("--no_cap", action="store_true", help="senza cappello")
+ap.add_argument("--hat", default="coppola", choices=["coppola", "bustina", "snapback", "none", "rossa"],
+                help="cappello: coppola (tweed), bustina da barista, cappellino a visiera piatta girato, nessuno; 'rossa' = vecchio cappellino (non usare: troppo vicino a Mario)")
+ap.add_argument("--face_seq", default="", help="sequenza di espressioni LED 'codice:secondi,...' che sostituisce quella registrata")
 ap.add_argument("--no_ledface", action="store_true", help="volto con gli occhi/baffi 3D invece della matrice LED")
 ap.add_argument("--solo", action="store_true", help="solo il robot (niente banco, flaconi, persone): foto prodotto")
 args = ap.parse_args(argv)
@@ -177,6 +180,12 @@ def prim_object(g):
     if name in DESIGN:
         POS_OVERRIDE[name] = DESIGN[name][1]
         return DESIGN[name][0]()
+    if t == 5 and (name in ("cup_g", "hand_cup_g") or name.startswith("cup_stack")):
+        return paper_cup(name, s[0], s[1])
+    if t == 5 and name == "cup_band":
+        return lathe(name, [(s[0] * 0.985, -s[1]), (s[0] * 1.015, s[1])], thick=0.0012)
+    if t == 5 and name == "cup_coffee":                  # solo la superficie del caffe' (crema), dentro al bicchiere
+        return lathe(name, [(0.0, s[1] - 0.001), (s[0] * 0.93, s[1] - 0.001)], solid=False)
     if t == 6:      # box
         bpy.ops.mesh.primitive_cube_add(size=2)
         o = bpy.context.object; o.scale = (s[0], s[1], s[2])
@@ -202,6 +211,37 @@ def prim_object(g):
     o.name = name
     for p in o.data.polygons:
         p.use_smooth = True
+    return o
+
+
+def lathe(name, prof, nseg=72, thick=0.0, solid=False):
+    """solido di rotazione attorno a z da un profilo [(r, z), ...]"""
+    V, Fc = [], []
+    n = len(prof)
+    for j in range(nseg):
+        a = 2 * math.pi * j / nseg
+        for r, z in prof:
+            V.append((r * math.cos(a), r * math.sin(a), z))
+    for j in range(nseg):
+        j2 = (j + 1) % nseg
+        for k in range(n - 1):
+            Fc.append((j * n + k, j2 * n + k, j2 * n + k + 1, j * n + k + 1))
+    me = bpy.data.meshes.new(name); me.from_pydata(V, [], Fc); me.update()
+    o = bpy.data.objects.new(name, me); bpy.context.collection.objects.link(o)
+    if thick:
+        sol = o.modifiers.new("sol", "SOLIDIFY"); sol.thickness = thick
+    return o
+
+
+def paper_cup(name, r, hh):
+    """bicchiere di carta da caffe': conico, bordo arrotolato, fondo rientrato (stessa altezza del cilindro di simulazione)"""
+    rb, rt = r * 0.74, r * 1.02
+    prof = [(0.0, -hh + 0.004), (rb - 0.002, -hh + 0.004), (rb, -hh), (rb + 0.0005, -hh + 0.002)]
+    for k in range(1, 13):
+        z = -hh + 0.002 + (2 * hh - 0.006) * k / 12
+        prof.append((rb + (rt - rb) * (z + hh) / (2 * hh), z))
+    prof += [(rt + 0.0015, hh - 0.0025), (rt + 0.0022, hh - 0.0012), (rt + 0.0015, hh), (rt - 0.0005, hh - 0.0008)]
+    o = lathe(name, prof, thick=0.0006)
     return o
 
 
@@ -293,12 +333,20 @@ for i, g in enumerate(J["geoms"]):
                "cm_tank": lambda: principled("tank_glass", (0.85, 0.92, 1.0), 0.05, trans=1.0, ior=1.49),
                "cup_ring": lambda: principled("ring_glass", (0.85, 0.92, 1.0), 0.08, trans=1.0, ior=1.49),
                "cm_logo": lambda: principled("logo", (0.85, 0.85, 0.85), 0.3, metal=0.8),
-               "cup_g": lambda: principled("paper_cup", (0.94, 0.93, 0.90), 0.55, sss=0.1),
+               "cup_g": lambda: principled("paper_cup", (0.95, 0.94, 0.91), 0.6, sss=0.08),
+               "hand_cup_g": lambda: principled("paper_cup", (0.95, 0.94, 0.91), 0.6, sss=0.08),
+               "cup_band": lambda: principled("kraft_sleeve", (0.36, 0.22, 0.12), 0.8),
+               "cup_coffee": lambda: principled("crema", (0.24, 0.12, 0.05), 0.25, coat=0.3),
                "cm_bin": lambda: principled("macchina_nero3", (0.02, 0.02, 0.022), 0.35)}
     if nm in SPECIAL:
         mat = SPECIAL[nm]()
     if nm.startswith("cup_stack"):
         mat = SPECIAL["cup_g"]()
+    if nm.startswith("cup_steam"):                       # vapore: velo bianco quasi trasparente, sfumato
+        mat = principled("vapore", (1.0, 1.0, 1.0), 0.9, emit=(1.0, 1.0, 1.0), emit_str=0.05)
+        b_ = mat.node_tree.nodes["Principled BSDF"]; b_.inputs["Alpha"].default_value = 0.10
+        mat.blend_method = "BLEND" if hasattr(mat, "blend_method") else None
+        o.scale = (0.8, 0.8, 1.6)
     if mat is None:
         rgba = g["rgba"]
         mat = principled(f"m{i}", tuple(rgba[:3]), 0.4)
@@ -417,8 +465,168 @@ def add_cap():
     gtxt.data.materials.append(principled("cap_green", (0.0, 0.2, 0.05), 0.35))
 
 
+def _hat_parent():
+    hs_ = bpy.data.objects.get("head_shell")
+    if hs_ is None or hs_.parent is None:
+        return None, None
+    return hs_.parent, Vector(hs_.location)
+
+
+def _mesh_obj(name, verts, faces, par, loc, smooth=True):
+    me_ = bpy.data.meshes.new(name); me_.from_pydata(verts, [], faces); me_.update()
+    o_ = bpy.data.objects.new(name, me_); bpy.context.collection.objects.link(o_)
+    for p_ in me_.polygons:
+        p_.use_smooth = smooth
+    o_.parent = par; o_.location = loc
+    return o_
+
+
+def _grid_surface(fn, nu, nv, closed_u=True):
+    """superficie parametrica fn(u in [0,1), v in [0,1]) -> (x, y, z), chiusa in u"""
+    V, Fc = [], []
+    for j in range(nv + 1):
+        for i in range(nu):
+            V.append(fn(i / nu, j / nv))
+    for j in range(nv):
+        for i in range(nu if closed_u else nu - 1):
+            a = j * nu + i; b = j * nu + (i + 1) % nu
+            Fc.append((a, b, b + nu, a + nu))
+    return V, Fc
+
+
+def _tweed(name, c1, c2):
+    m = bpy.data.materials.new(name); m.use_nodes = True
+    nt = m.node_tree; bs = nt.nodes["Principled BSDF"]; bs.inputs["Roughness"].default_value = 0.95
+    bs.inputs["Specular IOR Level"].default_value = 0.15             # lana: niente lucido
+    tc = nt.nodes.new("ShaderNodeTexCoord")
+    wv = nt.nodes.new("ShaderNodeTexWave"); wv.inputs["Scale"].default_value = 420.0; wv.wave_profile = "TRI"
+    wv.bands_direction = "DIAGONAL"
+    nz = nt.nodes.new("ShaderNodeTexNoise"); nz.inputs["Scale"].default_value = 900.0; nz.inputs["Detail"].default_value = 6.0
+    ramp = nt.nodes.new("ShaderNodeValToRGB")
+    ramp.color_ramp.elements[0].position = 0.15; ramp.color_ramp.elements[0].color = (*c1, 1)
+    ramp.color_ramp.elements[1].position = 0.65; ramp.color_ramp.elements[1].color = (*c2, 1)
+    add = nt.nodes.new("ShaderNodeMath"); add.operation = "MULTIPLY"
+    nt.links.new(tc.outputs["Object"], wv.inputs["Vector"]); nt.links.new(tc.outputs["Object"], nz.inputs["Vector"])
+    nt.links.new(wv.outputs["Fac"], add.inputs[0]); nt.links.new(nz.outputs["Fac"], add.inputs[1])
+    nt.links.new(add.outputs[0], ramp.inputs["Fac"]); nt.links.new(ramp.outputs["Color"], bs.inputs["Base Color"])
+    bump = nt.nodes.new("ShaderNodeBump"); bump.inputs["Strength"].default_value = 0.25
+    nt.links.new(add.outputs[0], bump.inputs["Height"]); nt.links.new(bump.outputs["Normal"], bs.inputs["Normal"])
+    return m
+
+
+def add_coppola():
+    """coppola siciliana in tweed: calotta piatta che scende in avanti sopra una visierina corta, bottone in cima"""
+    par, c0 = _hat_parent()
+    if par is None:
+        return
+    R, Ry, Hb = 0.102, 0.108, 0.074
+    def crown(u, v):
+        t = 2 * math.pi * u
+        x0, y0 = R * math.cos(t), Ry * math.sin(t)
+        fr = max(0.0, math.cos(t))                    # 1 davanti, 0 dietro
+        r = 1.0 - 0.985 * v ** 1.4                    # si chiude verso l'alto
+        x = x0 * r + 0.030 * fr * v * (1 - v) * 4 + 0.022 * fr * v
+        y = y0 * (r * 0.92 + 0.08)
+        z = Hb * (1 - fr * 0.30) * math.sin(v * math.pi / 2) ** 0.8 + 0.006 * v * (1 - fr)
+        return (x, y, z)
+    V, Fc = _grid_surface(crown, 96, 28)
+    cr = _mesh_obj("hat_coppola", V, Fc, par, c0 + Vector((-0.012, 0, 0.052)))
+    sol = cr.modifiers.new("sol", "SOLIDIFY"); sol.thickness = 0.004
+    sub = cr.modifiers.new("sub", "SUBSURF"); sub.levels = 1; sub.render_levels = 2
+    # visierina: mezzaluna corta, sotto la calotta che la copre
+    vb = [(0.0, 0.0, 0.0)] + [(0.034 * math.cos(t_), 0.090 * math.sin(t_), -0.004 * math.cos(t_)) for t_ in np.linspace(-math.pi / 2, math.pi / 2, 40)]
+    fb = [(0, i, i + 1) for i in range(1, 40)]
+    br = _mesh_obj("hat_coppola_brim", vb, fb, par, c0 + Vector((0.081, 0, 0.056)))
+    br.rotation_euler = Euler((0, math.radians(12), 0))
+    s2 = br.modifiers.new("sol", "SOLIDIFY"); s2.thickness = 0.005
+    b2 = br.modifiers.new("bev", "BEVEL"); b2.width = 0.0015; b2.segments = 3
+    bpy.ops.mesh.primitive_uv_sphere_add(radius=0.006, segments=24, ring_count=12)
+    bt = bpy.context.object; bt.name = "hat_coppola_btn"; bt.parent = par
+    bt.location = c0 + Vector((-0.006, 0, 0.052 + top_z(V)))
+    mt = _tweed("tweed", (0.035, 0.030, 0.026), (0.13, 0.115, 0.095))
+    for o_ in (cr, br, bt):
+        o_.data.materials.append(mt)
+
+
+def top_z(V):
+    return max(v[2] for v in V) - 0.001
+
+
+def add_bustina():
+    """bustina da barista: berretto bianco piegato, lungo davanti-dietro, con filetto color caffe'"""
+    par, c0 = _hat_parent()
+    if par is None:
+        return
+    RX, RY, H = 0.112, 0.078, 0.064
+    def body(u, v):
+        t = 2 * math.pi * u
+        bx, by = RX * math.cos(t), RY * math.sin(t)
+        c2 = math.cos(t) ** 2
+        rx_ = RX * 0.99 * math.cos(t)
+        rz_ = H * (0.86 + 0.14 * c2)                 # cresta: appena piu' alta davanti e dietro
+        sgn = 1 if math.sin(t) >= 0 else -1
+        x = bx * (1 - v) + rx_ * v
+        y = by * (1 - v) ** 0.85 + sgn * 0.0015 * v   # i due fianchi si chiudono sulla piega
+        z = rz_ * v
+        return (x, y, z)
+    V, Fc = _grid_surface(body, 96, 16)
+    bu = _mesh_obj("hat_bustina", V, Fc, par, c0 + Vector((0.000, 0, 0.050)))
+    sol = bu.modifiers.new("sol", "SOLIDIFY"); sol.thickness = 0.003
+    sub = bu.modifiers.new("sub", "SUBSURF"); sub.levels = 1; sub.render_levels = 2
+    bu.rotation_euler = Euler((math.radians(9), math.radians(-3), 0))      # portata di sbieco, come al bancone
+    def band(u, v):
+        t = 2 * math.pi * u
+        k = 1.006
+        return (RX * k * math.cos(t), RY * k * math.sin(t), 0.006 + 0.007 * v)
+    V2, F2 = _grid_surface(band, 96, 1)
+    bd = _mesh_obj("hat_bustina_band", V2, F2, par, c0 + Vector((0.000, 0, 0.050)))
+    bd.rotation_euler = bu.rotation_euler
+    s2 = bd.modifiers.new("sol", "SOLIDIFY"); s2.thickness = 0.0015
+    bu.data.materials.append(principled("hat_cotone", (0.86, 0.85, 0.82), 0.75))
+    bd.data.materials.append(principled("hat_caffe", (0.12, 0.05, 0.025), 0.5))
+
+
+def add_snapback():
+    """cappellino a visiera piatta girato all'indietro: nero opaco, niente loghi, bottone in cima"""
+    par, c0 = _hat_parent()
+    if par is None:
+        return
+    bpy.ops.mesh.primitive_uv_sphere_add(radius=1, segments=64, ring_count=32)
+    dome = bpy.context.object; dome.name = "hat_snap"
+    bm_ = bmesh.new(); bm_.from_mesh(dome.data)
+    bmesh.ops.delete(bm_, geom=[v for v in bm_.verts if v.co.z < -0.05], context="VERTS")
+    bm_.to_mesh(dome.data); bm_.free()
+    dome.scale = (0.097, 0.105, 0.070); bpy.ops.object.transform_apply(scale=True)
+    for p_ in dome.data.polygons:
+        p_.use_smooth = True
+    sol = dome.modifiers.new("sol", "SOLIDIFY"); sol.thickness = 0.004
+    dome.parent = par; dome.location = c0 + Vector((-0.004, 0, 0.040))
+    vb = [(0.0, 0.0, 0.0)] + [(-0.085 * math.cos(t_), 0.092 * math.sin(t_), 0.0) for t_ in np.linspace(-math.pi / 2, math.pi / 2, 48)]
+    fb = [(0, i + 1, i) for i in range(1, 48)]
+    br = _mesh_obj("hat_snap_brim", vb, fb, par, c0 + Vector((-0.040, 0, 0.041)), smooth=False)
+    s2 = br.modifiers.new("sol", "SOLIDIFY"); s2.thickness = 0.005
+    b2 = br.modifiers.new("bev", "BEVEL"); b2.width = 0.0015; b2.segments = 3
+    bpy.ops.mesh.primitive_uv_sphere_add(radius=0.0065, segments=24, ring_count=12)
+    bt = bpy.context.object; bt.name = "hat_snap_btn"; bt.parent = par; bt.location = c0 + Vector((-0.004, 0, 0.040 + 0.070))
+    blk = principled("hat_nero", (0.006, 0.006, 0.007), 0.9)
+    blk.node_tree.nodes["Principled BSDF"].inputs["Specular IOR Level"].default_value = 0.2
+    for o_ in (dome, br, bt):
+        o_.data.materials.append(blk)
+    under = principled("hat_sotto", (0.02, 0.10, 0.05), 0.6)          # sotto-visiera verde scuro (dettaglio da streetwear)
+    br.data.materials.append(under)
+
+
 if not args.no_cap:
-    add_cap()
+    if args.hat in ("coppola", "bustina", "snapback"):
+        sys.path.insert(0, HERE)
+        import hats
+        hats.add_hat(args.hat)
+    elif args.hat == "rossa":
+        add_cap()
+# asta con l'Insta360 sopra la testa: tolta dalla distinta (sostituita da due fisheye nel casco, docs/BOM.md)
+for o_ in list(bpy.data.objects):
+    if o_.name.startswith(("mast", "insta")):
+        o_.hide_render = True
 
 # ---------------------------------------------------------------- tricolore: tre fasce alte 22 mm attorno alla base (ben visibili)
 for k_, (z_, col_, rough_) in enumerate(((0.445, (0.0, 0.287, 0.061), 0.3), (0.4195, (0.88, 0.885, 0.88), 0.25), (0.394, (0.617, 0.024, 0.038), 0.3))):   # sulla cover del Ranger Mini
@@ -475,7 +683,16 @@ if LEDFACE:
         led.parent = fg.parent; led.rotation_mode = "QUATERNION"
         led.location = fg.location.copy(); led.rotation_quaternion = fg.rotation_quaternion.copy()
         # una PNG per fotogramma, dallo stato del volto registrato
-        FC = A["face"]
+        FC = A["face"].copy()
+        if args.face_seq:                                  # sequenza di espressioni imposta: 'codice:secondi,...'
+            seq = [(int(c_), float(d_)) for c_, d_ in (p_.split(":") for p_ in args.face_seq.split(","))]
+            tot = sum(d_ for _, d_ in seq)
+            for i_, f_ in enumerate(F):
+                tt_ = (i_ / 30.0) % tot
+                for c_, d_ in seq:
+                    if tt_ < d_:
+                        FC[f_, 0] = c_; break
+                    tt_ -= d_
         tdir = os.path.join(HERE, "ledtex", args.out.replace("/", "_").replace("#", "").replace(".png", "").strip("_") or "led")
         os.makedirs(tdir, exist_ok=True)
         img = None
