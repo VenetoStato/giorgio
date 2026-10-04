@@ -68,6 +68,9 @@ COF_STACK_Z = 0.12                             # piedistallo della pila
 BUF_Z = 0.95                                  # fondo degli alloggi del buffer a bordo
 BUFFER_SLOTS = [(0.19, y) for y in (0.11, 0.185, 0.26)]   # vassoio frontale: per lato (y con segno), riferimento base   # per lato (y con segno), nel riferimento della base                   # piedini stabilizzatori su bracci sporgenti (poligono 0.84 x 0.80 m)
 SHELL_DIR = str(Path(__file__).resolve().parent / "assets/shells")
+# v14 (opzioni, spente di default): vassoio frontale per scatole e rastrelliera posteriore al posto dello zaino caffe'
+BT_X0, BT_X1, BT_Y, BT_Z = 0.105, 0.315, 0.245, 0.940       # vassoio scatole: piano 210 x 490 mm, superficie (tappetino) a 0.94 m
+RR_X0, RR_X1, RR_Y, RR_Z = -0.365, -0.170, 0.245, 0.950      # rastrelliera posteriore: piano 195 x 490 mm a 0.95 m (a meta' busto)
 COLUMN_STROKE = 0.001                         # colonna fissa sul Ranger Mini (CAD)
 SCAN_Z = 0.18
 SCANNERS = [((0.3597, -0.3597), -math.pi / 4), ((-0.3597, 0.3597), 3 * math.pi / 4)]     # pod d'angolo fuori dalla base (CAD Ranger Mini): piano a 180 mm
@@ -94,7 +97,7 @@ def _hand_spec(side):
     return mujoco.MjSpec.from_file(str(tmp)), mimic
 
 
-def build(look="gb", hands="gripper", humans=2, fixed_base=True, base="cart", buffer=True, coffee=True):
+def build(look="gb", hands="gripper", humans=2, fixed_base=True, base="cart", buffer=True, coffee=True, box_tray=False, rear_rack=False):
     LK = LOOKS[look]
     sp = mujoco.MjSpec()
     sp.compiler.degree = False
@@ -273,6 +276,41 @@ def build(look="gb", hands="gripper", humans=2, fixed_base=True, base="cart", bu
         for sy in (-1, 1):                                   # bracci di sostegno dal busto
             amr.add_geom(name=f"tray_arm{sy}", type=mujoco.mjtGeom.mjGEOM_BOX, pos=[(x0 + 0.02) / 2, sy * 0.06, BUF_Z - 0.03],
                          size=[(x0 + 0.02) / 2 + 0.03, 0.012, 0.015], material="dark", contype=0, conaffinity=0, group=GROUP_ROBOT, mass=0.3)
+    def plate_set(prefix, x0, x1, yh, ztop, lips, mass_plate):
+        """piano in alluminio (lamiera 3 mm + irrigidimenti, 10 mm a vista) con tappetino antiscivolo e sponde basse.
+        lips: (altezza sponda x0, altezza sponda x1, altezza fianchi) sopra il tappetino [m]"""
+        cx, hx = (x0 + x1) / 2, (x1 - x0) / 2
+        amr.add_geom(name=f"{prefix}_plate", type=mujoco.mjtGeom.mjGEOM_BOX, pos=[cx, 0, ztop - 0.008], size=[hx, yh, 0.005],
+                     material="armor", group=GROUP_ROBOT, mass=mass_plate)
+        amr.add_geom(name=f"{prefix}_mat", type=mujoco.mjtGeom.mjGEOM_BOX, pos=[cx, 0, ztop - 0.0015], size=[hx - 0.006, yh - 0.006, 0.0015],
+                     material="tray", group=GROUP_ROBOT, mass=0.15, friction=[0.9, 0.01, 0.001])      # gomma/EPDM: le scatole non scivolano in marcia
+        for k_, (xx, hh) in enumerate(((x0 + 0.002, lips[0]), (x1 - 0.002, lips[1]))):
+            if hh > 0:
+                amr.add_geom(name=f"{prefix}_lip{k_}", type=mujoco.mjtGeom.mjGEOM_BOX, pos=[xx, 0, ztop + (hh - 0.003) / 2],
+                             size=[0.002, yh, (hh + 0.003) / 2], material="armor", group=GROUP_ROBOT, mass=0.1, friction=[0.3, 0.01, 0.001])
+        for sy in (-1, 1):
+            amr.add_geom(name=f"{prefix}_rail{sy}", type=mujoco.mjtGeom.mjGEOM_BOX, pos=[cx, sy * (yh - 0.003), ztop + (lips[2] - 0.003) / 2],
+                         size=[hx, 0.003, (lips[2] + 0.003) / 2], material="armor", group=GROUP_ROBOT, mass=0.03, friction=[0.3, 0.01, 0.001])
+    if box_tray:
+        # vassoio frontale per scatole: stessa interfaccia del vassoio flaconi (supporto sul montante, G20), piano piu' profondo e basso.
+        # Porta 3 scatole piccole affiancate (passo 145 mm: le dita della pinza entrano tra una e l'altra) oppure 1 scatola grande.
+        plate_set("btray", BT_X0, BT_X1, BT_Y, BT_Z, (0.015, 0.015, 0.035), 0.80)
+        amr.add_geom(name="btray_band", type=mujoco.mjtGeom.mjGEOM_BOX, pos=[BT_X1 + 0.0005, 0, BT_Z + 0.006], size=[0.0015, BT_Y - 0.03, 0.004],
+                     material="accent", contype=0, conaffinity=0, group=GROUP_ROBOT, mass=0)
+        for sy in (-1, 1):                                   # bracci di sostegno dal montante della colonna (dentro il busto)
+            amr.add_geom(name=f"btray_arm{sy}", type=mujoco.mjtGeom.mjGEOM_BOX, pos=[(0.0 + BT_X1 - 0.02) / 2, sy * 0.07, BT_Z - 0.025],
+                         size=[(BT_X1 - 0.02) / 2, 0.012, 0.012], material="dark", contype=0, conaffinity=0, group=GROUP_ROBOT, mass=0.15)
+    if rear_rack:
+        # rastrelliera posteriore al posto dello zaino caffe': stessi 2 montanti sul piatto adattatore (giunto G21), piano a 0.86 m
+        # con sponde basse (15 mm) e tappetino; raggiungibile dalle braccia con la pinza inclinata di 30 gradi verso l'esterno
+        plate_set("rrack", RR_X0, RR_X1, RR_Y, RR_Z, (0.015, 0.015, 0.020), 0.75)
+        amr.add_geom(name="rrack_band", type=mujoco.mjtGeom.mjGEOM_BOX, pos=[RR_X0 - 0.0005, 0, RR_Z + 0.012], size=[0.0015, RR_Y - 0.03, 0.004],
+                     material="accent", contype=0, conaffinity=0, group=GROUP_ROBOT, mass=0)
+        for sy in (-1, 1):
+            amr.add_geom(name=f"rrack_post{sy}", type=mujoco.mjtGeom.mjGEOM_BOX, pos=[-0.275, sy * 0.20, (0.470 + RR_Z - 0.013) / 2],
+                         size=[0.015, 0.015, (RR_Z - 0.013 - 0.470) / 2], material="steel", contype=0, conaffinity=0, group=GROUP_ROBOT, mass=0.23)
+            amr.add_geom(name=f"rrack_brace{sy}", type=mujoco.mjtGeom.mjGEOM_BOX, pos=[-0.20, sy * 0.07, RR_Z - 0.025],
+                         size=[0.06, 0.010, 0.010], material="dark", contype=0, conaffinity=0, group=GROUP_ROBOT, mass=0.05)   # verso il montante
     # zaino caffe' sul retro: macchina a capsule commerciale qualsiasi (classe 120 x 230 x 320 mm, ~2.4 kg) su mensola dietro la colonna,
     # frontale verso il lato destro del robot. Il braccio destro: prende un bicchiere dalla pila, lo posa sulla navetta,
     # preme il pulsante sulla testa; la navetta (attuatore lineare 150 mm) porta il bicchiere sotto l'erogatore e lo riporta fuori.

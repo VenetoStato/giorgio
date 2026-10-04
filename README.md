@@ -41,3 +41,7 @@ Third-party models (OpenArm MJCF, ORCA, AmazingHand, menagerie) live in `third_p
 4. **Price**: updated BOM ≈ €30k → at 30% margin ≈ €43k (the old €39,900 needs revisiting).
 
 Italian documentation and the full history of the simulation work: `docs/README_IT.md`.
+
+## Third-party components and trademarks
+
+See [NOTICE.md](NOTICE.md): licences of the OpenArm, ORCA and AmazingHand models, and trademark notes. Giorgio is an unbuilt concept, not affiliated with or endorsed by any component maker.

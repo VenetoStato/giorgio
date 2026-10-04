@@ -166,7 +166,7 @@ Sources: ISO 273 at https://engineeringhardware.com/fastener/clearance-hole-size
 | Tracer braking | 0.9 m from 2 m/s (≈ 2.2 m/s²), empty | datasheet | SOURCED |
 | Alternative bases (MiR250, Robotnik RB-THERON/KAIROS/VOGUI, Ranger Mini 3.0, Ridgeback, ZLTECH hub motor, Synapticon Integro STO drive) | see BASE_DECISION.md "Sources" | official pages fetched 2026-10-03 | per row |
 
-## AgileX RANGER AIR (chosen base, fetched 2026-10-03)
+## AgileX RANGER AIR (considered, then superseded by the Ranger Mini 3.0; fetched 2026-10-03)
 
 | Item | Value | Source | Confidence |
 |---|---|---|---|

@@ -143,7 +143,27 @@ def draw_ui(img, sg, t, k_glob):
     return img
 
 
-def draw_labels(img, lab_row, names, a, style=None):
+def stable_labels(lab, names, k=9):
+    """ancore lisciate (media mobile su 2k+1 fotogrammi) + colonna e quota di ogni cartellino decise una volta sola,
+    dalla posizione mediana: niente salti da un fotogramma all'altro"""
+    gs = [g for g in names if all(g in r for r in lab)]
+    A = {g: np.array([r[g] for r in lab], float) for g in gs}
+    for g in gs:
+        a_ = A[g]; c_ = np.cumsum(np.vstack([np.repeat(a_[:1], k, 0), a_, np.repeat(a_[-1:], k, 0)]), 0)
+        A[g] = (c_[2 * k:] - np.vstack([np.zeros((1, 2)), c_[:-2 * k - 1]]))[:len(a_)] / (2 * k + 1)
+    med = {g: np.median(A[g], 0) for g in gs}
+    lay = {}
+    for side in (-1, 1):
+        col = sorted([g for g in gs if (med[g][0] >= 0.5) == (side > 0)], key=lambda g: med[g][1])
+        gap = 100; n = len(col)
+        y0 = max(150, min(H - 140 - gap * (n - 1) - 82, np.mean([med[g][1] * H for g in col] or [H / 2]) - gap * (n - 1) / 2 - 41))
+        for i, g in enumerate(col):
+            lay[g] = (side, y0 + i * gap)
+    rows = [{g: list(A[g][i]) for g in gs} for i in range(len(lab))]
+    return rows, lay
+
+
+def draw_labels(img, lab_row, names, a, style=None, lay=None):
     """etichette ancorate alle parti: punto + linea + testo. style "colonne": testi in due colonne ai lati, senza sovrapposizioni,
     su cartellino bianco (leggibili su sfondi chiari)"""
     if a <= 0.01:
@@ -151,24 +171,21 @@ def draw_labels(img, lab_row, names, a, style=None):
     layer = Image.new("RGBA", img.size, (0, 0, 0, 0)); dr = ImageDraw.Draw(layer)
     f1, f2 = font("M", 26), font("L", 21)
     al = int(255 * a)
-    if style == "colonne":
-        items = [(g, uv[0] * W, uv[1] * H) for g, uv in lab_row.items() if g in names]
-        for side in (-1, 1):
-            col = sorted([it for it in items if (it[1] >= W * 0.5) == (side > 0)], key=lambda it: it[2])
-            if not col:
+    if style == "colonne":                       # impaginazione fissa per tutto il segmento (lay): i cartellini non saltano
+        f1, f2 = font("M", 30), font("R", 24)
+        for g, (side, ty) in (lay or {}).items():
+            if g not in lab_row or g not in names:
                 continue
-            gap = 92; y0 = max(200, min(H - 160 - gap * (len(col) - 1), sum(it[2] for it in col) / len(col) - gap * (len(col) - 1) / 2))
-            for k, (g, x, y) in enumerate(col):
-                t1, t2 = names[g]
-                tw = max(dr.textlength(t1, font=f1), dr.textlength(t2, font=f2))
-                ty = y0 + k * gap
-                bx = W - 90 - tw - 36 if side > 0 else 90
-                ax = bx if side > 0 else bx + tw + 36
-                dr.line((x, y, ax, ty + 30), fill=(40, 42, 46, al), width=2)
-                dr.ellipse((x - 7, y - 7, x + 7, y + 7), fill=(255, 140, 60, al), outline=(255, 255, 255, al), width=2)
-                dr.rounded_rectangle((bx, ty, bx + tw + 36, ty + 72), radius=14, fill=(255, 255, 255, int(235 * a)), outline=(215, 215, 215, al))
-                dr.text((bx + 18, ty + 8), t1, font=f1, fill=(30, 32, 36, al))
-                dr.text((bx + 18, ty + 40), t2, font=f2, fill=(105, 108, 115, al))
+            x, y = lab_row[g][0] * W, lab_row[g][1] * H
+            t1, t2 = names[g]
+            tw = max(dr.textlength(t1, font=f1), dr.textlength(t2, font=f2))
+            bx = W - 80 - tw - 40 if side > 0 else 80
+            ax = bx if side > 0 else bx + tw + 40
+            dr.line((x, y, ax, ty + 41), fill=(255, 255, 255, int(170 * a)), width=2)
+            dr.ellipse((x - 7, y - 7, x + 7, y + 7), fill=(255, 140, 60, al), outline=(255, 255, 255, al), width=2)
+            dr.rounded_rectangle((bx, ty, bx + tw + 40, ty + 82), radius=14, fill=(255, 255, 255, int(240 * a)), outline=(215, 215, 215, al))
+            dr.text((bx + 20, ty + 9), t1, font=f1, fill=(25, 27, 31, al))
+            dr.text((bx + 20, ty + 46), t2, font=f2, fill=(85, 88, 95, al))
         return Image.alpha_composite(img.convert("RGBA"), layer).convert("RGB")
     for g, (u, v) in lab_row.items():
         if g not in names:
@@ -289,6 +306,9 @@ def seg_frames(sg):
     if sg.get("count"):
         files = files[:sg["count"]]
     lab = json.load(open(os.path.join(HERE, sg["labels"]))) if sg.get("labels") else None
+    lay = None
+    if lab and sg.get("label_style") == "colonne":
+        lab, lay = stable_labels(lab, sg["names"])
     slow = sg.get("slow", 1)
     k = 0
     prev = None
@@ -301,7 +321,7 @@ def seg_frames(sg):
             if lab is not None:
                 row = lab[min(fi * sg.get("step", 1) + sg.get("start", 0), len(lab) - 1)]
                 a = ease((t - sg.get("lab_t0", 1.5)) / 0.8)
-                img = draw_labels(img, row, sg["names"], a, sg.get("label_style"))
+                img = draw_labels(img, row, sg["names"], a, sg.get("label_style"), lay)
             if sg.get("battery"):
                 hb = sg["battery"]
                 img = draw_battery(img, hb, hb.get("src0", 0) + (fi * sg.get("step", 1) + sg.get("start", 0)) * hb.get("src_step", 1), t)
