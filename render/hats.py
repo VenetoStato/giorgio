@@ -267,7 +267,7 @@ def snapback(par, c0):
     under.data.materials.append(solid("snap_sottovisiera", (0.010, 0.060, 0.025), 0.8))
     # cuciture concentriche sulla visiera
     stitch = solid("snap_stitch", (0.02, 0.02, 0.022), 0.9)
-    for kk, f_ in enumerate((0.35, 0.55, 0.75)):
+    for kk, f_ in enumerate(()):                        # cuciture della visiera tolte: a questa scala sembravano fili staccati
         pts = []
         for t in np.linspace(math.pi / 2 + 0.25, 3 * math.pi / 2 - 0.25, 50):
             c, s_ = math.cos(t), math.sin(t)
