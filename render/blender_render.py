@@ -43,7 +43,7 @@ ap.add_argument("--dark", action="store_true", help="studio scuro (stile prodott
 ap.add_argument("--no_rings", action="store_true", help="niente anelli dei campi di sicurezza sul pavimento")
 ap.add_argument("--objlabels", default="", help="oggetti da etichettare (nomi separati da virgola) -> json in --labels")
 ap.add_argument("--no_cap", action="store_true", help="senza cappello")
-ap.add_argument("--hat", default="coppola", choices=["coppola", "bustina", "snapback", "none", "rossa"],
+ap.add_argument("--hat", default="bustina", choices=["coppola", "bustina", "snapback", "none", "rossa"],
                 help="cappello: coppola (tweed), bustina da barista, cappellino a visiera piatta girato, nessuno; 'rossa' = vecchio cappellino (non usare: troppo vicino a Mario)")
 ap.add_argument("--face_seq", default="", help="sequenza di espressioni LED 'codice:secondi,...' che sostituisce quella registrata")
 ap.add_argument("--no_ledface", action="store_true", help="volto con gli occhi/baffi 3D invece della matrice LED")

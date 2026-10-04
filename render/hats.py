@@ -47,7 +47,7 @@ def grid(fn, nu, nv, closed_u=True, cap_last=False):
 
 def mods(o, thick=0.0, sub=2, bevel=0.0):
     if thick:
-        s = o.modifiers.new("sol", "SOLIDIFY"); s.thickness = thick; s.offset = -1.0
+        s = o.modifiers.new("sol", "SOLIDIFY"); s.thickness = thick; s.offset = 1.0     # spessore verso l'esterno: la superficie di base e' quella interna
     if bevel:
         b = o.modifiers.new("bev", "BEVEL"); b.width = bevel; b.segments = 3
     if sub:
@@ -107,7 +107,7 @@ def tube(name, pts, r, par, loc, mat):
 def coppola(par, c0):
     """coppola siciliana: pannello superiore morbido e piatto, piu' largo del giro testa, che scivola in avanti
     e copre l'attacco della visierina; fianchi bombati; bottone automatico davanti"""
-    R, RY = 0.087, 0.097                                # giro testa
+    R, RY = 0.093, 0.103                                # giro testa (un filo piu' largo della testa)
     z0 = 0.028
     def ztop(x, y):                                     # pannello: alto dietro, scende verso la visiera
         s = min(1.2, max(0.0, (x + 0.09) / 0.21))
@@ -157,7 +157,7 @@ def coppola(par, c0):
     pts = []
     for k in range(97):
         x, y, z = crown(k / 96, 0.31)
-        pts.append((x, y, z + 0.0015))
+        pts.append((x, y, z + 0.0045))                  # sopra lo spessore del tessuto (3 mm)
     tube("hat_coppola_seam", pts, 0.0007, par, c0, seam)
     return [o, brim, bt]
 
@@ -194,9 +194,9 @@ def bustina(par, c0):
     for ob in (o, cf):
         ob.data.materials.append(cot)
     piping = solid("filetto_caffe", (0.13, 0.055, 0.025), 0.6)
-    pts = [(RX * 1.012 * math.cos(2 * math.pi * k / 96), RY * 1.012 * math.sin(2 * math.pi * k / 96), 0.0172) for k in range(97)]
+    pts = [((RX * 1.008 + 0.0024) * math.cos(2 * math.pi * k / 96), (RY * 1.008 + 0.0024) * math.sin(2 * math.pi * k / 96), 0.0170) for k in range(97)]
     tube("hat_bustina_piping", pts, 0.0011, par, loc, piping)
-    pts2 = [(x, 0.0, max(0.012, h(x)) + 0.0008) for x in np.linspace(-RX * 0.96, RX * 0.96, 60)]
+    pts2 = [(x, 0.0, max(0.012, h(x)) + 0.0025) for x in np.linspace(-RX * 0.96, RX * 0.96, 60)]
     tube("hat_bustina_ridge", pts2, 0.0009, par, loc, piping)
     em = []
     for ob in [o, cf] + em + [bpy.data.objects["hat_bustina_piping"], bpy.data.objects["hat_bustina_ridge"]]:
@@ -240,7 +240,7 @@ def snapback(par, c0):
         return (0.0, y, z)
     # bordino dell'apertura (nastro)
     bind = [on_crown(AW * math.cos(a) * 1.04, z0 + AH * math.sin(a) * 1.04) for a in np.linspace(0, math.pi, 40)]
-    bind = [(x + 0.0015, y, z) for x, y, z in bind]
+    bind = [(x + 0.0042, y, z) for x, y, z in bind]
     tube("hat_snap_binding", bind, 0.0022, par, c0, solid("snap_binding", (0.003, 0.003, 0.0035), 0.6))
     # cinghietta di plastica con i bottoni
     strap_m = solid("snap_strap", (0.008, 0.008, 0.009), 0.35)
@@ -263,7 +263,7 @@ def snapback(par, c0):
             vb.append((R * c * 0.99 - d, RY * s_ * (1 + 0.03 * r_), z0 + 0.002))
     fb = [(2 * k, 2 * k + 2, 2 * k + 3, 2 * k + 1) for k in range(nb)]
     brim = mods(mesh_obj("hat_snap_brim", vb, fb, par, c0), thick=0.005, sub=2, bevel=0.0018)
-    under = mesh_obj("hat_snap_under", [(x, y, z - 0.0058) for x, y, z in vb], fb, par, c0)
+    under = mesh_obj("hat_snap_under", [(x, y, z - 0.0008) for x, y, z in vb], fb, par, c0)
     under.data.materials.append(solid("snap_sottovisiera", (0.010, 0.060, 0.025), 0.8))
     # cuciture concentriche sulla visiera
     stitch = solid("snap_stitch", (0.02, 0.02, 0.022), 0.9)
@@ -272,27 +272,27 @@ def snapback(par, c0):
         for t in np.linspace(math.pi / 2 + 0.25, 3 * math.pi / 2 - 0.25, 50):
             c, s_ = math.cos(t), math.sin(t)
             d = 0.092 * f_ * max(0.0, -c) ** 0.55
-            pts.append((R * c * 0.99 - d, RY * s_ * (1 + 0.03 * f_), z0 + 0.0022))
-        tube(f"hat_snap_stitch{kk}", pts, 0.0005, par, c0, stitch)
+            pts.append((R * c * 0.99 - d, RY * s_ * (1 + 0.03 * f_), z0 + 0.0068))
+        tube(f"hat_snap_stitch{kk}", pts, 0.00035, par, c0, stitch)
     # adesivo dorato rotondo sulla visiera (lasciato attaccato, come si usa)
     bpy.ops.mesh.primitive_cylinder_add(radius=0.015, depth=0.0008, vertices=48)
     st = bpy.context.object; st.name = "hat_snap_sticker"; st.parent = par
-    st.location = c0 + Vector((-R - 0.045, 0.034, z0 + 0.0032))
+    st.location = c0 + Vector((-R - 0.045, 0.034, z0 + 0.0074))
     st.data.materials.append(solid("snap_oro", (0.85, 0.62, 0.20), 0.25, metal=1.0))
     # cuciture dei 6 spicchi, occhielli e bottone
     seam = solid("snap_seam", (0.0, 0.0, 0.0), 0.95)
     for k in range(6):
         u = k / 6
-        tube(f"hat_snap_seam{k}", [tuple(np.array(crown(u, v)) * 1.006 + np.array([0, 0, 0.0005])) for v in np.linspace(0.04, 0.97, 30)
+        tube(f"hat_snap_seam{k}", [tuple(np.array(crown(u, v)) * np.array([1.036, 1.034, 1.0]) + np.array([0, 0, 0.0035 * v])) for v in np.linspace(0.04, 0.97, 30)
                                    if not in_arch(*crown(u, v))], 0.0008, par, c0, seam)
         ex, ey, ez = crown(u + 1 / 12, 0.62)
         bpy.ops.mesh.primitive_torus_add(major_radius=0.0028, minor_radius=0.0008, major_segments=20, minor_segments=8)
         ey_ = bpy.context.object; ey_.name = f"hat_snap_eyelet{k}"; ey_.parent = par
-        ey_.location = c0 + Vector((ex * 1.01, ey * 1.01, ez + 0.0005))
+        ey_.location = c0 + Vector((ex * 1.036, ey * 1.034, ez + 0.0025))
         ey_.rotation_euler = Vector((0, 0, 1)).rotation_difference(Vector((ex / R, ey / RY, (ez - z0) / H)).normalized()).to_euler()
         ey_.data.materials.append(seam)
     bpy.ops.mesh.primitive_uv_sphere_add(radius=0.0075, segments=24, ring_count=12)
-    bt = bpy.context.object; bt.name = "hat_snap_btn"; bt.parent = par; bt.location = c0 + Vector((0, 0, z0 + H + 0.004))
+    bt = bpy.context.object; bt.name = "hat_snap_btn"; bt.parent = par; bt.location = c0 + Vector((0, 0, z0 + H + 0.010 + 0.003))
     bt.scale = (1, 1, 0.55)
     for ob in (o, brim, bt):
         ob.data.materials.append(blk)
@@ -302,8 +302,114 @@ def snapback(par, c0):
 HATS = {"coppola": coppola, "bustina": bustina, "snapback": snapback}
 
 
+def head_hull():
+    """volume della testa: involucro convesso di guscio + visiera (coordinate mondo) -> (N, D, centro)"""
+    dg = bpy.context.evaluated_depsgraph_get()
+    pts = []
+    for nm in ("head_shell", "face_glass"):
+        o = bpy.data.objects.get(nm)
+        if o is None or o.type != "MESH":
+            continue
+        oe = o.evaluated_get(dg); me = oe.to_mesh()
+        pts += [(o.matrix_world @ v.co)[:] for v in me.vertices]
+        oe.to_mesh_clear()
+    bm = bmesh.new()
+    for p in pts:
+        bm.verts.new(p)
+    bmesh.ops.convex_hull(bm, input=bm.verts)
+    P = np.array(pts); cen = P.mean(0)
+    N, D = [], []
+    for f in bm.faces:
+        if not f.is_valid or len(f.verts) < 3 or f.normal.length < 1e-9:
+            continue
+        n = np.array(f.normal[:]); v0 = np.array(f.verts[0].co[:])
+        if np.dot(cen - v0, n) > 0:
+            n = -n
+        N.append(n); D.append(np.dot(n, v0))
+    bm.free()
+    return np.array(N), np.array(D), cen
+
+
+def push_out(P, hull, margin):
+    """sposta i punti (mondo) fuori dall'involucro della testa di almeno margin, lungo la direzione dal centro"""
+    N, D, cen = hull
+    P = np.array(P, float)
+    for k in range(len(P)):
+        s = N @ P[k] - D
+        if s.max() >= margin:
+            continue
+        d = P[k] - cen; d /= max(np.linalg.norm(d), 1e-9)
+        nd = N @ d
+        ok = nd > 1e-6
+        t = 0.0
+        for _ in range(3):                               # passi successivi: una volta fuori da un piano si controlla il successivo
+            s = N @ (P[k] + t * d) - D
+            if s.max() >= margin:
+                break
+            i = np.argmax(np.where(ok, s / np.maximum(nd, 1e-6), -1e9))
+            t += (margin - s[i]) / max(nd[i], 1e-3)
+        P[k] = P[k] + t * d
+    return P
+
+
+def _world_pts(objs):
+    dg = bpy.context.evaluated_depsgraph_get(); out = []
+    for o in objs:
+        oe = o.evaluated_get(dg)
+        try:
+            me = oe.to_mesh()
+        except Exception:
+            continue
+        out += [(o.matrix_world @ v.co)[:] for v in me.vertices]
+        oe.to_mesh_clear()
+    return np.array(out)
+
+
+def fit_outside(objs, margin=0.0038, max_lift=0.012):
+    """adatta il cappello alla testa senza compenetrazioni:
+    1) solleva il cappello intero (rigido, forma intatta) del minimo necessario, al massimo max_lift;
+    2) solo l'eventuale residuo viene spinto fuori vertice per vertice."""
+    bpy.context.view_layer.update()
+    hull = head_hull()
+    N, D, cen = hull
+    W = _world_pts(objs)
+    def worst(dz):
+        Q = W + np.array([0, 0, dz])
+        return float((Q @ N.T - D).max(1).min())       # distanza minima (con segno) dall'involucro: >0 fuori
+    lo, hi = 0.0, max_lift
+    if worst(0.0) < margin:
+        for _ in range(24):
+            mid = (lo + hi) / 2
+            lo, hi = (lo, mid) if worst(mid) >= margin else (mid, hi)
+        dz = hi
+        for o in objs:
+            if o.parent is not None:
+                o.location = o.location + o.parent.matrix_world.to_3x3().inverted() @ Vector((0, 0, dz))
+            else:
+                o.location.z += dz
+        bpy.context.view_layer.update()
+        print(f"CAPPELLO sollevato di {dz * 1000:.1f} mm")
+    for o in objs:
+        mw = o.matrix_world; inv = mw.inverted()
+        if o.type == "MESH":
+            W = [(mw @ v.co)[:] for v in o.data.vertices]
+            Q = push_out(W, hull, margin)
+            for v, q in zip(o.data.vertices, Q):
+                v.co = inv @ Vector(q)
+            o.data.update()
+        elif o.type == "CURVE":
+            r = o.data.bevel_depth
+            for sp in o.data.splines:
+                W = [(mw @ Vector(p.co[:3]))[:] for p in sp.points]
+                Q = push_out(W, hull, margin + r)
+                for p, q in zip(sp.points, Q):
+                    p.co = (*(inv @ Vector(q)), 1.0)
+
+
 def add_hat(kind):
     hs = bpy.data.objects.get("head_shell")
     if hs is None or hs.parent is None or kind not in HATS:
         return []
-    return HATS[kind](hs.parent, Vector(hs.location))
+    out = HATS[kind](hs.parent, Vector(hs.location))
+    fit_outside([o for o in bpy.data.objects if o.name.startswith("hat_")], max_lift={"bustina": 0.006}.get(kind, 0.012))
+    return out
