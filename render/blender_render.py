@@ -628,6 +628,61 @@ for o_ in list(bpy.data.objects):
     if o_.name.startswith(("mast", "insta")):
         o_.hide_render = True
 
+# ---------------------------------------------------------------- busto: aperture delle spalle pulite + guarnizione in gomma
+def fix_shoulder_openings(obj_name="shell_torso", r_cad=0.082):
+    """le aperture delle spalle nel guscio del busto sono fatte togliendo triangoli (bordo a dente di sega): qui i vertici
+    del bordo vengono riportati sul cilindro del CAD (r 82 mm) e attorno al foro si aggiunge una guarnizione in gomma"""
+    o = bpy.data.objects.get(obj_name)
+    if o is None or o.type != "MESH":
+        return
+    bm = bmesh.new(); bm.from_mesh(o.data)
+    bnd = [e for e in bm.edges if e.is_boundary]
+    adj = {}
+    for e in bnd:
+        a, b = e.verts
+        adj.setdefault(a, set()).add(b); adj.setdefault(b, set()).add(a)
+    seen, loops = set(), []
+    for v0 in adj:
+        if v0 in seen:
+            continue
+        comp, stack = [], [v0]
+        while stack:
+            v = stack.pop()
+            if v in seen:
+                continue
+            seen.add(v); comp.append(v); stack += list(adj[v])
+        loops.append(comp)
+    rings = []
+    for comp in loops:
+        P = np.array([v.co[:] for v in comp]); c = P.mean(0)
+        _, sv, vt = np.linalg.svd(P - c)
+        ax = vt[2]                                     # asse del foro (direzione di minima dispersione)
+        d = P - c; dperp = d - np.outer(d @ ax, ax); rr = np.linalg.norm(dperp, axis=1)
+        if not (0.05 < np.median(rr) < 0.11) or rr.std() > 0.03:
+            continue                                   # non e' un foro spalla (aperture sopra/sotto, piu' grandi)
+        R = r_cad
+        for v, dp, da in zip(comp, dperp, d @ ax):
+            n_ = np.linalg.norm(dp)
+            if n_ > 1e-6:
+                v.co = Vector((c + ax * da + dp / n_ * R).tolist())
+        rings.append((c + ax * float(np.mean(d @ ax)), ax, R))
+    bm.to_mesh(o.data); o.data.update(); bm.free()
+    gm = principled("guarnizione", (0.03, 0.03, 0.033), 0.6)
+    for k, (c, ax, R) in enumerate(rings):
+        bpy.ops.mesh.primitive_torus_add(major_radius=R + 0.002, minor_radius=0.0065, major_segments=96, minor_segments=16)
+        t = bpy.context.object; t.name = f"guarnizione_spalla{k}"
+        t.rotation_mode = "QUATERNION"; t.rotation_quaternion = Vector((0, 0, 1)).rotation_difference(Vector(ax.tolist()))
+        t.location = Vector(c.tolist())
+        t.data.materials.append(gm)
+        for p_ in t.data.polygons:
+            p_.use_smooth = True
+        mw = o.matrix_world.copy()
+        t.parent = o; t.matrix_parent_inverse = mw.inverted() @ mw   # coordinate locali del guscio
+    print(f"SPALLE: {len(rings)} aperture sistemate")
+
+
+fix_shoulder_openings()
+
 # ---------------------------------------------------------------- tricolore: tre fasce alte 22 mm attorno alla base (ben visibili)
 for k_, (z_, col_, rough_) in enumerate(((0.445, (0.0, 0.287, 0.061), 0.3), (0.4195, (0.88, 0.885, 0.88), 0.25), (0.394, (0.617, 0.024, 0.038), 0.3))):   # sulla cover del Ranger Mini
     o_ = bpy.data.objects.get(f"tricolore{k_}")
