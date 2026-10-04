@@ -210,14 +210,14 @@ STYLE = "mario"          # volto di default: baffoni pixel (piace al proprietari
 
 
 
-def _fx(code, t):
+def _fx(code, t, blink=0.0):
     """facce speciali (omaggi in pixel art) 16 x 32 x 3; None se il codice non e' speciale"""
     yy, xx = np.mgrid[0:16, 0:32] + 0.5
     if code == 11:                                            # scheletro sorridente (stile Undertale)
         m = np.ones((16, 32), np.float32) * 0.9
         for ex in (10.0, 22.0):
             m[((xx - ex) / 3.2) ** 2 + ((yy - 5.5) / 3.0) ** 2 <= 1.0] = 0.0
-            if int(t * 1.5) % 4 != 3:                          # pupille bianche piccole (ogni tanto spariscono)
+            if t < 0.5 and int(t * 1.5) % 4 != 3:              # pupille bianche piccole
                 m[5, int(ex)] = 1.0
         g = (((xx - 16) / 11.5) ** 2 + ((yy - 8.5) / 4.6) ** 2 <= 1.0) & (yy > 10.5) & (yy < 13.5)
         m[g] = 0.0
@@ -228,10 +228,16 @@ def _fx(code, t):
         m[11, 7:26] = np.where((np.arange(7, 26) % 3) == 2, 0.0, 0.9)
         m[14:16, :] = 0.0; m[:, :2] = 0.0; m[:, 30:] = 0.0    # contorno arrotondato del cranio
         m[0, :5] = m[0, 27:] = 0.0; m[1, :3] = m[1, 29:] = 0.0; m[13, :4] = m[13, 28:] = 0.0
-        return np.clip(m[..., None] * np.array(COL[11], np.float32) / 255.0, 0, 1)
+        rgb = m[..., None] * np.array(COL[11], np.float32) / 255.0
+        if blink > 0.5:                                       # variante: occhio sinistro acceso (iride azzurra), l'altro vuoto
+            ir = ((xx - 10.0) ** 2 + (yy - 5.5) ** 2) <= 2.3 ** 2
+            rgb[ir] = np.array([0.25, 0.85, 1.0], np.float32)
+            rgb[5, 10] = np.array([1.0, 1.0, 1.0], np.float32)
+        return np.clip(rgb, 0, 1)
     if code == 12:                                            # occhi a binocolo (stile WALL-E)
         m = np.zeros((16, 32), np.float32)
-        tilt = 0.6 * math.sin(t * 1.3)
+        tilt = 0.6 * math.sin(t * 1.3) + (2.5 if blink > 0.5 else 0.0)
+        look = 2.0 if blink > 0.5 else 0.0
         for k, ex in enumerate((9.0, 23.0)):
             sgn = 1 if k == 0 else -1
             yc = 7.5 + sgn * 0.0
@@ -239,13 +245,25 @@ def _fx(code, t):
             inner = (np.abs(xx - ex) / 5.0) ** 4 + (np.abs(yy - yc) / 4.8) ** 4 <= 1.0
             droop = (yy < 3.2 + sgn * (xx - ex) * 0.35 + tilt)   # palpebra inclinata verso l'interno
             m[outer & ~inner & ~droop] = 0.75
-            lens = ((xx - ex) ** 2 + (yy - yc - 0.5) ** 2) <= 2.6 ** 2
-            ring = lens & (((xx - ex) ** 2 + (yy - yc - 0.5) ** 2) >= 1.4 ** 2)
+            lx = ex + look
+            lens = ((xx - lx) ** 2 + (yy - yc - 0.5) ** 2) <= 2.6 ** 2
+            ring = lens & (((xx - lx) ** 2 + (yy - yc - 0.5) ** 2) >= 1.4 ** 2)
             m[ring & ~droop] = 1.0
-            m[int(yc - 1), int(ex + 1)] = 1.0                  # riflesso
+            if not droop[int(yc - 1), int(lx + 1)]:
+                m[int(yc - 1), int(lx + 1)] = 1.0              # riflesso
         return np.clip(m[..., None] * np.array(COL[12], np.float32) / 255.0, 0, 1)
     if code == 13:                                            # maschera a LED (stile Watch Dogs): occhi > < e bocca a zig-zag
         m = np.zeros((16, 32), np.float32)
+        if blink > 0.5:                                       # variante: ^ ^ e bocca aperta a denti di sega
+            for i in range(4):
+                for ex in (9, 22):
+                    m[6 - i, ex - 3 + i] = m[6 - i, ex + 3 - i] = 1.0
+                    m[7 - i, ex - 3 + i] = m[7 - i, ex + 3 - i] = 0.6
+            for x in range(6, 26):
+                m[10, x] = m[14, x] = 1.0
+                m[11 + (x % 3), x] = 1.0
+            m[10:15, 6] = m[10:15, 25] = 1.0
+            return np.clip(m[..., None] * np.array(COL[13], np.float32) / 255.0, 0, 1)
         for i in range(4):
             m[2 + i, 6 + i] = m[8 - i, 6 + i] = 1.0           # >
             m[2 + i, 25 - i] = m[8 - i, 25 - i] = 1.0         # <
@@ -258,16 +276,20 @@ def _fx(code, t):
         return np.clip(m[..., None] * np.array(COL[13], np.float32) / 255.0, 0, 1)
     if code == 14:                                            # neon glitch (stile cyberpunk): occhi a taglio, scansione, aberrazione
         m = np.zeros((16, 32), np.float32)
+        alt = blink > 0.5
         for k, ex in enumerate((10, 22)):
-            sgn = 1 if k == 0 else -1
+            sgn = (1 if k == 0 else -1) * (-1 if alt else 1)
             for i in range(7):
                 x = ex - 3 + i
                 y = 5 + int(round(sgn * (i - 3) * 0.35))
                 m[y, x] = 1.0; m[y + 1, x] = 0.8
-        m[11, 9:23] = 1.0; m[12, 12:20] = 0.6
-        sh = np.zeros_like(m)
-        gl = int(t * 8) % 16                                   # riga che "salta"
-        m[gl] = np.roll(m[gl], 2)
+        if alt:                                                # bocca storta (ghigno) e glitch sulla riga degli occhi
+            for x in range(9, 24):
+                m[11 + (1 if x > 18 else 0), x] = 1.0
+            m[5] = np.roll(m[5], 3); m[6] = np.roll(m[6], 3)
+        else:
+            m[11, 9:23] = 1.0; m[12, 12:20] = 0.6
+            m[11] = np.roll(m[11], -2)
         m[1::2] *= 0.75                                        # righe di scansione
         rgb = np.zeros((16, 32, 3), np.float32)
         rgb += m[..., None] * np.array(COL[14], np.float32) / 255.0
@@ -278,7 +300,7 @@ def _fx(code, t):
 def draw_px(code, gx=0.0, gy=0.0, blink=0.0, t=0.0):
     """volto 16 x 32 x 3 (0..1) in pixel-art"""
     code = int(code)
-    fx = _fx(code, t)
+    fx = _fx(code, t, blink)
     if fx is not None:
         return fx
     img = np.zeros((16, 32), np.float32)
