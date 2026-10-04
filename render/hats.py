@@ -206,59 +206,94 @@ def bustina(par, c0):
 
 # ------------------------------------------------------------------ cappellino a visiera piatta, girato all'indietro
 def snapback(par, c0):
-    """6 spicchi con cuciture, bottone in cima, visiera piatta dietro; davanti (sulla fronte) l'apertura con la chiusura a bottoni"""
-    R, RY, H = 0.100, 0.108, 0.080
-    z0 = 0.036
+    """cappellino a visiera piatta portato al contrario: 6 spicchi con cuciture e occhielli, bottone in cima, pannello
+    strutturato (ora dietro) piu' alto, visiera piatta larga con l'adesivo dorato rotondo ancora attaccato e il sotto verde;
+    sulla fronte l'apertura bordata con la cinghietta a bottoni."""
+    R, RY, H = 0.098, 0.106, 0.070
+    z0 = 0.030
     def crown(u, v):
         t = 2 * math.pi * u
         c, s_ = math.cos(t), math.sin(t)
-        r = math.cos(v * math.pi / 2) ** 0.85
-        back = max(0.0, -c)                              # la parte alta e strutturata del cappellino e' dietro (girato)
-        z = z0 + (H + 0.006 * back) * math.sin(v * math.pi / 2) ** 0.9
+        back = max(0.0, -c) ** 1.5                       # pannello strutturato: piu' alto e dritto (e' dietro, cappello girato)
+        r = math.cos(v * math.pi / 2) ** (0.85 - 0.35 * back)
+        z = z0 + (H + 0.010 * back) * math.sin(v * math.pi / 2) ** (0.9 - 0.3 * back)
         return (R * c * r, RY * s_ * r, z)
-    nu, nv = 120, 30
+    nu, nv = 144, 36
     V, F = grid(crown, nu, nv, cap_last=True)
-    # apertura della chiusura sulla fronte: tolgo le facce davanti in basso (arco)
-    keep = []
-    for f in F:
-        cx = np.mean([V[i][0] for i in f]); cy = np.mean([V[i][1] for i in f]); cz = np.mean([V[i][2] for i in f])
-        arch = cx > 0.05 and ((cy / 0.040) ** 2 + ((cz - z0) / 0.032) ** 2) < 1.0
-        if not arch:
-            keep.append(f)
+    AW, AH = 0.036, 0.030                                # apertura (semiassi) sulla fronte
+    def in_arch(x, y, z):
+        return x > 0.04 and (y / AW) ** 2 + ((z - z0) / AH) ** 2 < 1.0
+    keep = [f for f in F if not in_arch(*np.mean([V[i] for i in f], axis=0))]
     o = mods(mesh_obj("hat_snap", V, keep, par, c0), thick=0.003, sub=2)
-    # cinghietta con i bottoni sotto l'arco
-    pts = [(R * 0.995 * math.cos(a), RY * 0.995 * math.sin(a), z0 + 0.005) for a in np.linspace(-0.42, 0.42, 30)]
-    strap_m = solid("snap_strap", (0.01, 0.01, 0.011), 0.6)
-    tube("hat_snap_strap", pts, 0.0035, par, c0, strap_m)
-    stud = solid("snap_stud", (0.02, 0.02, 0.022), 0.35, metal=0.0)
-    for a in np.linspace(-0.30, 0.30, 6):
-        bpy.ops.mesh.primitive_cylinder_add(radius=0.0028, depth=0.003, vertices=20)
-        sd = bpy.context.object; sd.name = "hat_snap_stud"; sd.parent = par
-        sd.location = c0 + Vector((R * 1.02 * math.cos(a), RY * 1.02 * math.sin(a), z0 + 0.005))
-        sd.rotation_euler = Euler((0, math.pi / 2, a)); sd.data.materials.append(stud)
-    # visiera piatta (dietro), leggermente curva sui lati
-    vb = []; nb = 48
-    for k in range(nb + 1):
-        t = math.pi / 2 + math.pi * k / nb             # meta' posteriore
-        c, s_ = math.cos(t), math.sin(t)
-        for r_ in (0.0, 1.0):
-            vb.append((R * c - 0.078 * r_ * max(0.0, -c) ** 0.7, RY * s_ * (1 + 0.02 * r_), z0 + 0.003 - 0.004 * r_ * abs(s_)))
-    fb = [(2 * k, 2 * k + 2, 2 * k + 3, 2 * k + 1) for k in range(nb)]
-    brim = mods(mesh_obj("hat_snap_brim", vb, fb, par, c0), thick=0.005, sub=2, bevel=0.0015)
-    # cuciture dei 6 spicchi e bottone in cima
-    seam = solid("snap_seam", (0.0, 0.0, 0.0), 0.95)
-    for k in range(6):
-        u = (k + 0.5) / 6
-        tube(f"hat_snap_seam{k}", [tuple(np.array(crown(u, v)) * 1.006 + np.array([0, 0, 0.0005])) for v in np.linspace(0.02, 0.97, 30)],
-             0.0008, par, c0, seam)
-    bpy.ops.mesh.primitive_uv_sphere_add(radius=0.0075, segments=24, ring_count=12)
-    bt = bpy.context.object; bt.name = "hat_snap_btn"; bt.parent = par; bt.location = c0 + Vector((0, 0, z0 + H + 0.004))
-    bt.scale = (1, 1, 0.55)
-    blk = fabric("twill_nero", (0.0012, 0.0012, 0.0014), (0.004, 0.004, 0.0045), scale=1600.0, bump=0.3)
+    blk = fabric("twill_nero", (0.0012, 0.0012, 0.0014), (0.0045, 0.0045, 0.005), scale=1600.0, bump=0.35)
     try:
         blk.node_tree.nodes["Principled BSDF"].inputs["Sheen Weight"].default_value = 0.0
     except Exception:
         pass
+    def on_crown(y, z):                                  # punto della calotta (lato fronte) a quota z e ascissa y
+        best = None
+        for v in np.linspace(0, 0.6, 121):
+            x0, _, zc = crown(0.0, v)
+            if zc >= z:
+                rr = x0 / R
+                return (R * rr * math.sqrt(max(0.0, 1 - (y / (RY * rr)) ** 2)), y, z)
+        return (0.0, y, z)
+    # bordino dell'apertura (nastro)
+    bind = [on_crown(AW * math.cos(a) * 1.04, z0 + AH * math.sin(a) * 1.04) for a in np.linspace(0, math.pi, 40)]
+    bind = [(x + 0.0015, y, z) for x, y, z in bind]
+    tube("hat_snap_binding", bind, 0.0022, par, c0, solid("snap_binding", (0.003, 0.003, 0.0035), 0.6))
+    # cinghietta di plastica con i bottoni
+    strap_m = solid("snap_strap", (0.008, 0.008, 0.009), 0.35)
+    pts = [on_crown(y, z0 + 0.006) for y in np.linspace(-AW * 1.15, AW * 1.15, 30)]
+    pts = [(x + 0.002, y, z) for x, y, z in pts]
+    tube("hat_snap_strap", pts, 0.0032, par, c0, strap_m)
+    for y in np.linspace(-0.022, 0.022, 5):
+        x, y_, z = on_crown(y, z0 + 0.006)
+        bpy.ops.mesh.primitive_cylinder_add(radius=0.0026, depth=0.003, vertices=20)
+        sd = bpy.context.object; sd.name = "hat_snap_stud"; sd.parent = par
+        sd.location = c0 + Vector((x + 0.0045, y_, z)); sd.rotation_euler = Euler((0, math.pi / 2, math.atan2(y_, x)))
+        sd.data.materials.append(strap_m)
+    # visiera piatta, larga, dietro
+    vb = []; nb = 64
+    for k in range(nb + 1):
+        t = math.pi / 2 + math.pi * k / nb
+        c, s_ = math.cos(t), math.sin(t)
+        for r_ in (0.0, 1.0):
+            d = 0.092 * r_ * max(0.0, -c) ** 0.55
+            vb.append((R * c * 0.99 - d, RY * s_ * (1 + 0.03 * r_), z0 + 0.002))
+    fb = [(2 * k, 2 * k + 2, 2 * k + 3, 2 * k + 1) for k in range(nb)]
+    brim = mods(mesh_obj("hat_snap_brim", vb, fb, par, c0), thick=0.005, sub=2, bevel=0.0018)
+    under = mesh_obj("hat_snap_under", [(x, y, z - 0.0058) for x, y, z in vb], fb, par, c0)
+    under.data.materials.append(solid("snap_sottovisiera", (0.010, 0.060, 0.025), 0.8))
+    # cuciture concentriche sulla visiera
+    stitch = solid("snap_stitch", (0.02, 0.02, 0.022), 0.9)
+    for kk, f_ in enumerate((0.35, 0.55, 0.75)):
+        pts = []
+        for t in np.linspace(math.pi / 2 + 0.25, 3 * math.pi / 2 - 0.25, 50):
+            c, s_ = math.cos(t), math.sin(t)
+            d = 0.092 * f_ * max(0.0, -c) ** 0.55
+            pts.append((R * c * 0.99 - d, RY * s_ * (1 + 0.03 * f_), z0 + 0.0022))
+        tube(f"hat_snap_stitch{kk}", pts, 0.0005, par, c0, stitch)
+    # adesivo dorato rotondo sulla visiera (lasciato attaccato, come si usa)
+    bpy.ops.mesh.primitive_cylinder_add(radius=0.015, depth=0.0008, vertices=48)
+    st = bpy.context.object; st.name = "hat_snap_sticker"; st.parent = par
+    st.location = c0 + Vector((-R - 0.045, 0.034, z0 + 0.0032))
+    st.data.materials.append(solid("snap_oro", (0.85, 0.62, 0.20), 0.25, metal=1.0))
+    # cuciture dei 6 spicchi, occhielli e bottone
+    seam = solid("snap_seam", (0.0, 0.0, 0.0), 0.95)
+    for k in range(6):
+        u = k / 6
+        tube(f"hat_snap_seam{k}", [tuple(np.array(crown(u, v)) * 1.006 + np.array([0, 0, 0.0005])) for v in np.linspace(0.04, 0.97, 30)
+                                   if not in_arch(*crown(u, v))], 0.0008, par, c0, seam)
+        ex, ey, ez = crown(u + 1 / 12, 0.62)
+        bpy.ops.mesh.primitive_torus_add(major_radius=0.0028, minor_radius=0.0008, major_segments=20, minor_segments=8)
+        ey_ = bpy.context.object; ey_.name = f"hat_snap_eyelet{k}"; ey_.parent = par
+        ey_.location = c0 + Vector((ex * 1.01, ey * 1.01, ez + 0.0005))
+        ey_.rotation_euler = Vector((0, 0, 1)).rotation_difference(Vector((ex / R, ey / RY, (ez - z0) / H)).normalized()).to_euler()
+        ey_.data.materials.append(seam)
+    bpy.ops.mesh.primitive_uv_sphere_add(radius=0.0075, segments=24, ring_count=12)
+    bt = bpy.context.object; bt.name = "hat_snap_btn"; bt.parent = par; bt.location = c0 + Vector((0, 0, z0 + H + 0.004))
+    bt.scale = (1, 1, 0.55)
     for ob in (o, brim, bt):
         ob.data.materials.append(blk)
     return [o, brim, bt]

@@ -685,13 +685,21 @@ if LEDFACE:
         # una PNG per fotogramma, dallo stato del volto registrato
         FC = A["face"].copy()
         if args.face_seq:                                  # sequenza di espressioni imposta: 'codice:secondi,...'
-            seq = [(int(c_), float(d_)) for c_, d_ in (p_.split(":") for p_ in args.face_seq.split(","))]
-            tot = sum(d_ for _, d_ in seq)
+            seq = []                                       # 'codice:secondi[:blink[:tempo]]'
+            for p_ in args.face_seq.split(","):
+                q_ = p_.split(":")
+                seq.append((int(q_[0]), float(q_[1]), float(q_[2]) if len(q_) > 2 else None, float(q_[3]) if len(q_) > 3 else None))
+            tot = sum(d_ for _, d_, _, _ in seq)
             for i_, f_ in enumerate(F):
                 tt_ = (i_ / 30.0) % tot
-                for c_, d_ in seq:
+                for c_, d_, b_, t_ in seq:
                     if tt_ < d_:
-                        FC[f_, 0] = c_; break
+                        FC[f_, 0] = c_
+                        if b_ is not None:
+                            FC[f_, 3] = b_
+                        if t_ is not None:
+                            FC[f_, 4] = t_
+                        break
                     tt_ -= d_
         tdir = os.path.join(HERE, "ledtex", args.out.replace("/", "_").replace("#", "").replace(".png", "").strip("_") or "led")
         os.makedirs(tdir, exist_ok=True)

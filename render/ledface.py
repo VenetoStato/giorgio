@@ -286,9 +286,13 @@ def draw_px(code, gx=0.0, gy=0.0, blink=0.0, t=0.0):
         img[:] = 0.85
         yy, xx = np.mgrid[0:16, 0:32] + 0.5
         for ex in (10.0, 22.0):                               # occhi tondi con il riflesso acceso + sopracciglia ad arco
-            e = ((xx - ex) / 2.2) ** 2 + ((yy - 6.0) / 2.4) ** 2 <= 1.0
-            img[e] = 0.0
-            img[5, int(ex - 1)] = 0.85
+            if blink > 0.5:                                # occhi chiusi: arco sorridente
+                for dx_ in range(-2, 3):
+                    img[6 + (1 if abs(dx_) == 2 else 0) - (1 if dx_ == 0 else 0) + 1, int(ex) + dx_] = 0.0
+            else:
+                e = ((xx - ex) / 2.2) ** 2 + ((yy - 6.0) / 2.4) ** 2 <= 1.0
+                img[e] = 0.0
+                img[5, int(ex - 1)] = 0.85
             xi = int(ex)
             for x_, y_ in ((xi - 3, 2), (xi - 2, 1), (xi - 1, 1), (xi, 1), (xi + 1, 1), (xi + 2, 2)):
                 img[y_, x_] = 0.0
