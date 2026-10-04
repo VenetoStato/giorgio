@@ -28,6 +28,8 @@ for i, sg in enumerate(E["segments"]):
         x0, y0, x1, y1 = box(a)
         if x0 < 40 or y0 < 40 or x1 > W - 40 or y1 > H - 40:
             print(f"seg {i}: FUORI SCHERMO {a['text']!r} {int(x0), int(y0), int(x1), int(y1)}"); bad += 1
+        if a.get("align") == "left" and x1 > sg.get("text_maxx", 1150) and not a.get("wide_ok"):
+            print(f"seg {i}: TROPPO LARGO (copre il soggetto) {a['text']!r} fino a x={int(x1)}"); bad += 1
         if a["t0"] >= L_ - 0.3:
             print(f"seg {i}: TESTO MAI VISIBILE {a['text']!r} t0 {a['t0']} >= durata {L_:.1f}"); bad += 1
     for j, a in enumerate(tx):

@@ -313,3 +313,167 @@ earlier values are noted in the code comments and in section 3.
   `giorgio_transfer.mp4`) it swings the cube higher, up to ~40 cm, before settling at 12 cm. On a real arm, speed and jerk
   limits and a smoother action filter should be added before deployment.
 - The success threshold (10 cm, held 1 s) and the 6 s episode are our choice. Per-episode lift heights are in the JSONs.
+
+## 8. Second skill: open a cabinet, drawer OR hinged door (added 2026-10-04)
+
+**Why this task.** Grasp-and-lift a cube does not need learning: a scripted IK grasp solves it. We first tried
+"open a drawer by its handle" and measured a scripted IK baseline on the same randomization **before** training:
+it scored **95 %** (`valutazione/drawer_only_scripted_openarm.json`). So a drawer alone is not a good RL example either.
+The task we kept is **"open the cabinet"**: the compartment is closed by a drawer, or by a door hinged on the left or
+on the right. **The controller is not told which.** It gets only what a camera gives: the handle point, the
+front-panel normal, and the handle type and size. A drawer must be pulled straight. A door must be pulled along an arc
+whose centre is unknown, and the grasp has to survive the wrist rotation as the door turns. All of this happens
+under friction, damping, springs and masses the controller cannot see.
+
+Everything is in simulation (MuJoCo). The same pipeline is used as for the lift policy: PPO on mujoco_warp on the
+standalone OpenArm 2.0, observations in the arm base frame, joint-position-target actions, randomization in the
+standalone scene only. The same weights then run unchanged on Giorgio. There was no training on Giorgio.
+
+**Scene.** A benchtop cabinet: a target compartment with a 30 x 18 cm front, a fixed drawer above it and a solid base
+below it.
+- Mechanisms: drawer 50 %, door hinged left 25 %, door hinged right 25 %.
+- Handles:
+  - drawer: horizontal bar (8–16 cm), vertical bar (8–11 cm) or knob (Ø 2.4–4.4 cm);
+  - door: vertical bar or knob, near the free edge;
+  - all handles: bar radius 5–12 mm, standoff 2.5–4.5 cm, friction 0.4–1.0.
+
+**Randomization (standalone only).**
+- Cabinet pose: front 0.44–0.56 m in front of the arm base, lateral −0.20…0.05 m, yaw ±20°, compartment 0.12–0.26 m
+  above the table.
+- Table: height and front edge as in the lift task.
+- Drawer: Coulomb friction 1–15 N, damping 2–40 N·s/m, mass 0.5–4 kg, closing spring 0–40 N/m (50 % of episodes),
+  initial opening 0–5 cm.
+- Door: friction 0.1–1.5 N·m, damping 0.1–2 N·m·s/rad, mass 0.6–2 kg, closing spring 0–1 N·m/rad (50 % of episodes),
+  initial opening 0–8°.
+- Arm: kp/kv, damping and gravity compensation as in the lift task.
+- A low obstacle in front of the base in 50 % of episodes.
+- Perception: handle point bias ±7.5 mm per axis, noise 3 mm, latency 0–120 ms; panel-normal yaw error ±3°;
+  handle-size error ±2 mm.
+- Proprioception and actions: joint noise and latency, and the action applied one step late in 30 % of episodes,
+  as in the lift task.
+
+**Success:** the drawer is open ≥ 15 cm, or the door ≥ 60°, held for ≥ 0.48 s, within a 10 s episode, starting from
+the arm retracted.
+
+**Policy interface** (`policy_io_cabinet.py`):
+- Observation (58 values):
+  - joints (7 + 7 + 1), current targets (8);
+  - grasp point and gripper axes from forward kinematics (9);
+  - handle point "from vision" and handle − grasp point (6);
+  - panel normal (3), handle bar axis (3), handle size (3);
+  - handle displacement since the start of the episode (3);
+  - last action (8).
+- Action (8): the same as the lift policy, i.e. 7 joint-target increments plus the gripper command, at 25 Hz.
+- Reward: dense reach and align terms, plus opening progress, minus a penalty for arm-link contacts and for
+  action rate.
+
+**Training** (`runs/c1`, `train.py --task cabinet`): PPO, 4,096 environments, 236 M control steps, 95 min on the
+RTX 5070. The delivered weights are the ones at iteration 2,400 (`politica_openarm_cabinet.pt`).
+
+![learning curve](learning_curve_cabinet_dark.png)
+
+The training curve shows the success of the *stochastic* training rollouts. The dashed lines are the two scripted
+baselines (deterministic, 100 evaluation episodes).
+
+### Results (100 randomized episodes each, noise + latency on; 95 % Wilson interval)
+
+The scripted controllers and the policy were run on **the same 100 episodes** (same seed, same cabinets, same dynamics,
+same noise).
+
+| controller | standalone OpenArm 2.0 | Giorgio as built (front tray) | drawers | doors |
+|---|---|---|---|---|
+| untrained policy (50 ep.) | 0 % [0–7] | — | 0/18 | 0/32 |
+| policy, early checkpoint (it. 100, 10 M steps) | 1 % [0.2–5.4] | — | 0/38 | 1/62 |
+| **scripted IK, straight pull** | **36 %** [27.3–45.8] | **52 %** [42.3–61.5] | 36/38 · 52/53 | **0/62 · 0/47** |
+| **scripted IK, follows the panel normal** | **71 %** [61.5–79.0] | **76 %** [66.8–83.3] | 36/38 · 52/53 | 35/62 · 24/47 |
+| **RL policy (delivered)**, seed 0 | **96 %** [90.2–98.4] | **90 %** [82.6–94.5] | 38/38 · 53/53 | 58/62 · 37/47 |
+| RL policy, seed 1 | 99 % [94.6–99.8] | 95 % [88.8–97.8] | 43/43 · 43/43 | 56/57 · 52/57 |
+| RL policy, Giorgio with the front tray removed | — | 100 % [96.3–100] | 53/53 | 47/47 |
+
+In the "drawers" and "doors" columns, "a · b" means standalone · Giorgio.
+
+How the scripted baselines work (`run_cabinet.py`, `--controller scripted | scripted_follow`):
+- They get **exactly the policy's inputs**: the same perception noise, bias and latency, and the same action
+  interface and rate limit.
+- They use damped least-squares IK on the arm model.
+- On the standalone arm, which has no gravity compensation, they add gravity feed-forward as a set-point offset.
+  Without it the uncompensated servos sag 2–3 cm and the grasp misses.
+- The motion:
+  1. pre-grasp 10 cm in front of the perceived handle;
+  2. approach;
+  3. close the gripper;
+  4. pull.
+- `scripted` pulls straight along the perceived normal: the classic drawer opener.
+- `scripted_follow` re-reads the handle and the normal at every step and keeps pulling along the *current* normal, with
+  the gripper re-oriented to it. This is a hand-written way to follow a door's arc.
+- The grasp depth was tuned on nominal episodes, so these are tuned baselines, not strawmen.
+
+What the numbers say:
+- **Drawers:** scripted IK is as good as RL (95–98 % vs 100 %). This is why a drawer alone was not a good RL example.
+- **Doors:**
+  - the straight pull never reaches 60° (0/109; mean best 37° standalone, 43° on Giorgio). The gripper slips off the handle while the door
+    turns.
+  - following the panel normal helps (55 %), but the grasp is often lost as the wrist turns.
+  - the policy opens 94–98 % of the doors on the standalone arm, and 79–91 % on Giorgio as built. It learned to keep contact and re-grasp, and to
+    push the door past 60° once it is ajar. It needs no articulation model, no hinge estimate and no per-mechanism code.
+- **What RL buys here:** one learned controller handles an unknown articulation, with contact, and with dynamics it
+  cannot see. A scripted controller would need an articulation estimator and recovery logic written by hand.
+  A better hand-written door opener is certainly possible. We did not write one.
+
+**Transfer to Giorgio.**
+- How it was run:
+  - `scene_cabinet.build_giorgio()` stands the same cabinet on bench B, in front of the right arm (front 0.50 m,
+    compartment 0.20 m above the bench);
+  - `giorgio_model.py` is not modified;
+  - the evaluation randomizes the placement: front 0.46–0.54 m, lateral −0.18…−0.05 m, yaw ±15°, compartment
+    0.16–0.24 m above the bench;
+  - it also randomizes the handle, the dynamics and the noise, exactly as on the standalone arm.
+- No mapping fix was needed: same weights, observations in the arm base frame.
+- **All Giorgio failures are doors that stop at 49–58°.**
+  - Contact logging shows the door, or the gripper holding it, hitting Giorgio's front buffer tray (`amr` body) and
+    the parked left arm.
+  - The cause is the low cabinet placements: the door bottom is only 7–15 cm above the bench, and the tray stands
+    ~10 cm tall.
+  - With the tray removed the policy scores 100 %.
+  - On the real robot, the cabinet should sit higher than the tray, or the left arm should be stowed lower. The same
+    limitation is listed for the lift policy (section 3, item 6).
+- Mean time to success: 2.0–2.4 s on both robots, including the 0.48 s hold. Mean best opening: ~22 cm for drawers,
+  ~75° for doors.
+
+### Files (cabinet task)
+
+| file | what it is |
+|---|---|
+| `scene_cabinet.py` | cabinet with the three mechanisms and the five handle geoms; standalone and Giorgio scenes |
+| `policy_io_cabinet.py` | observation/action interface (shared by GPU and CPU) |
+| `env_cabinet.py` | vectorized GPU environment: reward, randomization, latency |
+| `run_cabinet.py` | CPU evaluation and video of the policy or of the scripted baselines (`--controller`), on `--robot openarm|giorgio` |
+| `grafico_cabinet.py` | learning curve |
+| `politica_openarm_cabinet.pt` | **delivered policy** (`runs/c1/modello.pt`, iteration 2,400) |
+| `politica_openarm_cabinet_early_it100.pt` | early checkpoint (iteration 100), used for the "clumsy" video |
+| `valutazione/cabinet_*.json` | all evaluations above, with per-episode details (`by_mechanism`, `by_handle`) |
+| `learning_curve_cabinet_dark.png` | learning curve |
+| `cabinet_standalone.mp4` | 10 s: the policy on the standalone arm (drawer with a horizontal bar, left-hinged door with a vertical bar, right-hinged door with a knob; the 3rd episode has the random low obstacle) |
+| `cabinet_giorgio.mp4` | 10 s: the same weights on Giorgio (drawer, door with a vertical bar, door with a knob) |
+| `cabinet_baseline_fail.mp4` | 9 s: the scripted straight-pull baseline on a left-hinged door; it pulls the door to ~44°, loses the handle, and the door swings back |
+| `cabinet_early_training.mp4` | 10 s: the iteration-100 checkpoint reaches the handle but cannot open a drawer or a door |
+| `scene_drawer.py`, `env_drawer.py`, `policy_io_drawer.py`, `run_drawer.py`, `runs/d1`, `runs/d2` | the drawer-only attempt. Not delivered: the scripted baseline already scores 95 %. The training runs were stopped early. |
+
+How to rerun:
+```bash
+PY=~/miniconda3/envs/unitree_rl_mjlab/bin/python
+$PY train.py --task cabinet --envs 4096 --max_minutes 95 --out runs/cX
+$PY run_cabinet.py eval --robot openarm --n 100 --json valutazione/a.json                     # policy (default weights)
+$PY run_cabinet.py eval --robot giorgio --n 100 --json valutazione/b.json                     # add --no_buffer: no front tray
+$PY run_cabinet.py eval --robot openarm --controller scripted_follow --n 100 --json valutazione/c.json
+MUJOCO_GL=egl $PY run_cabinet.py video --robot giorgio --episodes 10:0,10:1,13:2 --ep_seconds 3.4 --out cabinet_giorgio.mp4
+BASELINE=0.36,0.71 $PY grafico_cabinet.py learning_curve_cabinet_dark.png runs/c1/log.csv
+```
+
+**Limits.**
+- Everything from section 7 applies here too.
+- The policy relies on a handle detector and a panel-normal estimate. In sim these come from the simulator with
+  artificial noise, not from rendered images.
+- The doors are 30 cm wide and the drawers 30 cm wide. Larger doors need more reach.
+- The mean best door opening is ~75°, sometimes up to 110°: the policy pushes doors wide open after the threshold.
+- The fixtures are idealized: no latches, no magnetic catches, no stiction peaks beyond Coulomb friction.

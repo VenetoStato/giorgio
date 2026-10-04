@@ -1,6 +1,6 @@
 """PPO (implementazione compatta, torch; derivata da rl_mani/train.py) per OpenArmLiftEnv su GPU.
 
-Uso:  python train.py --envs 4096 --max_minutes 60 --out runs/r1
+Uso:  python train.py --envs 4096 --max_minutes 60 --out runs/r1   [--task drawer: env_drawer.OpenArmDrawerEnv]
 Scrive: <out>/log.csv (una riga per iterazione), <out>/modello.pt (ultimo),
         <out>/modello_iniziale.pt (politica non addestrata), <out>/modello_<iter>.pt (pochi).
 """
@@ -78,11 +78,19 @@ def main():
     ap.add_argument("--max_minutes", type=float, default=200)
     ap.add_argument("--resume", default="")
     ap.add_argument("--seed", type=int, default=1)
+    ap.add_argument("--task", default="lift", choices=["lift", "drawer", "cabinet"])
     a = ap.parse_args()
     os.makedirs(a.out, exist_ok=True)
     torch.manual_seed(a.seed)
 
-    env = OpenArmLiftEnv(a.envs, seed=a.seed)
+    if a.task == "drawer":
+        from env_drawer import OpenArmDrawerEnv
+        env = OpenArmDrawerEnv(a.envs, seed=a.seed)
+    elif a.task == "cabinet":
+        from env_cabinet import OpenArmCabinetEnv
+        env = OpenArmCabinetEnv(a.envs, seed=a.seed)
+    else:
+        env = OpenArmLiftEnv(a.envs, seed=a.seed)
     dev = env.dev
     ac = AttoreCritico(env.obs_dim, env.act_dim).to(dev)
     if a.resume:
@@ -211,7 +219,7 @@ def main():
                   f"successo {row[5]} max_dz_cm {row[6]} cadute {row[7]} std {row[9]} lr {row[10]}", flush=True)
         if it % 50 == 0:
             salva(os.path.join(a.out, "modello.pt"), it, steps)
-        if it in (100, 300, 1000, 2000):
+        if it in (100, 300, 1000, 2000) or (a.task != "lift" and it % 100 == 0):
             salva(os.path.join(a.out, f"modello_{it}.pt"), it, steps)
         if el > a.max_minutes * 60:
             print("limite di tempo raggiunto")
