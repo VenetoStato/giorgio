@@ -20,6 +20,7 @@ from scipy import ndimage
 from scipy.spatial.transform import Rotation as Rot
 
 from giorgio_ik import ArmIK
+from giorgio_model import AMR_OUT, BASE, BAT_WH, CHARGE_W, DOCK_FACE_X, DOCK_REAR_X, DRIVE_HALF_TRACK, DRIVE_WHEEL_R
 from giorgio_model import BUF_Z, BUFFER_SLOTS, COF_LIFT, COF_MH, COF_SH, COF_STACK, COF_STACK_Z, COF_X, COF_Y_IN, COF_Y_OUT, GROUP_ENV, GROUP_HUMAN, LOOKS, SCANNERS, build
 
 ap = argparse.ArgumentParser()
@@ -32,7 +33,8 @@ ap.add_argument("--no_humans", action="store_true")
 ap.add_argument("--seed", type=int, default=3)
 ap.add_argument("--agent", default="", help="comandi a tempo per l'agente: 't:testo|t:testo'")
 ap.add_argument("--soc", type=float, default=0.85, help="stato di carica iniziale della batteria (0-1)")
-ap.add_argument("--bat_wh", type=float, default=1440.0, help="capacita' batteria di sistema [Wh] (48 V LiFePO4 15s 30 Ah, vedi cad/ ed electrical/)")
+ap.add_argument("--bat_wh", type=float, default=BAT_WH, help="capacita' batteria di sistema [Wh] (AMR rev B: 2x Discover DLP-GC2-48V = 3070 Wh, "
+                "amr/; Ranger Mini: pacco 48 V 15s 30 Ah = 1440 Wh)")
 ap.add_argument("--hands", default="gripper", help="gripper | orca+amazing | ... (destra+sinistra)")
 ap.add_argument("--speedup", type=int, default=1, help="video: un fotogramma ogni N/30 s (timelapse)")
 args = ap.parse_args()
@@ -146,15 +148,28 @@ for i, y in enumerate(np.arange(-3.0, 3.01, 0.5)):          # segnaletica: corsi
     box(f"aisle{i}", (-1.6, y, 0.002), (0.04, 0.18, 0.002), "yellow", collide=False)
 # stazione di ricarica C: piastra di contatto + colonnina con LED
 CHG = np.array([-3.0, -2.6, -math.pi / 2])
-pc = local_to_world(CHG, 0.46, 0.0)                      # stazione di ricarica AgileX (kit NAVIS): il robot ci entra in retromarcia
-box("charger_post", (pc[0], pc[1], 0.35), (0.06, 0.12, 0.35), "armor", yaw=CHG[2])
-pl = local_to_world(CHG, 0.375, 0.0)                     # piastra a molla con due lamelle di contatto, all'altezza dei pattini del robot
-box("charger_plate", (pl[0], pl[1], 0.15), (0.009, 0.09, 0.04), "dark", collide=False, yaw=CHG[2])
-for k_, sy_ in enumerate((-0.03, 0.03)):                   # contatti della stazione, contro la piastra a spazzole posteriore del robot
-    q_ = local_to_world(CHG, 0.365, sy_)
-    g_ = box(f"charger_lamella{k_}", (q_[0], q_[1], 0.15), (0.002, 0.02, 0.02), "steel", collide=False, yaw=CHG[2])
-    g_.material = ""; g_.rgba = [0.75, 0.48, 0.22, 1]
-box("charger_led", (pc[0], pc[1], 0.66), (0.062, 0.1, 0.01), "accent", collide=False, yaw=CHG[2])
+if BASE == "amr_revB":
+    # dock rev B (amr/out/stl X01..X07, frame base del robot agganciato): RoboPad RPBAS90 a z 0.120, faccia a 8 mm dal retro del robot,
+    # caricatore NPB-1700-48 sotto la cover, AprilTag + catarifrangente. Il robot agganciato ha la posa CHG ruotata di 180 gradi.
+    q_dk = [math.cos((CHG[2] + math.pi) / 2), 0, 0, math.sin((CHG[2] + math.pi) / 2)]
+    for f_, col_ in (("X01_dock_frame", (0.25, 0.26, 0.28)), ("X02_robopad_base_RPBAS90", (0.85, 0.45, 0.1)), ("X03_pad_mount", (0.55, 0.57, 0.6)),
+                     ("X06_apriltag_reflector_plate", (0.95, 0.95, 0.95)), ("X07_dock_cover", (0.92, 0.92, 0.9))):
+        sp.add_mesh(name=f"dock_{f_}", file=str(AMR_OUT / f"stl/{f_}.stl"), scale=[0.001] * 3)
+        wb.add_geom(name=f"charger_{f_[:3]}", type=mujoco.mjtGeom.mjGEOM_MESH, meshname=f"dock_{f_}", pos=[CHG[0], CHG[1], 0.0], quat=q_dk,
+                    rgba=list(col_) + [1], contype=0, conaffinity=0, group=GROUP_ENV)
+    pc = local_to_world(CHG, 0.56, 0.0)                  # ingombro solido: cover + piastra del pad (x locale 0.425..0.698, z 0..0.52)
+    g_ = box("charger_post", (pc[0], pc[1], 0.26), (0.136, 0.255, 0.26), "armor", yaw=CHG[2]); g_.material = ""; g_.rgba = [0, 0, 0, 0]
+    box("charger_led", (pc[0], pc[1], 0.373), (0.10, 0.2, 0.004), "accent", collide=False, yaw=CHG[2])
+else:                                                    # Ranger Mini: stazione di ricarica AgileX (kit NAVIS), in retromarcia
+    pc = local_to_world(CHG, 0.46, 0.0)                      # stazione di ricarica AgileX (kit NAVIS): il robot ci entra in retromarcia
+    box("charger_post", (pc[0], pc[1], 0.35), (0.06, 0.12, 0.35), "armor", yaw=CHG[2])
+    pl = local_to_world(CHG, 0.375, 0.0)                     # piastra a molla con due lamelle di contatto, all'altezza dei pattini del robot
+    box("charger_plate", (pl[0], pl[1], 0.15), (0.009, 0.09, 0.04), "dark", collide=False, yaw=CHG[2])
+    for k_, sy_ in enumerate((-0.03, 0.03)):                   # contatti della stazione, contro la piastra a spazzole posteriore del robot
+        q_ = local_to_world(CHG, 0.365, sy_)
+        g_ = box(f"charger_lamella{k_}", (q_[0], q_[1], 0.15), (0.002, 0.02, 0.02), "steel", collide=False, yaw=CHG[2])
+        g_.material = ""; g_.rgba = [0.75, 0.48, 0.22, 1]
+    box("charger_led", (pc[0], pc[1], 0.66), (0.062, 0.1, 0.01), "accent", collide=False, yaw=CHG[2])
 
 # 12 flaconi alla stazione A (griglia con piccolo gioco casuale)
 PARTS, HOME = [], {}
@@ -630,7 +645,7 @@ ARM_ACT = {s: [m.actuator(f"{s}_joint{k}_ctrl").id for k in range(1, 8)] for s i
 # ---------------------------------------------------------------- energia: batteria di sistema 48 V, consumi, ricarica automatica
 BAT = {"E": args.soc * args.bat_wh, "cap": args.bat_wh, "P": 0.0, "charging": False, "heater": False, "Pavg": 0.0, "log_t": 0.0}
 P_ELEC = 40 + 2 * 4.5 + 5 + 4 + 5 + 6 + 8 + 15         # Jetson, 2 scanner, PNOZ, Gemini, Insta360, LED volto+base, elettronica base [W]
-P_ARM_IDLE, K_CU, ETA_DRIVE, P_HEATER, P_CHARGE, CHARGE_X, BREW_X = 10.0, 0.04, 0.85, 1260.0 / 0.92, 960.0, 30.0, 30.0 / 8.0   # inverter 92%
+P_ARM_IDLE, K_CU, ETA_DRIVE, P_HEATER, P_CHARGE, CHARGE_X, BREW_X = 10.0, 0.04, 0.85, 1260.0 / 0.92, CHARGE_W, 30.0, 30.0 / 8.0   # inverter 92%
 ARM_DOFS = [m.jnt_dofadr[m.actuator_trnid[a_, 0]] for s_ in ("right", "left") for a_ in [m.actuator(f"{s_}_joint{k}_ctrl").id for k in range(1, 8)]]
 DRIVE_ACT = [m.actuator("drive_left_vel").id, m.actuator("drive_right_vel").id]
 
@@ -646,12 +661,14 @@ def dock_error():
     c, s_ = math.cos(CHG[2]), math.sin(CHG[2])
     dx, dy = x - CHG[0], y - CHG[1]
     lx, ly = c * dx + s_ * dy, -s_ * dx + c * dy
-    gap = 0.363 - (lx + 0.365)                           # contatti stazione (0.363) - piastra a spazzole posteriore (centro robot + 0.365)
+    gap = DOCK_FACE_X - (lx + DOCK_REAR_X)               # contatti stazione - contatti posteriori del robot (Ranger: spazzole a 0.365 /
+                                                         # lamelle a 0.363; rev B: collettore RoboPad a 0.388, gap 0 = posa di aggancio CAD)
     return gap, ly, wrap(th - CHG[2] - math.pi)
 
 
 def docked_at_charger():
-    """contatti chiusi: piastra a spazzole sui contatti (corsa 10 mm), allineata entro 20 mm e 3 gradi (tolleranze AgileX NON pubblicate: ASSUNTE)"""
+    """contatti chiusi: contatti posteriori sui contatti della stazione (corsa 10 mm), allineati entro 20 mm e 3 gradi
+    (tolleranze ASSUNTE: AgileX non le pubblica; RoboPad rev B: da confermare con Roboteq)"""
     gap, ly, dth = dock_error()
     return -0.010 < gap < 0.004 and abs(ly) < 0.020 and abs(dth) < math.radians(3)
 
@@ -1015,7 +1032,7 @@ MOC_BT = m.body("base_target").mocapid[0] if mujoco.mj_name2id(m, mujoco.mjtObj.
 
 
 def base_target_step():
-    """Ranger Mini: integra v e omega comandati (dalle velocita' ruota) nel bersaglio cinematico della base"""
+    """integra v e omega comandati (dalle velocita' ruota, cinematica differenziale) nel bersaglio cinematico della base"""
     if MOC_BT < 0:
         return
     x, y, th = base_pose()
@@ -1025,7 +1042,7 @@ def base_target_step():
     v = WHEEL_R * (wl + wr) / 2; w = WHEEL_R * (wr - wl) / (2 * B_HALF)
     p_ = BT["p"]; p_[0] += v * math.cos(p_[2]) * DT; p_[1] += v * math.sin(p_[2]) * DT; p_[2] = wrap(p_[2] + w * DT)
     d.mocap_pos[MOC_BT] = [p_[0], p_[1], 0.0]; d.mocap_quat[MOC_BT] = [math.cos(p_[2] / 2), 0, 0, math.sin(p_[2] / 2)]
-B_HALF, WHEEL_R = 0.182, 0.100                       # Ranger Mini 3.0: carreggiata 364 mm, ruote D 200 (cinematica differenziale equivalente)
+B_HALF, WHEEL_R = DRIVE_HALF_TRACK, DRIVE_WHEEL_R     # rev B: carreggiata 464 mm, ruote D125; Ranger Mini: 364 mm, D 200 (equivalente)
 drive = {"v": 0.0, "w": 0.0}
 V_MAX, A_LON, A_LAT, W_MAX, A_ROT = 0.6, 0.25, 0.25, 0.7, 0.7
 JERK = 0.6                                           # m/s^3: niente "imbarcate" in frenata
@@ -1751,6 +1768,8 @@ VIA = {}
 GRID_RES, GX0, GY0, GNX, GNY = 0.1, -6.5, -5.0, 115, 115
 OBST = [(0.16, 0.80, -0.85, 0.85), (1.2, 2.0, -2.85, -2.25), (-5.0, -4.2, 3.45, 4.05), (-3.15, -2.85, -3.1, -2.9),   # banco B, scrivanie, colonnina
         (-3.27, -1.53, 1.59, 2.27), (3.34, 4.02, 0.33, 2.07)]                                                             # banco A, banco D
+if BASE == "amr_revB":                                   # dock rev B: ingombro piu' largo della colonnina AgileX
+    OBST[3] = (-3.26, -2.74, -3.30, -3.02)
 
 
 def clearance(p_):

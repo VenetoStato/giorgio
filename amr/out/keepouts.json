@@ -1,0 +1,402 @@
+[
+ {
+  "name": "KO_D01_connectors_R",
+  "owner": [
+   "D01_ezwheel_SWD125_R"
+  ],
+  "rule": "SWD manual p.20: I/O, 24 VDC, CAN (M12) and USB (M8) connectors in the upper half of the inboard end face; 40 mm for angled plugs + cable bend",
+  "file": "KO_D01_connectors_R.stl",
+  "bbox_mm": [
+   -50.0,
+   50.0,
+   -60.9,
+   -20.8,
+   62.5,
+   121.5
+  ]
+ },
+ {
+  "name": "KO_D01_connectors_L",
+  "owner": [
+   "D01_ezwheel_SWD125_L"
+  ],
+  "rule": "SWD manual p.20: I/O, 24 VDC, CAN (M12) and USB (M8) connectors in the upper half of the inboard end face; 40 mm for angled plugs + cable bend",
+  "file": "KO_D01_connectors_L.stl",
+  "bbox_mm": [
+   -50.0,
+   50.0,
+   20.8,
+   60.9,
+   62.5,
+   121.5
+  ]
+ },
+ {
+  "name": "KO_C01_swivel_FL",
+  "owner": [
+   "C01_castor_FL_Blickle_L-ALST_80K",
+   "C02_castor_carriage_FL",
+   "C03_bump_pad_FL",
+   "C04_springs_D-313J-02_x2_FL",
+   "C08_blocks_MGN15H_x2_FL"
+  ],
+  "rule": "CASTOR_SUSPENSION.md s.4: swivel envelope of the L-ALST 80K (r_w(z) + fork r 50) swept over -2.5..+17 mm travel + 5 mm",
+  "file": "KO_C01_swivel_FL.stl",
+  "bbox_mm": [
+   190.3,
+   359.7,
+   95.6,
+   264.4,
+   31.8,
+   116.2
+  ]
+ },
+ {
+  "name": "KO_C01_swivel_vs_carriage_FL",
+  "owner": [
+   "C01_castor_FL_Blickle_L-ALST_80K"
+  ],
+  "rule": "CASTOR_SUSPENSION.md s.4: carriage parts move with the castor -> only r_w(z) + 3 mm, no travel sweep",
+  "file": "KO_C01_swivel_vs_carriage_FL.stl",
+  "bbox_mm": [
+   192.3,
+   357.7,
+   97.6,
+   262.4,
+   -0.1,
+   98.1
+  ]
+ },
+ {
+  "name": "KO_C01_swivel_FR",
+  "owner": [
+   "C01_castor_FR_Blickle_L-ALST_80K",
+   "C02_castor_carriage_FR",
+   "C03_bump_pad_FR",
+   "C04_springs_D-313J-02_x2_FR",
+   "C08_blocks_MGN15H_x2_FR"
+  ],
+  "rule": "CASTOR_SUSPENSION.md s.4: swivel envelope of the L-ALST 80K (r_w(z) + fork r 50) swept over -2.5..+17 mm travel + 5 mm",
+  "file": "KO_C01_swivel_FR.stl",
+  "bbox_mm": [
+   190.3,
+   359.7,
+   -264.4,
+   -95.6,
+   31.8,
+   116.2
+  ]
+ },
+ {
+  "name": "KO_C01_swivel_vs_carriage_FR",
+  "owner": [
+   "C01_castor_FR_Blickle_L-ALST_80K"
+  ],
+  "rule": "CASTOR_SUSPENSION.md s.4: carriage parts move with the castor -> only r_w(z) + 3 mm, no travel sweep",
+  "file": "KO_C01_swivel_vs_carriage_FR.stl",
+  "bbox_mm": [
+   192.3,
+   357.7,
+   -262.4,
+   -97.6,
+   -0.1,
+   98.1
+  ]
+ },
+ {
+  "name": "KO_C01_swivel_RL",
+  "owner": [
+   "C01_castor_RL_Blickle_L-ALST_80K",
+   "C02_castor_carriage_RL",
+   "C03_bump_pad_RL",
+   "C04_springs_D-313J-02_x2_RL",
+   "C08_blocks_MGN15H_x2_RL"
+  ],
+  "rule": "CASTOR_SUSPENSION.md s.4: swivel envelope of the L-ALST 80K (r_w(z) + fork r 50) swept over -2.5..+17 mm travel + 5 mm",
+  "file": "KO_C01_swivel_RL.stl",
+  "bbox_mm": [
+   -359.7,
+   -190.3,
+   95.6,
+   264.4,
+   31.8,
+   116.2
+  ]
+ },
+ {
+  "name": "KO_C01_swivel_vs_carriage_RL",
+  "owner": [
+   "C01_castor_RL_Blickle_L-ALST_80K"
+  ],
+  "rule": "CASTOR_SUSPENSION.md s.4: carriage parts move with the castor -> only r_w(z) + 3 mm, no travel sweep",
+  "file": "KO_C01_swivel_vs_carriage_RL.stl",
+  "bbox_mm": [
+   -357.7,
+   -192.3,
+   97.6,
+   262.4,
+   -0.1,
+   98.1
+  ]
+ },
+ {
+  "name": "KO_C01_swivel_RR",
+  "owner": [
+   "C01_castor_RR_Blickle_L-ALST_80K",
+   "C02_castor_carriage_RR",
+   "C03_bump_pad_RR",
+   "C04_springs_D-313J-02_x2_RR",
+   "C08_blocks_MGN15H_x2_RR"
+  ],
+  "rule": "CASTOR_SUSPENSION.md s.4: swivel envelope of the L-ALST 80K (r_w(z) + fork r 50) swept over -2.5..+17 mm travel + 5 mm",
+  "file": "KO_C01_swivel_RR.stl",
+  "bbox_mm": [
+   -359.7,
+   -190.3,
+   -264.4,
+   -95.6,
+   31.8,
+   116.2
+  ]
+ },
+ {
+  "name": "KO_C01_swivel_vs_carriage_RR",
+  "owner": [
+   "C01_castor_RR_Blickle_L-ALST_80K"
+  ],
+  "rule": "CASTOR_SUSPENSION.md s.4: carriage parts move with the castor -> only r_w(z) + 3 mm, no travel sweep",
+  "file": "KO_C01_swivel_vs_carriage_RR.stl",
+  "bbox_mm": [
+   -357.7,
+   -192.3,
+   -262.4,
+   -97.6,
+   -0.1,
+   98.1
+  ]
+ },
+ {
+  "name": "KO_B01_F_top_cover_50mm",
+  "owner": [
+   "B01_battery_F_DLP-GC2-48V"
+  ],
+  "rule": "Discover 805-0027 Rev N s.9.2 p.10: maintain >= 50 mm above the top cover",
+  "file": "KO_B01_F_top_cover_50mm.stl",
+  "bbox_mm": [
+   334.0,
+   384.0,
+   -90.0,
+   90.0,
+   40.0,
+   300.0
+  ]
+ },
+ {
+  "name": "KO_B01_R_top_cover_50mm",
+  "owner": [
+   "B01_battery_R_DLP-GC2-48V"
+  ],
+  "rule": "Discover 805-0027 Rev N s.9.2 p.10: maintain >= 50 mm above the top cover",
+  "file": "KO_B01_R_top_cover_50mm.stl",
+  "bbox_mm": [
+   -384.0,
+   -334.0,
+   -90.0,
+   90.0,
+   40.0,
+   300.0
+  ]
+ },
+ {
+  "name": "KO_E50_dcdc_arm_L_DDR480C24",
+  "owner": [
+   "E50_dcdc_arm_L_DDR480C24"
+  ],
+  "rule": "Mean Well DDR/DRDN installation manual: vertical, input terminals down, 40 mm above, 20 mm below, 5 mm left/right",
+  "file": "KO_E50_dcdc_arm_L_DDR480C24.stl",
+  "bbox_mm": [
+   -78.0,
+   17.5,
+   -5.7,
+   123.5,
+   130.4,
+   315.6
+  ]
+ },
+ {
+  "name": "KO_E52_arm_ORing_L_DRDN40-24",
+  "owner": [
+   "E52_arm_ORing_L_DRDN40-24"
+  ],
+  "rule": "Mean Well DDR/DRDN installation manual: vertical, input terminals down, 40 mm above, 20 mm below, 5 mm left/right",
+  "file": "KO_E52_arm_ORing_L_DRDN40-24.stl",
+  "bbox_mm": [
+   12.5,
+   77.5,
+   23.5,
+   123.5,
+   130.4,
+   315.6
+  ]
+ },
+ {
+  "name": "KO_E52_arm_ORing_R_DRDN40-24",
+  "owner": [
+   "E52_arm_ORing_R_DRDN40-24"
+  ],
+  "rule": "Mean Well DDR/DRDN installation manual: vertical, input terminals down, 40 mm above, 20 mm below, 5 mm left/right",
+  "file": "KO_E52_arm_ORing_R_DRDN40-24.stl",
+  "bbox_mm": [
+   -78.0,
+   -13.0,
+   -123.5,
+   -23.5,
+   130.4,
+   315.6
+  ]
+ },
+ {
+  "name": "KO_E30_U3_ORing_DRDN40-24",
+  "owner": [
+   "E30_U3_ORing_DRDN40-24"
+  ],
+  "rule": "Mean Well DDR/DRDN installation manual: vertical, input terminals down, 40 mm above, 20 mm below, 5 mm left/right",
+  "file": "KO_E30_U3_ORing_DRDN40-24.stl",
+  "bbox_mm": [
+   -18.0,
+   47.0,
+   -123.5,
+   -23.5,
+   130.4,
+   315.6
+  ]
+ },
+ {
+  "name": "KO_E13_U1_dcdc_DDR480C24",
+  "owner": [
+   "E13_U1_dcdc_DDR480C24"
+  ],
+  "rule": "Mean Well DDR/DRDN installation manual: vertical, input terminals down, 40 mm above, 20 mm below, 5 mm left/right",
+  "file": "KO_E13_U1_dcdc_DDR480C24.stl",
+  "bbox_mm": [
+   100.0,
+   195.5,
+   144.5,
+   273.7,
+   37.4,
+   222.6
+  ]
+ },
+ {
+  "name": "KO_E14_U2_dcdc_DDR480C24",
+  "owner": [
+   "E14_U2_dcdc_DDR480C24"
+  ],
+  "rule": "Mean Well DDR/DRDN installation manual: vertical, input terminals down, 40 mm above, 20 mm below, 5 mm left/right",
+  "file": "KO_E14_U2_dcdc_DDR480C24.stl",
+  "bbox_mm": [
+   -195.5,
+   -100.0,
+   144.5,
+   273.7,
+   37.4,
+   222.6
+  ]
+ },
+ {
+  "name": "KO_E58_U6_DDR60L5",
+  "owner": [
+   "E58_U6_DDR60L5"
+  ],
+  "rule": "Mean Well DDR/DRDN installation manual: vertical, input terminals down, 40 mm above, 20 mm below, 5 mm left/right",
+  "file": "KO_E58_U6_DDR60L5.stl",
+  "bbox_mm": [
+   37.5,
+   100.0,
+   144.5,
+   199.0,
+   180.0,
+   330.0
+  ]
+ },
+ {
+  "name": "KO_E54_U7_DDR480C24_coffee",
+  "owner": [
+   "E54_U7_DDR480C24_coffee"
+  ],
+  "rule": "Mean Well DDR/DRDN installation manual: vertical, input terminals down, 40 mm above, 20 mm below, 5 mm left/right",
+  "file": "KO_E54_U7_DDR480C24_coffee.stl",
+  "bbox_mm": [
+   200.0,
+   295.5,
+   144.5,
+   273.7,
+   134.4,
+   319.6
+  ]
+ },
+ {
+  "name": "KO_E2G_U5_DDR120C12",
+  "owner": [
+   "E2G_U5_DDR120C12"
+  ],
+  "rule": "Mean Well DDR/DRDN installation manual: vertical, input terminals down, 40 mm above, 20 mm below, 5 mm left/right",
+  "file": "KO_E2G_U5_DDR120C12.stl",
+  "bbox_mm": [
+   -195.0,
+   -153.0,
+   -246.5,
+   -144.5,
+   37.4,
+   222.6
+  ]
+ },
+ {
+  "name": "KO_E15_U4_dcdc_DDR240C24_S24",
+  "owner": [
+   "E15_U4_dcdc_DDR240C24_S24"
+  ],
+  "rule": "Mean Well DDR/DRDN installation manual: vertical, input terminals down, 40 mm above, 20 mm below, 5 mm left/right",
+  "file": "KO_E15_U4_dcdc_DDR240C24_S24.stl",
+  "bbox_mm": [
+   -158.0,
+   -108.0,
+   -258.0,
+   -144.5,
+   37.4,
+   222.6
+  ]
+ },
+ {
+  "name": "KO_E50_dcdc_arm_R_DDR480C24",
+  "owner": [
+   "E50_dcdc_arm_R_DDR480C24"
+  ],
+  "rule": "Mean Well DDR/DRDN installation manual: vertical, input terminals down, 40 mm above, 20 mm below, 5 mm left/right",
+  "file": "KO_E50_dcdc_arm_R_DDR480C24.stl",
+  "bbox_mm": [
+   100.0,
+   195.5,
+   -273.7,
+   -144.5,
+   37.4,
+   222.6
+  ]
+ },
+ {
+  "name": "KO_E34_U8_ideal_diode_DRDN40-48",
+  "owner": [
+   "E34_U8_ideal_diode_DRDN40-48"
+  ],
+  "rule": "Mean Well DDR/DRDN installation manual: vertical, input terminals down, 40 mm above, 20 mm below, 5 mm left/right",
+  "file": "KO_E34_U8_ideal_diode_DRDN40-48.stl",
+  "bbox_mm": [
+   -267.0,
+   -202.0,
+   -244.5,
+   -144.5,
+   137.4,
+   322.6
+  ]
+ }
+]

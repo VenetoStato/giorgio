@@ -1,0 +1,5 @@
+Dopo il riavvio, per riprendere il render v15 dalle scene mancanti e poi montare il video:
+  cd ~/giorgio_sim/render
+  nohup setsid bash run_v15_resume.sh > run_v15_resume.log 2>&1 &
+  sed -i 's/grep -q V15_RENDER_FATTO run_v15.log/grep -q V15_RENDER_FATTO run_v15_resume.log/' finale_v15.sh
+  nohup setsid bash finale_v15.sh > /dev/null 2>&1 &

@@ -1,0 +1,754 @@
+# Giorgio own AMR: electrical + safety netlist (rev B4, 2026-10-05)
+# Rev B4 = rev B3 + the CERTAINTY.md fixes (../CAD_REV_B4.md): SMS 1.1 m/s (castor rating speed 4 km/h, G-04) with SLS[1] 0.3 / SLS[2] 0.7
+#   (SR3 = 3rd PNOZ m EF 4DI4DOR on INSafe_3/4, SR2 O3 -> CI4 = FS4 MEDIUM, 1-of-4 code); DSR 50/5 at 27 V = 5 A each (F5); Mersen HP10M
+#   gPV links per position (G-13); K3 12 Ohm (G-11); dock contactor = Albright SW80B (G-24); centre-bay HIGH-rail modules moved to the
+#   right MID rail (loc RM) because the coaxial SWD bodies fill the centre bay (F4); SWD tunnels + tunnel fans (F3), rated room 0..+35 C;
+#   documented values: KS 10.4 mA, 0 V block 101 A, K1/K2 B10D 1.37E6, FL SWITCH 1008N P/N 1085256, PCAN 22.5 x 99 x 114.5; prices.
+# Rev B3 = rev B2 + one position table with the CAD (CAD_REV_B3.md s.3, din_layout.md, loc codes checked against ../out/parts.json):
+#   U3 to the centre bay, U6 to the left MID rail, U8 to the RR corner, U5 to the right LOW rail, E2F on the left HIGH rail, DSR clamps
+#   above the packs, G01 LYNK II (120 x 135 x 44) on a bracket in the right bay; K0V and XD3 = Carlo Gavazzi DUB01CD48500V (XD3 58.5 V).
+# Rev B2 = rev B1 + the design changes of ../VERIFICATION.md (93 checked items, official sources in ../../docs/fonti/):
+#   relay interface (2x PNOZ m EF 4DI4DOR) for SWD STO/INSafe and scanner control inputs + bleed resistors; SS1-t STO delay 1.2 s;
+#   K0 chain fail-safe (LYNK II NO 'energised = OK', K0V 48 V low-voltage cut-off, freewheel diode); DDR remote from K0 NC aux;
+#   dock: NPB-750-48 (Class B) + OV relay (rev B3: DUB01CD48500V at 58.5 V); RoboPad RPCOL90-100 60 A, handshake over Wi-Fi/Ethernet; PSEN on separate inputs;
+#   Siemens 3SU1 E-stops; K4 via interposing relay KI4; order-code and rating corrections. The EF 8DI4DO (SX1) of rev B1 is no
+#   longer needed in OA (its I/O moved to B0 + the relay modules).
+# Single source of truth for check_amr.py (writes CHECKS_AMR.md) and make_diagrams.py.
+# Rev B (owner decision 2026-10-05): NO waist yaw joint. Removed: Synapticon ACTILINK-JP25, THK RU124, twisterband,
+# DFS60S waist encoder, FX3-MOC1, waist limit switches and every waist safety function. Jetson + arm DC-DCs move from
+# the rotating plate into the CENTRE BAY of the base (CAD P10/P11/E50/E51/E52); cables to the superstructure pass the
+# deck grommet E53 at (62, 0). Safety controller re-optimised: Pilz PNOZmulti 2 (PNOZ m B0 + 1x EF 8DI4DO + ES ETH).
+# Tags: SOURCED = manufacturer document (URL in `sources`), SECONDARY = distributor listing / project context file,
+#       ASSUMED = engineering assumption or recalled value, to verify before release. Prices EUR excl. VAT.
+#       eibabo.de prices are shown incl. 19 % VAT on the site and converted here to net (/1.19).
+# Coordinates/lengths: from ../out/parts.json bbox centres, Manhattan distance x 1.2 + 0.15 m terminations (ESTIMATE).
+# Only certified off-the-shelf modules; no custom PCB. Do not edit ../amr_cad.py / ../amr_params.py from here:
+# CAD changes are listed in ELECTRICAL.md section 13.
+
+meta:
+  rev: B4
+  date: 2026-10-05
+  variants:
+    OA: "R&D: 2x Enactic OpenArm 2.0 (Damiao, no STO, no brakes) on 2x regulated 24 V buses in the centre bay"
+    C48: "CE-fast: 2x certified DC cobot arms (UR e-Series + OEM DC box 19-72 V, or Kassow Edge 42-58 V) on the 48 V arm feed"
+  pelv: "All circuits <= 58.4 V DC ripple-free (PELV, IEC 60204-1 6.4). 0 V bonded to chassis at ONE point (E19)."
+  rev_A_package_eur: {OA: 24553, C48: 23957, note: "rev A1 CHECKS_AMR.md BOM line (mostly ASSUMED prices), kept for the rev A vs rev B table"}
+  rev_B1_package_eur: {OA: 19751, C48: 19168, note: "rev B1 CHECKS_AMR.md BOM line, kept for the rev B1 vs B2 table"}
+
+sources:
+  swd_manual: {url: "https://www.ez-wheel.com/storage/upload/pdf/swd-products-v20x-03112023-user-manual-en-0-0.pdf", tag: SOURCED,
+    note: "SWD v2.0.2 manual: 24 VDC M12-L 5-pin (2x16 A pins), OV alert 32 V / error 34 V, UV 16/14 V, OC alert 25 A / error 30 A; I/O M12 A 12-pin: STO_1 (pin 5), STO_2 (pin 8), INSafe_1..4 (pins 7/10/2/9; pairs 1-2 and 3-4, each pair one safety command at SIL2/PLd/Cat3); STO direct from OSSD outputs SIL3/PLe; commands SLS[1..8], SLSa[1..8], SDIp/SDIn, SBC, SBU; any safety function can be mapped to 'permanent activation' (object 2624h); STO SIL3/PLe/Cat4; SBC, SLS, SLSa, SDI, SMS SIL2/PLd/Cat3; NO safe outputs on the I/O connector (status only via CANopen object 2630h)"}
+  swd_page: {url: "https://www.ez-wheel.com/en/safety-wheel-drive-swd-125", tag: SOURCED, note: "7.9 Nm nom / 13 Nm peak, 200 W S1, 24 V (via CONTEXT.md)"}
+  ddr480: {url: "https://www.meanwell.com/Upload/PDF/DDR-480/DDR-480-SPEC.PDF", tag: SOURCED,
+    note: "DDR-480C-24: 33.6-67.2 V in, 20 A, 30 A 5 s, 92 %, OVP 28.8-35 V latching, UVLO on 33.6/off 33 V, current sharing (P+/P-) total = n x 20 A x 0.9 up to 4 units, internal input fuse 3x 8 A, 85.5x125.2x129.2 mm, IEC 62368-1, conducted EMI class A; derating 100 % to ~60 C vertical, 40 % at 80 C"}
+  ddr240: {url: "https://www.meanwell.com/Upload/PDF/DDR-240/DDR-240-SPEC.PDF", tag: SOURCED, note: "DDR-240C-24: 33.6-67.2 V, 10 A, 91 %, 40x125.2x113.5 mm, working -40..+70 C, IEC 62368-1"}
+  ddr120: {url: "https://www.meanwell.com/Upload/PDF/DDR-120/DDR-120-SPEC.PDF", tag: SOURCED, note: "DDR-120C-12: 33.6-67.2 V, 10 A, 15 A peak 3 s, 89.5 %, 32x125.2x102 mm"}
+  drdn40: {url: "https://www.meanwell.com/Upload/PDF/DRDN40/DRDN40-SPEC.PDF", tag: SOURCED,
+    note: "DRDN40-24/-48: 2 inputs, 40 A per input / 40 A out continuous, 60 A 5 s, drop <= 0.3 V, reverse voltage 40 V (24) / 65 V (48), range 36-60 V (48), 55x125.2x100 mm, IEC 62368-1, EMI class B"}
+  npb1700: {url: "https://www.meanwell.com/Upload/PDF/NPB-1700/NPB-1700-SPEC.PDF", tag: SOURCED, note: "NPB-1700-48 (rev B2: option only): 25 A CC, default boost 57.6 V / float 55.2 V, DIP flooded preset 56.8 / 53.6 V, OVP 82-100 V, radiated EMC Class A, IEC/EN 60335-1/2-29"}
+  discover: {url: "https://discoverbattery.com/products/search/dlp-gc2-48v", tag: SOURCED,
+    note: "DLP-GC2-48V: 51.2 V 30 Ah, 58 A cont, 90 A 3 s, 29 A charge, bulk 55.2-56.8 V, float 53.6 V, external field-replaceable fuse protection, LYNK port J1939, remote ON/OFF, ST 5/16 terminals 9 Nm, IEC 62619 / UL 2271 / CE / UN 38.3; mounting orientation NOT specified; parallel count NOT specified"}
+  sw80: {url: "https://www.albrightinternational.com/products/sw80/", tag: SOURCED,
+    note: "SW80: 100 A interrupted / 125 A uninterrupted thermal; blowouts: max 96 V, fault break 600 A at 96 V (UL583, 5 ms) / 190 A at 96 V resistive (UL508); without blowouts max 48/60 V; M8 studs, M4 mounting holes (NOT DIN), coils 6-240 V"}
+  ed250: {url: "https://www.albrightinternational.com/products/ed250/", tag: SOURCED,
+    note: "ED250: 250 A thermal; WITH blowouts max 96 V (no blowouts: 48 V -> not usable on a 58.4 V bus); emergency rupture 1000 A at 96 V; key-lockable version; 'not a regular on-load switching device'"}
+  nanoscan3: {url: "https://www.sick.com/media/pdf/0/80/980/dataSheet_NANS3-CAAZ30AN1_1100334_en.pdf", tag: SOURCED,
+    note: "NANS3-CAAZ30AN1 (1100334) nanoScan3 Pro I/O: Type 3, SIL 2, PL d, PFHd 8.0e-8, 70 ms, protective range 3 m, 128 fields, <= 8 simultaneous, 2 OSSD pairs, 4 universal I/O, 8 universal inputs, 6 static control inputs (availability depends on configuration), 16.8-30 V, 3.9 W typ, delivered WITHOUT system plug. No encoder inputs listed"}
+  vb_ns3: {url: "https://vb-steuerungstechnik.de/Sick-NANS3-CAAZ30AN1-/-1100334-/-nanoScan3-Pro-/-Safety-Laser-Scanner", tag: SECONDARY,
+    note: "fetched 2026-10-05: EUR 2,394.95 excl. 19 % VAT + shipping, 'NEU in Originalverpackung', 3 in stock, 1 working day (old price EUR 2,521). Surplus dealer: warranty is the dealer's, not SICK's; check date code/firmware"}
+  eibabo_sick: {url: "https://www.eibabo.de/search?sSearch=NANS3", tag: SECONDARY,
+    note: "fetched 2026-10-05, gross incl. 19 % VAT -> net: NANS3-CAAZ30AN1 3,719.21; system plug NANSX-AAACZZZZ1 265.73 (NANSX-AAABZZZZ1 175.21); FX3-CPU000000 293.93; FX3-CPU130002 417.69; FX3-XTIO84002 453.39; FX3-XTDI80002 312.97; FX0-GENT00000 617.71; FX3-MPL000001 62.22; FLX3-CPUC100 1,032.97; FLX3-CPUC200 1,149.76 (CPUC: request items); FLX3-XTDI100 344.89; FLX3-XTDO100 529.46; FLX0-GETC100 / GCAN100 / GPNT100 590.45; RLY3-OSSD100 166.77; STR1-SAFM03P5 176.57"}
+  eibabo_pilz: {url: "https://www.eibabo.de/pilz/sicherheitssteuerung-pnoz-m-b0-eb16105018", tag: SECONDARY,
+    note: "fetched 2026-10-05, gross -> net: PNOZ m B0 772100 784.12 (20 safe inputs, 4 safe semiconductor outputs, 4 more SC outputs configurable as standard outputs or test pulses, 45 mm, 0-60 C); PNOZ m B1 772101 601.35 (no local I/O, 2x Ethernet, 4 test pulse outputs, 45 mm, 18.5 W); PNOZ m EF 8DI4DO 772142 321.86 (8 safe in, 4 safe SC out, 22.5 mm, 0-60 C); PNOZ m EF 16DI 772140 223.31; PNOZ m EF 4DI4DOR 379.72; PNOZ m ES ETH 772130 268.89; PNOZ m ES EtherCAT 772136 432.77; PSEN cs3.1 541009 104.91 + actuator PSEN cs3.11 14.43"}
+  flexi_compact: {url: "https://www.sick.com/Flexi_Compact", tag: SOURCED, note: "FLX3-CPUC200 (1085351) data sheet: main module, 20 safety inputs, 4 safety outputs, 8 test outputs (usable as non-safe outputs), Modbus TCP + SLMP built in, configuration via USB SmartPlug or TCP/IP (Safety Designer, free), front connectors supplied, PL e, 46.2 mm. XTDI100/XTDO100/XTDS100 channel counts NOT fetched (ASSUMED 8 in / 8 out / mixed 8 in + 4 out)"}
+  gavazzi_dub01: {url: "https://www.gavazziautomation.com/fileadmin/images/PIM/DATASHEET/ENG/DUB01CB%20DS%20ENG.pdf", tag: SOURCED, note: "file ../../docs/fonti/CarloGavazzi_DUB01-PUB01_datasheet_2025-03-03.pdf: DUB01CD48500V 'DIN-rail SPDT ... 2 to 500 V AC/DC', supply D48 '24 to 48 VAC/DC +-15 % ... insulated', ranges '5 to 50 V AC/DC ... Max. volt. 350 V' and '20 to 200 V AC/DC ... 600 V', level '10 to 110% on full scale', hysteresis '0 to 30% on set value', delay '0.1 to 30 s', 'Repeatability +-0.5% on full-scale', 'DC 12 5 A @ 24 VDC / DC 13 2.5 A @ 24 VDC', '22.5 x 80 x 99.5 mm', 'Monitoring function ON: Over voltage OFF: Under voltage', 'Relay working mode ... OFF: Normally Energized'; price DigiKey 1864-1123-ND USD 177.65 (2026-10-05)"}
+  dsr50: {url: "https://www.maxongroup.com/maxon/view/product/309687", tag: SOURCED, note: "maxon DSR 50/5 (309687): 12-50 V, threshold 27 V or 56 V selectable, 940 uF, 94x41x35 mm, 60-75 g, EUR 145.15 (1-4 pcs); DIN rail NOT mentioned"}
+  dsr50_oi: {url: "file:../../docs/fonti/maxon_DSR50-5_309687_Operating_Instructions_2015-04.pdf", tag: SOURCED, note: "p.3: 'Threshold voltage Vth (JP1: open) 26.1...27.1 VDC', 'Max. current 5 A', 'Max. continuous power loss Pcont without additional cooling at TU=25°C 10 W' (derating to 0 W at 75 C); p.7-8: 'Once the over-temperature deactivation is enabled the supply voltage cannot be limited anymore.' No CE statement"}
+  robopad: {url: "https://docs.galco.com/techdoc/rbtq/robopads_dat.pdf", tag: SOURCED, note: "rev B1 source (galco copy). SUPERSEDED by robopad13 (datasheet v1.3): no RPCOL90C wireless-CAN part in the order table; 60 A continuous"}
+  verification: {url: "file:../VERIFICATION.md", tag: SOURCED, note: "93-row verification of purchased components against official documents (2026-10-05); row IDs E1..X3 are quoted in this netlist as [V:xx]; PDFs in ../../docs/fonti/"}
+  discover_manual: {url: "file:../../docs/fonti/Discover_DLP-GC2_Installation_Operation_Manual_805-0027_RevN.pdf", tag: SOURCED,
+    note: "Table 3-1 p.4: Max Discharge Current (1 hour) 58 A, Max Continuous Discharge Current 15 A (footnote b: 5 back-to-back full cycles without over-temperature trip at 25 C), Max Charge (1 h) 29 A, Max Continuous Charge 15 A, Peak Discharge 90 A RMS (10 s), fuse 58 V 60 A, LVD recommended 48.0 V, LVD 40.0 V, max load capacitance 23 mF; Table 3-4: over-discharge > 58 A for 10 s, under-voltage < 40 V for 5.2 s (no automatic recovery), over-voltage > 58.24 V for 3.2 s; Table 3-9: 2 batteries 180 A peak / 116 A (1 h) / 30 A continuous; s.9.2 p.10: do not install upside down, >= 50 mm above the top cover, hold-downs; s.10.1: program the application low-voltage cut-off at or above 48.0 V"}
+  lynk_relay: {url: "file:../../docs/fonti/Discover_LYNK_II_Relay_Guide.pdf", tag: SOURCED, note: "3 programmable relays: Relay 1 NO/NC/COM (pins 10/11/12), Relays 2 and 3 NO (6/8, 4/2); 0-30 V DC, 5 A max; the NC contact is closed when the relay is DE-activated -> 'NC = OK' is not fail-safe; activation/deactivation on SoC, cell voltage, cell temperature with delays"}
+  lynk_sheet: {url: "file:../../docs/fonti/Discover_LYNK_II_Motive_sell_sheet_885-0035.pdf", tag: SOURCED, note: "CE, IP20 indoor, -20..50 C, 13-90 V input, 120 x 135 x 44 mm"}
+  pilz_cat: {url: "https://www.pilz.com/download/open/PNOZmulti_2_Techn_Catalogue_1006421-EN-01.pdf", tag: SOURCED,
+    note: "extract in ../../docs/fonti: reaction times p.26-28 (B0 33 ms, EF 41 ms, through EF 4DI4DOR relays 54 ms); B0: 6 expansion modules right, 1 communication module left; EF 4DI4DOR 772143 p.207-221: 4 safe inputs, 4 positive-guided relay outputs, DC1 24 V min 10 mA max 6 A, switch-off delay 22 ms, relay outputs 2-channel PL e Cat 4 PFH 7.52E-12, 1-channel PL c Cat 1 3.75E-08, CPU 2.84E-10, inputs 2-ch 4.27E-11, 22.5 mm; Configurator free from V11 (p.565)"}
+  pilz_b0: {url: "file:../../docs/fonti/Pilz_PNOZ_m_B0_OperManual_1002660-EN-13.pdf", tag: SOURCED, note: "p.48 CPU 4.74E-10, SC output adv. fault detection 1.66E-11, inputs 2-ch 7.95E-11; p.45 SC output 2 A (0-2.5 A), <= 1 uF, test pulse <= 330 us; p.29 two loads on one SC output = PL e if the feedback loop is connected and cross-shorts are excluded (separate multicore cables); auxiliary outputs 75 mA (p.8)"}
+  ns3_oi: {url: "https://www.sick.com/media/docs/7/37/137/operating_instructions_nanoscan3_i_o_en_im0087137.pdf", tag: SOURCED, note: "extract in ../../docs/fonti: 1-of-n evaluation p.44; input delay class 'tactile controls (relays) 30-150 ms' p.89; power 3.9 W typ without output load / 15.9 W at max output load, start-up <= 1.3 A p.130; system plug NANSX-AAACZZZZ1 2105107 p.143; tR = n x 30 ms + 10 ms p.134"}
+  swd_sls: {url: "file:../../docs/fonti/ezwheel_SWD_user_manual_v2.0.2_EN.pdf", tag: SOURCED, note: "p.109-110: SLS monitoring starts after t_SLS (6691h, U16 ms, configurable) or t_L_SLS (6694h); SLS violation -> STO per 6698h; p.89-90 PFHd STO 1.42E-9 (PL e Cat 4), SLS/SLSa/SDI/SBC3 2.29E-7 (PL d Cat 3), MTTFd 14 y; p.24/p.106 default SBC on STO = internal phase-short brake; no safety-rated SS1"}
+  npb750: {url: "file:../../docs/fonti/MeanWell_NPB-750-SPEC.pdf", tag: SOURCED, note: "NPB-750-48: CC 11.3 A, 759 W, CV range 42-80 V, DIP 'pre-defined, flooded battery' 56.8 / 53.6 V, OVP 82-100 V latching, CANBus 2.0B, EMC emission Class B (EN 55032 / EN 55014-1), IEC/EN 60335-1/2-29, 230x158x67 mm, recommended 40-130 Ah"}
+  robopad13: {url: "file:../../docs/fonti/Roboteq_RoboPad_Datasheet_v1.3.pdf", tag: SOURCED, note: "RPCOL90-100 collector (no 'C' wireless-CAN part in the order table, fully passive); 60 A continuous, 75 A 80 s on / 60 s off; 60 V max even under fault conditions (p.7); external cables <= 2 m; charger must comply with EN 61000-6-1/-6-3 (p.14); Hall: open collector 4.5-24 V, 1-10 kOhm pull-up"}
+  siemens_docs: {url: "file:../../docs/fonti/ (Siemens_3RT2026-1BB40, Siemens_3NA3830, Siemens_3SU1400-1AA10-1CA0)", tag: SOURCED, note: "3RT2026-1BB40: DC-1 2 poles in series at 60 V 35 A (1 pole 20 A), DC-3/DC-5 2 poles 35 A, coil 5.9 W, mirror contact Yes; 3NA3830: NH000 100 A gG, 250 V DC, 25 kA DC (tau <= 10 ms); 3SU1400-1AA10-1CA0: NC contact module, positive opening Yes"}
+  albright_docs: {url: "file:../../docs/fonti/ (Albright_SW80_datasheet, Albright_ED250_datasheet)", tag: SOURCED, note: "SW80: Ith 100 A interrupted / 125 A; B suffix = magnetic blowouts (polarity sensitive) 96 V; A suffix = auxiliary contacts (5 A thermal); continuously rated coil 7-13 W; drop-out 50 ms with diode suppression. ED250B: 250 A, ruptures 1000 A at 96 V, L suffix = lockable, emergency / no-load isolator only"}
+  finder22: {url: "file:../../docs/fonti/Finder_22-32_datasheet_p3.pdf", tag: SOURCED, note: "22.32: DC1 25 A at 24 V per contact; AC/DC silent coil with varistor protection, 2.2 W (= 92 mA at 24 V)"}
+  eibabo_4di4dor: {url: "https://www.eibabo.de (Pilz 772143)", tag: SECONDARY, note: "PNOZ m EF 4DI4DOR 772143 EUR 379.72 net (read 2026-10-05, VERIFICATION P14)"}
+  context: {url: "file:../CONTEXT.md", tag: SECONDARY, note: "project decisions and prices (SWD EUR 2,333 Generation Robots; Discover USD 1,009)"}
+  old_arch: {url: "file:../../electrical/ARCHITECTURE.md", tag: SECONDARY, note: "loads (OpenArm 70/360/720 W), Jetson, coffee 300 W, dock handshake, regen clamp concept, UR OEM DC 19-72 V + 400 A inrush"}
+  finder38: {url: "file:../../docs/fonti/Finder_38-51_datasheet_S38EN_p5_p13.pdf", tag: SOURCED, note: "38.51.7.024.0050: 'Rated current/Maximum peak current A 6/10', 'Breaking capacity DC1: 24/110/220 V A 6/0.2/0.12', coil table '24 7.024 19.2 28.8 10.4 0.3'"}
+  peak_um: {url: "file:../../docs/fonti/PEAK_PCAN-Ethernet_Gateway_DR_UserMan_2.1.0_p1-6-64-66.pdf", tag: SOURCED, note: "'Supply voltage 8 to 30 V DC', 'Max. current consumption 360 mA at 8 V, 240 mA at 12 V, 100 mA at 30 V', 22.5 x 99 x 114.5 mm, EN 55032 / EN 55035"}
+  patlite_wme: {url: "file:../../docs/fonti/Patlite_WME-DFB_signal_tower_spec_WME-D-W18.pdf", tag: SOURCED, note: "WME-302DFB-RYG: 'Rated Voltage 24V DC', 'Buzzer 1.0W', 'Sound Pressure Level (Typ.) 93dB', 'Protection Rating IP54', 'Mounting Location Indoor Only'"}
+  kassow_edge: {url: "file:../../docs/fonti/Kassow_EdgeEdition_brochure_p1_p4_power.pdf", tag: SOURCED, note: "p.4: 'Power consumption (with max. load; W) 400-600 / 400-1200', 'Standstill power consumption, brakes applied 65 / released 75', 'Typical Robot avg. power consumption 200 / 300', 'Supply voltage (VDC) 42-58', 'Max external fuse (A) 25'"}
+  phoenix_fl1008n: {url: "file:../../docs/fonti/PhoenixContact_1085256_FL-SWITCH-1008N_datasheet.pdf", tag: SOURCED, note: "'Supply voltage range 9 V DC ... 32 V DC', 'Typical current consumption 28 mA (at 24 V DC)', 'Max. current consumption 173 mA (at 9 V DC)', width 22.5 / height 140.4 / depth 92.4 mm"}
+  phoenix_plc_rsc: {url: "file:../../docs/fonti/PhoenixContact_2966171_PLC-RSC-24DC-21_datasheet.pdf", tag: SOURCED, note: "PLC-RSC-24DC/21 2966171: 'Typical input current at UN 9 mA', 'Limiting continuous current 6A', 'Min. switching current 10 mA (12 V)', 6.2 x 80 x 94 mm"}
+  vishay_pr: {url: "file:../../docs/fonti/Vishay_PR01-PR02-PR03_datasheet_28729.pdf", tag: SOURCED, note: "'Rated dissipation P70' PR01 1 W, PR02 2 W; PR01 0.22 Ohm to 1 MOhm"}
+  vishay_rh: {url: "file:../../docs/fonti/Vishay-Dale_RH-NH_RH-50_aluminum-housed_datasheet_30201.pdf", tag: SOURCED, note: "RH050 'RH-50 50 W' (on the specified heat sink), 0.1 Ohm..96 kOhm; 'Short time overload 5 x rated power for 5 s'; 2000 VRMS dielectric"}
+  sanace_cat: {url: "file:../../docs/fonti/SanyoDenki_9WPA0624S4001_9WPA0424H6001_9WPA0824H4001_catalog_C1152B001_p1-362-364-371-373-377-379-625.pdf", tag: SOURCED, note: "9WPA0624S4001: 24 V, 0.17 A, 4.08 W, 0.99 m3/min, 151 Pa, -20..+70 C, L10 40000 h/60 C, IP68; 9WPA0424H6001: 0.038 A, 0.9 W, 0.24 m3/min, 81 Pa; P-Q curves p.363/372"}
+  euchner_zsa: {url: "file:../../docs/fonti/Euchner_ZSA-ZSR_operating-instructions_EN_2092781.pdf", tag: SOURCED, note: "'three-position enabling switch according to EN 60947-5-8'; '2-channel evaluation ... category 3'; 'B10D at DC13 400 mA / 24 V 3.9 x 10^5'; IP67; plug M12 5-pole (datasheet 2127401)"}
+  binder_m12: {url: "file:../../docs/fonti/Binder_76-0632-1011-00005-0200_M12-A_female_panel_5pin_datasheet.pdf", tag: SOURCED, note: "'DIN EN 61076-2-101', 'A-coded', 'IP68/IP69K', 'Rated voltage 60 V', 'Rated current 4 A'"}
+  pilz_psen: {url: "file:../../docs/fonti/Pilz_PSENcode_PSEN-cs3.1_541009_TUV-Sued_EC-type-cert_M6A-020132-0191_1003929-BM-16.pdf", tag: SOURCED, note: "TUV SUED: 'Tested according to ISO 13849-1:2023 (up to Cat. 4 PL e) ... EN ISO 14119:2013, EN 60947-5-3:2013'; 541009 / 541080 'Category 4, PL e, SIL CL 3, PFHd 2,62E-09'; valid until 2030-12-04. Pilz product page (archived 2025-10-31, docs/fonti .txt): 'Coding level to ISO 14119 Low', Sao 8 / Sar 20 mm"}
+  finder_opta: {url: "file:../../docs/fonti/Finder_8A.04.9.024.8320_OPTA_datasheet_S8AEN_IX-2026_p3-6-7-11.pdf", tag: SOURCED, note: "'Nominal voltage (UN) V DC 12...24'; '4 NO (SPST)', 'Rated current 10/15 A', 'Breaking capacity DC1: 24/110/220 V A 10/0.3/0.12'; Wi-Fi + BLE, Ethernet, Modbus; EU DoC: LVD/EMC/RED, EN 61010-2-201"}
+  seeed_j4012: {url: "file:../../docs/fonti/Seeed_reComputer-J4012_110110145_datasheet_p1-2-3-4-5-23.pdf", tag: SOURCED, note: "reComputer J4012 (Orin NX 16 GB): 'Power 9-19V', 'Power supply DC 12V/5A', 'Power 10W - 25W', -10..60 C, 130 x 120 x 58.5 mm; EU DoC 2014/30/EU + RoHS (no radio)"}
+  mersen_hp10m: {url: "file:../../docs/fonti/Mersen_HP10M_gPV-10x38-1000VDC_datasheet.pdf", tag: SOURCED, note: "HP10M: 'Volts: 1000VDC', 'Amps: 1 to 32A', 'I.R.: 50kA I.R. DC' (UL 2579), 'Photovoltaic Fuse, gPV', 'IEC 60269-6 Approved'; brochure (docs/fonti Mersen_HelioProtection_brochure...): 'MAXIMUM BREAKING CAPACITY = 10KA' under IEC 60269-6; ratings 1/2/3/3.5/4/5/6/8/10/12/15/20/25/30/32 A; time-current curve 720877; holder CUS101HEL (Mersen datasheet K1062724)"}
+  vishay_1n5408: {url: "file:../../docs/fonti/Vishay_1N5408_1N5400-series_datasheet_88516.pdf", tag: SOURCED, note: "'IF(AV) 3.0 A', 'IFSM 200 A', VRRM 1000 V (1N5408)"}
+  siemens_3rt2926: {url: "file:../../docs/fonti/Siemens_3RT2926-1BB00_datasheet.pdf", tag: SOURCED, note: "'surge suppressor, varistor, 24-48 V AC, 50/60 Hz, 24-70 V DC, for contactors', 'size of contactor S0'"}
+  siemens_3su1050: {url: "file:../../docs/fonti/Siemens_3SU1050-1HB20-0AA0_datasheet.pdf", tag: SOURCED, note: "'EMERGENCY STOP mushroom pushbutton, 22 mm, round ... 40 mm, positive latching, acc. to EN ISO 13850, rotate-to-unlatch'; 'mechanical service life typical 300 000'; 'B10 value with high demand rate according to SN 31920 100 000'; holder 3SU1500-0AA10-0AA0 and base 3NH3030 datasheets in docs/fonti"}
+  eaton_m22: {url: "file:../../docs/fonti/ (Eaton_M22-DL-B_216931, Eaton_M22-K10_216376, Eaton_M22-WRS3_216900 specifications)", tag: SOURCED, note: "M22-K10 'RATED OPERATIONAL CURRENT (IE) AT DC-13, 24 V 3A'; M22-DL-B 'LIFESPAN, MECHANICAL 5,000,000 Operations', IP67/IP69K; M22-WRS3 'Key-operated actuator, maintained, 3 positions', 'LIFESPAN, MECHANICAL 100,000 Operations', IP66"}
+  phoenix_emg: {url: "file:../../docs/fonti/PhoenixContact_2943259_EMG-17-OV-TTL-24DC-2_datasheet.pdf", tag: SOURCED, note: "'Switching threshold \"1\" signal voltage 2 V (TTL)', 'Typical input current at UN 2.6 mA', 'Auxiliary voltage TTL input 5 V DC ±20 %', 'Output voltage range 10 V DC ... 30 V DC', 'Limiting continuous current 2 A'"}
+  phoenix_pt16: {url: "file:../../docs/fonti/PhoenixContact_3212138_PT-16-N_datasheet.pdf", tag: SOURCED, note: "PT 16 N 3212138: 'Nominal current 76 A', 'Nominal voltage 1000 V', 16 mm2 push-in"}
+  iso13849_annexC_K: {url: "ISO 13849-1:2023 Annex C (B10D typical values) and Annex K (PFHd table); ISO/TR 24119 (series wiring)", tag: ASSUMED, note: "values recalled; recompute in SISTEMA with manufacturer libraries"}
+  iec60204_t6: {url: "IEC 60204-1:2016+A1 Table 6 (PVC 70 C, 40 C ambient)", tag: ASSUMED, note: "ampacity values recalled; verify against the standard"}
+
+# --------------------------------------------------------------------------------------------- electrical environment
+bus:
+  B48: {v_min: 40.0, v_lvco: 48.0, v_nom: 51.2, v_max: 58.4, note: "2x DLP-GC2-48V in parallel; v_lvco = application cut-off K0V 48.0 V (Discover LVD recommended, SOURCED discover_manual); v_min = BMS LVD 40 V < 5.2 s (SOURCED, used for the worst-case current checks); v_max = 3.65 V/cell"}
+  prospective_isc_kA: 20.0    # [V:D6] not published -> design bound: every B48 device must break >= 20 kA DC (F0 3NA3830 25 kA SOURCED); the 60 A internal pack fuses limit the pack contribution
+  batt_1h_A: 116              # pair, Max Discharge Current (1 hour) 2 x 58 A [SOURCED discover_manual Table 3-1/3-9]
+  batt_cont_A: 30             # pair, Max Continuous Discharge Current 2 x 15 A (repeated full cycles, thermal) [SOURCED discover_manual footnote b]
+  batt_peak_A: 180            # pair, 2 x 90 A RMS for 10 s [SOURCED discover_manual Table 3-1]
+  batt_peak_s: 10.0
+  bms_trip_A_10s: 116         # pair, over-discharge protection > 58 A for 10 s per pack [SOURCED discover_manual Table 3-4]
+  batt_charge_A: 30           # pair, Max Continuous Charge Current 2 x 15 A [SOURCED]; 1-hour charge 2 x 29 A
+  pack_fuse_A: 60             # internal fuse 58 V 60 A per pack (Littelfuse 142.5631.5602) [SOURCED]
+  ampacity_A:                 # IEC 60204-1 Table 6 style, PVC 70 C conductor, 40 C ambient [ASSUMED values]
+    B2: {0.5: 6.0, 0.75: 7.6, 1.0: 9.6, 1.5: 12.2, 2.5: 16.5, 4: 23, 6: 29, 10: 40, 16: 53, 25: 69, 35: 83}
+    E:  {0.5: 7.5, 0.75: 9.5, 1.0: 12.0, 1.5: 16.1, 2.5: 22, 4: 30, 6: 37, 10: 52, 16: 70, 25: 88, 35: 109}
+    # 90 C insulation (H07Z-K, OLFLEX FD 90, silicone): IEC 60364-5-52 B.52.12 XLPE/EPR 2 loaded conductors, 30 C values x 0.91 -> 40 C [ASSUMED]
+    B2_90: {1.0: 15.5, 1.5: 20.0, 2.5: 27.3, 4: 36.4, 6: 46.4, 10: 62.8, 16: 82.8, 25: 108, 35: 133}
+    E_90:  {1.0: 19.0, 1.5: 23.7, 2.5: 32.8, 4: 44.6, 6: 57.3, 10: 78.0, 16: 105, 25: 136, 35: 168}
+  k_temp_bay: 0.87            # 45 C bay air (fans fitted, see thermal); PVC 70 C [ASSUMED IEC 60364-5-52 B.52.14]
+  k_temp_bay_90: 0.96         # 45 C vs 40 C for 90 C insulation [ASSUMED]
+  rho_ohm_mm2_m: 0.0209       # Cu at 70 C
+  vdrop_limit_pct: 3.0
+
+# --------------------------------------------------------------------------------------------- devices
+# loc (rev B3 = CAD_REV_B3.md s.3, checked against ../out/parts.json by check_amr.py): LL = left LOW rail z 120, LM = left MID rail z 245,
+#      LU = left HIGH rail z 275, LC = left corner rail FL z 217; RL = right LOW rail z 120, RU = right HIGH rail z 275, RC = right corner
+#      rail RR z 220, RW = right bay, on a bracket against the side cover; CB = centre bay (spine inner faces), CD = deck underside above
+#      the packs (inside the spines); RM = right MID rail z 175 above the SWD tunnel (rev B4); BASE = elsewhere in the base,
+#      SUP = superstructure (above the deck), DOCK = station.
+# grp: cost group for the rev A / rev B table in ELECTRICAL.md.
+devices:
+  # ---- energy storage
+  - {ref: B01F, grp: battery, cad: B01_battery_F_DLP-GC2-48V, mpn: DLP-GC2-48V, mfr: Discover Energy Systems, loc: BASE, qty: 1, variant: all,
+     ratings: "51.2 V 30 Ah 1.54 kWh LFP; discharge 15 A continuous (repeated cycles) / 58 A 1 h / 90 A RMS 10 s, BMS trips > 58 A 10 s; charge 15 A cont / 29 A 1 h; internal fuse 58 V 60 A; BMS main RELAY (not FETs); LYNK J1939 [SOURCED discover_manual, V:D5/D8/D9/D13]",
+     mount: "lying on its side is allowed (only upside down is forbidden); >= 50 mm free in front of the top cover; over-the-top hold-downs [V:D1]; H01 = H02 length and gauge, packs within 50 mV at >= 95 % SoC before paralleling [V:D2]",
+     cert: "IEC 62619, UL 2271, CE, UN 38.3", price_eur: 930, price_tag: SECONDARY, price_src: "USD 1,009 (CONTEXT.md) x 0.92 ASSUMED FX"}
+  - {ref: B01R, grp: battery, cad: B01_battery_R_DLP-GC2-48V, mpn: DLP-GC2-48V, mfr: Discover Energy Systems, loc: BASE, qty: 1, variant: all,
+     ratings: "as B01F", cert: "IEC 62619, UL 2271, CE, UN 38.3", price_eur: 930, price_tag: SECONDARY, price_src: "as B01F"}
+  - {ref: G01, grp: battery, cad: E38_G01_LYNK_II_gateway, mpn: "LYNK II Communication Gateway 950-0025", mfr: Discover Energy Systems, loc: RW, qty: 1, variant: all,
+     ratings: "LYNK (J1939) <-> CAN; 3 programmable relays 0-30 V DC 5 A (R1 NO/NC, R2 NO, R3 NO); 13-90 V supply; 120 x 135 x 44 mm (not DIN)", cert: "CE, IP20 indoor [SOURCED lynk_sheet]", price_eur: 350, price_tag: ASSUMED, price_src: "estimate",
+     note: "rev B2 [V:D4]: R1 NO (pins 12->10) programmed 'activated = no BMS alarm' (energised = OK, fail-safe) in series with the K0 coil chain; R3 NO -> PNOZ info input (BMS warning). Coil load 0.7 A << 5 A; freewheel diode D0 across the SW80 coil (Finder 22.32 coils have an internal varistor)"}
+  # ---- main power (left bay)
+  - {ref: F0, grp: power, cad: E10_F0_fuse_NH00_100A, mpn: "Siemens 3NA3830 (size NH000, gG 100 A) in an NH00 base 3NH3030 (160 A, DC 440 V, Icu DC 25 kA, datasheet docs/fonti)", mfr: Siemens, loc: LM, qty: 1, variant: all,
+     ratings: "100 A gG, 500 V AC, 250 V DC, 25 kA DC (tau <= 10 ms) [SOURCED siemens_docs, V:SI5]",
+     cert: "IEC 60269-2", price_eur: 40, price_tag: ASSUMED, price_src: "estimate base+link"}
+  - {ref: Q0, grp: power, cad: E03_service_disconnect_ED250B, mpn: "Albright ED250B-L (B = magnetic blowouts, L = lockable key)", mfr: Albright, loc: BASE, qty: 1, variant: all,
+     ratings: "250 A thermal, 96 V max with blowouts, emergency rupture 1000 A at 96 V [SOURCED albright_docs, V:AL3]", cert: "UL583-based ratings (manufacturer)",
+     price_eur: 150, price_tag: ASSUMED, price_src: "estimate", note: "emergency / no-load isolator only: the manual says switch Q0 only with K0 open (K0 is the load switch); the variant WITHOUT blowouts is limited to 48 V"}
+  - {ref: K0, grp: power, cad: E11_K0_contactor_SW80B_on_plate, mpn: "Albright SW80B...A, continuously rated 24 V DC coil (B = blowouts, polarity-sensitive main terminals; A = auxiliary contact)", mfr: Albright, loc: LM, qty: 1, variant: all,
+     ratings: "Ith 100 A interrupted / 125 A, 96 V max with blowouts, breaks 600 A at 96 V; coil 7-13 W continuous; drop-out 50 ms with diode [SOURCED albright_docs, V:AL1/AL2]", cert: "manufacturer (UL583/UL508 test basis)",
+     price_eur: 120, price_tag: ASSUMED, price_src: "estimate",
+     note: "functional power-on contactor (NOT a safety contactor). Coil chain rev B2: S24 -> G01 R1 NO (energised = OK) -> K0V NO (B48 >= 48 V) -> K0P + K0T -> K0 (freewheel diode D0). Aux contact used as NC -> U1/U2 DDR remote (short = OFF while K0 is open) [V:M2]. Mounted vertically: M8 studs up"}
+  - {ref: K0P, grp: power, cad: E12_K0P_precharge_relay, mpn: "Finder 22.32.0.024.4340 (2NO 25 A modular contactor) + Vishay Dale RH-50 (RH050) 47R on the spine (rev B4 G-25: replaces Arcol HS50, whose datasheet could not be retrieved)",
+     mfr: Finder / Vishay, loc: LM, qty: 1, variant: all, ratings: "precharge 1.24 A initial, 3.4 J per cycle", cert: "IEC 61095 / -",
+     price_eur: 45, price_tag: ASSUMED, price_src: "estimate", note: "energised from the K0_OK line (G01 R1 + K0V); bypassed by K0 after 0.6 s; coil has an internal varistor [SOURCED finder22]"}
+  - {ref: K0T, grp: power, cad: E17_K0T_timer_Finder80, mpn: "Finder 80.01.0.240.0000 multifunction timer (on-delay 0.6 s), 17.5 mm", mfr: Finder, loc: LU, qty: 1, variant: all,
+     ratings: "16 A contact, 24 V supply", cert: "IEC 61812-1", price_eur: 35, price_tag: ASSUMED, price_src: "estimate",
+     note: "NEW rev B: replaces the two Flexi outputs SX5 Q1/Q2 of rev A (precharge sequence without the safety controller)"}
+  - {ref: K0V, grp: power, cad: E2K_K0V_LVCO_relay_DUB01CD48500V, mpn: "Carlo Gavazzi DUB01CD48500V: DIN 22.5 mm DC/AC voltage monitoring relay, SPDT, supply 24-48 V AC/DC insulated (D48), range 5-50 V (DIP), UNDER-voltage, normally energised; set 48.0 V, delay 5 s, hysteresis ~4 % (re-close ~50 V)", mfr: Carlo Gavazzi, loc: RU, qty: 1, variant: all,
+     ratings: "measuring range 5-50 V AC/DC (input max 350 V) [SOURCED gavazzi_dub01 p.1]; level 10-110 % of full scale, hysteresis 0-30 %, delay 0.1-30 s [p.3]; repeatability +-0.5 % FS (+-0.25 V) [p.2]; SPDT DC12 5 A @ 24 V DC, DC13 2.5 A @ 24 V DC >> K0 chain 0.7 A [p.2]; supply-input 2 kV / input-output 4 kV isolation; 3 W; 22.5 x 80 x 99.5 mm", cert: "UL, CSA, CCC; EN 60255-6; CE (LVD, EMC EN 61000-6-2 / -6-3) [SOURCED gavazzi_dub01 p.2]", price_eur: 144.90, price_tag: SECONDARY, price_src: "RS EUR 144.90 (2026-10-05, CERTAINTY s.4)",
+     note: "NEW rev B2 [V:D10]: application low-voltage cut-off at 48.0 V (Discover LVD recommended). Opens K0 (motion loads off); the Jetson then logs, parks and switches the packs OFF via LYNK remote ON/OFF so the always-on loads cannot drain the packs into the 40 V BMS lock-out (manual ON needed). Independent of the LYNK firmware"}
+  - {ref: D0, grp: power, cad: E11_K0_contactor_SW80B_on_plate, mpn: "freewheel diode Vishay 1N5408 (3 A, 1000 V) on the K0 SW80 coil spades (crimped, heat-shrunk) + Siemens 3RT2926-1BB00 varistor (24-70 V DC, S0) on K1 and K2 (rev B4 G-23)", mfr: "Vishay / Siemens", loc: LM, qty: 1, variant: all,
+     ratings: "1N5408 'IF(AV) 3.0 A', 'IFSM 200 A', VRRM 1000 V [SOURCED vishay_1n5408] >= SW80 coil 0.54 A; K0 drop-out 50 ms with diode (Albright); 3RT2926-1BB00 'surge suppressor, varistor ... 24-70 V DC ... size of contactor S0' [SOURCED siemens_3rt2926] (fast drop-out, keeps the SS1-t reaction time)", cert: "-", price_eur: 40, price_tag: ASSUMED, price_src: "estimate (set)",
+     note: "NEW rev B2 [V:D4, V:P5]: K0P, K4 (Finder 22.32) and KS have internal coil protection"}
+  - {ref: E19, grp: power, cad: E19_0V_block, mpn: "Weidmueller WPD 100 2X25/6X10 GY (1561910000) 0 V distribution block + 6 mm2 chassis strap", mfr: Weidmueller, loc: LU, qty: 1, variant: all,
+     ratings: "101 A, 1000 V, 2x25 mm2 in / 6x10 mm2 out [SECONDARY eibabo: 'Rated Current: 101 A'] >= F0 100 A", cert: "IEC 60947-7-1", price_eur: 36.02, price_tag: SECONDARY, price_src: "eibabo WPD 100 EUR 42.86 gross / 1.19 (2026-10-05)",
+     note: "single 0 V-to-chassis bond point (PELV)"}
+  - {ref: FH, grp: power, cad: E18_branch_fuses_10x38_x6, mpn: "Mersen 10x38 DC fuse holder 1P 32 A 1000 V DC (CUS101HEL, see sources mersen_hp10m) + comb busbar: F1,F2,F3,F4,F5L,F5R (E18 = 6 positions) + F7 (E33) + F8L,F8R (E31)", mfr: Mersen, loc: LU, qty: 9, variant: all,
+     ratings: "32 A max, 1000 V DC, 17.5 mm", cert: "IEC 60269-6 / UL 4248-18", price_eur: 8.65, price_tag: SECONDARY, price_src: "eibabo CUS101HEL EUR 10.29 gross / 1.19 (2026-10-05)",
+     note: "rev A had 12 (F5 ACTILINK removed); E18 = 6 holders = 110 mm (BOM row E18 x6, CERTAINTY M4)"}
+  - {ref: FL, grp: power, cad: E18_branch_fuses_10x38_x6, mpn: "Mersen HP10M gPV 10x38 links: F1 HP10M6, F2 HP10M20, F3/F4 HP10M20, F5L/F5R HP10M15 (OA) / HP10M25 (C48 = Kassow 'Max external fuse 25 A'), F7 HP10M32, F8L/F8R HP10M20", mfr: Mersen, loc: LU, qty: 9, variant: all,
+     ratings: "gPV, 1000 V DC, breaking capacity 10 kA DC to IEC 60269-6 (brochure) / 50 kA DC I.R. to UL 2579 [mersen_hp10m]; the 20 kA design bound (V:D6) is not documented -> measure Isc in TP-14 (G-29); the HP10M range is 1, 2, 3, 3.5, 4, 5, 6, 8, 10, 12, 15, 20, 25, 30, 32 A (no 16 A) -> F2 16 -> 20 A, F5 16 -> 15 A (rev B4 G-13)", cert: "IEC 60269-6", price_eur: 11.0, price_tag: SECONDARY, price_src: "eibabo HP10M ~12-14 gross (2026-10-05)"}
+  # ---- traction T24
+  - {ref: U1, grp: power, cad: E13_U1_dcdc_DDR480C24, mpn: DDR-480C-24, mfr: Mean Well, loc: LL, qty: 1, variant: all,
+     ratings: "33.6-67.2 V in, 24 V 20 A, 30 A 5 s, 92 %, current share P+/P- (n x 20 A x 0.9), remote: open = ON / short = OFF [SOURCED ddr480, V:M2-M4]", cert: "IEC/UL 62368-1, IEC 61373 vibration", price_eur: 140, price_tag: ASSUMED, price_src: "docs/bom.csv estimate",
+     mount: "VERTICAL only: input terminals at the bottom, clearances 5 mm left/right, 40 mm above, 20 mm below [SOURCED DDR installation manual, V:M1] - applies to every DDR-xxx and DRDN40 in this netlist"}
+  - {ref: U2, grp: power, cad: E14_U2_dcdc_DDR480C24, mpn: DDR-480C-24, mfr: Mean Well, loc: LL, qty: 1, variant: all,
+     ratings: "as U1 (parallel, current sharing)", cert: "IEC/UL 62368-1", price_eur: 140, price_tag: ASSUMED, price_src: "docs/bom.csv estimate"}
+  - {ref: U3, grp: power, cad: E30_U3_ORing_DRDN40-24, mpn: DRDN40-24, mfr: Mean Well, loc: CB, qty: 1, variant: all,
+     ratings: "2x40 A in, 40 A out, 60 A 5 s, 0.3 V drop; 55 x 125.2 x 100 mm [SOURCED DRDN40-SPEC]", cert: "IEC/UL 62368-1", price_eur: 70, price_tag: ASSUMED, price_src: "estimate",
+     note: "rev B3: centre bay right LOW rail (at its true 125.2 mm height the keep-out does not fit above the SWD housing in the left bay)"}
+  - {ref: R1, grp: power, cad: E16_R1a_traction_clamp_DSR50-5, mpn: "maxon DSR 50/5 (309687), threshold 27 V (JP1 open)", mfr: maxon, loc: CD, qty: 2, variant: all,
+     ratings: "threshold 26.1-27.1 V (JP1 open); max current 5 A -> 135 W each at 27 V (300 W only on the 56 V setting); 10 W continuous at 25 C, derating to 0 W at 75 C; over-temperature deactivation releases the clamp [SOURCED dsr50_oi p.3/7/8, rev B4 F5]",
+     cert: "none stated (the maxon operating instructions contain no CE statement)", price_eur: 145.15, price_tag: SOURCED, price_src: dsr50,
+     note: "27 V < DDR OVP min 28.8 V < SWD OV alert 32 V; plate-mounted under the deck above the rear pack (CAD E16). Over-temperature: 'Once the over-temperature deactivation is enabled the supply voltage cannot be limited anymore' -> backstop = DDR OVP latch 28.8-35 V + SWD OV alert 32 V / error 34 V (RISK_ASSESSMENT H20, TP-03/TP-14)"}
+  - {ref: M1L, grp: drives, cad: D01_ezwheel_SWD125_L, mpn: "ez-Wheel SWD 125 EW2A-125HN04B", mfr: ez-Wheel, loc: BASE, qty: 1, variant: all,
+     ratings: "24 V, 200 W S1, OC alert 25 A / error 30 A, OV 32/34 V", cert: "STO SIL3/PLe Cat4; SLS/SLSa/SDI/SMS/SBC SIL2/PLd Cat3 (INERIS DoC per CONTEXT)",
+     price_eur: 2333, price_tag: SECONDARY, price_src: "Generation Robots (CONTEXT.md)"}
+  - {ref: M1R, grp: drives, cad: D01_ezwheel_SWD125_R, mpn: "ez-Wheel SWD 125 EW2A-125HN04B", mfr: ez-Wheel, loc: BASE, qty: 1, variant: all,
+     ratings: "as M1L", cert: "as M1L", price_eur: 2333, price_tag: SECONDARY, price_src: "Generation Robots (CONTEXT.md)"}
+  # ---- S24 always-on + AUX48 distribution (right bay)
+  - {ref: U4, grp: power, cad: E15_U4_dcdc_DDR240C24_S24, mpn: DDR-240C-24, mfr: Mean Well, loc: RL, qty: 1, variant: all,
+     ratings: "33.6-67.2 V in, 24 V 10 A, 360 W 3 s, 40 mm wide, max ambient 50 C [SOURCED ddr240, V:M7]", cert: "IEC/UL 62368-1", price_eur: 134.08, price_tag: SECONDARY, price_src: "RS EUR 134.08 (2026-10-05, CERTAINTY s.4)",
+     note: "max ambient 50 C vs 45 C bay air: the right-bay fans are REQUIRED for S24 (fan failure -> Jetson NTC alarm -> park + service); vertical mounting (M1)"}
+  - {ref: XS24, grp: power, cad: E27_XS24_terminals_RB1-7, mpn: "Phoenix Contact PT 2,5 / PT 4 + PT 4-HESI fuse terminals 5x20 + FBS bridges", mfr: Phoenix Contact, loc: RU, qty: 1, variant: all,
+     ratings: "S24 sub-fuses 5x20: 4/2/4/2/2/1 A", cert: "IEC 60947-7-1/-3", price_eur: 75, price_tag: ASSUMED, price_src: "estimate set (fewer safety terminals than rev A)"}
+  - {ref: FW, grp: power, cad: E2F_WF1-3_AUX48_fuses, mpn: "Mersen 10x38 DC holders (CUS101HEL) + HP10M gPV links: WF1 HP10M6 (Jetson DC-DC), WF2 HP10M12 (coffee), WF3 HP10M2 (head) on AUX48 + FJ HP10M4 on the 12 V output (CAD E2L)", mfr: Mersen, loc: LU, qty: 4, variant: all,
+     ratings: "gPV 1000 V DC, 10 kA IEC / 50 kA UL [mersen_hp10m]; FJ 8 A gG (no DC rating) -> HP10M4 (Jetson J4012 3.3 A cont / 4.0 A 3 s <= 4 x 1.5; maker supply 12 V 5 A) (rev B4 G-13)", cert: "IEC 60269-6", price_eur: 20, price_tag: SECONDARY, price_src: "eibabo HP10M ~12 + CUS101HEL 8.65 net (2026-10-05)", note: "rev B2: WF1-3 (CAD E2F 52.5 mm) move to the LEFT upper rail next to F2 (right rail space goes to SR1/SR2); FJ stays inside E2G on the right"}
+  - {ref: U5, grp: power, cad: E2G_U5_DDR120C12, mpn: DDR-120C-12, mfr: Mean Well, loc: RL, qty: 1, variant: all, ratings: "12 V 10 A, 15 A 3 s", cert: "IEC 62368-1", price_eur: 55, price_tag: ASSUMED, price_src: "estimate",
+     note: "Jetson Orin NX + cameras; rev B: right upper rail (CAD E2G = U5 32 mm + FJ 17.5 mm), 12 V cable W28 to the centre bay"}
+  # ---- safety controller station (right bay upper rail, Pilz PNOZmulti 2; fieldbus module LEFT of the base unit)
+  - {ref: SC1, grp: safety_ctrl, cad: E20_SC1_PNOZ_m_ES_ETH, mpn: "Pilz PNOZ m ES ETH (772130)", mfr: Pilz, loc: RU, qty: 1, variant: all,
+     ratings: "Ethernet / Modbus TCP: non-safe status + Jetson requests (mode, field set request, arms enable)", cert: "CE, cULus",
+     price_eur: 268.89, price_tag: SECONDARY, price_src: eibabo_pilz}
+  - {ref: SC0, grp: safety_ctrl, cad: E21_SC0_PNOZ_m_B0, mpn: "Pilz PNOZ m B0 (772100)", mfr: Pilz, loc: RU, qty: 1, variant: all,
+     ratings: "20 safe inputs, 4 safe SC outputs (2 A), 4 configurable outputs (test pulse or auxiliary 75 mA), 45 mm, 0-60 C, supply 1.6 A cont / 3 A inrush", cert: "PL e / SIL CL 3 (TUV); PFHd CPU 4.74E-10 [SOURCED pilz_b0, V:P1]",
+     price_eur: 784.12, price_tag: SECONDARY, price_src: eibabo_pilz}
+  - {ref: SR1, grp: safety_ctrl, cad: E2H_SR1_PNOZ_m_EF_4DI4DOR, mpn: "Pilz PNOZ m EF 4DI4DOR (772143) - traction relay interface", mfr: Pilz, loc: RU, qty: 1, variant: all,
+     ratings: "4 safe inputs, 4 positive-guided relay outputs DC1 24 V 10 mA..6 A, switch-off delay 22 ms, 22.5 mm", cert: "relay outputs 2-channel PL e Cat 4 PFH 7.52E-12 [SOURCED pilz_cat, V:P14]",
+     price_eur: 379.72, price_tag: SECONDARY, price_src: eibabo_4di4dor,
+     note: "NEW rev B2 [V:E6]: O0/O1 -> SWD STO_1/STO_2, O2/O3 -> SWD INSafe_1/2 (both drives in parallel): no PNOZ test pulses reach SWD inputs whose pulse tolerance is not published"}
+  - {ref: SR2, grp: safety_ctrl, cad: E2I_SR2_PNOZ_m_EF_4DI4DOR, mpn: "Pilz PNOZ m EF 4DI4DOR (772143) - scanner field-select relay interface", mfr: Pilz, loc: RU, qty: 1, variant: all,
+     ratings: "as SR1", cert: "relay outputs 1-channel PL c Cat 1 PFH 3.75E-08 each; 1-of-3 coding at the scanner turns every single contact fault into an invalid code -> OSSDs off [SOURCED pilz_cat + ns3_oi p.44]",
+     price_eur: 379.72, price_tag: SECONDARY, price_src: eibabo_4di4dor,
+     note: "NEW rev B2 [V:S4]: O0..O2 -> nanoScan3 static control inputs CI1..CI3 of both scanners; scanner input delay class 'tactile controls (relays)'; O3 spare"}
+  - {ref: SR3, grp: safety_ctrl, cad: E2M_SR3_PNOZ_m_EF_4DI4DOR, mpn: "Pilz PNOZ m EF 4DI4DOR (772143) - SLS[2] relay interface (rev B4)", mfr: Pilz, loc: RU, qty: 1, variant: all,
+     ratings: "as SR1: 4 positive-guided relay outputs DC1 24 V 10 mA..6 A, PL e Cat 4 2-channel", cert: "relay outputs 2-channel PL e Cat 4 PFH 7.52E-12 [SOURCED pilz_cat]",
+     price_eur: 379.72, price_tag: SECONDARY, price_src: eibabo_4di4dor,
+     note: "NEW rev B4 (G-04 bands 0.3 / 0.7 / 1.1 m/s): O0/O1 -> SWD INSafe_3/INSafe_4 (pair 3-4 = one safety command, SLS[2] 0.7 m/s, SOURCED swd_manual), both drives in parallel, relay + bleed; O2/O3 spare"}
+  - {ref: RB, grp: safety_ctrl, cad: E27_XS24_terminals_RB1-7, mpn: "bleed resistor Vishay PR01 2.2 kOhm 1 W (metal film) in a Phoenix component terminal (double-level, inside XS24), one per used relay contact", mfr: Vishay / Phoenix Contact, loc: RU, qty: 10, variant: all,
+     ratings: "24 V / 2.2 kOhm = 10.9 mA >= 10 mA relay minimum; 0.26 W each vs PR01 'Rated dissipation P70 1 W' [SOURCED vishay_pr]", cert: "-", price_eur: 4, price_tag: ASSUMED, price_src: "estimate",
+     note: "NEW rev B2 [V:S4, V:P14]: keeps each relay contact above its 10 mA minimum load whatever the (unpublished) SWD / scanner input current"}
+  - {ref: SX1, grp: excluded, cad: null, mpn: "rev B1 Pilz PNOZ m EF 8DI4DO (772142) - REMOVED in rev B2 (I/O moved to B0 + SR1/SR2)", mfr: Pilz, loc: RU, qty: 1, variant: none,
+     ratings: "-", cert: "-", price_eur: 321.86, price_tag: SECONDARY, price_src: eibabo_pilz}
+  - {ref: SX2, grp: safety_ctrl, cad: E28_SX2_PNOZ_m_EF_8DI4DO, mpn: "Pilz PNOZ m EF 8DI4DO (772142)", mfr: Pilz, loc: RU, qty: 1, variant: C48,
+     ratings: "certified-arm safety I/O", cert: "PL e / SIL CL 3", price_eur: 321.86, price_tag: SECONDARY, price_src: eibabo_pilz, note: "C48 only; 3rd expansion module right of B0 (<= 6 allowed, V:P9)"}
+  - {ref: SCT, grp: safety_ctrl, cad: null, mpn: "Pilz plug-in terminal sets (spring): 1x 751008 (B0) + 3x 751004 (SR1, SR2, SR3)", mfr: Pilz, loc: RU, qty: 1, variant: all,
+     ratings: "B0 needs 751008 (spring) / 750008 (screw), each EF needs 751004 / 750004 [SOURCED pilz_b0 / EF manual, V:P10]", cert: "-", price_eur: 115.23, price_tag: SECONDARY, price_src: "eibabo net 751008 29.61 + 3 x 751004 28.54 (2026-10-05)"}
+  - {ref: KS, grp: safety_ctrl, cad: E37_KS_signature_relay, mpn: "Finder 38.51.7.024.0050 interface relay 6.2 mm (dock signature resistor switch)", mfr: Finder, loc: RL, qty: 1, variant: all,
+     ratings: "1 CO 6 A, DC1 6 A @ 24 V, coil 24 V 10.4 mA / 0.3 W (<= 75 mA PNOZ auxiliary output, V:P7), min. switching load 500 mW [SOURCED finder38 S38EN p.5, p.13]", cert: "IEC 61810-1", price_eur: 15, price_tag: ASSUMED, price_src: "estimate",
+     note: "replaces the SICK RLY3-OSSD100 of rev A: driven by the PNOZ auxiliary output S1; the station chain carries SF10"}
+  - {ref: KI4, grp: aux, cad: E2J_KI4_interposing_relay, mpn: "Phoenix Contact PLC-RSC-24DC/21 interface relay 6.2 mm (P/N 2966171 ASSUMED) - interposing relay for the K4 coil", mfr: Phoenix Contact, loc: RU, qty: 1, variant: all,
+     ratings: "input ~10 mA at 24 V [ASSUMED, datasheet] <= 75 mA; contact 6 A 250 V switches the K4 coil 92 mA", cert: "IEC 61810-1", price_eur: 20, price_tag: ASSUMED, price_src: "estimate",
+     note: "NEW rev B2 [V:FI1, V:P7]: the K4 coil (2.2 W = 92 mA) exceeds the 75 mA PNOZ auxiliary output; fallback if SF15 becomes PLr c: drive KI4 from a now-free B0 safe SC output (O1..O3), cost 0"}
+  - {ref: NET1, grp: power, cad: E25_NET1_switch_FL1008N, mpn: "Phoenix Contact FL SWITCH 1008N (1085256, 8x RJ45, unmanaged)", mfr: Phoenix Contact, loc: RM, qty: 1, variant: all,
+     ratings: "9-32 V DC, typ 28 mA at 24 V (0.7 W), max 173 mA at 9 V; 22.5 x 140.4 x 92.4 mm [SOURCED phoenix_fl1008n]", cert: "CE", price_eur: 141.86, price_tag: SECONDARY, price_src: "eibabo EUR 168.81 gross / 1.19 (2026-10-05)"}
+  - {ref: CAN1, grp: power, cad: E36_CAN1_PCAN-Ethernet_gw, mpn: "PEAK-System PCAN-Ethernet Gateway DR (IPEH-004010)", mfr: PEAK-System, loc: RU, qty: 1, variant: all,
+     ratings: "2x HS-CAN ISO 11898-2 (CAN-T traction 500 k, CAN-E energy 250 k) <-> Ethernet, 8-30 V DC, 360 mA at 8 V / 100 mA at 30 V, 22.5 x 99 x 114.5 mm, -40..85 C [SOURCED peak_um p.64-66]", cert: "CE: EN 55032 / EN 55035 [SOURCED peak_um]", price_eur: 294.0, price_tag: SOURCED, price_src: "PEAK price list valid 2026-08-21: IPEH-004010 EUR 294.00 net (docs/fonti)",
+     note: "rev B4: right HIGH rail end (A10 extension), real size; rev B: the Jetson is in the base, a USB-CAN adapter would also do (cost-down candidate, see ELECTRICAL.md 12)"}
+  # ---- safety field devices
+  - {ref: S1F, grp: scanners, cad: S01_nanoScan3_ProIO_0, mpn: "SICK NANS3-CAAZ30AN1 (1100334) nanoScan3 Pro I/O", mfr: SICK, loc: BASE, qty: 1, variant: all,
+     ratings: "PL d Type 3, PFH 8E-8, 2 OSSD pairs, tR 70 ms (n = 2), 3 m; 3.9 W typ, 15.9 W at max output load, start-up <= 1.3 A [SOURCED ns3_oi, V:S7/S9/S10]", cert: "IEC 61496-3 Type 3, SIL2, PL d", price_eur: 2394.95, price_tag: SECONDARY, price_src: vb_ns3,
+     note: "EUR 2,394.95 EXCL. VAT verified on the dealer page 2026-10-05; SICK list via eibabo EUR 3,719.21 net; control-input delay class = relays (30 ms) because CI1..CI3 come from SR2 relay contacts"}
+  - {ref: S1R, grp: scanners, cad: S01_nanoScan3_ProIO_1, mpn: "SICK NANS3-CAAZ30AN1 (1100334) nanoScan3 Pro I/O", mfr: SICK, loc: BASE, qty: 1, variant: all,
+     ratings: "as S1F", cert: "as S1F", price_eur: 2394.95, price_tag: SECONDARY, price_src: vb_ns3}
+  - {ref: SPL, grp: scanners, cad: S01_nanoScan3_ProIO_0, mpn: "SICK system plug NANSX-AAACZZZZ1 (2105107)", mfr: SICK, loc: BASE, qty: 2, variant: all,
+     ratings: "300 mm cable with plug for supply + I/O, no Ethernet (NANSX-AAACAEZZ1 2104860 adds Ethernet) [SOURCED ns3_oi p.143, V:S6]", cert: "-", price_eur: 265.73, price_tag: SECONDARY, price_src: eibabo_sick}
+  - {ref: ES1, grp: safety_field, cad: E02_estop_L, mpn: "Siemens SIRIUS ACT 3SU1050-1HB20-0AA0 (40 mm mushroom, rotate-to-unlatch) + holder 3SU1500-0AA10-0AA0 + 2x 3SU1400-1AA10-1CA0 NC module + yellow plate", mfr: Siemens, loc: BASE, qty: 1, variant: all, ratings: "2 NC, positive opening 'Yes' [SOURCED siemens_docs 3SU1400-1AA10-1CA0, V:EA1]; actuator 'acc. to EN ISO 13850', 'B10 value with high demand rate according to SN 31920 100 000', mechanical life 300 000 [SOURCED siemens_3su1050]; 22 mm cut-out", cert: "EN ISO 13850 (datasheet); IEC 60947-5-5 not cited in the datasheet", price_eur: 33.56, price_tag: SECONDARY, price_src: "eibabo 3SU1050 + holder /1.19 + RS 2 x 3SU1400 (2026-10-05)",
+     note: "rev B2: replaces Eaton M22-K02 (its datasheet could not be retrieved); Eaton acceptable again once its datasheet is on file"}
+  - {ref: ES2, grp: safety_field, cad: E02_estop_R, mpn: "Siemens 3SU1 E-stop as ES1 (2x 3SU1400-1AA10-1CA0)", mfr: Siemens, loc: BASE, qty: 1, variant: all, ratings: "as ES1 (wired in series with ES1)", cert: "IEC 60947-5-5", price_eur: 55, price_tag: ASSUMED, price_src: "estimate"}
+  - {ref: ES3, grp: safety_field, cad: null, mpn: "Siemens 3SU1 E-stop as ES1 in a 1-hole 3SU1801 class surface enclosure (torso)", mfr: Siemens, loc: SUP, qty: 1, variant: all, ratings: "as ES1", cert: "IEC 60947-5-5", price_eur: 70, price_tag: ASSUMED, price_src: "estimate"}
+  - {ref: SB1, grp: safety_field, cad: E41_SB1_reset_blue, mpn: "Eaton M22-DL-B (216931) + M22-K10 (216376) (blue illuminated reset)", mfr: Eaton, loc: BASE, qty: 1, variant: all, ratings: "1 NO, DC-13 24 V 3 A; IP67/IP69K front; 5,000,000 operations [SOURCED eaton_m22]", cert: "IEC 60947-5", price_eur: 12.83, price_tag: SECONDARY, price_src: "eibabo gross /1.19 (2026-10-05)"}
+  - {ref: SK1, grp: safety_field, cad: E41_SK1_key_selector, mpn: "Eaton M22-WRS3 (216900) 3-position key selector, maintained, key withdrawable + 2x M22-K10 (AUTO / SERVICE / MANUAL)", mfr: Eaton, loc: BASE, qty: 1, variant: all, ratings: "2 contacts: AUTO=10, MANUAL=01, SERVICE=00 (wire break = safest mode); 3 positions, 100,000 operations, IP66 [SOURCED eaton_m22]", cert: "IEC 60947-5", price_eur: 52.64, price_tag: SECONDARY, price_src: "eibabo gross /1.19 (2026-10-05)"}
+  - {ref: SE1, grp: safety_field, cad: E41_SE1_M12_pendant_socket, mpn: "Euchner ZSA2B4G02CC2322 (order no. 169871, 2 m cable; 10 m = ZSA2B4G10CC2322 110560) 3-position enabling switch, M12 5-pole plug + panel socket binder 76 0632 1011 00005-0200 (M12-A female, 5 pins)", mfr: Euchner / binder, loc: BASE, qty: 1, variant: all,
+     ratings: "3-position enabling switch to EN 60947-5-8, 2 enabling channels E1/E2 (pins 1/2), Cat 3 2-channel evaluation, B10D 3.9E5 at DC13 400 mA / 24 V, DC-13 2 A 24 V, IP67 [SOURCED euchner_zsa]; socket 60 V 4 A, IP68 [SOURCED binder_m12]", cert: "EN 60947-5-8 (manufacturer); EN 61076-2-101 (socket)", price_eur: 500, price_tag: ASSUMED, price_src: "estimate from distributor range EUR 460-520 net (CERTAINTY s.4); quote",
+     note: "rev B4 G-08: jog buttons are not part of this switch; MANUAL jog via the Jetson HMI while SE1 is held (SF14, SLS[1] 0.3 m/s)"}
+  - {ref: SP1, grp: safety_field, cad: null, mpn: "Pilz PSEN cs3.1 M12/8-0.15m (541009) + actuator PSEN cs3.1 (541080) - arm L on rest (own PNOZ input pair)", mfr: Pilz, loc: SUP, qty: 1, variant: OA, ratings: "Cat 4, PL e, SIL CL 3, PFHd 2.62E-9 (TUV SUED cert M6A 020132 0191); 2 OSSD; Sao 8 mm / Sar 20 mm; coding level LOW (ISO 14119), transponder; rev B2: NOT in series with SP2 (V:P16) [SOURCED pilz_psen]", cert: "EN ISO 14119 / EN 60947-5-3 (TUV SUED, valid to 2030-12-04)", price_eur: 119.34, price_tag: SECONDARY, price_src: eibabo_pilz}
+  - {ref: SP2, grp: safety_field, cad: null, mpn: "Pilz PSEN cs3.1 (541009) + actuator PSEN cs3.1 (541080) - arm R on rest", mfr: Pilz, loc: SUP, qty: 1, variant: OA, ratings: "as SP1", cert: "EN ISO 14119 / EN 60947-5-3 (TUV SUED)", price_eur: 119.34, price_tag: SECONDARY, price_src: eibabo_pilz}
+  - {ref: HL1, grp: safety_field, cad: null, mpn: "Patlite WME-302DFB-RYG signal tower (3 tiers R/Y/G + buzzer, 24 V DC)", mfr: Patlite, loc: SUP, qty: 1, variant: all, ratings: "24 V DC; buzzer 1.0 W, 93 dB typ; IP54; indoor only [SOURCED patlite_wme]", cert: "CE", price_eur: 120, price_tag: ASSUMED, price_src: "estimate (quote)"}
+  - {ref: JR1, grp: safety_field, cad: E59_JR1_relays, mpn: "2x Phoenix EMG 17-OV-TTL/24DC/2 (2943259) solid-state modules (Jetson 3.3 V GPIO -> HL1 tiers; rev B4 G-22: the PLC-RSC-5DC/21 needs 38 mA at 5 V)", mfr: Phoenix Contact, loc: RM, qty: 1, variant: all, ratings: "TTL input: '1' >= 2 V, 2.6 mA; 5 V DC aux 2.8 mA (from U6); output 10-30 V DC, 2 A, short-circuit-proof [SOURCED phoenix_emg]; non-safe", cert: "-", price_eur: 60, price_tag: ASSUMED, price_src: "estimate (quote)",
+     note: "rev A drove HL1 from a Flexi output; rev B from the Jetson (non-safe signal)"}
+  - {ref: FAN, grp: power, cad: E40_fan_, mpn: "San Ace 9WPA0624S4001 60x60x25 mm 24 V IP68 fan + filter grille (2 per side bay)", mfr: Sanyo Denki, loc: BASE, qty: 4, variant: all, ratings: "0.17 A, 4.08 W, 0.99 m3/min (59.4 m3/h) free air, 151 Pa, -20..+70 C, L10 40000 h at 60 C, IP68 [SOURCED sanace_cat]", cert: "CE", price_eur: 25, price_tag: ASSUMED, price_src: "estimate (quote)"}
+  - {ref: FANT, grp: power, cad: E44_tunnel_fan_, mpn: "San Ace 9WPA0624S4001 60x60x25 mm 24 V IP68 fan on each SWD tunnel E43 (rev B4, F3)", mfr: Sanyo Denki, loc: BASE, qty: 2, variant: all, ratings: "as FAN [SOURCED sanace_cat]", cert: "CE", price_eur: 25, price_tag: ASSUMED, price_src: "estimate (quote)"}
+  - {ref: FAN40, grp: power, cad: E42_gap_fan_, mpn: "San Ace 9WPA0424H6001 40x40x20 mm 24 V IP68 fan + finger guard, in the spine cut-outs at x +140 (centre-bay supply)", mfr: Sanyo Denki, loc: CB, qty: 2, variant: all, ratings: "0.038 A, 0.9 W, 0.24 m3/min (14.4 m3/h) free air, 81 Pa, IP68 [SOURCED sanace_cat]", cert: "CE", price_eur: 15, price_tag: ASSUMED, price_src: "estimate (quote)"}
+  # ---- arm power (right bay contactors + centre bay)
+  - {ref: K1, grp: arms_power, cad: E2C_K1_contactor_3RT2026, mpn: "Siemens 3RT2026-1BB40 (S0, 24 V DC coil, mirror NC aux)", mfr: Siemens, loc: RU, qty: 1, variant: all,
+     ratings: "DC-1 2 poles in series at 60 V 35 A (1 pole 20 A), DC-3 2 poles 35 A, coil 5.9 W [SOURCED siemens_docs, V:SI1-SI3]", cert: "IEC 60947-4-1 Annex F mirror contacts", price_eur: 202.10, price_tag: SECONDARY, price_src: "RS EUR 202.10 (2026-10-05, CERTAINTY s.4)",
+     note: "K1 and K2 coil wires in SEPARATE multicore cables (PL e prerequisite for two loads on one SC output, V:P4); diode + Zener suppressor (D0 set)"}
+  - {ref: K2, grp: arms_power, cad: E2D_K2_contactor_3RT2026, mpn: "Siemens 3RT2026-1BB40 (S0, 24 V DC coil, mirror NC aux)", mfr: Siemens, loc: RU, qty: 1, variant: all,
+     ratings: "as K1", cert: "IEC 60947-4-1 Annex F", price_eur: 202.10, price_tag: SECONDARY, price_src: "RS EUR 202.10 (2026-10-05)"}
+  - {ref: K3, grp: arms_power, cad: null, mpn: "Finder 22.32.0.024.4340 + Vishay Dale RH-50 (RH050) 12R (arm feed precharge; rev B4 G-11: 10R -> 12R, G-25: Arcol -> Vishay)", mfr: Finder / Vishay, loc: RU, qty: 1, variant: C48, ratings: "58.4 V / 12 Ohm = 4.87 A <= DC1 5 A @ 110 V (Finder S22EN p.7: 'Breaking capacity DC1: 24/110/220 V A 25/5/1') [SOURCED finder22]", cert: "-", price_eur: 45, price_tag: ASSUMED, price_src: "estimate"}
+  - {ref: UAL, grp: arms_power, cad: E50_dcdc_arm_L_DDR480C24, mpn: DDR-480C-24, mfr: Mean Well, loc: CB, qty: 1, variant: OA, ratings: "24 V 20 A, 30 A 5 s", cert: "IEC 62368-1", price_eur: 140, price_tag: ASSUMED, price_src: "estimate",
+     note: "rev B2: lying mounting is NOT allowed (V:M1): vertical DIN rail in the centre bay, input terminals down, 40 mm above / 20 mm below / 5 mm sides (CAD stream)"}
+  - {ref: UAR, grp: arms_power, cad: E50_dcdc_arm_R_DDR480C24, mpn: DDR-480C-24, mfr: Mean Well, loc: RL, qty: 1, variant: OA, ratings: "24 V 20 A, 30 A 5 s", cert: "IEC 62368-1", price_eur: 140, price_tag: ASSUMED, price_src: "estimate"}
+  - {ref: UOL, grp: arms_power, cad: E52_arm_ORing_L_DRDN40-24, mpn: DRDN40-24, mfr: Mean Well, loc: CB, qty: 2, variant: OA, ratings: "ORing per arm", cert: "IEC 62368-1", price_eur: 70, price_tag: ASSUMED, price_src: "estimate"}
+  - {ref: RAL, grp: arms_power, cad: E5B_arm_clamp_L_DSR50-5, mpn: "maxon DSR 50/5 (309687, 27 V) per arm", mfr: maxon, loc: CD, qty: 2, variant: OA, ratings: "5 A max at 27 V = 135 W; 10 W cont at 25 C [SOURCED dsr50_oi]", cert: "none stated", price_eur: 145.15, price_tag: SOURCED, price_src: dsr50}
+  - {ref: FC, grp: arms_power, cad: E57_FAL_FAR_fuses, mpn: "Mersen 10x38 DC holders + gPV links: FAL HP10M25, FAR HP10M25 (OA, right MID rail E57), FCF HP10M15 (coffee, centre bay E56)", mfr: Mersen, loc: RM, qty: 3, variant: all, ratings: "1000 V DC gPV, IEC 60269-6 (rev B4 G-13: replaces gG links without a DC rating)", cert: "IEC 60269-6", price_eur: 24, price_tag: SECONDARY, price_src: "eibabo HP10M ~12-14 + holder ~10.29 gross (2026-10-05)"}
+  - {ref: ARM_OA, grp: excluded, cad: openarm_, mpn: "Enactic OpenArm 2.0 (8 Damiao drives each)", mfr: Enactic, loc: SUP, qty: 2, variant: OA,
+     ratings: "24 V: 70 W typ / 360 W cont / 720 W 5 s per arm", cert: "none (no STO, no brakes)", price_eur: 0, price_tag: ASSUMED, price_src: "outside this package"}
+  - {ref: ARM_C48, grp: excluded, cad: null, mpn: "UR3e/UR5e + OEM DC control box (19-72 V) or Kassow Edge (42-58 V)", mfr: "Universal Robots / Kassow", loc: SUP, qty: 2, variant: C48,
+     ratings: "Kassow Edge: supply 42-58 V DC, typ 300 W (KR1018/1410/1805), standstill 65/75 W, 400-1200 W with max load, max external fuse 25 A [SOURCED kassow_edge p.4]; UR3e 300 W max, 400 A inrush (old_arch); Kassow V_min 42 V > B48 v_min 40 V -> energy manager parks the arms below 44 V", cert: "PL d Cat 3 (UR, TUV NORD per old_arch)", price_eur: 0, price_tag: ASSUMED, price_src: "outside this package"}
+  # ---- centre bay auxiliaries (rev A: waist plate)
+  - {ref: U6, grp: aux, cad: E58_U6_DDR60L5, mpn: DDR-60L-5, mfr: Mean Well, loc: LM, qty: 1, variant: all, ratings: "5 V 12 A, 18-75 V in, 52.5 x 90 x 54.5 mm [SOURCED DDR-60-SPEC, V:M9]", cert: "IEC 62368-1", price_eur: 30, price_tag: ASSUMED, price_src: "estimate"}
+  - {ref: U7, grp: aux, cad: E54_U7_DDR480C24_coffee, mpn: DDR-480C-24, mfr: Mean Well, loc: LC, qty: 1, variant: all, ratings: "coffee 24 V module 300 W", cert: "IEC 62368-1", price_eur: 140, price_tag: ASSUMED, price_src: "estimate", note: "barista configuration only"}
+  - {ref: K4, grp: aux, cad: E55_K4_Finder22, mpn: "Finder 22.32.0.024.4340 (2NO 25 A, 24 V DC coil) on the 24 V coffee output", mfr: Finder, loc: RU, qty: 1, variant: all, ratings: "DC1 25 A at 24 V per contact, coil 2.2 W (92 mA) with varistor [SOURCED finder22, V:FI1]", cert: "IEC 61095", price_eur: 40, price_tag: ASSUMED, price_src: "estimate",
+     note: "functional, Cat B (SF15): PNOZ auxiliary output S0 -> KI4 -> K4 coil"}
+  - {ref: XC, grp: aux, cad: E5A_XC_deck_terminals, mpn: "Phoenix PT 1.5 / PT 4 terminal strip, right MID rail (deck interface: ES3, PSEN, HL1, coffee 24 V, head 5 V)", mfr: Phoenix Contact, loc: RM, qty: 1, variant: all, ratings: "-", cert: "IEC 60947-7-1", price_eur: 45, price_tag: ASSUMED, price_src: "estimate"}
+  # ---- dock path (robot side)
+  - {ref: X1, grp: dock, cad: E01_robopad_collector_RPCOL90, mpn: "Roboteq RPCOL90-100 RoboPad extendable collector, 90 mm, 100 A class", mfr: Roboteq, loc: BASE, qty: 1, variant: all,
+     ratings: "60 A continuous, 75 A 80 s on / 60 s off, 60 V max even under fault, +-5 mm L/R, 10 mm extension, Hall open collector 4.5-24 V [SOURCED robopad13, V:R1-R4]", cert: "EN 61000-6-1/-6-3 tested (manufacturer)", price_eur: 400, price_tag: ASSUMED, price_src: "estimate",
+     note: "rev B2: no wireless CAN exists (fully passive part); the dock handshake runs over the robot <-> dock Wi-Fi/Ethernet link (Jetson <-> dock controller). External cables (H06a) <= 2 m. CAD stream moves the collector to the rear right (y ~ -135, z ~ 120)"}
+  - {ref: U8, grp: dock, cad: E34_U8_ideal_diode_DRDN40-48, mpn: DRDN40-48, mfr: Mean Well, loc: RC, qty: 1, variant: all, ratings: "36-60 V, 40 A per input, 60 A 5 s, reverse 65 V; SINGLE input used (bridging is not a documented use, V:M10)", cert: "IEC 62368-1", price_eur: 70, price_tag: ASSUMED, price_src: "estimate",
+     note: "ideal diode: pads never back-fed from the pack (pads dead when undocked); vertical mounting (M1)"}
+  - {ref: RSIG, grp: dock, cad: E35_RSIG_X0R, mpn: "Vishay PR02 10 kOhm 2 W signature resistor (0.34 W at 58.4 V; 'Rated dissipation P70 2 W', vishay_pr) in a Phoenix component terminal block", mfr: Phoenix Contact, loc: RU, qty: 1, variant: all, ratings: "presented to the station only via KS", cert: "-", price_eur: 8, price_tag: ASSUMED, price_src: "estimate"}
+  # ---- dock station (reference, not on the robot)
+  - {ref: XD1, grp: dock, cad: X04_charger_NPB750_48, mpn: NPB-750-48, mfr: Mean Well, loc: DOCK, qty: 1, variant: all, ratings: "11.3 A CC, DIP 2 = OFF / 3 = ON 'pre-defined, flooded' = 56.8 V / 53.6 V (= Discover bulk / float), OVP 82-100 V, EMC Class B, CANBus [SOURCED npb750, V:M11/M13]", cert: "IEC/EN 60335-1/2-29, EN 55032 / EN 55014-1 Class B", price_eur: 190, price_tag: ASSUMED, price_src: "estimate",
+     note: "rev B2 decision: documented Class B path (RoboPad requires an EN 61000-6-3 charger) -> no dock-level EMC test for the charger; 20->90 % in ~5 h (CALC s.6). NPB-1700-48 (25 A, Class A radiated) stays an OPTION for the C48 barista configuration only, with a dock EMC test (TP-19b). Never use the 58.4 V 'LiFePO4' DIP preset"}
+  - {ref: XD2, grp: dock, cad: X05_dock_controller_relay, mpn: "DIN box: dock controller Finder OPTA 8A.04.9.024.8320 (Ethernet + Wi-Fi, 4 NO relays 10 A, DC1 24 V 10 A) + DC contactor Albright SW80B...A 24 V coil (blowouts, 96 V, breaks 600 A at 96 V) + 1N5408 freewheel diode", mfr: "Finder / Albright", loc: DOCK, qty: 1, variant: all,
+     ratings: "pads dead unless Hall + 10 kOhm signature + network handshake (docked, BMS charge enable); opens < 100 ms on current collapse", cert: "station: LVD/EMC + EN 60335-2-29 charger", price_eur: 250, price_tag: ASSUMED, price_src: "estimate"}
+  - {ref: XD3, grp: dock, cad: X09_dock_OV_relay_DUB01, mpn: "Carlo Gavazzi DUB01CD48500V (same type as K0V): range 20-200 V (DIP), OVER-voltage, normally energised; set 58.5 V on the bench (level ~29 % FS), delay 0.1 s", mfr: Carlo Gavazzi, loc: DOCK, qty: 1, variant: all,
+     ratings: "measuring range 20-200 V AC/DC (input max 600 V) [SOURCED gavazzi_dub01 p.1]; repeatability +-0.5 % FS = +-1 V at 58.5 V -> bench calibration with a lab supply (TP-13: trip 58.5 +- 1.0 V = 57.5-59.5 V, above CV 56.8 V and below the RoboPad 60 V); NO contact (normally energised) in series with the dock contactor coil, DC13 2.5 A @ 24 V DC; opens also on loss of its 24 V supply", cert: "UL, CSA, CCC; EN 60255-6; CE [SOURCED gavazzi_dub01 p.2]", price_eur: 144.90, price_tag: SECONDARY, price_src: "RS EUR 144.90 (2026-10-05)",
+     note: "NEW rev B2 [V:M12]: the NPB OVP (82-100 V) is above the RoboPad 60 V fault limit; this relay keeps the pads <= 60 V under a charger fault. Station side only"}
+  - {ref: CBL, grp: cables, cad: null, mpn: "cable set (Lapp OLFLEX / H07Z-K, M12 cordsets, lugs); no torsion cables in rev B", mfr: "Lapp / Phoenix", loc: BASE, qty: 1, variant: all, ratings: "see cable_schedule.csv", cert: "-", price_eur: 600, price_tag: ASSUMED, price_src: "estimate (rev A 750 incl. igus CFROBOT torsion cables)"}
+
+# --------------------------------------------------------------------------------------------- DC-DC load tables
+dcdc:
+  - id: T24
+    units: [U1, U2]
+    rating_A: 20.0
+    peak_A: 30.0
+    peak_s: 5
+    n: 2
+    share_factor: 0.9          # SOURCED ddr480 current-sharing rule
+    derate: 1.0                # vertical on the spine, bay <= 50 C with fans (ddr480 curve 100 % to ~60 C)
+    v_out: 24.0
+    eff: 0.92
+    loads:
+      - {name: "SWD L (200 W S1 + electronics)", cont_A: 9.0, peak_A: 15.0, basis: "200 W / 24 V = 8.3 A + 0.7 A logic; peak 13/7.9 Nm ratio [ASSUMED]"}
+      - {name: "SWD R", cont_A: 9.0, peak_A: 15.0, basis: same}
+      - {name: "DSR 50/5 x2 standby", cont_A: 0.1, peak_A: 0.1, basis: ASSUMED}
+  - id: S24
+    units: [U4]
+    rating_A: 10.0
+    peak_A: 10.0
+    peak_s: 0
+    n: 1
+    share_factor: 1.0
+    derate: 1.0
+    v_out: 24.0
+    eff: 0.91
+    loads:
+      - {name: "PNOZ m B0 + 2x EF 4DI4DOR + ES ETH (logic + relay coils)", cont_A: 0.6, peak_A: 0.7, basis: "~14 W [ESTIMATE; B0 external supply must provide up to 1.6 A incl. outputs, SOURCED pilz_b0]"}
+      - {name: "relay contacts to SWD STO/INSafe + scanner CI incl. 7 bleed resistors 2.2 k", cont_A: 0.1, peak_A: 0.1, basis: "7 x 10.9 mA = 76 mA + inputs [ESTIMATE]"}
+      - {name: "nanoScan3 x2 at max output load (15.9 W each)", cont_A: 1.33, peak_A: 2.6, basis: "SOURCED ns3_oi p.130: 15.9 W max output load, start-up <= 1.3 A each"}
+      - {name: "K0 SW80B coil + K0P + K0T + K0V", cont_A: 0.7, peak_A: 1.1, basis: "SW80 continuous coil 7-13 W SOURCED + 22.32 2.2 W SOURCED + timer/monitor 2 W [ESTIMATE]"}
+      - {name: "K1+K2 3RT2026 DC coils", cont_A: 0.5, peak_A: 0.5, basis: "2x 5.9 W [SOURCED siemens_docs]"}
+      - {name: "Ethernet switch, PCAN gateway, LYNK gateway", cont_A: 0.4, peak_A: 0.5, basis: ASSUMED}
+      - {name: "RoboPad Hall, PSEN cs3.1 x2, KS relay", cont_A: 0.15, peak_A: 0.15, basis: ASSUMED}
+      - {name: "KI4 + K4 coil (92 mA SOURCED), signal tower, fans x5", cont_A: 0.7, peak_A: 0.8, basis: ASSUMED}
+  - id: A24L
+    variant: OA
+    units: [UAL]
+    rating_A: 20.0
+    peak_A: 30.0
+    peak_s: 5
+    n: 1
+    share_factor: 1.0
+    derate: 1.0                # lying mount on P10: ASK Mean Well (derating for horizontal mounting)
+    v_out: 24.0
+    eff: 0.92
+    loads:
+      - {name: "OpenArm L (8 Damiao + gripper)", cont_A: 15.0, peak_A: 30.0, basis: "360 W cont / 720 W 5 s (old_arch; Damiao current limits MUST cap 720 W)"}
+  - id: A24R
+    variant: OA
+    units: [UAR]
+    rating_A: 20.0
+    peak_A: 30.0
+    peak_s: 5
+    n: 1
+    share_factor: 1.0
+    derate: 1.0
+    v_out: 24.0
+    eff: 0.92
+    loads:
+      - {name: "OpenArm R", cont_A: 15.0, peak_A: 30.0, basis: same}
+  - id: C12
+    units: [U5]
+    rating_A: 10.0
+    peak_A: 15.0
+    peak_s: 3
+    n: 1
+    share_factor: 1.0
+    derate: 1.0
+    v_out: 12.0
+    eff: 0.895
+    loads:
+      - {name: "Seeed reComputer J4012 (Orin NX 16 GB) incl. USB cameras", cont_A: 3.3, peak_A: 4.0, basis: "'Power 10W - 25W' [SOURCED seeed_j4012] + Gemini 6 W + fisheyes 8.4 W"}
+      - {name: "Orbbec Gemini 336L", cont_A: 0.25, peak_A: 0.5, basis: "old_arch SOURCED 3/6 W"}
+      - {name: "2x UVC fisheye + USB hub", cont_A: 0.7, peak_A: 1.0, basis: "old_arch ASSUMED"}
+  - id: COF24
+    units: [U7]
+    rating_A: 20.0
+    peak_A: 30.0
+    peak_s: 5
+    n: 1
+    share_factor: 1.0
+    derate: 1.0
+    v_out: 24.0
+    eff: 0.92
+    loads:
+      - {name: "24 V capsule machine", cont_A: 12.5, peak_A: 13.8, basis: "300 W / 12.5 A (old_arch SOURCED truck_24v_capsule)"}
+      - {name: "shuttle MCU + Actuonix", cont_A: 0.25, peak_A: 0.5, basis: ASSUMED}
+l5_load_W: [18.0, 20.0]          # head 5 V (U6) cont / peak, eta 0.85
+
+# --------------------------------------------------------------------------------------------- power circuits (checked)
+# i_* in A at the conductor; v_min used for 48 V input currents. method: B2 (bundled / duct), E (single layer, free air).
+# k_group: 1.0 single circuit, 0.8 bundle of 2-3. prot In = 0 -> source-limited circuit (check Iz >= source_max).
+# dev_max_A: highest overcurrent device the downstream equipment / connector allows (connector pin rating, device spec).
+# Rev B: no torsion section (twisterband removed) -> no 0.7 grouping, plain H07Z-K instead of igus CFROBOT.
+circuits:
+  - {id: C01, ins: 90, cable: H01, from: "B01F:+/-", to: "F0 line / E19", bus: B48, i_cont: 25.0, i_peak: 90.0, t_peak: 3, prot: {ref: "B01F internal fuse", type: "pack internal", In: 0, Vdc: 0, Icu_kA: 0},
+     mm2: 25, method: E, k_group: 1.0, length_m: 0.75, source_max_A: 90, dev_max_A: 125, note: "each pack cable is protected by the OTHER pack's internal fuse (58 V 60 A, SOURCED) for a cable fault; source_max = pack 90 A RMS 10 s peak; H01 = H02 length and gauge (V:D2): CAD routes must be equalised"}
+  - {id: C02, ins: 90, cable: H02, from: "B01R:+/-", to: "F0 line / E19", bus: B48, i_cont: 25.0, i_peak: 90.0, t_peak: 3, prot: {ref: "B01R internal fuse", type: "pack internal", In: 0, Vdc: 0, Icu_kA: 0},
+     mm2: 25, method: E, k_group: 1.0, length_m: 0.75, source_max_A: 90, dev_max_A: 125, note: same}
+  - {id: C03, ins: 90, cable: W01, from: "F0:load", to: "Q0:line", bus: B48, i_cont: 45.0, i_peak: 74.0, t_peak: 5, prot: {ref: F0, type: gG, In: 100, Vdc: 250, Icu_kA: 25},
+     mm2: 25, method: E, k_group: 1.0, length_m: 0.80, dev_max_A: 250, note: "Q0 ED250B sits at the rear right (CAD E03): W01/W02 cross under the deck, longer than rev A"}
+  - {id: C04, ins: 90, cable: W02, from: "Q0:load", to: "K0:line (B48_RAW)", bus: B48, i_cont: 45.0, i_peak: 74.0, t_peak: 5, prot: {ref: F0, type: gG, In: 100, Vdc: 250, Icu_kA: 25},
+     mm2: 25, method: E, k_group: 1.0, length_m: 0.80, dev_max_A: 125, note: "dev_max = SW80 uninterrupted rating"}
+  - {id: C05, ins: 90, cable: W03, from: "K0:load", to: "FH comb (B48_SW)", bus: B48, i_cont: 33.0, i_peak: 79.0, t_peak: 5, prot: {ref: F0, type: gG, In: 100, Vdc: 250, Icu_kA: 25},
+     mm2: 25, method: E, k_group: 1.0, length_m: 0.35, dev_max_A: 125}
+  - {id: C06, cable: W04, from: "FH:F1", to: "U4:+IN/-IN (right bay)", bus: B48, i_cont: 1.8, i_peak: 2.4, t_peak: 1, prot: {ref: F1, type: gPV, In: 6, Vdc: 1000, Icu_kA: 10, Icu_UL_kA: 50, mpn: HP10M6},
+     mm2: 1.5, method: B2, k_group: 0.8, length_m: 1.30, dev_max_A: 32}
+  - {id: C07, ins: 90, cable: H03a, from: "FH:F2", to: "LU:WF1..3 (AUX48, E2F on the left HIGH rail rear end, rev B3)", bus: B48, i_cont: 10.5, i_peak: 12.4, t_peak: 5, prot: {ref: F2, type: gPV, In: 20, Vdc: 1000, Icu_kA: 10, Icu_UL_kA: 50, mpn: HP10M20},
+     mm2: 4, method: B2, k_group: 0.8, length_m: 0.35, dev_max_A: 32, note: "rev B2: in-bay jumper (E18 -> E2F); the right upper rail needs the space for SR1/SR2"}
+  - {id: C08, ins: 90, cable: W05, from: "FH:F3", to: "U1:+IN/-IN", bus: B48, i_cont: 6.0, i_peak: 19.6, t_peak: 5, prot: {ref: F3, type: gPV, In: 20, Vdc: 1000, Icu_kA: 10, Icu_UL_kA: 50, mpn: HP10M20},
+     mm2: 4, method: E, k_group: 0.8, length_m: 0.65, dev_max_A: 32, note: "i_peak = 720 W/0.92/40 V (one unit at 150 %)"}
+  - {id: C09, ins: 90, cable: W06, from: "FH:F4", to: "U2:+IN/-IN", bus: B48, i_cont: 6.0, i_peak: 19.6, t_peak: 5, prot: {ref: F4, type: gPV, In: 20, Vdc: 1000, Icu_kA: 10, Icu_UL_kA: 50, mpn: HP10M20},
+     mm2: 4, method: E, k_group: 0.8, length_m: 0.50, dev_max_A: 32}
+  - {id: C10L, ins: 90, cable: W08, from: "FH:F5L", to: "K1/K2 pole 1 (right bay)", bus: B48, i_cont: 9.8, i_peak: 19.6, t_peak: 5, prot: {ref: F5L, type: gPV, In: 15, Vdc: 1000, Icu_kA: 10, Icu_UL_kA: 50, mpn: HP10M15 (OA) / HP10M25 (C48)},
+     mm2: 4, method: B2, k_group: 0.8, length_m: 0.90, dev_max_A: 24, note: "OA: 360 W/0.92/40 V; dev_max = DDR-480C internal input fuse 3x8 A"}
+  - {id: C10R, ins: 90, cable: W09, from: "FH:F5R", to: "K1/K2 pole 2 (right bay)", bus: B48, i_cont: 9.8, i_peak: 19.6, t_peak: 5, prot: {ref: F5R, type: gPV, In: 15, Vdc: 1000, Icu_kA: 10, Icu_UL_kA: 50, mpn: HP10M15 (OA) / HP10M25 (C48)},
+     mm2: 4, method: B2, k_group: 0.8, length_m: 0.90, dev_max_A: 24}
+  - {id: C11L, ins: 90, cable: H03c, from: "K2 pole 1", to: "CB:UAL +IN (OA) / deck connector (C48)", bus: A48L, i_cont: 9.8, i_peak: 19.6, t_peak: 5, prot: {ref: F5L, type: gPV, In: 15, Vdc: 1000, Icu_kA: 10, Icu_UL_kA: 50, mpn: HP10M15},
+     mm2: 4, method: B2, k_group: 0.8, length_m: 0.80, dev_max_A: 24, note: "rev A: 2 m igus CFROBOT through the twisterband; rev B: 0.8 m H07Z-K into the centre bay"}
+  - {id: C11R, ins: 90, cable: H03d, from: "K2 pole 2", to: "CB:UAR +IN (OA) / deck connector (C48)", bus: A48R, i_cont: 9.8, i_peak: 19.6, t_peak: 5, prot: {ref: F5R, type: gPV, In: 15, Vdc: 1000, Icu_kA: 10, Icu_UL_kA: 50, mpn: HP10M15},
+     mm2: 4, method: B2, k_group: 0.8, length_m: 0.80, dev_max_A: 24}
+  - {id: C12, ins: 90, cable: W10, from: "U1/U2 +OUT", to: "U3 IN1/IN2 (centre bay, rev B3)", bus: T24, i_cont: 9.0, i_peak: 15.0, t_peak: 5, prot: {ref: "source-limited (DDR CC 105-135 %)", type: none, In: 0, Vdc: 0, Icu_kA: 0},
+     mm2: 6, method: E, k_group: 1.0, length_m: 0.7, source_max_A: 27.0, dev_max_A: 40, note: "per converter: 20 A x 1.35 = 27 A continuous in CC mode"}
+  - {id: C13, ins: 90, cable: W11, from: "U3 OUT", to: "T24 fuse comb (F8L/F8R) + R1a/R1b", bus: T24, i_cont: 18.1, i_peak: 30.0, t_peak: 5, prot: {ref: "source-limited (2 x 27 A)", type: none, In: 0, Vdc: 0, Icu_kA: 0},
+     mm2: 10, method: E, k_group: 1.0, length_m: 0.6, source_max_A: 40.0, dev_max_A: 40, note: "source_max = DRDN40 40 A continuous"}
+  - {id: C14L, cable: H04, from: "F8L", to: "M1L 24VDC M12-L pins 1+2 / 3+4", bus: T24, i_cont: 9.0, i_peak: 15.0, t_peak: 5, prot: {ref: F8L, type: gPV, In: 20, Vdc: 1000, Icu_kA: 10, Icu_UL_kA: 50, mpn: HP10M20},
+     mm2: 1.5, parallel: 2, method: B2, k_group: 1.0, length_m: 1.50, dev_max_A: 32, note: "Phoenix SAC-5P-M12MSL/1,5-280 FE SH (1414884, SOURCED in swd_manual); 2 cores per pole; dev_max = 2 pins x 16 A"}
+  - {id: C14R, cable: H05, from: "F8R", to: "M1R 24VDC M12-L", bus: T24, i_cont: 9.0, i_peak: 15.0, t_peak: 5, prot: {ref: F8R, type: gPV, In: 20, Vdc: 1000, Icu_kA: 10, Icu_UL_kA: 50, mpn: HP10M20},
+     mm2: 1.5, parallel: 2, method: B2, k_group: 1.0, length_m: 1.50, dev_max_A: 32}
+  - {id: C15, ins: 90, cable: W12, from: "U4 +OUT", to: "XS24 (S24 fuse terminals)", bus: S24, i_cont: 3.5, i_peak: 4.4, t_peak: 1, prot: {ref: "source-limited (DDR-240 CC ~13.5 A)", type: none, In: 0, Vdc: 0, Icu_kA: 0},
+     mm2: 2.5, method: E, k_group: 1.0, length_m: 0.30, source_max_A: 13.5, dev_max_A: 16}
+  - {id: C16, ins: 90, cable: H06a, from: "X1 RoboPad +/-", to: "U8 IN1 (single input)", bus: CHG, i_cont: 11.3, i_peak: 11.8, t_peak: 0, prot: {ref: "station charger CC 11.3 A (NPB-750-48)", type: none, In: 0, Vdc: 0, Icu_kA: 0},
+     mm2: 10, method: E, k_group: 1.0, length_m: 0.60, source_max_A: 26.0, dev_max_A: 40, note: "conductor kept for the NPB-1700 option (26 A); dev_max = DRDN40 single input (RoboPad 60 A); length <= 2 m (RoboPad external cable limit, V:R6)"}
+  - {id: C17, ins: 90, cable: H06b, from: "U8 OUT -> F7", to: "B48_RAW (K0 line terminal)", bus: B48, i_cont: 11.3, i_peak: 11.8, t_peak: 0, prot: {ref: F7, type: gPV, In: 32, Vdc: 1000, Icu_kA: 10, Icu_UL_kA: 50, mpn: HP10M32},
+     mm2: 10, method: B2, k_group: 1.0, length_m: 1.10, dev_max_A: 40, note: "F7 sits at the B48 end (pack fault current); dev_max = DRDN40 per-input rating; kept for the 25 A option"}
+  - {id: C18, ins: 90, cable: H03b, from: "WF2 (left bay, E2F)", to: "CB:U7 coffee DDR-480C-24", bus: AUX48, i_cont: 8.2, i_peak: 9.0, t_peak: 5, prot: {ref: WF2, type: gPV, In: 12, Vdc: 1000, Icu_kA: 10, Icu_UL_kA: 50, mpn: HP10M12},
+     mm2: 2.5, method: B2, k_group: 0.8, length_m: 0.75, dev_max_A: 24}
+  - {id: C19, ins: 90, cable: WW2, from: "WF1 (left bay, E2F)", to: "U5 DDR-120C-12 (right bay)", bus: AUX48, i_cont: 1.9, i_peak: 2.8, t_peak: 3, prot: {ref: WF1, type: gPV, In: 6, Vdc: 1000, Icu_kA: 10, Icu_UL_kA: 50, mpn: HP10M6},
+     mm2: 1.5, method: B2, k_group: 0.8, length_m: 1.10, dev_max_A: 16, note: "rev B2: crosses under the deck inside H03 (E2F moved to the left bay)"}
+  - {id: C20, ins: 90, cable: W28, from: "U5 +OUT -> FJ 4 A", to: "SUP:Jetson reComputer J4012 12 V", bus: C12, i_cont: 3.3, i_peak: 4.0, t_peak: 3, prot: {ref: FJ, type: gPV, In: 4, Vdc: 1000, Icu_kA: 10, Icu_UL_kA: 50, mpn: HP10M4},
+     mm2: 2.5, method: B2, k_group: 0.8, length_m: 0.75, dev_max_A: 5, note: "rev B4 (G-26): Seeed reComputer J4012 9-19 V, 10-25 W + USB cameras (6 + 8.4 W) = 39 W / 12 V = 3.3 A; dev_max = the 12 V 5 A supply the maker specifies [SOURCED seeed_j4012]"}
+  - {id: C21L, ins: 90, cable: WW3L, from: "UAL -> UOL -> RAL -> FAL", to: "OpenArm L hub (via E53 grommet + column)", bus: A24L, i_cont: 15.0, i_peak: 30.0, t_peak: 5, prot: {ref: "FAL HP10M25 gPV 10x38", type: gPV, In: 25, Vdc: 1000, Icu_kA: 10, Icu_UL_kA: 50, mpn: HP10M25},
+     mm2: 6, method: B2, k_group: 0.8, length_m: 2.0, dev_max_A: 32, variant: OA, note: "XT60 at the column base (dev_max kept conservative)"}
+  - {id: C21R, ins: 90, cable: WW3R, from: "UAR -> UOR -> RAR -> FAR", to: "OpenArm R hub", bus: A24R, i_cont: 15.0, i_peak: 30.0, t_peak: 5, prot: {ref: "FAR HP10M25 gPV 10x38", type: gPV, In: 25, Vdc: 1000, Icu_kA: 10, Icu_UL_kA: 50, mpn: HP10M25},
+     mm2: 6, method: B2, k_group: 0.8, length_m: 2.3, dev_max_A: 32, variant: OA}
+  - {id: C22, cable: WW4, from: "U7 -> K4 (right MID) -> FCF 15 A (centre bay)", to: "24 V capsule machine (via E53)", bus: COF24, i_cont: 12.8, i_peak: 14.3, t_peak: 5, prot: {ref: "FCF HP10M15 gPV 10x38", type: gPV, In: 15, Vdc: 1000, Icu_kA: 10, Icu_UL_kA: 50, mpn: HP10M15},
+     mm2: 2.5, method: E, k_group: 1.0, length_m: 1.8, dev_max_A: 16}
+
+# Variant C48 arm feed (replaces the C11L/C11R loads; same cables H03c/H03d, same fuses F5L/F5R):
+c48_arm_feed:
+  per_arm_W_max: 1200       # rev B4: Kassow Edge "400-1200 W with max. load" [SOURCED kassow_edge]; UR3e 300 W (old_arch)
+  inrush_A: 400             # old_arch [S ur_oem_dc] -> K3 precharge mandatory before K1/K2 close
+  v_min_required: {UR_OEM_DC: 19.0, Kassow_Edge: 42.0}
+
+# --------------------------------------------------------------------------------------------- other component checks
+contactors:
+  K0: {ith_A: 125, interrupted_A: 100, vmax: 96, upstream_fuse_A: 100, i_cont: 33.0}
+  Q0: {ith_A: 250, vmax: 96, upstream_fuse_A: 100}
+  K1K2: {dc1_2poles_series_60V_A: 35, i_break_worst_A: 19.6, i_break_normal_A: 0.5, tag: SOURCED,
+         note: "normal stop: Jetson disables the Damiao drives (non-safe) before the SS1-t timer opens K1/K2 -> < 1 A break; worst case (Jetson failed, both arms at 150 %) 19.6 A per arm"}
+shunt_T24:
+  units: 2
+  I_max_A: 5.0              # each, SOURCED dsr50_oi p.3 'Max. current 5 A' (rev B4 F5: replaces 300 W, which is the 56 V setting)
+  P_cont_25C_W: 10          # each, 'Max. continuous power loss Pcont without additional cooling at TU=25°C 10 W' [SOURCED dsr50_oi]
+  P_cont_zero_C: 75         # derating to 0 W at 75 C [SOURCED dsr50_oi derating curve]
+  air_C: 43                 # air at the clamps (deck underside above the rear pack, centre-bay air path) at the rated room 35 C [ESTIMATE, TP-11]
+  threshold_V: 27.0
+  ddr_ovp_min_V: 28.8
+  swd_ov_alert_V: 32.0
+  robot_mass_kg: 173        # rev B4 CALC s.1: 172.4 kg loaded
+  v_max_mps: 1.1            # SMS cap (rev B4)
+  decel_mps2: 1.5           # controlled stop / SS1
+  regen_eff: 0.7            # motor+gear+converter recovery fraction [ASSUMED]
+  stops_per_min: 2.0        # dense indoor traffic [ASSUMED]
+precharge:
+  R_ohm: 47
+  C_uF: 2000                # 2x DDR-480 input + U4 + U5/U7 inputs [ASSUMED, measure at bring-up; ACTILINK bus cap gone]
+  v_max: 58.4
+  t_allowed_s: 0.6          # = K0T on-delay setting
+  R_pulse_J_max: 50         # Arcol HS50 short-time overload [ASSUMED] (G-25)
+precharge_K3:               # C48 only (rev B4 G-11)
+  R_ohm: 12
+  v_max: 58.4
+  dc1_110V_A: 5.0           # Finder 22.32 'Breaking capacity DC1: 24/110/220 V A 25/5/1' [SOURCED finder22 S22EN p.7] (no 58 V row: the 110 V row is the conservative one)
+charge:
+  charger: NPB-750-48       # rev B2 decision (Class B); option NPB-1700-48 (25 A) for C48 barista only
+  I_cc_A: 11.3              # SOURCED npb750
+  I_cc_alt_A: 25.0          # NPB-1700-48 option (SOURCED npb1700)
+  robopad_cont_A: 60        # SOURCED robopad13 (75 A only 80 s on / 60 s off)
+  robopad_vmax_V: 60.0      # SOURCED robopad13: also under fault conditions
+  drdn40_A: 40              # per input (single input used)
+  batt_charge_A: 30         # pair continuous (2 x 15 A), SOURCED discover_manual
+  fuse_A: 32
+  cv_V: 56.8                # DIP 'flooded' preset (SOURCED npb750) = Discover bulk 56.8 V (SOURCED)
+  float_V: 53.6
+  npb_dip_preset_V: 56.8    # rev B1 'reprogram' ACTION replaced by the DIP setting (2 OFF / 3 ON)
+  npb_ovp_min_V: 82.0       # SOURCED: charger OVP alone does NOT meet the RoboPad 60 V fault limit
+  dock_ov_relay_V: 58.5     # XD3 rev B3: Carlo Gavazzi DUB01CD48500V on the 20-200 V range, bench-calibrated to 58.5 V
+  dock_ov_relay_repeat_V: 1.0   # +-0.5 % of 200 V full scale [SOURCED gavazzi_dub01 p.2]
+  bms_ovp_V: 58.24          # Discover over-voltage protection > 58.24 V 3.2 s
+  h06a_max_m: 2.0           # RoboPad external cable limit
+battery_duty:                # duty-profile averages from ../CALC.md s.5 (amr_calc.py), W at the bus; checked against the 30 A pair continuous rating at 48 V
+  profiles_W: {OA_logistics: 183, OA_barista: 410, C48_logistics: 422, C48_barista: 828}   # CALC.md s.5 rev B4 (Kassow brochure values)
+
+# --------------------------------------------------------------------------------------------- thermal (bays)
+thermal:
+  ambient_C: 35             # rev B4 (F3): rated room ambient 0..+35 C (manual, nameplate); rev B3 40 C
+  limit_C: 55               # lowest module rating in a bay: PNOZmulti 2 0-60 C, Mean Well 100 % to ~60 C, Jetson carrier [ASSUMED 55 C]
+  h_W_m2K: 8.0              # natural convection + radiation, powder-coated Al [ASSUMED]
+  fan_W_per_K: 10.0         # 2x San Ace 9WPA0624S4001 in series (intake + exhaust), 0.99 m3/min = 59.4 m3/h free air each [SOURCED sanace_cat]; effective 50 % of free air through the filters = 29.7 m3/h -> rho*cp*V = 9.95 W/K [ASSUMED fraction, P-Q curve p.372, TP-11]
+  swd:                      # rev B4 (F3): SWD tunnels E43, fed with room air from under the robot, exhausted by E44 into the side bay
+    rating_C: 40            # SOURCED ezwheel datasheet 07/2024 'Temperatures 0 to +40 C'
+    tunnel_fan_W_per_K: 9.95   # 1x San Ace 9WPA0624S4001, 50 % of 59.4 m3/h free air [ASSUMED fraction, TP-11]
+    loss_typ_W: 8.7         # per drive, logistics duty: traction 54 W at the bus x 0.92 x 0.6 duty / 2 drives x (1 - 0.75) + 5 W electronics [CALC s.5, eta ASSUMED]
+    loss_max_W: 29.0        # per drive, sustained 1.1 m/s on 6 %: 95 W electrical per wheel x 0.25 + 5 W [CALC s.4]
+  bays:   # rev B3 contents (CAD_REV_B3.md s.3)
+    left_power:
+      area_m2: 0.19
+      tunnel: true          # rev B4: receives the left SWD tunnel air (E44L)
+      losses_W:
+        "U1+U2 DDR-480C-24 at 150 W typ traction (eta 0.92)": 13.0
+        "U7 coffee DDR-480C-24 (barista average, FL corner)": 11.0
+        "K0 SW80B coil (no economiser) + K0P + K0T": 13.0
+        "U6 DDR-60L-5 (head 5 V, ~15 W out, eta ~0.86)": 2.4
+        "F0 + branch fuses + WF1-3 at typical load": 3.5
+        "K0/Q0 contacts + busbars + cables I2R": 3.0
+    right_safety:
+      area_m2: 0.19
+      tunnel: true
+      losses_W:
+        "PNOZ m B0 + 2x EF 4DI4DOR + ES ETH (logic + relays + outputs)": 14.0
+        "7 bleed resistors 2.2 k (0.26 W each)": 1.8
+        "KI4 relay": 0.3
+        "K0V Carlo Gavazzi DUB01 (DC 3 W, SOURCED)": 3.0
+        "U4 DDR-240C-24 at 108 W out (eta 0.91; scanners at 15.9 W)": 10.7
+        "K1+K2 coils": 11.8
+        "NET1 switch (28 mA x 24 V SOURCED)": 0.7
+        "CAN1 PCAN gateway (rev B4: right HIGH rail)": 2.0
+        "K4 coil, FAL/FAR, JR1 (rev B4: right MID rail)": 3.0
+        "U5 DDR-120C-12 at 57 W out (eta 0.895)": 6.7
+        "UAR DDR-480C-24 at 70 W typ (OA)": 6.1
+        "FJ fuse, S24 terminals, cables": 2.0
+        "G01 LYNK II gateway": 2.0
+    right_lower_charge:
+      area_m2: 0.19
+      tunnel: true
+      losses_W:
+        "everything in right_safety": 64.1
+        "U8 DRDN40-48 (0.3 V x 25 A + 1.5 W)": 9.0
+        "F7 + charge cables": 2.0
+    centre:
+      area_m2: 0.12
+      fan_W_per_K: 4.8      # 2 x San Ace 9WPA0424H6001, 14.4 m3/h free air each [SOURCED sanace_cat], 50 % effective [ASSUMED, TP-11]
+      fans: "2 x 40 mm gap fans E42 (San Ace 9WPA0424H6001)"
+      losses_W:
+        "UAL DDR-480C-24 at 70 W typ (OA)": 6.1
+        "UOL/UOR DRDN40-24 + U3 DRDN40-24 (T24 ORing, 0.3 V x 6 A + 1.5 W)": 8.1
+        "R1a/R1b + RAL/RAR DSR 50/5 above the packs (regen average + standby)": 3.3
+        "FCF fuse": 0.5
+
+# --------------------------------------------------------------------------------------------- safety controller (chosen: Pilz PNOZmulti 2)
+# Module capacities: in = safe inputs, out = safe SC outputs, rly = safe relay outputs, std = standard (auxiliary, non-safe)
+# outputs left after the 2 test pulses. Rev B2 station (right upper rail, x from rear): SC1 ES ETH | SC0 B0 | SR1 | SR2 | (SX2, C48).
+safety_controller:
+  chosen: P5
+  sts_s: 1.2                 # SS1-t: PNOZ STO delay after a stop request (traction). Chosen option, see SAFETY_FUNCTIONS.md 'SS1-t timing'
+  t_sls_s: 1.0               # SWD SLS[1] 'time to velocity monitoring' 6691h (configurable U16 ms, SOURCED swd_sls p.109-110)
+  t_arm_sts_s: 0.5           # K1/K2 (arms) SS1-t delay, unchanged
+  t_logic_s: 0.054           # PNOZ worst-case reaction through the EF 4DI4DOR relays (SOURCED pilz_cat p.26-28, V:P8)
+  t_drive_s: 0.040           # SWD reaction to the start of the ramp: not published (V:E9) -> 2 x the rev B1 20 ms; measure (TP-01)
+  ramp_mps2: 1.5             # non-safe quick-stop ramp in the SWD (604Ah), V:E4
+  v_max_mps: 1.1             # rev B4: SMS = top speed 1.1 m/s (castor rating speed 4 km/h, G-04); bands 0.3 / 0.7 / 1.1 (CALC s.7)
+  bands_mps: [0.3, 0.7, 1.1]
+  aux_out_max_mA: 75         # B0 configurable outputs used as auxiliary outputs (SOURCED pilz_b0 p.8, V:P7)
+  sc_out_max_A: 2.0
+  relay_min_mA: 10.0         # EF 4DI4DOR DC1 minimum (SOURCED pilz_cat)
+  bleed_ohm: 2200
+  s24_V: 24.0
+  max_modules_right: 6       # B0 (SOURCED pilz_cat p.20)
+  modules:
+    SC0: {mpn: "PNOZ m B0", in: 20, out: 4, rly: 0, std: 2, test: 2, width: 45.0}
+    SR1: {mpn: "PNOZ m EF 4DI4DOR (traction relays)", in: 4, out: 0, rly: 4, std: 0, test: 0, width: 22.5}
+    SR2: {mpn: "PNOZ m EF 4DI4DOR (scanner field-select relays)", in: 4, out: 0, rly: 4, std: 0, test: 0, width: 22.5}
+    SR3: {mpn: "PNOZ m EF 4DI4DOR (SLS[2] relays, rev B4)", in: 4, out: 0, rly: 4, std: 0, test: 0, width: 22.5}
+    SX2: {mpn: "PNOZ m EF 8DI4DO (C48)", in: 8, out: 4, rly: 0, std: 0, test: 0, width: 22.5, variant: C48}
+  coil_loads_mA:             # loads on the B0 auxiliary outputs (<= 75 mA each)
+    KI4: 9                   # Phoenix PLC-RSC-24DC/21 'Typical input current at UN 9 mA' [SOURCED phoenix_plc_rsc]
+    KS: 10.4                 # Finder 38.51.7.024.0050 coil 10.4 mA / 0.3 W [SOURCED finder38 S38EN p.5]
+    K4_direct: 92            # Finder 22.32 2.2 W (SOURCED) - shown to justify KI4
+  rules:
+    - "PNOZ m B0 test pulses T0/T1 (configurable outputs) pulse the NC contact pairs of ES1-ES2, ES3 and SE1 (cross-fault detection)"
+    - "K1+K2 coils share ONE safe SC output (SC0 O0): PL e if the feedback loop (SC0 I17) is connected and cross-shorts / external sources are excluded -> K1 and K2 coil wires in SEPARATE multicore cables [SOURCED pilz_b0 p.29, V:P4]"
+    - "No PNOZ semiconductor output drives an SWD input or a scanner control input: those come from the positive-guided relay contacts of SR1/SR2 (no test pulses), each with a 2.2 kOhm bleed resistor (>= 10 mA) [V:E6, V:S4, V:P14]"
+    - "SR2 contacts are single-channel (PL c Cat 1 each, PFH 3.75E-8): the scanner 1-of-3 evaluation turns any single contact fault (welded or open) into an invalid code -> OSSDs off; a wrong VALID code needs two independent faults -> SF3 argued as Cat 3 / PL d [to confirm in SISTEMA]"
+    - "Jetson -> PNOZ requests (FAST request, DOCK request, arms enable, coffee enable) are non-safe Modbus TCP bits via SC1: they can only REQUEST; every permissive is ANDed with the safe inputs. SC1 ES ETH is a standard module and is never part of a safety function [V:P3]"
+    - "SS1-t on every protective / emergency stop: t=0 PNOZ drops INSafe_1/2 (SLS[1] 0.3 m/s requested, SWD monitors after t_SLS = 1.0 s and goes to STO itself on violation) and reports the stop to the Jetson -> SWD quick-stop ramp 1.5 m/s2 (non-safe); t = 1.2 s PNOZ drops STO_1/STO_2 (SBC: phase-short brake). Normal stop ends <= 0.827 s from the 1.1 m/s top band (rev B4), so STO always arrives at standstill"
+    - "Speed bands (rev B4): SLS[1] 0.3 m/s = INSafe_1/2 (SR1 O2/O3), SLS[2] 0.7 m/s = INSafe_3/4 (SR3 O0/O1), SMS 1.1 m/s permanent (2624h). Field set and SLS request are switched together by the PNOZ program (switching_rule)"
+# Options compared for the rev B2 I/O list (check_amr.py checks the fit and ranks by price). Prices: net EUR, eibabo.de 2026-10-05.
+# rly = positive-guided safe relay outputs: 10 are required by the rev B4 design rule above (SWD STO/INSafe_1-4 + scanner CI1-CI4).
+safety_controller_options:
+  P1: {name: "rev B1: Pilz PNOZ m B0 + 1x EF 8DI4DO + ES ETH", in: 28, out: 8, rly: 0, std: 2, price_eur: 1374.87, tag: SECONDARY, width: 90.0,
+       note: "no relay outputs: SC test pulses would reach the SWD / scanner inputs (tolerance unpublished, V:E6/S4)"}
+  P3: {name: "Pilz PNOZ m B0 + 1x EF 8DI4DO + 2x EF 4DI4DOR + ES ETH", in: 36, out: 8, rly: 8, std: 2, price_eur: 2134.31, tag: SECONDARY, width: 135.0,
+       note: "rev B1 set + relay modules (EF 8DI4DO no longer needed)"}
+  P4: {name: "Pilz PNOZ m B0 + 2x EF 4DI4DOR + ES ETH", in: 28, out: 4, rly: 8, std: 2, price_eur: 1812.45, tag: SECONDARY, width: 112.5,
+       note: "rev B2/B3 choice; rev B4 needs 10 relay outputs (SLS[2] + CI4)"}
+  P5: {name: "Pilz PNOZ m B0 + 3x EF 4DI4DOR + ES ETH", in: 32, out: 4, rly: 12, std: 2, price_eur: 2192.17, tag: SECONDARY, width: 135.0,
+       note: "rev B4 choice (SR3 for SLS[2]); + terminal sets EUR 115.23 (eibabo); PNOZmulti Configurator free (V:P11)"}
+  P2: {name: "Pilz PNOZ m B1 (Modbus TCP built in) + 3x EF 8DI4DO", in: 24, out: 12, rly: 0, std: 0, price_eur: 1566.93, tag: SECONDARY, width: 112.5,
+       note: "no standard outputs, no relay outputs"}
+  F1: {name: "SICK Flexi Soft FX3-CPU0 + MPL + 3x FX3-XTIO + FX0-GENT", in: 24, out: 12, rly: 0, std: 0, price_eur: 2334.03, tag: SECONDARY, width: 112.5,
+       note: "no relay outputs (would need external positive-guided relays)"}
+  F2: {name: "SICK Flexi Compact FLX3-CPUC200 + FLX3-XTDI100 + FLX3-XTDO100", in: 28, out: 12, rly: 0, std: 6, price_eur: 2024.11, tag: SECONDARY, width: 120.0,
+       note: "no relay outputs; XTDI/XTDO counts ASSUMED"}
+  A1: {name: "rev A: Flexi Soft FX3-CPU1 + MPL + FX0-GENT + 5x FX3-XTIO + FX3-MOC1 (re-priced at eibabo, MOC1 ASSUMED 750)", in: 40, out: 20, rly: 0, std: 0, price_eur: 4114.57, tag: SECONDARY, width: 180.0,
+       note: "reference only (rev A I/O incl. waist)"}
+
+# --------------------------------------------------------------------------------------------- safety I/O map (PNOZmulti 2, rev B2)
+# Station order on the right upper rail: SC1 ES ETH | SC0 B0 | SR1 EF 4DI4DOR | SR2 EF 4DI4DOR | (SX2 EF 8DI4DO, C48)
+safety_io:
+  SC0:
+    inputs:
+      I0: {sig: "ES1+ES2 base E-stops in series, NC1 (Siemens 3SU1400 NC)", src: "ES1:11-12 -> ES2:11-12", test: T0, sf: [SF1]}
+      I1: {sig: "ES1+ES2 base E-stops in series, NC2", src: "ES1:21-22 -> ES2:21-22", test: T1, sf: [SF1]}
+      I2: {sig: "ES3 torso E-stop NC1 (deck interface XC)", src: "ES3:11-12", test: T0, sf: [SF1]}
+      I3: {sig: "ES3 torso E-stop NC2", src: "ES3:21-22", test: T1, sf: [SF1]}
+      I4: {sig: "Reset pushbutton SB1 (NO, falling edge, 0.1-5 s)", src: "SB1:13-14", sf: [SF13]}
+      I5: {sig: "Key SK1 contact AUTO", src: "SK1:c1", sf: [SF14]}
+      I6: {sig: "Key SK1 contact MANUAL (00 = SERVICE, 11 = fault)", src: "SK1:c2", sf: [SF14]}
+      I7: {sig: "Enabling switch SE1 ch1 (MANUAL hold-to-run)", src: "SE1:E1", test: T0, sf: [SF14]}
+      I8: {sig: "Enabling switch SE1 ch2", src: "SE1:E2", test: T1, sf: [SF14]}
+      I9: {sig: "S1F OSSD1.A (protective field)", src: "S1F:OSSD1A", sf: [SF2, SF3, SF9]}
+      I10: {sig: "S1F OSSD1.B", src: "S1F:OSSD1B", sf: [SF2, SF3, SF9]}
+      I11: {sig: "S1R OSSD1.A", src: "S1R:OSSD1A", sf: [SF2, SF3, SF9]}
+      I12: {sig: "S1R OSSD1.B", src: "S1R:OSSD1B", sf: [SF2, SF3, SF9]}
+      I13: {sig: "S1F OSSD2.A (arm envelope field, used only while K1/K2 closed)", src: "S1F:OSSD2A", sf: [SF7]}
+      I14: {sig: "S1F OSSD2.B", src: "S1F:OSSD2B", sf: [SF7]}
+      I15: {sig: "S1R OSSD2.A", src: "S1R:OSSD2A", sf: [SF7]}
+      I16: {sig: "S1R OSSD2.B", src: "S1R:OSSD2B", sf: [SF7]}
+      I17: {sig: "K1+K2 mirror NC in series (EDM / feedback loop)", src: "K1:21-22 -> K2:21-22", sf: [SF1, SF7, SF8]}
+      I18: {sig: "SP1 PSEN cs3.1 arm L on rest, OSSD.A (OA)", src: "SP1:OSSD1", sf: [SF8]}
+      I19: {sig: "SP1 PSEN cs3.1 arm L on rest, OSSD.B (OA)", src: "SP1:OSSD2", sf: [SF8]}
+    outputs:
+      O0: {sig: "K1 + K2 coils in parallel (arm 48 V feeds, SS1-t 0.5 s); coil wires in separate multicore cables", dst: "K1:A1 / K2:A1", sf: [SF1, SF2, SF7, SF8]}
+      O1: {sig: "spare (SF15 fallback: KI4 on a safe output if PLr c)", dst: "-", sf: []}
+      O2: {sig: "spare", dst: "-", sf: []}
+      O3: {sig: "spare", dst: "-", sf: []}
+    std_outputs:
+      S0: {sig: "KI4 interposing relay -> K4 coil (coffee 24 V, functional, Cat B); 10 mA <= 75 mA", dst: "KI4:A1", sf: [SF15]}
+      S1: {sig: "KS relay: dock signature resistor across the pads (docked + STO + Jetson request); <= 75 mA", dst: "KS:A1", sf: [SF10]}
+  SR1:
+    inputs:
+      I0: {sig: "SP2 PSEN cs3.1 arm R on rest, OSSD.A (OA; own input pair, no series connection)", src: "SP2:OSSD1", sf: [SF8]}
+      I1: {sig: "SP2 PSEN cs3.1 arm R on rest, OSSD.B (OA)", src: "SP2:OSSD2", sf: [SF8]}
+      I2: {sig: "RoboPad collector Hall 'docked' (open collector + pull-up, non-safe, plausibility with the network handshake)", src: "X1:HALL", sf: [SF10, SF11]}
+      I3: {sig: "G01 LYNK II R3 NO (BMS warning, information; K0 is opened by R1 + K0V)", src: "G01:R3", sf: [SF12]}
+    outputs:
+      O0: {sig: "SWD L+R STO_1 (M12 I/O pin 5), relay contact + 2.2 k bleed, 0 V = STO (at t = 1.2 s)", dst: "M1L/M1R:IO.5", sf: [SF1, SF2, SF6, SF11]}
+      O1: {sig: "SWD L+R STO_2 (pin 8), relay contact + 2.2 k bleed", dst: "M1L/M1R:IO.8", sf: [SF1, SF2, SF6, SF11]}
+      O2: {sig: "SWD L+R INSafe_1 = SLS[1] 0.3 m/s ch1 (0 V = SLS active; t_SLS 1.0 s), relay + bleed", dst: "M1L/M1R:IO.7", sf: [SF1, SF2, SF3, SF4, SF8, SF9, SF14]}
+      O3: {sig: "SWD L+R INSafe_2 = SLS[1] ch2, relay + bleed", dst: "M1L/M1R:IO.10", sf: [SF1, SF2, SF3, SF4, SF8, SF9, SF14]}
+  SR2:
+    inputs:
+      I0: {sig: "KI4/K4 aux NC (coffee contactor feedback, functional)", src: "K4:aux", sf: [SF15]}
+      I1: {sig: "KS relay NO feedback (functional)", src: "KS:14", sf: []}
+      I2: {sig: "spare (candidate: coffee cover switch if H13 needs it)", src: "-", sf: []}
+      I3: {sig: "spare", src: "-", sf: []}
+    outputs:
+      O0: {sig: "Field select CI1 = FS1 FAST (1-of-4), both scanners, relay + bleed", dst: "S1F/S1R:CI1", sf: [SF3]}
+      O1: {sig: "Field select CI2 = FS2 SLOW (default), relay + bleed", dst: "S1F/S1R:CI2", sf: [SF3]}
+      O2: {sig: "Field select CI3 = FS3 DOCK, relay + bleed", dst: "S1F/S1R:CI3", sf: [SF3, SF9]}
+      O3: {sig: "Field select CI4 = FS4 MEDIUM (rev B4, 1-of-4), relay + bleed", dst: "S1F/S1R:CI4", sf: [SF3]}
+  SR3:   # rev B4: SLS[2] 0.7 m/s band
+    inputs:
+      I0: {sig: "spare", src: "-", sf: []}
+      I1: {sig: "spare", src: "-", sf: []}
+      I2: {sig: "spare", src: "-", sf: []}
+      I3: {sig: "spare", src: "-", sf: []}
+    outputs:
+      O0: {sig: "SWD L+R INSafe_3 = SLS[2] 0.7 m/s ch1 (0 V = SLS[2] active), relay + bleed", dst: "M1L/M1R:IO.2", sf: [SF3, SF4]}
+      O1: {sig: "SWD L+R INSafe_4 = SLS[2] ch2, relay + bleed", dst: "M1L/M1R:IO.9", sf: [SF3, SF4]}
+      O2: {sig: "spare", dst: "-", sf: []}
+      O3: {sig: "spare", dst: "-", sf: []}
+  SX2:   # variant C48 only
+    variant: C48
+    inputs:
+      I0: {sig: "Arm L safety output 'robot stopped/not moving' ch1", src: "ARM_L:SO1", sf: [SF8, SF16]}
+      I1: {sig: "Arm L safety output ch2", src: "ARM_L:SO2", sf: [SF8, SF16]}
+      I2: {sig: "Arm R safety output ch1", src: "ARM_R:SO1", sf: [SF8, SF16]}
+      I3: {sig: "Arm R safety output ch2", src: "ARM_R:SO2", sf: [SF8, SF16]}
+      I4: {sig: "Arm L+R 'system E-stop out' ch1 (arm pendant E-stop -> robot E-stop)", src: "ARM:ESO1", sf: [SF1]}
+      I5: {sig: "Arm L+R 'system E-stop out' ch2", src: "ARM:ESO2", sf: [SF1]}
+      I6: {sig: "spare", src: "-", sf: []}
+      I7: {sig: "spare", src: "-", sf: []}
+    outputs:
+      O0: {sig: "Arm L+R E-stop input ch1", dst: "ARM:EI1", sf: [SF1]}
+      O1: {sig: "Arm L+R E-stop input ch2", dst: "ARM:EI2", sf: [SF1]}
+      O2: {sig: "Arm L+R safeguard (protective) stop ch1", dst: "ARM:SI1", sf: [SF2, SF7]}
+      O3: {sig: "Arm L+R safeguard stop ch2 / reduced mode select", dst: "ARM:SI2", sf: [SF2, SF7]}
+
+# SWD permanent configuration (object 2624h/2625h 'permanent activation', SOURCED swd_manual p.93; per-drive parameter sets L != R with signatures 3058h, V:E7)
+swd_permanent:
+  SMS: "1.1 m/s max (each drive; rev B4: castor rating speed 4 km/h, G-04)"
+  SLSa: "forward <= 1.1 m/s, reverse <= 0.3 m/s; each wheel with its own sign (polarity 607Eh does not change the safety sign convention: left wheel forward = negative), guaranteed >= 100 rpm motor (0.3 m/s = ~167 rpm OK) [SOURCED, V:E7]"
+  SLS1: "0.3 m/s, t_SLS (6691h) = 1000 ms, error reaction STO (6698h = 6640 0000) [SOURCED swd_sls]"
+  SLS2: "0.7 m/s on INSafe_3/4 (rev B4, SR3), t_SLS 1000 ms, error reaction STO"
+  INSafe_3_4: "used for SLS[2] since rev B4 (rev B3: spare / SBU candidate)"
+
+field_sets:   # nanoScan3 static control inputs, 1-of-4 evaluation (exactly one input high), same code on both scanners (rev B4: CI4 added)
+  FS1_FAST:   {code: "CI1=1 CI2=0 CI3=0 CI4=0", speed: "SLS[1] and SLS[2] off: SMS 1.1 m/s, reverse <= 0.3 m/s (permanent SLSa)", prot_field: "front 943 mm from the scanner, 457 mm beyond each side (CALC s.7, incl. Z_F 150 mm), resolution 70 mm", condition: "AUTO + carry mode (SF8)"}
+  FS2_SLOW:   {code: "CI1=0 CI2=1 CI3=0 CI4=0", speed: "SLS[1] 0.3 m/s per wheel", prot_field: "OSSD1 front 401 mm, sides 357 mm, rotation circle R 912 mm (CALC s.7, incl. Z_F); OSSD2 arm field circle R 2472 mm (S = K*T + T_Z + C_RO), resolution 50 mm (used only while K1/K2 closed)", condition: "default; rotation in place, MANUAL and arm work (traction STO) only here"}
+  FS3_DOCK:   {code: "CI1=0 CI2=0 CI3=1 CI4=0", speed: "SLS[1] 0.3 m/s (nav creeps 0.1 m/s)", prot_field: "as FS2 OSSD1 but rear cut-out = dock contour (static, 120 mm deep); arms off", condition: "Jetson request + SLS confirmed + X1 Hall/AprilTag (non-safe request; restriction is safe)"}
+  FS4_MEDIUM: {code: "CI1=0 CI2=0 CI3=0 CI4=1", speed: "SLS[2] 0.7 m/s per wheel (INSafe_3/4 via SR3)", prot_field: "front 613 mm from the scanner, 407 mm beyond each side (CALC s.7, incl. Z_F), resolution 70 mm", condition: "AUTO, corridors / mixed traffic (rev B4)"}
+  switching_rule: "to a SMALLER field: drop INSafe_1/2 (SLS[1]) or INSafe_3/4 (SLS[2]) first, wait t_SLS + 0.1 s = 1.1 s, then switch CI; to a LARGER field: switch CI first, then release SLS. Scanner input delay class 'relays' (30 ms) because CI comes from SR2 contacts; tCSR = input delay + 12 ms. Field select and SLS are separate outputs on purpose. Invalid code (0 or >1 inputs high) -> scanner OSSDs off."
+# --------------------------------------------------------------------------------------------- PFHd chains for the PL estimate
+# PFHd per subsystem [1/h]. Sources: nanoScan3 8.0e-8 SOURCED; others ASSUMED (Annex K style, Cat 3, MTTFd high, DC medium/high).
+pfhd:
+  ESTOP_SERIES: 5.0e-8     # ES1+ES2 2NC in series: DC reduced to low (60-90 %) per ISO/TR 24119 (rarely operated, <= 4 devices) [ASSUMED; Siemens 3SU1 B10d from the Siemens library]
+  ESTOP_CAT3: 2.5e-8       # single 2NC E-stop, test pulses, DC 99 % [ASSUMED]
+  NS3: 8.0e-8              # SOURCED (V:S10)
+  PNOZ_B0: 5.7e-10         # CPU 4.74E-10 + 2-ch inputs 7.95E-11 + SC output 1.66E-11 [SOURCED pilz_b0, V:P1]
+  PNOZ_EF: 3.34e-10        # EF 4DI4DOR CPU 2.84E-10 + 2-ch inputs 4.27E-11 + relay outputs 2-ch 7.52E-12 [SOURCED pilz_cat, V:P14]
+  PNOZ_EF8: 3.47e-10       # EF 8DI4DO (C48) CPU 2.84E-10 + inputs 4.27E-11 + SC out 2.12E-11 [SOURCED, V:P2]
+  RLY_1CH: 3.75e-8         # EF 4DI4DOR relay output 1-channel (scanner CI, one per field set) [SOURCED pilz_cat]
+  SWD_STO: 1.42e-9         # STO1/STO2 Cat 4 PL e [SOURCED swd_sls p.89-90, V:E5]
+  SWD_SLS: 2.29e-7         # SLS / SLSa / SDI pair of SafeInputs Cat 3 PL d [SOURCED]
+  SWD_SBC: 2.29e-7         # SBC3 internal via STO inputs, PL d [SOURCED]
+  K1K2_CAT3: 9.5e-9        # B10D = B10 1E6 / 0.73 = 1.37E6 [SOURCED Siemens 3RT2026-1BB40 data sheet p.6, CERTAINTY F7], nop 6600/y, EDM DC 99 % (PFHd value kept from the Annex K estimate; SISTEMA at release)
+  PSEN2: 2.0e-9            # 2x PSEN cs3.1 on separate input pairs [ASSUMED]
+  KEY_CAT1: 2.0e-7         # key selector, plausibility [ASSUMED]
+  ENABLE_CAT3: 3.0e-8      # 3-position enabling switch [ASSUMED]
+  SB1_CAT1: 1.0e-7         # reset NO, edge-evaluated [ASSUMED]
+  STD_K4_CATB: 3.8e-6      # auxiliary output + KI4 + K4, Cat B, MTTFd >= 30 y [ASSUMED]
+  DOCK_STATION: 1.0e-6     # station relay chain, single channel + current monitor [ASSUMED]
+  C48_ARM: 1.0e-7          # certified arm internal stop chain (PL d) [ASSUMED]
+  BMS: null                # IEC 62619: no PL/PFHd published (V:D13) -> argued by independent layers, no PL credit
+  ARMFALL: null            # OpenArm cannot hold position without power
+
+# CAD harness names in ../out/parts.json that the cable schedule must map
+cad_harness: [H01_batt_F_to_fuse, H02_batt_R_to_fuse, H03_bus48_to_centre_and_deck, H04_traction_24V_L, H05_traction_24V_R,
+              H06_dock_to_charge_path, H07_safety_bus_scanner_F, H08_safety_bus_scanner_R, H09_safety_estops, H10_ethernet_safety_to_deck]

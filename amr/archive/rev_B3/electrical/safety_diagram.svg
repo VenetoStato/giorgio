@@ -1,0 +1,894 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg xmlns:xlink="http://www.w3.org/1999/xlink" width="1360.548043pt" height="936.200201pt" viewBox="0 0 1360.548043 936.200201" xmlns="http://www.w3.org/2000/svg" version="1.1">
+ <metadata>
+  <rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+   <cc:Work>
+    <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
+    <dc:date>2026-10-05T17:07:12.698816</dc:date>
+    <dc:format>image/svg+xml</dc:format>
+    <dc:creator>
+     <cc:Agent>
+      <dc:title>Matplotlib v3.11.2, https://matplotlib.org/</dc:title>
+     </cc:Agent>
+    </dc:creator>
+   </cc:Work>
+  </rdf:RDF>
+ </metadata>
+ <defs>
+  <style type="text/css">*{stroke-linejoin: round; stroke-linecap: butt}</style>
+ </defs>
+ <g id="figure_1">
+  <g id="patch_1">
+   <path d="M 0 936.200201 
+L 1360.548043 936.200201 
+L 1360.548043 0 
+L 0 0 
+z
+" style="fill: #ffffff"/>
+  </g>
+  <g id="axes_1">
+   <g id="patch_2">
+    <path d="M 526.601618 76.809785 
+L 660.612927 76.809785 
+Q 662.768836 76.809785 662.768836 72.235985 
+L 662.768836 40.402337 
+Q 662.768836 35.828537 660.612927 35.828537 
+L 526.601618 35.828537 
+Q 524.445709 35.828537 524.445709 40.402337 
+L 524.445709 72.235985 
+Q 524.445709 76.809785 526.601618 76.809785 
+z
+" clip-path="url(#p69b4693f7f)" style="fill: #d5f5e3; stroke: #34495e; stroke-width: 0.9; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_3">
+    <path d="M 526.601618 450.946625 
+L 660.612927 450.946625 
+Q 662.768836 450.946625 662.768836 446.372825 
+L 662.768836 94.373177 
+Q 662.768836 89.799377 660.612927 89.799377 
+L 526.601618 89.799377 
+Q 524.445709 89.799377 524.445709 94.373177 
+L 524.445709 446.372825 
+Q 524.445709 450.946625 526.601618 450.946625 
+z
+" clip-path="url(#p69b4693f7f)" style="fill: #e8f8f5; stroke: #34495e; stroke-width: 0.9; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_4">
+    <path d="M 526.601618 531.445505 
+L 660.612927 531.445505 
+Q 662.768836 531.445505 662.768836 526.871705 
+L 662.768836 467.595257 
+Q 662.768836 463.021457 660.612927 463.021457 
+L 526.601618 463.021457 
+Q 524.445709 463.021457 524.445709 467.595257 
+L 524.445709 526.871705 
+Q 524.445709 531.445505 526.601618 531.445505 
+z
+" clip-path="url(#p69b4693f7f)" style="fill: #e8f8f5; stroke: #34495e; stroke-width: 0.9; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_5">
+    <path d="M 526.601618 593.649185 
+L 660.612927 593.649185 
+Q 662.768836 593.649185 662.768836 589.075385 
+L 662.768836 548.094137 
+Q 662.768836 543.520337 660.612927 543.520337 
+L 526.601618 543.520337 
+Q 524.445709 543.520337 524.445709 548.094137 
+L 524.445709 589.075385 
+Q 524.445709 593.649185 526.601618 593.649185 
+z
+" clip-path="url(#p69b4693f7f)" style="fill: #e8f8f5; stroke: #34495e; stroke-width: 0.9; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_6">
+    <path d="M 526.601618 710.738465 
+L 660.612927 710.738465 
+Q 662.768836 710.738465 662.768836 706.164665 
+L 662.768836 610.297817 
+Q 662.768836 605.724017 660.612927 605.724017 
+L 526.601618 605.724017 
+Q 524.445709 605.724017 524.445709 610.297817 
+L 524.445709 706.164665 
+Q 524.445709 710.738465 526.601618 710.738465 
+z
+" clip-path="url(#p69b4693f7f)" style="fill: #f5eef8; stroke-dasharray: 3.33,1.44; stroke-dashoffset: 0; stroke: #34495e; stroke-width: 0.9; stroke-linejoin: miter"/>
+   </g>
+   <g id="line2d_1">
+    <path d="M 517.719273 96.568601 
+L 524.618182 96.568601 
+" clip-path="url(#p69b4693f7f)" style="fill: none; stroke: #2e86c1; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_2">
+    <path d="M 517.719273 114.863801 
+L 524.618182 114.863801 
+" clip-path="url(#p69b4693f7f)" style="fill: none; stroke: #2e86c1; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_3">
+    <path d="M 517.719273 133.159001 
+L 524.618182 133.159001 
+" clip-path="url(#p69b4693f7f)" style="fill: none; stroke: #2e86c1; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_4">
+    <path d="M 517.719273 151.454201 
+L 524.618182 151.454201 
+" clip-path="url(#p69b4693f7f)" style="fill: none; stroke: #2e86c1; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_5">
+    <path d="M 517.719273 169.749401 
+L 524.618182 169.749401 
+" clip-path="url(#p69b4693f7f)" style="fill: none; stroke: #2e86c1; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_6">
+    <path d="M 517.719273 188.044601 
+L 524.618182 188.044601 
+" clip-path="url(#p69b4693f7f)" style="fill: none; stroke: #2e86c1; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_7">
+    <path d="M 517.719273 206.339801 
+L 524.618182 206.339801 
+" clip-path="url(#p69b4693f7f)" style="fill: none; stroke: #2e86c1; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_8">
+    <path d="M 517.719273 224.635001 
+L 524.618182 224.635001 
+" clip-path="url(#p69b4693f7f)" style="fill: none; stroke: #2e86c1; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_9">
+    <path d="M 517.719273 242.930201 
+L 524.618182 242.930201 
+" clip-path="url(#p69b4693f7f)" style="fill: none; stroke: #2e86c1; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_10">
+    <path d="M 517.719273 261.225401 
+L 524.618182 261.225401 
+" clip-path="url(#p69b4693f7f)" style="fill: none; stroke: #2e86c1; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_11">
+    <path d="M 517.719273 279.520601 
+L 524.618182 279.520601 
+" clip-path="url(#p69b4693f7f)" style="fill: none; stroke: #2e86c1; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_12">
+    <path d="M 517.719273 297.815801 
+L 524.618182 297.815801 
+" clip-path="url(#p69b4693f7f)" style="fill: none; stroke: #2e86c1; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_13">
+    <path d="M 517.719273 316.111001 
+L 524.618182 316.111001 
+" clip-path="url(#p69b4693f7f)" style="fill: none; stroke: #2e86c1; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_14">
+    <path d="M 517.719273 334.406201 
+L 524.618182 334.406201 
+" clip-path="url(#p69b4693f7f)" style="fill: none; stroke: #2e86c1; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_15">
+    <path d="M 517.719273 352.701401 
+L 524.618182 352.701401 
+" clip-path="url(#p69b4693f7f)" style="fill: none; stroke: #2e86c1; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_16">
+    <path d="M 517.719273 370.996601 
+L 524.618182 370.996601 
+" clip-path="url(#p69b4693f7f)" style="fill: none; stroke: #2e86c1; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_17">
+    <path d="M 517.719273 389.291801 
+L 524.618182 389.291801 
+" clip-path="url(#p69b4693f7f)" style="fill: none; stroke: #2e86c1; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_18">
+    <path d="M 517.719273 407.587001 
+L 524.618182 407.587001 
+" clip-path="url(#p69b4693f7f)" style="fill: none; stroke: #2e86c1; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_19">
+    <path d="M 517.719273 425.882201 
+L 524.618182 425.882201 
+" clip-path="url(#p69b4693f7f)" style="fill: none; stroke: #2e86c1; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_20">
+    <path d="M 517.719273 444.177401 
+L 524.618182 444.177401 
+" clip-path="url(#p69b4693f7f)" style="fill: none; stroke: #2e86c1; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_21">
+    <path d="M 662.596364 148.405001 
+L 672.944727 148.405001 
+" clip-path="url(#p69b4693f7f)" style="fill: none; stroke: #c0392b; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_22">
+    <path d="M 662.596364 270.373001 
+L 672.944727 270.373001 
+" clip-path="url(#p69b4693f7f)" style="fill: none; stroke: #7f8c8d; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_23">
+    <path d="M 662.596364 392.341001 
+L 672.944727 392.341001 
+" clip-path="url(#p69b4693f7f)" style="fill: none; stroke: #7f8c8d; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_24">
+    <path d="M 517.719273 469.790681 
+L 524.618182 469.790681 
+" clip-path="url(#p69b4693f7f)" style="fill: none; stroke: #2e86c1; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_25">
+    <path d="M 517.719273 488.085881 
+L 524.618182 488.085881 
+" clip-path="url(#p69b4693f7f)" style="fill: none; stroke: #2e86c1; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_26">
+    <path d="M 517.719273 506.381081 
+L 524.618182 506.381081 
+" clip-path="url(#p69b4693f7f)" style="fill: none; stroke: #2e86c1; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_27">
+    <path d="M 517.719273 524.676281 
+L 524.618182 524.676281 
+" clip-path="url(#p69b4693f7f)" style="fill: none; stroke: #2e86c1; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_28">
+    <path d="M 662.596364 469.790681 
+L 672.944727 469.790681 
+" clip-path="url(#p69b4693f7f)" style="fill: none; stroke: #b9770e; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_29">
+    <path d="M 662.596364 488.085881 
+L 672.944727 488.085881 
+" clip-path="url(#p69b4693f7f)" style="fill: none; stroke: #b9770e; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_30">
+    <path d="M 662.596364 506.381081 
+L 672.944727 506.381081 
+" clip-path="url(#p69b4693f7f)" style="fill: none; stroke: #b9770e; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_31">
+    <path d="M 662.596364 524.676281 
+L 672.944727 524.676281 
+" clip-path="url(#p69b4693f7f)" style="fill: none; stroke: #b9770e; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_32">
+    <path d="M 517.719273 554.863361 
+L 524.618182 554.863361 
+" clip-path="url(#p69b4693f7f)" style="fill: none; stroke: #2e86c1; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_33">
+    <path d="M 517.719273 582.306161 
+L 524.618182 582.306161 
+" clip-path="url(#p69b4693f7f)" style="fill: none; stroke: #95a5a6; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_34">
+    <path d="M 662.596364 550.289561 
+L 672.944727 550.289561 
+" clip-path="url(#p69b4693f7f)" style="fill: none; stroke: #b9770e; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_35">
+    <path d="M 662.596364 568.584761 
+L 672.944727 568.584761 
+" clip-path="url(#p69b4693f7f)" style="fill: none; stroke: #b9770e; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_36">
+    <path d="M 662.596364 586.879961 
+L 672.944727 586.879961 
+" clip-path="url(#p69b4693f7f)" style="fill: none; stroke: #b9770e; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_37">
+    <path d="M 517.719273 612.493241 
+L 524.618182 612.493241 
+" clip-path="url(#p69b4693f7f)" style="fill: none; stroke: #2e86c1; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_38">
+    <path d="M 517.719273 630.788441 
+L 524.618182 630.788441 
+" clip-path="url(#p69b4693f7f)" style="fill: none; stroke: #2e86c1; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_39">
+    <path d="M 517.719273 649.083641 
+L 524.618182 649.083641 
+" clip-path="url(#p69b4693f7f)" style="fill: none; stroke: #2e86c1; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_40">
+    <path d="M 517.719273 667.378841 
+L 524.618182 667.378841 
+" clip-path="url(#p69b4693f7f)" style="fill: none; stroke: #2e86c1; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_41">
+    <path d="M 517.719273 685.674041 
+L 524.618182 685.674041 
+" clip-path="url(#p69b4693f7f)" style="fill: none; stroke: #2e86c1; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_42">
+    <path d="M 517.719273 703.969241 
+L 524.618182 703.969241 
+" clip-path="url(#p69b4693f7f)" style="fill: none; stroke: #2e86c1; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_43">
+    <path d="M 662.596364 617.067041 
+L 672.944727 617.067041 
+" clip-path="url(#p69b4693f7f)" style="fill: none; stroke: #c0392b; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_44">
+    <path d="M 662.596364 644.509841 
+L 672.944727 644.509841 
+" clip-path="url(#p69b4693f7f)" style="fill: none; stroke: #c0392b; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_45">
+    <path d="M 662.596364 671.952641 
+L 672.944727 671.952641 
+" clip-path="url(#p69b4693f7f)" style="fill: none; stroke: #c0392b; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_46">
+    <path d="M 662.596364 699.395441 
+L 672.944727 699.395441 
+" clip-path="url(#p69b4693f7f)" style="fill: none; stroke: #c0392b; stroke-linecap: round"/>
+   </g>
+   <g id="text_1">
+    <text style="font-weight: 700; font-size: 6px; font-family: 'DejaVu Sans'; text-anchor: middle" x="593.607273" y="57.877989" transform="rotate(-0 593.607273 57.877989)">SC1 PNOZ m ES ETH (Modbus TCP -&gt; Jetson, non-safe)</text>
+   </g>
+   <g id="text_2">
+    <text style="font-weight: 700; font-size: 7px; font-family: 'DejaVu Sans'" transform="translate(586.08282 267.990677)">SC0</text>
+    <text style="font-weight: 700; font-size: 7px; font-family: 'DejaVu Sans'" transform="translate(571.412351 276.392044)">PNOZ m B0</text>
+   </g>
+   <g id="text_3">
+    <text style="font-size: 5.5px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #555555" x="218.479091" y="97.997312" transform="rotate(-0 218.479091 97.997312)">ES1:11-12 -&gt; ES2:11-12</text>
+   </g>
+   <g id="text_4">
+    <text style="font-size: 5.8px; font-family: 'DejaVu Sans'; text-anchor: start" x="222.790909" y="98.075468" transform="rotate(-0 222.790909 98.075468)">ES1+ES2 base E-stops in series, NC1 (Siemens 3SU1400 NC)  [T0]</text>
+   </g>
+   <g id="text_5">
+    <text style="font-size: 5.5px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #2e86c1" x="527.205273" y="97.997312" transform="rotate(-0 527.205273 97.997312)">I0</text>
+   </g>
+   <g id="text_6">
+    <text style="font-size: 4.6px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #7d3c98" x="222.790909" y="105.447507" transform="rotate(-0 222.790909 105.447507)">SF1</text>
+   </g>
+   <g id="text_7">
+    <text style="font-size: 5.5px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #555555" x="218.479091" y="116.292512" transform="rotate(-0 218.479091 116.292512)">ES1:21-22 -&gt; ES2:21-22</text>
+   </g>
+   <g id="text_8">
+    <text style="font-size: 5.8px; font-family: 'DejaVu Sans'; text-anchor: start" x="222.790909" y="116.370668" transform="rotate(-0 222.790909 116.370668)">ES1+ES2 base E-stops in series, NC2  [T1]</text>
+   </g>
+   <g id="text_9">
+    <text style="font-size: 5.5px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #2e86c1" x="527.205273" y="116.292512" transform="rotate(-0 527.205273 116.292512)">I1</text>
+   </g>
+   <g id="text_10">
+    <text style="font-size: 4.6px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #7d3c98" x="222.790909" y="123.742707" transform="rotate(-0 222.790909 123.742707)">SF1</text>
+   </g>
+   <g id="text_11">
+    <text style="font-size: 5.5px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #555555" x="218.479091" y="134.587712" transform="rotate(-0 218.479091 134.587712)">ES3:11-12</text>
+   </g>
+   <g id="text_12">
+    <text style="font-size: 5.8px; font-family: 'DejaVu Sans'; text-anchor: start" x="222.790909" y="134.665868" transform="rotate(-0 222.790909 134.665868)">ES3 torso E-stop NC1 (deck interface XC)  [T0]</text>
+   </g>
+   <g id="text_13">
+    <text style="font-size: 5.5px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #2e86c1" x="527.205273" y="134.587712" transform="rotate(-0 527.205273 134.587712)">I2</text>
+   </g>
+   <g id="text_14">
+    <text style="font-size: 4.6px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #7d3c98" x="222.790909" y="142.037907" transform="rotate(-0 222.790909 142.037907)">SF1</text>
+   </g>
+   <g id="text_15">
+    <text style="font-size: 5.5px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #555555" x="218.479091" y="152.882912" transform="rotate(-0 218.479091 152.882912)">ES3:21-22</text>
+   </g>
+   <g id="text_16">
+    <text style="font-size: 5.8px; font-family: 'DejaVu Sans'; text-anchor: start" x="222.790909" y="152.961068" transform="rotate(-0 222.790909 152.961068)">ES3 torso E-stop NC2  [T1]</text>
+   </g>
+   <g id="text_17">
+    <text style="font-size: 5.5px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #2e86c1" x="527.205273" y="152.882912" transform="rotate(-0 527.205273 152.882912)">I3</text>
+   </g>
+   <g id="text_18">
+    <text style="font-size: 4.6px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #7d3c98" x="222.790909" y="160.333107" transform="rotate(-0 222.790909 160.333107)">SF1</text>
+   </g>
+   <g id="text_19">
+    <text style="font-size: 5.5px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #555555" x="218.479091" y="171.178112" transform="rotate(-0 218.479091 171.178112)">SB1:13-14</text>
+   </g>
+   <g id="text_20">
+    <text style="font-size: 5.8px; font-family: 'DejaVu Sans'; text-anchor: start" x="222.790909" y="171.256268" transform="rotate(-0 222.790909 171.256268)">Reset pushbutton SB1 (NO, falling edge, 0.1-5 s)</text>
+   </g>
+   <g id="text_21">
+    <text style="font-size: 5.5px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #2e86c1" x="527.205273" y="171.178112" transform="rotate(-0 527.205273 171.178112)">I4</text>
+   </g>
+   <g id="text_22">
+    <text style="font-size: 4.6px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #7d3c98" x="222.790909" y="178.628307" transform="rotate(-0 222.790909 178.628307)">SF13</text>
+   </g>
+   <g id="text_23">
+    <text style="font-size: 5.5px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #555555" x="218.479091" y="189.473312" transform="rotate(-0 218.479091 189.473312)">SK1:c1</text>
+   </g>
+   <g id="text_24">
+    <text style="font-size: 5.8px; font-family: 'DejaVu Sans'; text-anchor: start" x="222.790909" y="189.551242" transform="rotate(-0 222.790909 189.551242)">Key SK1 contact AUTO</text>
+   </g>
+   <g id="text_25">
+    <text style="font-size: 5.5px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #2e86c1" x="527.205273" y="189.473312" transform="rotate(-0 527.205273 189.473312)">I5</text>
+   </g>
+   <g id="text_26">
+    <text style="font-size: 4.6px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #7d3c98" x="222.790909" y="196.923507" transform="rotate(-0 222.790909 196.923507)">SF14</text>
+   </g>
+   <g id="text_27">
+    <text style="font-size: 5.5px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #555555" x="218.479091" y="207.768512" transform="rotate(-0 218.479091 207.768512)">SK1:c2</text>
+   </g>
+   <g id="text_28">
+    <text style="font-size: 5.8px; font-family: 'DejaVu Sans'; text-anchor: start" x="222.790909" y="207.846668" transform="rotate(-0 222.790909 207.846668)">Key SK1 contact MANUAL (00 = SERVICE, 11 = fault)</text>
+   </g>
+   <g id="text_29">
+    <text style="font-size: 5.5px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #2e86c1" x="527.205273" y="207.768512" transform="rotate(-0 527.205273 207.768512)">I6</text>
+   </g>
+   <g id="text_30">
+    <text style="font-size: 4.6px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #7d3c98" x="222.790909" y="215.218707" transform="rotate(-0 222.790909 215.218707)">SF14</text>
+   </g>
+   <g id="text_31">
+    <text style="font-size: 5.5px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #555555" x="218.479091" y="226.063712" transform="rotate(-0 218.479091 226.063712)">SE1:E1</text>
+   </g>
+   <g id="text_32">
+    <text style="font-size: 5.8px; font-family: 'DejaVu Sans'; text-anchor: start" x="222.790909" y="226.141868" transform="rotate(-0 222.790909 226.141868)">Enabling switch SE1 ch1 (MANUAL hold-to-run)  [T0]</text>
+   </g>
+   <g id="text_33">
+    <text style="font-size: 5.5px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #2e86c1" x="527.205273" y="226.063712" transform="rotate(-0 527.205273 226.063712)">I7</text>
+   </g>
+   <g id="text_34">
+    <text style="font-size: 4.6px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #7d3c98" x="222.790909" y="233.513907" transform="rotate(-0 222.790909 233.513907)">SF14</text>
+   </g>
+   <g id="text_35">
+    <text style="font-size: 5.5px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #555555" x="218.479091" y="244.358912" transform="rotate(-0 218.479091 244.358912)">SE1:E2</text>
+   </g>
+   <g id="text_36">
+    <text style="font-size: 5.8px; font-family: 'DejaVu Sans'; text-anchor: start" x="222.790909" y="244.437068" transform="rotate(-0 222.790909 244.437068)">Enabling switch SE1 ch2  [T1]</text>
+   </g>
+   <g id="text_37">
+    <text style="font-size: 5.5px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #2e86c1" x="527.205273" y="244.358912" transform="rotate(-0 527.205273 244.358912)">I8</text>
+   </g>
+   <g id="text_38">
+    <text style="font-size: 4.6px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #7d3c98" x="222.790909" y="251.809107" transform="rotate(-0 222.790909 251.809107)">SF14</text>
+   </g>
+   <g id="text_39">
+    <text style="font-size: 5.5px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #555555" x="218.479091" y="262.654112" transform="rotate(-0 218.479091 262.654112)">S1F:OSSD1A</text>
+   </g>
+   <g id="text_40">
+    <text style="font-size: 5.8px; font-family: 'DejaVu Sans'; text-anchor: start" x="222.790909" y="262.732268" transform="rotate(-0 222.790909 262.732268)">S1F OSSD1.A (protective field)</text>
+   </g>
+   <g id="text_41">
+    <text style="font-size: 5.5px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #2e86c1" x="527.205273" y="262.654112" transform="rotate(-0 527.205273 262.654112)">I9</text>
+   </g>
+   <g id="text_42">
+    <text style="font-size: 4.6px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #7d3c98" x="222.790909" y="270.104307" transform="rotate(-0 222.790909 270.104307)">SF2,SF3,SF9</text>
+   </g>
+   <g id="text_43">
+    <text style="font-size: 5.5px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #555555" x="218.479091" y="280.949312" transform="rotate(-0 218.479091 280.949312)">S1F:OSSD1B</text>
+   </g>
+   <g id="text_44">
+    <text style="font-size: 5.8px; font-family: 'DejaVu Sans'; text-anchor: start" x="222.790909" y="281.027242" transform="rotate(-0 222.790909 281.027242)">S1F OSSD1.B</text>
+   </g>
+   <g id="text_45">
+    <text style="font-size: 5.5px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #2e86c1" x="527.205273" y="280.949312" transform="rotate(-0 527.205273 280.949312)">I10</text>
+   </g>
+   <g id="text_46">
+    <text style="font-size: 4.6px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #7d3c98" x="222.790909" y="288.399507" transform="rotate(-0 222.790909 288.399507)">SF2,SF3,SF9</text>
+   </g>
+   <g id="text_47">
+    <text style="font-size: 5.5px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #555555" x="218.479091" y="299.244512" transform="rotate(-0 218.479091 299.244512)">S1R:OSSD1A</text>
+   </g>
+   <g id="text_48">
+    <text style="font-size: 5.8px; font-family: 'DejaVu Sans'; text-anchor: start" x="222.790909" y="299.322442" transform="rotate(-0 222.790909 299.322442)">S1R OSSD1.A</text>
+   </g>
+   <g id="text_49">
+    <text style="font-size: 5.5px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #2e86c1" x="527.205273" y="299.244512" transform="rotate(-0 527.205273 299.244512)">I11</text>
+   </g>
+   <g id="text_50">
+    <text style="font-size: 4.6px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #7d3c98" x="222.790909" y="306.694707" transform="rotate(-0 222.790909 306.694707)">SF2,SF3,SF9</text>
+   </g>
+   <g id="text_51">
+    <text style="font-size: 5.5px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #555555" x="218.479091" y="317.539712" transform="rotate(-0 218.479091 317.539712)">S1R:OSSD1B</text>
+   </g>
+   <g id="text_52">
+    <text style="font-size: 5.8px; font-family: 'DejaVu Sans'; text-anchor: start" x="222.790909" y="317.617642" transform="rotate(-0 222.790909 317.617642)">S1R OSSD1.B</text>
+   </g>
+   <g id="text_53">
+    <text style="font-size: 5.5px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #2e86c1" x="527.205273" y="317.539712" transform="rotate(-0 527.205273 317.539712)">I12</text>
+   </g>
+   <g id="text_54">
+    <text style="font-size: 4.6px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #7d3c98" x="222.790909" y="324.989907" transform="rotate(-0 222.790909 324.989907)">SF2,SF3,SF9</text>
+   </g>
+   <g id="text_55">
+    <text style="font-size: 5.5px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #555555" x="218.479091" y="335.834912" transform="rotate(-0 218.479091 335.834912)">S1F:OSSD2A</text>
+   </g>
+   <g id="text_56">
+    <text style="font-size: 5.8px; font-family: 'DejaVu Sans'; text-anchor: start" x="222.790909" y="335.913068" transform="rotate(-0 222.790909 335.913068)">S1F OSSD2.A (arm envelope field, used only while K1/K2 closed)</text>
+   </g>
+   <g id="text_57">
+    <text style="font-size: 5.5px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #2e86c1" x="527.205273" y="335.834912" transform="rotate(-0 527.205273 335.834912)">I13</text>
+   </g>
+   <g id="text_58">
+    <text style="font-size: 4.6px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #7d3c98" x="222.790909" y="343.285107" transform="rotate(-0 222.790909 343.285107)">SF7</text>
+   </g>
+   <g id="text_59">
+    <text style="font-size: 5.5px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #555555" x="218.479091" y="354.130112" transform="rotate(-0 218.479091 354.130112)">S1F:OSSD2B</text>
+   </g>
+   <g id="text_60">
+    <text style="font-size: 5.8px; font-family: 'DejaVu Sans'; text-anchor: start" x="222.790909" y="354.208042" transform="rotate(-0 222.790909 354.208042)">S1F OSSD2.B</text>
+   </g>
+   <g id="text_61">
+    <text style="font-size: 5.5px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #2e86c1" x="527.205273" y="354.130112" transform="rotate(-0 527.205273 354.130112)">I14</text>
+   </g>
+   <g id="text_62">
+    <text style="font-size: 4.6px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #7d3c98" x="222.790909" y="361.580307" transform="rotate(-0 222.790909 361.580307)">SF7</text>
+   </g>
+   <g id="text_63">
+    <text style="font-size: 5.5px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #555555" x="218.479091" y="372.425312" transform="rotate(-0 218.479091 372.425312)">S1R:OSSD2A</text>
+   </g>
+   <g id="text_64">
+    <text style="font-size: 5.8px; font-family: 'DejaVu Sans'; text-anchor: start" x="222.790909" y="372.503242" transform="rotate(-0 222.790909 372.503242)">S1R OSSD2.A</text>
+   </g>
+   <g id="text_65">
+    <text style="font-size: 5.5px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #2e86c1" x="527.205273" y="372.425312" transform="rotate(-0 527.205273 372.425312)">I15</text>
+   </g>
+   <g id="text_66">
+    <text style="font-size: 4.6px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #7d3c98" x="222.790909" y="379.875507" transform="rotate(-0 222.790909 379.875507)">SF7</text>
+   </g>
+   <g id="text_67">
+    <text style="font-size: 5.5px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #555555" x="218.479091" y="390.720512" transform="rotate(-0 218.479091 390.720512)">S1R:OSSD2B</text>
+   </g>
+   <g id="text_68">
+    <text style="font-size: 5.8px; font-family: 'DejaVu Sans'; text-anchor: start" x="222.790909" y="390.798442" transform="rotate(-0 222.790909 390.798442)">S1R OSSD2.B</text>
+   </g>
+   <g id="text_69">
+    <text style="font-size: 5.5px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #2e86c1" x="527.205273" y="390.720512" transform="rotate(-0 527.205273 390.720512)">I16</text>
+   </g>
+   <g id="text_70">
+    <text style="font-size: 4.6px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #7d3c98" x="222.790909" y="398.170707" transform="rotate(-0 222.790909 398.170707)">SF7</text>
+   </g>
+   <g id="text_71">
+    <text style="font-size: 5.5px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #555555" x="218.479091" y="409.015712" transform="rotate(-0 218.479091 409.015712)">K1:21-22 -&gt; K2:21-22</text>
+   </g>
+   <g id="text_72">
+    <text style="font-size: 5.8px; font-family: 'DejaVu Sans'; text-anchor: start" x="222.790909" y="409.093868" transform="rotate(-0 222.790909 409.093868)">K1+K2 mirror NC in series (EDM / feedback loop)</text>
+   </g>
+   <g id="text_73">
+    <text style="font-size: 5.5px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #2e86c1" x="527.205273" y="409.015712" transform="rotate(-0 527.205273 409.015712)">I17</text>
+   </g>
+   <g id="text_74">
+    <text style="font-size: 4.6px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #7d3c98" x="222.790909" y="416.465907" transform="rotate(-0 222.790909 416.465907)">SF1,SF7,SF8</text>
+   </g>
+   <g id="text_75">
+    <text style="font-size: 5.5px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #555555" x="218.479091" y="427.310912" transform="rotate(-0 218.479091 427.310912)">SP1:OSSD1</text>
+   </g>
+   <g id="text_76">
+    <text style="font-size: 5.8px; font-family: 'DejaVu Sans'; text-anchor: start" x="222.790909" y="427.388842" transform="rotate(-0 222.790909 427.388842)">SP1 PSEN cs3.1 arm L on rest, OSSD.A (OA)</text>
+   </g>
+   <g id="text_77">
+    <text style="font-size: 5.5px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #2e86c1" x="527.205273" y="427.310912" transform="rotate(-0 527.205273 427.310912)">I18</text>
+   </g>
+   <g id="text_78">
+    <text style="font-size: 4.6px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #7d3c98" x="222.790909" y="434.761107" transform="rotate(-0 222.790909 434.761107)">SF8</text>
+   </g>
+   <g id="text_79">
+    <text style="font-size: 5.5px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #555555" x="218.479091" y="445.606112" transform="rotate(-0 218.479091 445.606112)">SP1:OSSD2</text>
+   </g>
+   <g id="text_80">
+    <text style="font-size: 5.8px; font-family: 'DejaVu Sans'; text-anchor: start" x="222.790909" y="445.684042" transform="rotate(-0 222.790909 445.684042)">SP1 PSEN cs3.1 arm L on rest, OSSD.B (OA)</text>
+   </g>
+   <g id="text_81">
+    <text style="font-size: 5.5px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #2e86c1" x="527.205273" y="445.606112" transform="rotate(-0 527.205273 445.606112)">I19</text>
+   </g>
+   <g id="text_82">
+    <text style="font-size: 4.6px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #7d3c98" x="222.790909" y="453.056307" transform="rotate(-0 222.790909 453.056307)">SF8</text>
+   </g>
+   <g id="text_83">
+    <text style="font-size: 5.5px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #c0392b" x="660.009273" y="149.833712" transform="rotate(-0 660.009273 149.833712)">O0</text>
+   </g>
+   <g id="text_84">
+    <text style="font-size: 5.8px; font-family: 'DejaVu Sans'; text-anchor: start" x="675.531818" y="149.911868" transform="rotate(-0 675.531818 149.911868)">K1 + K2 coils in parallel (arm 48 V feeds, SS1-t 0.5 s); coil </text>
+   </g>
+   <g id="text_85">
+    <text style="font-size: 4.6px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #7d3c98" x="675.531818" y="157.283907" transform="rotate(-0 675.531818 157.283907)">-&gt; K1:A1 / K2:A1   SF1,SF2,SF7,SF8</text>
+   </g>
+   <g id="text_86">
+    <text style="font-size: 5.5px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #7f8c8d" x="660.009273" y="271.801712" transform="rotate(-0 660.009273 271.801712)">S0</text>
+   </g>
+   <g id="text_87">
+    <text style="font-size: 5.8px; font-family: 'DejaVu Sans'; text-anchor: start" x="675.531818" y="271.879868" transform="rotate(-0 675.531818 271.879868)">KI4 interposing relay -&gt; K4 coil (coffee 24 V, functional, Cat</text>
+   </g>
+   <g id="text_88">
+    <text style="font-size: 4.6px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #7d3c98" x="675.531818" y="279.251907" transform="rotate(-0 675.531818 279.251907)">-&gt; KI4:A1   SF15</text>
+   </g>
+   <g id="text_89">
+    <text style="font-size: 5.5px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #7f8c8d" x="660.009273" y="393.769712" transform="rotate(-0 660.009273 393.769712)">S1</text>
+   </g>
+   <g id="text_90">
+    <text style="font-size: 5.8px; font-family: 'DejaVu Sans'; text-anchor: start" x="675.531818" y="393.847868" transform="rotate(-0 675.531818 393.847868)">KS relay: dock signature resistor across the pads (docked + ST</text>
+   </g>
+   <g id="text_91">
+    <text style="font-size: 4.6px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #7d3c98" x="675.531818" y="401.219907" transform="rotate(-0 675.531818 401.219907)">-&gt; KS:A1   SF10</text>
+   </g>
+   <g id="text_92">
+    <text style="font-weight: 700; font-size: 7px; font-family: 'DejaVu Sans'" transform="translate(585.956491 490.6502)">SR1</text>
+    <text style="font-weight: 700; font-size: 7px; font-family: 'DejaVu Sans'" transform="translate(552.86071 499.051567)">PNOZ m EF 4DI4DOR</text>
+    <text style="font-weight: 700; font-size: 7px; font-family: 'DejaVu Sans'" transform="translate(561.666491 507.453481)">(traction relays)</text>
+   </g>
+   <g id="text_93">
+    <text style="font-size: 5.5px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #555555" x="218.479091" y="471.219392" transform="rotate(-0 218.479091 471.219392)">SP2:OSSD1</text>
+   </g>
+   <g id="text_94">
+    <text style="font-size: 5.8px; font-family: 'DejaVu Sans'; text-anchor: start" x="222.790909" y="471.297548" transform="rotate(-0 222.790909 471.297548)">SP2 PSEN cs3.1 arm R on rest, OSSD.A (OA; own input pair, no series co</text>
+   </g>
+   <g id="text_95">
+    <text style="font-size: 5.5px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #2e86c1" x="527.205273" y="471.219392" transform="rotate(-0 527.205273 471.219392)">I0</text>
+   </g>
+   <g id="text_96">
+    <text style="font-size: 4.6px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #7d3c98" x="222.790909" y="478.669587" transform="rotate(-0 222.790909 478.669587)">SF8</text>
+   </g>
+   <g id="text_97">
+    <text style="font-size: 5.5px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #555555" x="218.479091" y="489.514592" transform="rotate(-0 218.479091 489.514592)">SP2:OSSD2</text>
+   </g>
+   <g id="text_98">
+    <text style="font-size: 5.8px; font-family: 'DejaVu Sans'; text-anchor: start" x="222.790909" y="489.592522" transform="rotate(-0 222.790909 489.592522)">SP2 PSEN cs3.1 arm R on rest, OSSD.B (OA)</text>
+   </g>
+   <g id="text_99">
+    <text style="font-size: 5.5px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #2e86c1" x="527.205273" y="489.514592" transform="rotate(-0 527.205273 489.514592)">I1</text>
+   </g>
+   <g id="text_100">
+    <text style="font-size: 4.6px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #7d3c98" x="222.790909" y="496.964787" transform="rotate(-0 222.790909 496.964787)">SF8</text>
+   </g>
+   <g id="text_101">
+    <text style="font-size: 5.5px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #555555" x="218.479091" y="507.809792" transform="rotate(-0 218.479091 507.809792)">X1:HALL</text>
+   </g>
+   <g id="text_102">
+    <text style="font-size: 5.8px; font-family: 'DejaVu Sans'; text-anchor: start" x="222.790909" y="507.887948" transform="rotate(-0 222.790909 507.887948)">RoboPad collector Hall 'docked' (open collector + pull-up, non-safe, p</text>
+   </g>
+   <g id="text_103">
+    <text style="font-size: 5.5px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #2e86c1" x="527.205273" y="507.809792" transform="rotate(-0 527.205273 507.809792)">I2</text>
+   </g>
+   <g id="text_104">
+    <text style="font-size: 4.6px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #7d3c98" x="222.790909" y="515.259987" transform="rotate(-0 222.790909 515.259987)">SF10,SF11</text>
+   </g>
+   <g id="text_105">
+    <text style="font-size: 5.5px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #555555" x="218.479091" y="526.104992" transform="rotate(-0 218.479091 526.104992)">G01:R3</text>
+   </g>
+   <g id="text_106">
+    <text style="font-size: 5.8px; font-family: 'DejaVu Sans'; text-anchor: start" x="222.790909" y="526.183148" transform="rotate(-0 222.790909 526.183148)">G01 LYNK II R3 NO (BMS warning, information; K0 is opened by R1 + K0V)</text>
+   </g>
+   <g id="text_107">
+    <text style="font-size: 5.5px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #2e86c1" x="527.205273" y="526.104992" transform="rotate(-0 527.205273 526.104992)">I3</text>
+   </g>
+   <g id="text_108">
+    <text style="font-size: 4.6px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #7d3c98" x="222.790909" y="533.555187" transform="rotate(-0 222.790909 533.555187)">SF12</text>
+   </g>
+   <g id="text_109">
+    <text style="font-size: 5.5px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #b9770e" x="660.009273" y="471.219392" transform="rotate(-0 660.009273 471.219392)">O0</text>
+   </g>
+   <g id="text_110">
+    <text style="font-size: 5.8px; font-family: 'DejaVu Sans'; text-anchor: start" x="675.531818" y="471.297548" transform="rotate(-0 675.531818 471.297548)">SWD L+R STO_1 (M12 I/O pin 5), relay contact + 2.2 k bleed, 0 </text>
+   </g>
+   <g id="text_111">
+    <text style="font-size: 4.6px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #7d3c98" x="675.531818" y="478.669587" transform="rotate(-0 675.531818 478.669587)">-&gt; M1L/M1R:IO.5   SF1,SF2,SF6,SF11</text>
+   </g>
+   <g id="text_112">
+    <text style="font-size: 5.5px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #b9770e" x="660.009273" y="489.514592" transform="rotate(-0 660.009273 489.514592)">O1</text>
+   </g>
+   <g id="text_113">
+    <text style="font-size: 5.8px; font-family: 'DejaVu Sans'; text-anchor: start" x="675.531818" y="489.592748" transform="rotate(-0 675.531818 489.592748)">SWD L+R STO_2 (pin 8), relay contact + 2.2 k bleed</text>
+   </g>
+   <g id="text_114">
+    <text style="font-size: 4.6px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #7d3c98" x="675.531818" y="496.964787" transform="rotate(-0 675.531818 496.964787)">-&gt; M1L/M1R:IO.8   SF1,SF2,SF6,SF11</text>
+   </g>
+   <g id="text_115">
+    <text style="font-size: 5.5px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #b9770e" x="660.009273" y="507.809792" transform="rotate(-0 660.009273 507.809792)">O2</text>
+   </g>
+   <g id="text_116">
+    <text style="font-size: 5.8px; font-family: 'DejaVu Sans'; text-anchor: start" x="675.531818" y="507.887948" transform="rotate(-0 675.531818 507.887948)">SWD L+R INSafe_1 = SLS[1] 0.3 m/s ch1 (0 V = SLS active; t_SLS</text>
+   </g>
+   <g id="text_117">
+    <text style="font-size: 4.6px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #7d3c98" x="675.531818" y="515.259987" transform="rotate(-0 675.531818 515.259987)">-&gt; M1L/M1R:IO.7   SF1,SF2,SF3,SF4,SF8,SF9,SF14</text>
+   </g>
+   <g id="text_118">
+    <text style="font-size: 5.5px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #b9770e" x="660.009273" y="526.104992" transform="rotate(-0 660.009273 526.104992)">O3</text>
+   </g>
+   <g id="text_119">
+    <text style="font-size: 5.8px; font-family: 'DejaVu Sans'; text-anchor: start" x="675.531818" y="526.183148" transform="rotate(-0 675.531818 526.183148)">SWD L+R INSafe_2 = SLS[1] ch2, relay + bleed</text>
+   </g>
+   <g id="text_120">
+    <text style="font-size: 4.6px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #7d3c98" x="675.531818" y="533.555187" transform="rotate(-0 675.531818 533.555187)">-&gt; M1L/M1R:IO.10   SF1,SF2,SF3,SF4,SF8,SF9,SF14</text>
+   </g>
+   <g id="text_121">
+    <text style="font-weight: 700; font-size: 7px; font-family: 'DejaVu Sans'" transform="translate(585.956491 562.00148)">SR2</text>
+    <text style="font-weight: 700; font-size: 7px; font-family: 'DejaVu Sans'" transform="translate(552.86071 570.402847)">PNOZ m EF 4DI4DOR</text>
+    <text style="font-weight: 700; font-size: 7px; font-family: 'DejaVu Sans'" transform="translate(538.545163 578.804761)">(scanner field-select relays)</text>
+   </g>
+   <g id="text_122">
+    <text style="font-size: 5.5px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #555555" x="218.479091" y="556.292072" transform="rotate(-0 218.479091 556.292072)">K4:aux</text>
+   </g>
+   <g id="text_123">
+    <text style="font-size: 5.8px; font-family: 'DejaVu Sans'; text-anchor: start" x="222.790909" y="556.370228" transform="rotate(-0 222.790909 556.370228)">KI4/K4 aux NC (coffee contactor feedback, functional)</text>
+   </g>
+   <g id="text_124">
+    <text style="font-size: 5.5px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #2e86c1" x="527.205273" y="556.292072" transform="rotate(-0 527.205273 556.292072)">I0</text>
+   </g>
+   <g id="text_125">
+    <text style="font-size: 4.6px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #7d3c98" x="222.790909" y="563.742267" transform="rotate(-0 222.790909 563.742267)">SF15</text>
+   </g>
+   <g id="text_126">
+    <text style="font-size: 5.5px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #555555" x="218.479091" y="583.734872" transform="rotate(-0 218.479091 583.734872)">KS:14</text>
+   </g>
+   <g id="text_127">
+    <text style="font-size: 5.8px; font-family: 'DejaVu Sans'; text-anchor: start" x="222.790909" y="583.813028" transform="rotate(-0 222.790909 583.813028)">KS relay NO feedback (functional)</text>
+   </g>
+   <g id="text_128">
+    <text style="font-size: 5.5px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #95a5a6" x="527.205273" y="583.734872" transform="rotate(-0 527.205273 583.734872)">I1</text>
+   </g>
+   <g id="text_129">
+    <text style="font-size: 5.5px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #b9770e" x="660.009273" y="551.718272" transform="rotate(-0 660.009273 551.718272)">O0</text>
+   </g>
+   <g id="text_130">
+    <text style="font-size: 5.8px; font-family: 'DejaVu Sans'; text-anchor: start" x="675.531818" y="551.796428" transform="rotate(-0 675.531818 551.796428)">Field select CI1 = FS1 FAST (1-of-3), both scanners, relay + b</text>
+   </g>
+   <g id="text_131">
+    <text style="font-size: 4.6px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #7d3c98" x="675.531818" y="559.168467" transform="rotate(-0 675.531818 559.168467)">-&gt; S1F/S1R:CI1   SF3</text>
+   </g>
+   <g id="text_132">
+    <text style="font-size: 5.5px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #b9770e" x="660.009273" y="570.013472" transform="rotate(-0 660.009273 570.013472)">O1</text>
+   </g>
+   <g id="text_133">
+    <text style="font-size: 5.8px; font-family: 'DejaVu Sans'; text-anchor: start" x="675.531818" y="570.091628" transform="rotate(-0 675.531818 570.091628)">Field select CI2 = FS2 SLOW (default), relay + bleed</text>
+   </g>
+   <g id="text_134">
+    <text style="font-size: 4.6px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #7d3c98" x="675.531818" y="577.463667" transform="rotate(-0 675.531818 577.463667)">-&gt; S1F/S1R:CI2   SF3</text>
+   </g>
+   <g id="text_135">
+    <text style="font-size: 5.5px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #b9770e" x="660.009273" y="588.308672" transform="rotate(-0 660.009273 588.308672)">O2</text>
+   </g>
+   <g id="text_136">
+    <text style="font-size: 5.8px; font-family: 'DejaVu Sans'; text-anchor: start" x="675.531818" y="588.386828" transform="rotate(-0 675.531818 588.386828)">Field select CI3 = FS3 DOCK, relay + bleed</text>
+   </g>
+   <g id="text_137">
+    <text style="font-size: 4.6px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #7d3c98" x="675.531818" y="595.758867" transform="rotate(-0 675.531818 595.758867)">-&gt; S1F/S1R:CI3   SF3,SF9</text>
+   </g>
+   <g id="text_138">
+    <text style="font-weight: 700; font-size: 7px; font-family: 'DejaVu Sans'" transform="translate(585.95321 647.447276)">SX2</text>
+    <text style="font-weight: 700; font-size: 7px; font-family: 'DejaVu Sans'" transform="translate(555.55571 655.848644)">PNOZ m EF 8DI4DO</text>
+    <text style="font-weight: 700; font-size: 7px; font-family: 'DejaVu Sans'" transform="translate(582.968913 664.250011)">(C48)</text>
+    <text style="font-weight: 700; font-size: 7px; font-family: 'DejaVu Sans'" transform="translate(558.058757 672.651925)">(variant C48 only)</text>
+   </g>
+   <g id="text_139">
+    <text style="font-size: 5.5px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #555555" x="218.479091" y="613.921952" transform="rotate(-0 218.479091 613.921952)">ARM_L:SO1</text>
+   </g>
+   <g id="text_140">
+    <text style="font-size: 5.8px; font-family: 'DejaVu Sans'; text-anchor: start" x="222.790909" y="614.000108" transform="rotate(-0 222.790909 614.000108)">Arm L safety output 'robot stopped/not moving' ch1</text>
+   </g>
+   <g id="text_141">
+    <text style="font-size: 5.5px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #2e86c1" x="527.205273" y="613.921952" transform="rotate(-0 527.205273 613.921952)">I0</text>
+   </g>
+   <g id="text_142">
+    <text style="font-size: 4.6px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #7d3c98" x="222.790909" y="621.372147" transform="rotate(-0 222.790909 621.372147)">SF8,SF16</text>
+   </g>
+   <g id="text_143">
+    <text style="font-size: 5.5px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #555555" x="218.479091" y="632.217152" transform="rotate(-0 218.479091 632.217152)">ARM_L:SO2</text>
+   </g>
+   <g id="text_144">
+    <text style="font-size: 5.8px; font-family: 'DejaVu Sans'; text-anchor: start" x="222.790909" y="632.295308" transform="rotate(-0 222.790909 632.295308)">Arm L safety output ch2</text>
+   </g>
+   <g id="text_145">
+    <text style="font-size: 5.5px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #2e86c1" x="527.205273" y="632.217152" transform="rotate(-0 527.205273 632.217152)">I1</text>
+   </g>
+   <g id="text_146">
+    <text style="font-size: 4.6px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #7d3c98" x="222.790909" y="639.667347" transform="rotate(-0 222.790909 639.667347)">SF8,SF16</text>
+   </g>
+   <g id="text_147">
+    <text style="font-size: 5.5px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #555555" x="218.479091" y="650.512352" transform="rotate(-0 218.479091 650.512352)">ARM_R:SO1</text>
+   </g>
+   <g id="text_148">
+    <text style="font-size: 5.8px; font-family: 'DejaVu Sans'; text-anchor: start" x="222.790909" y="650.590508" transform="rotate(-0 222.790909 650.590508)">Arm R safety output ch1</text>
+   </g>
+   <g id="text_149">
+    <text style="font-size: 5.5px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #2e86c1" x="527.205273" y="650.512352" transform="rotate(-0 527.205273 650.512352)">I2</text>
+   </g>
+   <g id="text_150">
+    <text style="font-size: 4.6px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #7d3c98" x="222.790909" y="657.962547" transform="rotate(-0 222.790909 657.962547)">SF8,SF16</text>
+   </g>
+   <g id="text_151">
+    <text style="font-size: 5.5px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #555555" x="218.479091" y="668.807552" transform="rotate(-0 218.479091 668.807552)">ARM_R:SO2</text>
+   </g>
+   <g id="text_152">
+    <text style="font-size: 5.8px; font-family: 'DejaVu Sans'; text-anchor: start" x="222.790909" y="668.885708" transform="rotate(-0 222.790909 668.885708)">Arm R safety output ch2</text>
+   </g>
+   <g id="text_153">
+    <text style="font-size: 5.5px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #2e86c1" x="527.205273" y="668.807552" transform="rotate(-0 527.205273 668.807552)">I3</text>
+   </g>
+   <g id="text_154">
+    <text style="font-size: 4.6px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #7d3c98" x="222.790909" y="676.257747" transform="rotate(-0 222.790909 676.257747)">SF8,SF16</text>
+   </g>
+   <g id="text_155">
+    <text style="font-size: 5.5px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #555555" x="218.479091" y="687.102752" transform="rotate(-0 218.479091 687.102752)">ARM:ESO1</text>
+   </g>
+   <g id="text_156">
+    <text style="font-size: 5.8px; font-family: 'DejaVu Sans'; text-anchor: start" x="222.790909" y="687.180908" transform="rotate(-0 222.790909 687.180908)">Arm L+R 'system E-stop out' ch1 (arm pendant E-stop -&gt; robot E-stop)</text>
+   </g>
+   <g id="text_157">
+    <text style="font-size: 5.5px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #2e86c1" x="527.205273" y="687.102752" transform="rotate(-0 527.205273 687.102752)">I4</text>
+   </g>
+   <g id="text_158">
+    <text style="font-size: 4.6px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #7d3c98" x="222.790909" y="694.552947" transform="rotate(-0 222.790909 694.552947)">SF1</text>
+   </g>
+   <g id="text_159">
+    <text style="font-size: 5.5px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #555555" x="218.479091" y="705.397952" transform="rotate(-0 218.479091 705.397952)">ARM:ESO2</text>
+   </g>
+   <g id="text_160">
+    <text style="font-size: 5.8px; font-family: 'DejaVu Sans'; text-anchor: start" x="222.790909" y="705.476108" transform="rotate(-0 222.790909 705.476108)">Arm L+R 'system E-stop out' ch2</text>
+   </g>
+   <g id="text_161">
+    <text style="font-size: 5.5px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #2e86c1" x="527.205273" y="705.397952" transform="rotate(-0 527.205273 705.397952)">I5</text>
+   </g>
+   <g id="text_162">
+    <text style="font-size: 4.6px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #7d3c98" x="222.790909" y="712.848147" transform="rotate(-0 222.790909 712.848147)">SF1</text>
+   </g>
+   <g id="text_163">
+    <text style="font-size: 5.5px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #c0392b" x="660.009273" y="618.495752" transform="rotate(-0 660.009273 618.495752)">O0</text>
+   </g>
+   <g id="text_164">
+    <text style="font-size: 5.8px; font-family: 'DejaVu Sans'; text-anchor: start" x="675.531818" y="618.573908" transform="rotate(-0 675.531818 618.573908)">Arm L+R E-stop input ch1</text>
+   </g>
+   <g id="text_165">
+    <text style="font-size: 4.6px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #7d3c98" x="675.531818" y="625.945947" transform="rotate(-0 675.531818 625.945947)">-&gt; ARM:EI1   SF1</text>
+   </g>
+   <g id="text_166">
+    <text style="font-size: 5.5px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #c0392b" x="660.009273" y="645.938552" transform="rotate(-0 660.009273 645.938552)">O1</text>
+   </g>
+   <g id="text_167">
+    <text style="font-size: 5.8px; font-family: 'DejaVu Sans'; text-anchor: start" x="675.531818" y="646.016708" transform="rotate(-0 675.531818 646.016708)">Arm L+R E-stop input ch2</text>
+   </g>
+   <g id="text_168">
+    <text style="font-size: 4.6px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #7d3c98" x="675.531818" y="653.388747" transform="rotate(-0 675.531818 653.388747)">-&gt; ARM:EI2   SF1</text>
+   </g>
+   <g id="text_169">
+    <text style="font-size: 5.5px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #c0392b" x="660.009273" y="673.381352" transform="rotate(-0 660.009273 673.381352)">O2</text>
+   </g>
+   <g id="text_170">
+    <text style="font-size: 5.8px; font-family: 'DejaVu Sans'; text-anchor: start" x="675.531818" y="673.459508" transform="rotate(-0 675.531818 673.459508)">Arm L+R safeguard (protective) stop ch1</text>
+   </g>
+   <g id="text_171">
+    <text style="font-size: 4.6px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #7d3c98" x="675.531818" y="680.831547" transform="rotate(-0 675.531818 680.831547)">-&gt; ARM:SI1   SF2,SF7</text>
+   </g>
+   <g id="text_172">
+    <text style="font-size: 5.5px; font-family: 'DejaVu Sans'; text-anchor: end; fill: #c0392b" x="660.009273" y="700.824152" transform="rotate(-0 660.009273 700.824152)">O3</text>
+   </g>
+   <g id="text_173">
+    <text style="font-size: 5.8px; font-family: 'DejaVu Sans'; text-anchor: start" x="675.531818" y="700.902308" transform="rotate(-0 675.531818 700.902308)">Arm L+R safeguard stop ch2 / reduced mode select</text>
+   </g>
+   <g id="text_174">
+    <text style="font-size: 4.6px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #7d3c98" x="675.531818" y="708.274347" transform="rotate(-0 675.531818 708.274347)">-&gt; ARM:SI2   SF2,SF7</text>
+   </g>
+   <g id="text_175">
+    <text style="font-size: 5.8px; font-family: 'DejaVu Sans'; text-anchor: start" x="15.823636" y="795.122588" transform="rotate(-0 15.823636 795.122588)">Field sets (nanoScan3 static control inputs CI1-CI3, 1-of-3 evaluation, same code on both scanners):</text>
+   </g>
+   <g id="text_176">
+    <text style="font-size: 5.8px; font-family: 'DejaVu Sans'; text-anchor: start" x="15.823636" y="809.771436" transform="rotate(-0 15.823636 809.771436)">  FS1_FAST: CI1=1 CI2=0 CI3=0 | SLS off: SMS 1.2 m/s, reverse &lt;= 0.3 m/s (permanent SLSa) | front per CALC s.7 + sides, rear 0.35 m | when: AUTO + carry mode (SF8)</text>
+   </g>
+   <g id="text_177">
+    <text style="font-size: 5.8px; font-family: 'DejaVu Sans'; text-anchor: start" x="15.823636" y="824.407596" transform="rotate(-0 15.823636 824.407596)">  FS2_SLOW: CI1=0 CI2=1 CI3=0 | SLS[1] 0.3 m/s per wheel | OSSD1 0.45 m all round incl. rotation sweep; OSSD2 arm envelope + S = K*T + C (used only while  | when: default; rotation in place, MANUAL and arm work (traction ST</text>
+   </g>
+   <g id="text_178">
+    <text style="font-size: 5.8px; font-family: 'DejaVu Sans'; text-anchor: start" x="15.823636" y="839.043756" transform="rotate(-0 15.823636 839.043756)">  FS3_DOCK: CI1=0 CI2=0 CI3=1 | SLS[1] 0.3 m/s (nav creeps 0.1 m/s) | as FS2 OSSD1 but rear cut-out = dock contour (static, 120 mm deep); arms off | when: Jetson request + SLS confirmed + X1 Hall/AprilTag (non-safe </text>
+   </g>
+   <g id="text_179">
+    <text style="font-size: 5.8px; font-family: 'DejaVu Sans'; text-anchor: start" x="15.823636" y="853.667228" transform="rotate(-0 15.823636 853.667228)">  rule: to a SMALLER field: drop INSafe_1/2 (SLS request) first, wait t_SLS + 0.1 s = 1.1 s, then switch CI; to a LARGER field: switch CI first, then release SLS. Scanner input delay class 'relays' (30 ms) because CI comes from SR2 contac</text>
+   </g>
+   <g id="text_180">
+    <text style="font-size: 5.8px; font-family: 'DejaVu Sans'; text-anchor: start" x="15.823636" y="868.303388" transform="rotate(-0 15.823636 868.303388)">SWD permanent (no controller channel): SMS 1.2 m/s max (each drive); SLSa forward &lt;= 1.2 m/s, reverse &lt;= 0.3 m/s; each wheel with its own sign (polarity 6</text>
+   </g>
+   <g id="text_181">
+    <text style="font-size: 5.8px; font-family: 'DejaVu Sans'; text-anchor: start" x="15.823636" y="882.939548" transform="rotate(-0 15.823636 882.939548)">Stops: E-stop -&gt; traction SS1-t (t=0 SLS[1] requested + SWD quick-stop ramp 1.5 m/s2, STO+SBC at 1.2 s via SR1 relays), OA arms: K1/K2 open at 0.5 s (arms fall onto rests: no brakes), coffee KI4/K4 off. Protective stop (OSSD1) = as E-stop, auto-resume in AUTO once clear; OSSD2 -&gt; arms only. Manual reset SB1 after E-stop. Orange = positive-guided relay contacts (2.2 k bleed each, no test pulses); grey = auxiliary (non-safe) outputs; T0/T1 = test pulses.</text>
+   </g>
+   <g id="text_182">
+    <text style="font-weight: 700; font-size: 8px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #2e86c1" x="15.823636" y="39.853481" transform="rotate(-0 15.823636 39.853481)">INPUTS (test pulses T0/T1 on NC contacts)</text>
+   </g>
+   <g id="text_183">
+    <text style="font-weight: 700; font-size: 8px; font-family: 'DejaVu Sans'; text-anchor: start; fill: #c0392b" x="675.531818" y="39.853481" transform="rotate(-0 675.531818 39.853481)">OUTPUTS (red = safe SC 24 V; orange = safe relay; grey = auxiliary)</text>
+   </g>
+   <g id="text_184">
+    <text style="font-weight: 700; font-size: 11px; font-family: 'DejaVu Sans'; text-anchor: middle" x="481.5" y="15.558281" transform="rotate(-0 481.5 15.558281)">Giorgio AMR - safety controller wiring overview (Pilz PNOZmulti 2, rev B3) - from netlist_amr.yaml safety_io</text>
+   </g>
+  </g>
+ </g>
+ <defs>
+  <clipPath id="p69b4693f7f">
+   <rect x="7.2" y="21.558281" width="948.6" height="907.44192"/>
+  </clipPath>
+ </defs>
+</svg>

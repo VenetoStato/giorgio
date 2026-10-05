@@ -1,0 +1,5602 @@
+[
+ {
+  "name": "A01_floor_pan",
+  "file": "A01_floor_pan.stl",
+  "group": "base",
+  "category": "custom",
+  "material": "S355MC",
+  "process": "laser cut 5 mm S355MC, deburr, zinc-flake or powder coat; PEM studs M6; corner cuts r 86 about the castor axes",
+  "color": [
+   0.3,
+   0.31,
+   0.33
+  ],
+  "explode": [
+   0.0,
+   0.0,
+   -160.0
+  ],
+  "mass_kg": 11.213,
+  "com_mm": [
+   -0.0,
+   0.0,
+   34.5
+  ],
+  "bbox_mm": [
+   -384.0,
+   384.0,
+   -274.0,
+   274.0,
+   31.8,
+   37.2
+  ],
+  "src": "",
+  "notes": "low and heavy on purpose: ballast for tipping; rev B3: castor loads go to the spines, not the pan",
+  "qty": 1
+ },
+ {
+  "name": "A02_top_deck",
+  "file": "A02_top_deck.stl",
+  "group": "base",
+  "category": "custom",
+  "material": "EN AW-6082-T6",
+  "process": "waterjet 15 mm 6082-T6 + CNC: column-foot M6 pattern (thread engagement >= 9 mm) and coffee-upright holes (as old P01), spine slots, K06/E51 M4 pattern + cable hole with edge protection; M4 for the DSR plates and the LYNK bracket underneath; powder coat RAL 9016 textured",
+  "color": [
+   0.74,
+   0.75,
+   0.77
+  ],
+  "explode": [
+   0.0,
+   0.0,
+   260.0
+  ],
+  "mass_kg": 16.309,
+  "com_mm": [
+   -0.0,
+   0.1,
+   345.5
+  ],
+  "bbox_mm": [
+   -386.0,
+   386.0,
+   -276.0,
+   276.0,
+   338.0,
+   353.0
+  ],
+  "src": "",
+  "notes": "IS the superstructure flange (old P01 + Ranger deck in one part); bolted to both spines, 3 end posts and brackets A06/A07/A08",
+  "qty": 1
+ },
+ {
+  "name": "A03_spine_R",
+  "file": "A03_spine_R.stl",
+  "group": "base",
+  "category": "custom",
+  "material": "EN AW-6082-T6",
+  "process": "waterjet 6 mm 6082-T6, tapped M5 rows for the DIN rails on BOTH faces, M3 x 6 deep for the MGN15R castor rails, M6 to pan/deck, M5 for the strap tabs, M6 slots for the spring brackets; end notches |x| 202..262 z 37..128",
+  "color": [
+   0.74,
+   0.75,
+   0.77
+  ],
+  "explode": [
+   0.0,
+   -140.0,
+   0.0
+  ],
+  "mass_kg": 2.116,
+  "com_mm": [
+   1.4,
+   -134.0,
+   199.0
+  ],
+  "bbox_mm": [
+   -262.0,
+   262.0,
+   -137.0,
+   -131.0,
+   37.0,
+   338.0
+  ],
+  "src": "",
+  "notes": "structural wall + DIN panel (safety/control bay outside, centre bay inside); carries the castor springs, guides and tower roofs (rev B3)",
+  "qty": 1
+ },
+ {
+  "name": "A03_spine_L",
+  "file": "A03_spine_L.stl",
+  "group": "base",
+  "category": "custom",
+  "material": "EN AW-6082-T6",
+  "process": "waterjet 6 mm 6082-T6, tapped M5 rows for the DIN rails on BOTH faces, M3 x 6 deep for the MGN15R castor rails, M6 to pan/deck, M5 for the strap tabs, M6 slots for the spring brackets; end notches |x| 202..262 z 37..128",
+  "color": [
+   0.74,
+   0.75,
+   0.77
+  ],
+  "explode": [
+   0.0,
+   140.0,
+   0.0
+  ],
+  "mass_kg": 2.116,
+  "com_mm": [
+   1.4,
+   134.0,
+   199.0
+  ],
+  "bbox_mm": [
+   -262.0,
+   262.0,
+   131.0,
+   137.0,
+   37.0,
+   338.0
+  ],
+  "src": "",
+  "notes": "structural wall + DIN panel (power bay outside, centre bay inside); carries the castor springs, guides and tower roofs (rev B3)",
+  "qty": 1
+ },
+ {
+  "name": "A06_corner_bracket_FL",
+  "file": "A06_corner_bracket_FL.stl",
+  "group": "base",
+  "category": "custom",
+  "material": "EN AW-6082-T6",
+  "process": "waterjet 6 mm 6082-T6, splice plate M5 x4 to the spine end, M6 x2 to the deck, M6 x2 to the tower roof; tapped M5 for the corner DIN rail",
+  "color": [
+   0.74,
+   0.75,
+   0.77
+  ],
+  "explode": [
+   60.0,
+   140.0,
+   0.0
+  ],
+  "mass_kg": 0.126,
+  "com_mm": [
+   281.0,
+   134.0,
+   236.0
+  ],
+  "bbox_mm": [
+   262.0,
+   300.0,
+   131.0,
+   137.0,
+   134.0,
+   338.0
+  ],
+  "src": "",
+  "notes": "no scanner at this corner: free volume above the tower roof; carries the FL roof (rev B3)",
+  "qty": 1
+ },
+ {
+  "name": "A07_corner_bracket_RR",
+  "file": "A07_corner_bracket_RR.stl",
+  "group": "base",
+  "category": "custom",
+  "material": "EN AW-6082-T6",
+  "process": "waterjet 6 mm 6082-T6, splice plate M5 x4 to the spine end, M6 x3 to the deck, M6 x2 to the tower roof; tapped M5 for the corner DIN rail",
+  "color": [
+   0.74,
+   0.75,
+   0.77
+  ],
+  "explode": [
+   -60.0,
+   -140.0,
+   0.0
+  ],
+  "mass_kg": 0.258,
+  "com_mm": [
+   -301.0,
+   -134.0,
+   236.0
+  ],
+  "bbox_mm": [
+   -340.0,
+   -262.0,
+   -137.0,
+   -131.0,
+   134.0,
+   338.0
+  ],
+  "src": "",
+  "notes": "rev B3: replaces the RR end post (a post at (-360, -106) would hit the RoboPad collector E01)",
+  "qty": 1
+ },
+ {
+  "name": "A08_rail_bracket_RL",
+  "file": "A08_rail_bracket_RL.stl",
+  "group": "base",
+  "category": "custom",
+  "material": "EN AW-6082-T6",
+  "process": "waterjet 6 mm 6082-T6, splice plate M5 x2 to the spine end, M6 x2 to the deck; tapped M5 for the left HIGH rail extension",
+  "color": [
+   0.74,
+   0.75,
+   0.77
+  ],
+  "explode": [
+   -60.0,
+   140.0,
+   0.0
+  ],
+  "mass_kg": 0.073,
+  "com_mm": [
+   -281.0,
+   134.0,
+   279.0
+  ],
+  "bbox_mm": [
+   -300.0,
+   -262.0,
+   131.0,
+   137.0,
+   220.0,
+   338.0
+  ],
+  "src": "",
+  "notes": "rev B3: above the RL scanner (z >= 220 > housing top 214.5)",
+  "qty": 1
+ },
+ {
+  "name": "A04_post_FL",
+  "file": "A04_post_FL.stl",
+  "group": "base",
+  "category": "custom",
+  "material": "EN AW-6082-T6",
+  "process": "30x30x3 square tube EN 755-2, cut + drill; M6 tab for the tower roof",
+  "color": [
+   0.74,
+   0.75,
+   0.77
+  ],
+  "explode": [
+   60.0,
+   0.0,
+   0.0
+  ],
+  "mass_kg": 0.263,
+  "com_mm": [
+   360.0,
+   106.0,
+   187.5
+  ],
+  "bbox_mm": [
+   345.0,
+   375.0,
+   91.0,
+   121.0,
+   37.0,
+   338.0
+  ],
+  "src": "",
+  "notes": "",
+  "qty": 1
+ },
+ {
+  "name": "A04_post_FR",
+  "file": "A04_post_FR.stl",
+  "group": "base",
+  "category": "custom",
+  "material": "EN AW-6082-T6",
+  "process": "30x30x3 square tube EN 755-2, cut + drill; M6 tab for the tower roof",
+  "color": [
+   0.74,
+   0.75,
+   0.77
+  ],
+  "explode": [
+   60.0,
+   0.0,
+   0.0
+  ],
+  "mass_kg": 0.263,
+  "com_mm": [
+   360.0,
+   -106.0,
+   187.5
+  ],
+  "bbox_mm": [
+   345.0,
+   375.0,
+   -121.0,
+   -91.0,
+   37.0,
+   338.0
+  ],
+  "src": "",
+  "notes": "",
+  "qty": 1
+ },
+ {
+  "name": "A04_post_RL",
+  "file": "A04_post_RL.stl",
+  "group": "base",
+  "category": "custom",
+  "material": "EN AW-6082-T6",
+  "process": "30x30x3 square tube EN 755-2, cut + drill; M6 tab for the tower roof",
+  "color": [
+   0.74,
+   0.75,
+   0.77
+  ],
+  "explode": [
+   -60.0,
+   0.0,
+   0.0
+  ],
+  "mass_kg": 0.263,
+  "com_mm": [
+   -360.0,
+   106.0,
+   187.5
+  ],
+  "bbox_mm": [
+   -375.0,
+   -345.0,
+   91.0,
+   121.0,
+   37.0,
+   338.0
+  ],
+  "src": "",
+  "notes": "",
+  "qty": 1
+ },
+ {
+  "name": "A05_tower_roof_FL",
+  "file": "A05_tower_roof_FL.stl",
+  "group": "base",
+  "category": "custom",
+  "material": "S355MC",
+  "process": "laser cut 6 mm S355MC roof, bent flange M6 x3 to the spine stub, M6 to bracket/post; bump-pad landing on the castor axis; scanner seat machined (FR/RL)",
+  "color": [
+   0.3,
+   0.31,
+   0.33
+  ],
+  "explode": [
+   0.0,
+   0.0,
+   90.0
+  ],
+  "mass_kg": 0.895,
+  "com_mm": [
+   270.8,
+   199.6,
+   131.0
+  ],
+  "bbox_mm": [
+   202.0,
+   375.0,
+   121.0,
+   276.0,
+   128.0,
+   134.0
+  ],
+  "src": "",
+  "notes": "rev B3: legs removed (inside the swivel circle); roof top z 134 unchanged -> scan plane 184.5",
+  "qty": 1
+ },
+ {
+  "name": "A05_tower_roof_FR",
+  "file": "A05_tower_roof_FR.stl",
+  "group": "base",
+  "category": "custom",
+  "material": "S355MC",
+  "process": "laser cut 6 mm S355MC roof, bent flange M6 x3 to the spine stub, M6 to bracket/post; bump-pad landing on the castor axis; scanner seat machined (FR/RL)",
+  "color": [
+   0.3,
+   0.31,
+   0.33
+  ],
+  "explode": [
+   0.0,
+   0.0,
+   90.0
+  ],
+  "mass_kg": 1.049,
+  "com_mm": [
+   284.0,
+   -195.5,
+   131.0
+  ],
+  "bbox_mm": [
+   202.0,
+   386.0,
+   -276.0,
+   -121.0,
+   128.0,
+   134.0
+  ],
+  "src": "",
+  "notes": "rev B3: legs removed (inside the swivel circle); roof top z 134 unchanged -> scan plane 184.5",
+  "qty": 1
+ },
+ {
+  "name": "A05_tower_roof_RL",
+  "file": "A05_tower_roof_RL.stl",
+  "group": "base",
+  "category": "custom",
+  "material": "S355MC",
+  "process": "laser cut 6 mm S355MC roof, bent flange M6 x3 to the spine stub, M6 to bracket/post; bump-pad landing on the castor axis; scanner seat machined (FR/RL)",
+  "color": [
+   0.3,
+   0.31,
+   0.33
+  ],
+  "explode": [
+   0.0,
+   0.0,
+   90.0
+  ],
+  "mass_kg": 1.049,
+  "com_mm": [
+   -284.0,
+   195.5,
+   131.0
+  ],
+  "bbox_mm": [
+   -386.0,
+   -202.0,
+   121.0,
+   276.0,
+   128.0,
+   134.0
+  ],
+  "src": "",
+  "notes": "rev B3: legs removed (inside the swivel circle); roof top z 134 unchanged -> scan plane 184.5",
+  "qty": 1
+ },
+ {
+  "name": "A05_tower_roof_RR",
+  "file": "A05_tower_roof_RR.stl",
+  "group": "base",
+  "category": "custom",
+  "material": "S355MC",
+  "process": "laser cut 6 mm S355MC roof, bent flange M6 x3 to the spine stub, M6 to bracket/post; bump-pad landing on the castor axis; scanner seat machined (FR/RL)",
+  "color": [
+   0.3,
+   0.31,
+   0.33
+  ],
+  "explode": [
+   0.0,
+   0.0,
+   90.0
+  ],
+  "mass_kg": 0.873,
+  "com_mm": [
+   -268.5,
+   -201.4,
+   131.0
+  ],
+  "bbox_mm": [
+   -340.0,
+   -202.0,
+   -276.0,
+   -131.0,
+   128.0,
+   134.0
+  ],
+  "src": "",
+  "notes": "rev B3: legs removed (inside the swivel circle); roof top z 134 unchanged -> scan plane 184.5",
+  "qty": 1
+ },
+ {
+  "name": "D01_ezwheel_SWD125_R",
+  "file": "D01_ezwheel_SWD125_R.stl",
+  "group": "base",
+  "category": "purchased",
+  "material": "purchased",
+  "process": "purchased ez-Wheel SWD 125 EW2A-125HN04B (4:1, brake), safety encoder, CANopen Safety",
+  "color": [
+   0.95,
+   0.55,
+   0.12
+  ],
+  "explode": [
+   0.0,
+   -220.0,
+   -60.0
+  ],
+  "mass_kg": 6.0,
+  "com_mm": [
+   -0.0,
+   -189.4,
+   99.2
+  ],
+  "bbox_mm": [
+   -95.0,
+   95.0,
+   -257.2,
+   -141.0,
+   -0.2,
+   180.0
+  ],
+  "src": "ez-Wheel SWD 125 (SOURCED load/torque/speed; envelope ESTIMATE - CAD behind login)",
+  "notes": "",
+  "qty": 1
+ },
+ {
+  "name": "D02_swd_mount_spacer_R",
+  "file": "D02_swd_mount_spacer_R.stl",
+  "group": "base",
+  "category": "custom",
+  "material": "EN AW-6082-T6",
+  "process": "waterjet 4 mm spacer, 6x M8 through the spine",
+  "color": [
+   0.74,
+   0.75,
+   0.77
+  ],
+  "explode": [
+   0.0,
+   -170.0,
+   -40.0
+  ],
+  "mass_kg": 0.151,
+  "com_mm": [
+   -0.0,
+   -139.0,
+   110.0
+  ],
+  "bbox_mm": [
+   -70.0,
+   70.0,
+   -141.0,
+   -137.0,
+   60.0,
+   160.0
+  ],
+  "src": "",
+  "notes": "",
+  "qty": 1
+ },
+ {
+  "name": "D01_ezwheel_SWD125_L",
+  "file": "D01_ezwheel_SWD125_L.stl",
+  "group": "base",
+  "category": "purchased",
+  "material": "purchased",
+  "process": "purchased ez-Wheel SWD 125 EW2A-125HN04B (4:1, brake), safety encoder, CANopen Safety",
+  "color": [
+   0.95,
+   0.55,
+   0.12
+  ],
+  "explode": [
+   0.0,
+   220.0,
+   -60.0
+  ],
+  "mass_kg": 6.0,
+  "com_mm": [
+   -0.0,
+   189.4,
+   99.2
+  ],
+  "bbox_mm": [
+   -95.0,
+   95.0,
+   141.0,
+   257.2,
+   -0.2,
+   180.0
+  ],
+  "src": "ez-Wheel SWD 125 (SOURCED load/torque/speed; envelope ESTIMATE - CAD behind login)",
+  "notes": "",
+  "qty": 1
+ },
+ {
+  "name": "D02_swd_mount_spacer_L",
+  "file": "D02_swd_mount_spacer_L.stl",
+  "group": "base",
+  "category": "custom",
+  "material": "EN AW-6082-T6",
+  "process": "waterjet 4 mm spacer, 6x M8 through the spine",
+  "color": [
+   0.74,
+   0.75,
+   0.77
+  ],
+  "explode": [
+   0.0,
+   170.0,
+   -40.0
+  ],
+  "mass_kg": 0.151,
+  "com_mm": [
+   -0.0,
+   139.0,
+   110.0
+  ],
+  "bbox_mm": [
+   -70.0,
+   70.0,
+   137.0,
+   141.0,
+   60.0,
+   160.0
+  ],
+  "src": "",
+  "notes": "",
+  "qty": 1
+ },
+ {
+  "name": "C01_castor_FL_Blickle_L-ALST_80K",
+  "file": "C01_castor_FL_Blickle_L-ALST_80K.stl",
+  "group": "base",
+  "category": "purchased",
+  "material": "purchased",
+  "process": "purchased Blickle L-ALST 80K (ID 754464): swivel castor D80 x 30 Softhane 75 ShA, Al centre, ball bearing, 200 kg @ 4 km/h, H 102, plate 100 x 85, holes 80 x 60 d9, offset 38",
+  "color": [
+   0.12,
+   0.12,
+   0.13
+  ],
+  "explode": [
+   0.0,
+   0.0,
+   -160.0
+  ],
+  "mass_kg": 0.7,
+  "com_mm": [
+   245.1,
+   180.0,
+   55.6
+  ],
+  "bbox_mm": [
+   196.9,
+   325.0,
+   137.5,
+   222.5,
+   -0.1,
+   102.0
+  ],
+  "src": "blickle.com/product/l-alst-80k-754464 (SOURCED; plate thickness and fork envelope ESTIMATE until the Blickle CAD)",
+  "notes": "",
+  "qty": 1
+ },
+ {
+  "name": "C02_castor_carriage_FL",
+  "file": "C02_castor_carriage_FL.stl",
+  "group": "base",
+  "category": "custom",
+  "material": "S355MC",
+  "process": "weldment: laser cut 6 mm carriage plate + tongue, 8 mm mast + shelf (S355MC), welded, zinc flake; 4 x M8 ISO 10642 into the castor holes; 8 x M3 to the MGN15H blocks; 2 spring spigots d23 x 5",
+  "color": [
+   0.3,
+   0.31,
+   0.33
+  ],
+  "explode": [
+   0.0,
+   0.0,
+   -120.0
+  ],
+  "mass_kg": 1.081,
+  "com_mm": [
+   221.1,
+   134.9,
+   112.0
+  ],
+  "bbox_mm": [
+   100.0,
+   325.0,
+   94.0,
+   222.5,
+   60.0,
+   184.0
+  ],
+  "src": "",
+  "notes": "FL/RR variant; moves with the castor (-2.5..+17 mm)",
+  "qty": 1
+ },
+ {
+  "name": "C03_bump_pad_FL",
+  "file": "C03_bump_pad_FL.stl",
+  "group": "base",
+  "category": "custom",
+  "material": "EPDM",
+  "process": "PU pad 30 x 30 x 3, 90 Shore A, bonded to the carriage plate (bump stop on the roof underside after 17 mm)",
+  "color": [
+   0.85,
+   0.75,
+   0.2
+  ],
+  "explode": [
+   0.0,
+   0.0,
+   -100.0
+  ],
+  "mass_kg": 0.003,
+  "com_mm": [
+   275.0,
+   180.0,
+   109.5
+  ],
+  "bbox_mm": [
+   260.0,
+   290.0,
+   165.0,
+   195.0,
+   108.0,
+   111.0
+  ],
+  "src": "",
+  "notes": "",
+  "qty": 1
+ },
+ {
+  "name": "C07_rail_MGN15R_L190_FL",
+  "file": "C07_rail_MGN15R_L190_FL.stl",
+  "group": "base",
+  "category": "purchased",
+  "material": "purchased",
+  "process": "purchased HIWIN MGN15R rail L 190 (15 + 4 x 40 + 15), 5 x M3 x 10 into the 6 mm 6082 spine (6 mm engagement, Loctite 243)",
+  "color": [
+   0.6,
+   0.6,
+   0.62
+  ],
+  "explode": [
+   0.0,
+   60.0,
+   0.0
+  ],
+  "mass_kg": 0.201,
+  "com_mm": [
+   185.0,
+   126.0,
+   135.0
+  ],
+  "bbox_mm": [
+   177.5,
+   192.5,
+   121.0,
+   131.0,
+   40.0,
+   230.0
+  ],
+  "src": "HIWIN catalogue G99TE24-2410 Table 2-4-19 p.91 (SOURCED)",
+  "notes": "",
+  "qty": 1
+ },
+ {
+  "name": "C08_blocks_MGN15H_x2_FL",
+  "file": "C08_blocks_MGN15H_x2_FL.stl",
+  "group": "base",
+  "category": "purchased",
+  "material": "purchased",
+  "process": "purchased 2 x HIWIN MGN15H block (Z0 preload, standard seals), c/c 65 mm; carriage mast bolted 4 x M3 each",
+  "color": [
+   0.55,
+   0.55,
+   0.6
+  ],
+  "explode": [
+   0.0,
+   60.0,
+   -60.0
+  ],
+  "mass_kg": 0.184,
+  "com_mm": [
+   185.0,
+   120.1,
+   143.9
+  ],
+  "bbox_mm": [
+   169.0,
+   201.0,
+   115.0,
+   127.0,
+   82.0,
+   205.8
+  ],
+  "src": "HIWIN G99TE24-2410 p.91: C 6.37 kN, C0 9.11 kN, MR 73.5 N.m (SOURCED)",
+  "notes": "",
+  "qty": 1
+ },
+ {
+  "name": "C04_springs_D-313J-02_x2_FL",
+  "file": "C04_springs_D-313J-02_x2_FL.stl",
+  "group": "base",
+  "category": "purchased",
+  "material": "purchased",
+  "process": "purchased 2 x Gutekunst D-313J-02 (d 3.6, De 31.6, L0 53.9, R 14.172 N/mm), installed 51.2 mm = 2 x 38 N; on d23 spigots",
+  "color": [
+   0.75,
+   0.2,
+   0.15
+  ],
+  "explode": [
+   0.0,
+   0.0,
+   -40.0
+  ],
+  "mass_kg": 0.105,
+  "com_mm": [
+   134.5,
+   110.0,
+   105.6
+  ],
+  "bbox_mm": [
+   101.2,
+   167.8,
+   94.2,
+   125.8,
+   80.0,
+   131.2
+  ],
+  "src": "federnshop.com D-313J-02 datasheet (SOURCED); mass ESTIMATE",
+  "notes": "",
+  "qty": 1
+ },
+ {
+  "name": "C05_spring_bracket_FL",
+  "file": "C05_spring_bracket_FL.stl",
+  "group": "base",
+  "category": "custom",
+  "material": "S355MC",
+  "process": "laser cut + bent 8 mm S355MC; 4 x M6 in vertical slots +-3 mm to the spine (preload set per corner on a scale); 2 spigots d23 x 5 down",
+  "color": [
+   0.3,
+   0.31,
+   0.33
+  ],
+  "explode": [
+   0.0,
+   0.0,
+   40.0
+  ],
+  "mass_kg": 0.253,
+  "com_mm": [
+   133.5,
+   118.5,
+   142.7
+  ],
+  "bbox_mm": [
+   100.0,
+   167.0,
+   94.0,
+   131.0,
+   131.2,
+   170.0
+  ],
+  "src": "",
+  "notes": "",
+  "qty": 1
+ },
+ {
+  "name": "C06_droop_stop_FL",
+  "file": "C06_droop_stop_FL.stl",
+  "group": "base",
+  "category": "purchased",
+  "material": "purchased",
+  "process": "rubber buffer d20 x 10 M6 (type A) on a 4 mm S355 angle bolted to the spine; shelf lands on it at -2.5 mm",
+  "color": [
+   0.07,
+   0.07,
+   0.08
+  ],
+  "explode": [
+   0.0,
+   0.0,
+   -60.0
+  ],
+  "mass_kg": 0.06,
+  "com_mm": [
+   125.0,
+   113.8,
+   61.6
+  ],
+  "bbox_mm": [
+   115.0,
+   135.0,
+   96.0,
+   131.0,
+   55.5,
+   70.0
+  ],
+  "src": "",
+  "notes": "",
+  "qty": 1
+ },
+ {
+  "name": "C01_castor_FR_Blickle_L-ALST_80K",
+  "file": "C01_castor_FR_Blickle_L-ALST_80K.stl",
+  "group": "base",
+  "category": "purchased",
+  "material": "purchased",
+  "process": "purchased Blickle L-ALST 80K (ID 754464): swivel castor D80 x 30 Softhane 75 ShA, Al centre, ball bearing, 200 kg @ 4 km/h, H 102, plate 100 x 85, holes 80 x 60 d9, offset 38",
+  "color": [
+   0.12,
+   0.12,
+   0.13
+  ],
+  "explode": [
+   0.0,
+   0.0,
+   -160.0
+  ],
+  "mass_kg": 0.7,
+  "com_mm": [
+   245.1,
+   -180.0,
+   55.6
+  ],
+  "bbox_mm": [
+   196.9,
+   325.0,
+   -222.5,
+   -137.5,
+   -0.1,
+   102.0
+  ],
+  "src": "blickle.com/product/l-alst-80k-754464 (SOURCED; plate thickness and fork envelope ESTIMATE until the Blickle CAD)",
+  "notes": "",
+  "qty": 1
+ },
+ {
+  "name": "C02_castor_carriage_FR",
+  "file": "C02_castor_carriage_FR.stl",
+  "group": "base",
+  "category": "custom",
+  "material": "S355MC",
+  "process": "weldment: laser cut 6 mm carriage plate + tongue, 8 mm mast + shelf (S355MC), welded, zinc flake; 4 x M8 ISO 10642 into the castor holes; 8 x M3 to the MGN15H blocks; 2 spring spigots d23 x 5",
+  "color": [
+   0.3,
+   0.31,
+   0.33
+  ],
+  "explode": [
+   0.0,
+   0.0,
+   -120.0
+  ],
+  "mass_kg": 1.081,
+  "com_mm": [
+   221.1,
+   -134.9,
+   112.0
+  ],
+  "bbox_mm": [
+   100.0,
+   325.0,
+   -222.5,
+   -94.0,
+   60.0,
+   184.0
+  ],
+  "src": "",
+  "notes": "FR/RL mirror variant; moves with the castor (-2.5..+17 mm)",
+  "qty": 1
+ },
+ {
+  "name": "C03_bump_pad_FR",
+  "file": "C03_bump_pad_FR.stl",
+  "group": "base",
+  "category": "custom",
+  "material": "EPDM",
+  "process": "PU pad 30 x 30 x 3, 90 Shore A, bonded to the carriage plate (bump stop on the roof underside after 17 mm)",
+  "color": [
+   0.85,
+   0.75,
+   0.2
+  ],
+  "explode": [
+   0.0,
+   0.0,
+   -100.0
+  ],
+  "mass_kg": 0.003,
+  "com_mm": [
+   275.0,
+   -180.0,
+   109.5
+  ],
+  "bbox_mm": [
+   260.0,
+   290.0,
+   -195.0,
+   -165.0,
+   108.0,
+   111.0
+  ],
+  "src": "",
+  "notes": "",
+  "qty": 1
+ },
+ {
+  "name": "C07_rail_MGN15R_L190_FR",
+  "file": "C07_rail_MGN15R_L190_FR.stl",
+  "group": "base",
+  "category": "purchased",
+  "material": "purchased",
+  "process": "purchased HIWIN MGN15R rail L 190 (15 + 4 x 40 + 15), 5 x M3 x 10 into the 6 mm 6082 spine (6 mm engagement, Loctite 243)",
+  "color": [
+   0.6,
+   0.6,
+   0.62
+  ],
+  "explode": [
+   0.0,
+   -60.0,
+   0.0
+  ],
+  "mass_kg": 0.201,
+  "com_mm": [
+   185.0,
+   -126.0,
+   135.0
+  ],
+  "bbox_mm": [
+   177.5,
+   192.5,
+   -131.0,
+   -121.0,
+   40.0,
+   230.0
+  ],
+  "src": "HIWIN catalogue G99TE24-2410 Table 2-4-19 p.91 (SOURCED)",
+  "notes": "",
+  "qty": 1
+ },
+ {
+  "name": "C08_blocks_MGN15H_x2_FR",
+  "file": "C08_blocks_MGN15H_x2_FR.stl",
+  "group": "base",
+  "category": "purchased",
+  "material": "purchased",
+  "process": "purchased 2 x HIWIN MGN15H block (Z0 preload, standard seals), c/c 65 mm; carriage mast bolted 4 x M3 each",
+  "color": [
+   0.55,
+   0.55,
+   0.6
+  ],
+  "explode": [
+   0.0,
+   -60.0,
+   -60.0
+  ],
+  "mass_kg": 0.184,
+  "com_mm": [
+   185.0,
+   -120.1,
+   143.9
+  ],
+  "bbox_mm": [
+   169.0,
+   201.0,
+   -127.0,
+   -115.0,
+   82.0,
+   205.8
+  ],
+  "src": "HIWIN G99TE24-2410 p.91: C 6.37 kN, C0 9.11 kN, MR 73.5 N.m (SOURCED)",
+  "notes": "",
+  "qty": 1
+ },
+ {
+  "name": "C04_springs_D-313J-02_x2_FR",
+  "file": "C04_springs_D-313J-02_x2_FR.stl",
+  "group": "base",
+  "category": "purchased",
+  "material": "purchased",
+  "process": "purchased 2 x Gutekunst D-313J-02 (d 3.6, De 31.6, L0 53.9, R 14.172 N/mm), installed 51.2 mm = 2 x 38 N; on d23 spigots",
+  "color": [
+   0.75,
+   0.2,
+   0.15
+  ],
+  "explode": [
+   0.0,
+   0.0,
+   -40.0
+  ],
+  "mass_kg": 0.105,
+  "com_mm": [
+   134.5,
+   -110.0,
+   105.6
+  ],
+  "bbox_mm": [
+   101.2,
+   167.8,
+   -125.8,
+   -94.2,
+   80.0,
+   131.2
+  ],
+  "src": "federnshop.com D-313J-02 datasheet (SOURCED); mass ESTIMATE",
+  "notes": "",
+  "qty": 1
+ },
+ {
+  "name": "C05_spring_bracket_FR",
+  "file": "C05_spring_bracket_FR.stl",
+  "group": "base",
+  "category": "custom",
+  "material": "S355MC",
+  "process": "laser cut + bent 8 mm S355MC; 4 x M6 in vertical slots +-3 mm to the spine (preload set per corner on a scale); 2 spigots d23 x 5 down",
+  "color": [
+   0.3,
+   0.31,
+   0.33
+  ],
+  "explode": [
+   0.0,
+   0.0,
+   40.0
+  ],
+  "mass_kg": 0.253,
+  "com_mm": [
+   133.5,
+   -118.5,
+   142.7
+  ],
+  "bbox_mm": [
+   100.0,
+   167.0,
+   -131.0,
+   -94.0,
+   131.2,
+   170.0
+  ],
+  "src": "",
+  "notes": "",
+  "qty": 1
+ },
+ {
+  "name": "C06_droop_stop_FR",
+  "file": "C06_droop_stop_FR.stl",
+  "group": "base",
+  "category": "purchased",
+  "material": "purchased",
+  "process": "rubber buffer d20 x 10 M6 (type A) on a 4 mm S355 angle bolted to the spine; shelf lands on it at -2.5 mm",
+  "color": [
+   0.07,
+   0.07,
+   0.08
+  ],
+  "explode": [
+   0.0,
+   0.0,
+   -60.0
+  ],
+  "mass_kg": 0.06,
+  "com_mm": [
+   125.0,
+   -113.8,
+   61.6
+  ],
+  "bbox_mm": [
+   115.0,
+   135.0,
+   -131.0,
+   -96.0,
+   55.5,
+   70.0
+  ],
+  "src": "",
+  "notes": "",
+  "qty": 1
+ },
+ {
+  "name": "C01_castor_RL_Blickle_L-ALST_80K",
+  "file": "C01_castor_RL_Blickle_L-ALST_80K.stl",
+  "group": "base",
+  "category": "purchased",
+  "material": "purchased",
+  "process": "purchased Blickle L-ALST 80K (ID 754464): swivel castor D80 x 30 Softhane 75 ShA, Al centre, ball bearing, 200 kg @ 4 km/h, H 102, plate 100 x 85, holes 80 x 60 d9, offset 38",
+  "color": [
+   0.12,
+   0.12,
+   0.13
+  ],
+  "explode": [
+   0.0,
+   0.0,
+   -160.0
+  ],
+  "mass_kg": 0.7,
+  "com_mm": [
+   -245.1,
+   180.0,
+   55.6
+  ],
+  "bbox_mm": [
+   -325.0,
+   -196.9,
+   137.5,
+   222.5,
+   -0.1,
+   102.0
+  ],
+  "src": "blickle.com/product/l-alst-80k-754464 (SOURCED; plate thickness and fork envelope ESTIMATE until the Blickle CAD)",
+  "notes": "",
+  "qty": 1
+ },
+ {
+  "name": "C02_castor_carriage_RL",
+  "file": "C02_castor_carriage_RL.stl",
+  "group": "base",
+  "category": "custom",
+  "material": "S355MC",
+  "process": "weldment: laser cut 6 mm carriage plate + tongue, 8 mm mast + shelf (S355MC), welded, zinc flake; 4 x M8 ISO 10642 into the castor holes; 8 x M3 to the MGN15H blocks; 2 spring spigots d23 x 5",
+  "color": [
+   0.3,
+   0.31,
+   0.33
+  ],
+  "explode": [
+   0.0,
+   0.0,
+   -120.0
+  ],
+  "mass_kg": 1.081,
+  "com_mm": [
+   -221.1,
+   134.9,
+   112.0
+  ],
+  "bbox_mm": [
+   -325.0,
+   -100.0,
+   94.0,
+   222.5,
+   60.0,
+   184.0
+  ],
+  "src": "",
+  "notes": "FR/RL mirror variant; moves with the castor (-2.5..+17 mm)",
+  "qty": 1
+ },
+ {
+  "name": "C03_bump_pad_RL",
+  "file": "C03_bump_pad_RL.stl",
+  "group": "base",
+  "category": "custom",
+  "material": "EPDM",
+  "process": "PU pad 30 x 30 x 3, 90 Shore A, bonded to the carriage plate (bump stop on the roof underside after 17 mm)",
+  "color": [
+   0.85,
+   0.75,
+   0.2
+  ],
+  "explode": [
+   0.0,
+   0.0,
+   -100.0
+  ],
+  "mass_kg": 0.003,
+  "com_mm": [
+   -275.0,
+   180.0,
+   109.5
+  ],
+  "bbox_mm": [
+   -290.0,
+   -260.0,
+   165.0,
+   195.0,
+   108.0,
+   111.0
+  ],
+  "src": "",
+  "notes": "",
+  "qty": 1
+ },
+ {
+  "name": "C07_rail_MGN15R_L190_RL",
+  "file": "C07_rail_MGN15R_L190_RL.stl",
+  "group": "base",
+  "category": "purchased",
+  "material": "purchased",
+  "process": "purchased HIWIN MGN15R rail L 190 (15 + 4 x 40 + 15), 5 x M3 x 10 into the 6 mm 6082 spine (6 mm engagement, Loctite 243)",
+  "color": [
+   0.6,
+   0.6,
+   0.62
+  ],
+  "explode": [
+   0.0,
+   60.0,
+   0.0
+  ],
+  "mass_kg": 0.201,
+  "com_mm": [
+   -185.0,
+   126.0,
+   135.0
+  ],
+  "bbox_mm": [
+   -192.5,
+   -177.5,
+   121.0,
+   131.0,
+   40.0,
+   230.0
+  ],
+  "src": "HIWIN catalogue G99TE24-2410 Table 2-4-19 p.91 (SOURCED)",
+  "notes": "",
+  "qty": 1
+ },
+ {
+  "name": "C08_blocks_MGN15H_x2_RL",
+  "file": "C08_blocks_MGN15H_x2_RL.stl",
+  "group": "base",
+  "category": "purchased",
+  "material": "purchased",
+  "process": "purchased 2 x HIWIN MGN15H block (Z0 preload, standard seals), c/c 65 mm; carriage mast bolted 4 x M3 each",
+  "color": [
+   0.55,
+   0.55,
+   0.6
+  ],
+  "explode": [
+   0.0,
+   60.0,
+   -60.0
+  ],
+  "mass_kg": 0.184,
+  "com_mm": [
+   -185.0,
+   120.1,
+   143.9
+  ],
+  "bbox_mm": [
+   -201.0,
+   -169.0,
+   115.0,
+   127.0,
+   82.0,
+   205.8
+  ],
+  "src": "HIWIN G99TE24-2410 p.91: C 6.37 kN, C0 9.11 kN, MR 73.5 N.m (SOURCED)",
+  "notes": "",
+  "qty": 1
+ },
+ {
+  "name": "C04_springs_D-313J-02_x2_RL",
+  "file": "C04_springs_D-313J-02_x2_RL.stl",
+  "group": "base",
+  "category": "purchased",
+  "material": "purchased",
+  "process": "purchased 2 x Gutekunst D-313J-02 (d 3.6, De 31.6, L0 53.9, R 14.172 N/mm), installed 51.2 mm = 2 x 38 N; on d23 spigots",
+  "color": [
+   0.75,
+   0.2,
+   0.15
+  ],
+  "explode": [
+   0.0,
+   0.0,
+   -40.0
+  ],
+  "mass_kg": 0.105,
+  "com_mm": [
+   -134.5,
+   110.0,
+   105.6
+  ],
+  "bbox_mm": [
+   -167.8,
+   -101.2,
+   94.2,
+   125.8,
+   80.0,
+   131.2
+  ],
+  "src": "federnshop.com D-313J-02 datasheet (SOURCED); mass ESTIMATE",
+  "notes": "",
+  "qty": 1
+ },
+ {
+  "name": "C05_spring_bracket_RL",
+  "file": "C05_spring_bracket_RL.stl",
+  "group": "base",
+  "category": "custom",
+  "material": "S355MC",
+  "process": "laser cut + bent 8 mm S355MC; 4 x M6 in vertical slots +-3 mm to the spine (preload set per corner on a scale); 2 spigots d23 x 5 down",
+  "color": [
+   0.3,
+   0.31,
+   0.33
+  ],
+  "explode": [
+   0.0,
+   0.0,
+   40.0
+  ],
+  "mass_kg": 0.253,
+  "com_mm": [
+   -133.5,
+   118.5,
+   142.7
+  ],
+  "bbox_mm": [
+   -167.0,
+   -100.0,
+   94.0,
+   131.0,
+   131.2,
+   170.0
+  ],
+  "src": "",
+  "notes": "",
+  "qty": 1
+ },
+ {
+  "name": "C06_droop_stop_RL",
+  "file": "C06_droop_stop_RL.stl",
+  "group": "base",
+  "category": "purchased",
+  "material": "purchased",
+  "process": "rubber buffer d20 x 10 M6 (type A) on a 4 mm S355 angle bolted to the spine; shelf lands on it at -2.5 mm",
+  "color": [
+   0.07,
+   0.07,
+   0.08
+  ],
+  "explode": [
+   0.0,
+   0.0,
+   -60.0
+  ],
+  "mass_kg": 0.06,
+  "com_mm": [
+   -125.0,
+   113.8,
+   61.6
+  ],
+  "bbox_mm": [
+   -135.0,
+   -115.0,
+   96.0,
+   131.0,
+   55.5,
+   70.0
+  ],
+  "src": "",
+  "notes": "",
+  "qty": 1
+ },
+ {
+  "name": "C01_castor_RR_Blickle_L-ALST_80K",
+  "file": "C01_castor_RR_Blickle_L-ALST_80K.stl",
+  "group": "base",
+  "category": "purchased",
+  "material": "purchased",
+  "process": "purchased Blickle L-ALST 80K (ID 754464): swivel castor D80 x 30 Softhane 75 ShA, Al centre, ball bearing, 200 kg @ 4 km/h, H 102, plate 100 x 85, holes 80 x 60 d9, offset 38",
+  "color": [
+   0.12,
+   0.12,
+   0.13
+  ],
+  "explode": [
+   0.0,
+   0.0,
+   -160.0
+  ],
+  "mass_kg": 0.7,
+  "com_mm": [
+   -245.1,
+   -180.0,
+   55.6
+  ],
+  "bbox_mm": [
+   -325.0,
+   -196.9,
+   -222.5,
+   -137.5,
+   -0.1,
+   102.0
+  ],
+  "src": "blickle.com/product/l-alst-80k-754464 (SOURCED; plate thickness and fork envelope ESTIMATE until the Blickle CAD)",
+  "notes": "",
+  "qty": 1
+ },
+ {
+  "name": "C02_castor_carriage_RR",
+  "file": "C02_castor_carriage_RR.stl",
+  "group": "base",
+  "category": "custom",
+  "material": "S355MC",
+  "process": "weldment: laser cut 6 mm carriage plate + tongue, 8 mm mast + shelf (S355MC), welded, zinc flake; 4 x M8 ISO 10642 into the castor holes; 8 x M3 to the MGN15H blocks; 2 spring spigots d23 x 5",
+  "color": [
+   0.3,
+   0.31,
+   0.33
+  ],
+  "explode": [
+   0.0,
+   0.0,
+   -120.0
+  ],
+  "mass_kg": 1.081,
+  "com_mm": [
+   -221.1,
+   -134.9,
+   112.0
+  ],
+  "bbox_mm": [
+   -325.0,
+   -100.0,
+   -222.5,
+   -94.0,
+   60.0,
+   184.0
+  ],
+  "src": "",
+  "notes": "FL/RR variant; moves with the castor (-2.5..+17 mm)",
+  "qty": 1
+ },
+ {
+  "name": "C03_bump_pad_RR",
+  "file": "C03_bump_pad_RR.stl",
+  "group": "base",
+  "category": "custom",
+  "material": "EPDM",
+  "process": "PU pad 30 x 30 x 3, 90 Shore A, bonded to the carriage plate (bump stop on the roof underside after 17 mm)",
+  "color": [
+   0.85,
+   0.75,
+   0.2
+  ],
+  "explode": [
+   0.0,
+   0.0,
+   -100.0
+  ],
+  "mass_kg": 0.003,
+  "com_mm": [
+   -275.0,
+   -180.0,
+   109.5
+  ],
+  "bbox_mm": [
+   -290.0,
+   -260.0,
+   -195.0,
+   -165.0,
+   108.0,
+   111.0
+  ],
+  "src": "",
+  "notes": "",
+  "qty": 1
+ },
+ {
+  "name": "C07_rail_MGN15R_L190_RR",
+  "file": "C07_rail_MGN15R_L190_RR.stl",
+  "group": "base",
+  "category": "purchased",
+  "material": "purchased",
+  "process": "purchased HIWIN MGN15R rail L 190 (15 + 4 x 40 + 15), 5 x M3 x 10 into the 6 mm 6082 spine (6 mm engagement, Loctite 243)",
+  "color": [
+   0.6,
+   0.6,
+   0.62
+  ],
+  "explode": [
+   0.0,
+   -60.0,
+   0.0
+  ],
+  "mass_kg": 0.201,
+  "com_mm": [
+   -185.0,
+   -126.0,
+   135.0
+  ],
+  "bbox_mm": [
+   -192.5,
+   -177.5,
+   -131.0,
+   -121.0,
+   40.0,
+   230.0
+  ],
+  "src": "HIWIN catalogue G99TE24-2410 Table 2-4-19 p.91 (SOURCED)",
+  "notes": "",
+  "qty": 1
+ },
+ {
+  "name": "C08_blocks_MGN15H_x2_RR",
+  "file": "C08_blocks_MGN15H_x2_RR.stl",
+  "group": "base",
+  "category": "purchased",
+  "material": "purchased",
+  "process": "purchased 2 x HIWIN MGN15H block (Z0 preload, standard seals), c/c 65 mm; carriage mast bolted 4 x M3 each",
+  "color": [
+   0.55,
+   0.55,
+   0.6
+  ],
+  "explode": [
+   0.0,
+   -60.0,
+   -60.0
+  ],
+  "mass_kg": 0.184,
+  "com_mm": [
+   -185.0,
+   -120.1,
+   143.9
+  ],
+  "bbox_mm": [
+   -201.0,
+   -169.0,
+   -127.0,
+   -115.0,
+   82.0,
+   205.8
+  ],
+  "src": "HIWIN G99TE24-2410 p.91: C 6.37 kN, C0 9.11 kN, MR 73.5 N.m (SOURCED)",
+  "notes": "",
+  "qty": 1
+ },
+ {
+  "name": "C04_springs_D-313J-02_x2_RR",
+  "file": "C04_springs_D-313J-02_x2_RR.stl",
+  "group": "base",
+  "category": "purchased",
+  "material": "purchased",
+  "process": "purchased 2 x Gutekunst D-313J-02 (d 3.6, De 31.6, L0 53.9, R 14.172 N/mm), installed 51.2 mm = 2 x 38 N; on d23 spigots",
+  "color": [
+   0.75,
+   0.2,
+   0.15
+  ],
+  "explode": [
+   0.0,
+   0.0,
+   -40.0
+  ],
+  "mass_kg": 0.105,
+  "com_mm": [
+   -134.5,
+   -110.0,
+   105.6
+  ],
+  "bbox_mm": [
+   -167.8,
+   -101.2,
+   -125.8,
+   -94.2,
+   80.0,
+   131.2
+  ],
+  "src": "federnshop.com D-313J-02 datasheet (SOURCED); mass ESTIMATE",
+  "notes": "",
+  "qty": 1
+ },
+ {
+  "name": "C05_spring_bracket_RR",
+  "file": "C05_spring_bracket_RR.stl",
+  "group": "base",
+  "category": "custom",
+  "material": "S355MC",
+  "process": "laser cut + bent 8 mm S355MC; 4 x M6 in vertical slots +-3 mm to the spine (preload set per corner on a scale); 2 spigots d23 x 5 down",
+  "color": [
+   0.3,
+   0.31,
+   0.33
+  ],
+  "explode": [
+   0.0,
+   0.0,
+   40.0
+  ],
+  "mass_kg": 0.253,
+  "com_mm": [
+   -133.5,
+   -118.5,
+   142.7
+  ],
+  "bbox_mm": [
+   -167.0,
+   -100.0,
+   -131.0,
+   -94.0,
+   131.2,
+   170.0
+  ],
+  "src": "",
+  "notes": "",
+  "qty": 1
+ },
+ {
+  "name": "C06_droop_stop_RR",
+  "file": "C06_droop_stop_RR.stl",
+  "group": "base",
+  "category": "purchased",
+  "material": "purchased",
+  "process": "rubber buffer d20 x 10 M6 (type A) on a 4 mm S355 angle bolted to the spine; shelf lands on it at -2.5 mm",
+  "color": [
+   0.07,
+   0.07,
+   0.08
+  ],
+  "explode": [
+   0.0,
+   0.0,
+   -60.0
+  ],
+  "mass_kg": 0.06,
+  "com_mm": [
+   -125.0,
+   -113.8,
+   61.6
+  ],
+  "bbox_mm": [
+   -135.0,
+   -115.0,
+   -131.0,
+   -96.0,
+   55.5,
+   70.0
+  ],
+  "src": "",
+  "notes": "",
+  "qty": 1
+ },
+ {
+  "name": "B01_battery_F_DLP-GC2-48V",
+  "file": "B01_battery_F_DLP-GC2-48V.stl",
+  "group": "base",
+  "category": "purchased",
+  "material": "purchased",
+  "process": "purchased Discover AES PRO DLP-GC2-48V, LFP 51.2 V 30 Ah, IEC 62619/CE/UN38.3",
+  "color": [
+   0.1,
+   0.28,
+   0.55
+  ],
+  "explode": [
+   330.0,
+   0.0,
+   0.0
+  ],
+  "mass_kg": 14.0,
+  "com_mm": [
+   207.0,
+   0.0,
+   170.0
+  ],
+  "bbox_mm": [
+   80.0,
+   334.0,
+   -90.0,
+   90.0,
+   40.0,
+   300.0
+  ],
+  "src": "discoverbattery.com (SOURCED 14 kg, 260 L x 180 W x 254 H mm)",
+  "notes": "lying on its side (805-0027 s.9.2: lying allowed, never upside down); top cover = face x = +334 (outward)",
+  "qty": 1
+ },
+ {
+  "name": "B02_battery_pad_F",
+  "file": "B02_battery_pad_F.stl",
+  "group": "base",
+  "category": "custom",
+  "material": "EPDM",
+  "process": "die-cut 3 mm EPDM (slide surface: PTFE-faced strip on top, ESTIMATE)",
+  "color": [
+   0.07,
+   0.07,
+   0.08
+  ],
+  "explode": [
+   300.0,
+   0.0,
+   -30.0
+  ],
+  "mass_kg": 0.141,
+  "com_mm": [
+   207.0,
+   0.0,
+   38.5
+  ],
+  "bbox_mm": [
+   88.0,
+   326.0,
+   -82.0,
+   82.0,
+   37.0,
+   40.0
+  ],
+  "src": "",
+  "notes": "",
+  "qty": 1
+ },
+ {
+  "name": "B03_battery_strap_F0",
+  "file": "B03_battery_strap_F0.stl",
+  "group": "base",
+  "category": "custom",
+  "material": "EN AW-5754-H22",
+  "process": "laser cut 3 mm + 2 bent tabs, M6 into the spine inner faces; over-the-top hold-down (805-0027 s.9.2), removable for service",
+  "color": [
+   0.8,
+   0.81,
+   0.83
+  ],
+  "explode": [
+   330.0,
+   0.0,
+   90.0
+  ],
+  "mass_kg": 0.063,
+  "com_mm": [
+   120.0,
+   -0.0,
+   301.5
+  ],
+  "bbox_mm": [
+   105.0,
+   135.0,
+   -131.0,
+   131.0,
+   300.0,
+   303.0
+  ],
+  "src": "",
+  "notes": "",
+  "qty": 1
+ },
+ {
+  "name": "B03_battery_strap_F1",
+  "file": "B03_battery_strap_F1.stl",
+  "group": "base",
+  "category": "custom",
+  "material": "EN AW-5754-H22",
+  "process": "laser cut 3 mm + 2 bent tabs, M6 into the spine inner faces; over-the-top hold-down (805-0027 s.9.2), removable for service",
+  "color": [
+   0.8,
+   0.81,
+   0.83
+  ],
+  "explode": [
+   330.0,
+   0.0,
+   90.0
+  ],
+  "mass_kg": 0.063,
+  "com_mm": [
+   230.0,
+   -0.0,
+   301.5
+  ],
+  "bbox_mm": [
+   215.0,
+   245.0,
+   -131.0,
+   131.0,
+   300.0,
+   303.0
+  ],
+  "src": "",
+  "notes": "",
+  "qty": 1
+ },
+ {
+  "name": "B01_battery_R_DLP-GC2-48V",
+  "file": "B01_battery_R_DLP-GC2-48V.stl",
+  "group": "base",
+  "category": "purchased",
+  "material": "purchased",
+  "process": "purchased Discover AES PRO DLP-GC2-48V, LFP 51.2 V 30 Ah, IEC 62619/CE/UN38.3",
+  "color": [
+   0.1,
+   0.28,
+   0.55
+  ],
+  "explode": [
+   -330.0,
+   0.0,
+   0.0
+  ],
+  "mass_kg": 14.0,
+  "com_mm": [
+   -207.0,
+   0.0,
+   170.0
+  ],
+  "bbox_mm": [
+   -334.0,
+   -80.0,
+   -90.0,
+   90.0,
+   40.0,
+   300.0
+  ],
+  "src": "discoverbattery.com (SOURCED 14 kg, 260 L x 180 W x 254 H mm)",
+  "notes": "lying on its side (805-0027 s.9.2: lying allowed, never upside down); top cover = face x = -334 (outward)",
+  "qty": 1
+ },
+ {
+  "name": "B02_battery_pad_R",
+  "file": "B02_battery_pad_R.stl",
+  "group": "base",
+  "category": "custom",
+  "material": "EPDM",
+  "process": "die-cut 3 mm EPDM (slide surface: PTFE-faced strip on top, ESTIMATE)",
+  "color": [
+   0.07,
+   0.07,
+   0.08
+  ],
+  "explode": [
+   -300.0,
+   0.0,
+   -30.0
+  ],
+  "mass_kg": 0.141,
+  "com_mm": [
+   -207.0,
+   0.0,
+   38.5
+  ],
+  "bbox_mm": [
+   -326.0,
+   -88.0,
+   -82.0,
+   82.0,
+   37.0,
+   40.0
+  ],
+  "src": "",
+  "notes": "",
+  "qty": 1
+ },
+ {
+  "name": "B03_battery_strap_R0",
+  "file": "B03_battery_strap_R0.stl",
+  "group": "base",
+  "category": "custom",
+  "material": "EN AW-5754-H22",
+  "process": "laser cut 3 mm + 2 bent tabs, M6 into the spine inner faces; over-the-top hold-down (805-0027 s.9.2), removable for service",
+  "color": [
+   0.8,
+   0.81,
+   0.83
+  ],
+  "explode": [
+   -330.0,
+   0.0,
+   90.0
+  ],
+  "mass_kg": 0.063,
+  "com_mm": [
+   -120.0,
+   -0.0,
+   301.5
+  ],
+  "bbox_mm": [
+   -135.0,
+   -105.0,
+   -131.0,
+   131.0,
+   300.0,
+   303.0
+  ],
+  "src": "",
+  "notes": "",
+  "qty": 1
+ },
+ {
+  "name": "B03_battery_strap_R1",
+  "file": "B03_battery_strap_R1.stl",
+  "group": "base",
+  "category": "custom",
+  "material": "EN AW-5754-H22",
+  "process": "laser cut 3 mm + 2 bent tabs, M6 into the spine inner faces; over-the-top hold-down (805-0027 s.9.2), removable for service",
+  "color": [
+   0.8,
+   0.81,
+   0.83
+  ],
+  "explode": [
+   -330.0,
+   0.0,
+   90.0
+  ],
+  "mass_kg": 0.063,
+  "com_mm": [
+   -230.0,
+   -0.0,
+   301.5
+  ],
+  "bbox_mm": [
+   -245.0,
+   -215.0,
+   -131.0,
+   131.0,
+   300.0,
+   303.0
+  ],
+  "src": "",
+  "notes": "",
+  "qty": 1
+ },
+ {
+  "name": "E0C_L_din_rail_low",
+  "file": "E0C_L_din_rail_low.stl",
+  "group": "base",
+  "category": "purchased",
+  "material": "purchased",
+  "process": "DIN rail TS35x7.5 EN 60715, M5 to the spine",
+  "color": [
+   0.7,
+   0.7,
+   0.72
+  ],
+  "explode": [
+   0.0,
+   0.0,
+   520.0
+  ],
+  "mass_kg": 0.075,
+  "com_mm": [
+   -0.0,
+   127.2,
+   120.0
+  ],
+  "bbox_mm": [
+   -77.0,
+   77.0,
+   123.5,
+   131.0,
+   102.5,
+   137.5
+  ],
+  "src": "",
+  "notes": "",
+  "qty": 1
+ },
+ {
+  "name": "E0C_L_din_rail_high",
+  "file": "E0C_L_din_rail_high.stl",
+  "group": "base",
+  "category": "purchased",
+  "material": "purchased",
+  "process": "DIN rail TS35x7.5 EN 60715, M5 to the spine",
+  "color": [
+   0.7,
+   0.7,
+   0.72
+  ],
+  "explode": [
+   0.0,
+   0.0,
+   520.0
+  ],
+  "mass_kg": 0.075,
+  "com_mm": [
+   -0.0,
+   127.2,
+   274.0
+  ],
+  "bbox_mm": [
+   -77.0,
+   77.0,
+   123.5,
+   131.0,
+   256.5,
+   291.5
+  ],
+  "src": "",
+  "notes": "",
+  "qty": 1
+ },
+ {
+  "name": "E0C_R_din_rail_low",
+  "file": "E0C_R_din_rail_low.stl",
+  "group": "base",
+  "category": "purchased",
+  "material": "purchased",
+  "process": "DIN rail TS35x7.5 EN 60715, M5 to the spine",
+  "color": [
+   0.7,
+   0.7,
+   0.72
+  ],
+  "explode": [
+   0.0,
+   0.0,
+   520.0
+  ],
+  "mass_kg": 0.075,
+  "com_mm": [
+   -0.0,
+   -127.2,
+   120.0
+  ],
+  "bbox_mm": [
+   -77.0,
+   77.0,
+   -131.0,
+   -123.5,
+   102.5,
+   137.5
+  ],
+  "src": "",
+  "notes": "",
+  "qty": 1
+ },
+ {
+  "name": "E0C_R_din_rail_high",
+  "file": "E0C_R_din_rail_high.stl",
+  "group": "base",
+  "category": "purchased",
+  "material": "purchased",
+  "process": "DIN rail TS35x7.5 EN 60715, M5 to the spine",
+  "color": [
+   0.7,
+   0.7,
+   0.72
+  ],
+  "explode": [
+   0.0,
+   0.0,
+   520.0
+  ],
+  "mass_kg": 0.01,
+  "com_mm": [
+   -66.5,
+   -127.2,
+   274.0
+  ],
+  "bbox_mm": [
+   -77.0,
+   -56.0,
+   -131.0,
+   -123.5,
+   256.5,
+   291.5
+  ],
+  "src": "",
+  "notes": "",
+  "qty": 1
+ },
+ {
+  "name": "E50_dcdc_arm_L_DDR480C24",
+  "file": "E50_dcdc_arm_L_DDR480C24.stl",
+  "group": "base",
+  "category": "purchased",
+  "material": "purchased",
+  "process": "purchased Mean Well DDR-480C-24 (arm L 24 V bus, OpenArm variant), vertical, input terminals down",
+  "color": [
+   0.78,
+   0.78,
+   0.8
+  ],
+  "explode": [
+   0.0,
+   0.0,
+   520.0
+  ],
+  "mass_kg": 1.375,
+  "com_mm": [
+   -30.3,
+   58.9,
+   120.0
+  ],
+  "bbox_mm": [
+   -73.0,
+   12.5,
+   -5.7,
+   123.5,
+   57.4,
+   182.6
+  ],
+  "src": "meanwell.com (SOURCED)",
+  "notes": "",
+  "qty": 1
+ },
+ {
+  "name": "E52_arm_ORing_L_DRDN40-24",
+  "file": "E52_arm_ORing_L_DRDN40-24.stl",
+  "group": "base",
+  "category": "purchased",
+  "material": "purchased",
+  "process": "purchased Mean Well DRDN40-24 (arm L bus ORing), vertical",
+  "color": [
+   0.78,
+   0.78,
+   0.8
+  ],
+  "explode": [
+   0.0,
+   0.0,
+   520.0
+  ],
+  "mass_kg": 0.3,
+  "com_mm": [
+   45.0,
+   73.5,
+   120.0
+  ],
+  "bbox_mm": [
+   17.5,
+   72.5,
+   23.5,
+   123.5,
+   57.4,
+   182.6
+  ],
+  "src": "",
+  "notes": "",
+  "qty": 1
+ },
+ {
+  "name": "E52_arm_ORing_R_DRDN40-24",
+  "file": "E52_arm_ORing_R_DRDN40-24.stl",
+  "group": "base",
+  "category": "purchased",
+  "material": "purchased",
+  "process": "purchased Mean Well DRDN40-24 (arm R bus ORing), vertical",
+  "color": [
+   0.78,
+   0.78,
+   0.8
+  ],
+  "explode": [
+   0.0,
+   0.0,
+   520.0
+  ],
+  "mass_kg": 0.3,
+  "com_mm": [
+   -45.5,
+   -73.5,
+   120.0
+  ],
+  "bbox_mm": [
+   -73.0,
+   -18.0,
+   -123.5,
+   -23.5,
+   57.4,
+   182.6
+  ],
+  "src": "",
+  "notes": "",
+  "qty": 1
+ },
+ {
+  "name": "E30_U3_ORing_DRDN40-24",
+  "file": "E30_U3_ORing_DRDN40-24.stl",
+  "group": "base",
+  "category": "purchased",
+  "material": "purchased",
+  "process": "purchased Mean Well DRDN40-24 (T24 ORing of U1/U2), vertical, input terminals down",
+  "color": [
+   0.78,
+   0.78,
+   0.8
+  ],
+  "explode": [
+   0.0,
+   0.0,
+   520.0
+  ],
+  "mass_kg": 0.3,
+  "com_mm": [
+   14.5,
+   -73.5,
+   120.0
+  ],
+  "bbox_mm": [
+   -13.0,
+   42.0,
+   -123.5,
+   -23.5,
+   57.4,
+   182.6
+  ],
+  "src": "",
+  "notes": "rev B3: moved from the left MID rail (at the true 125.2 mm height its keep-out does not fit above the SWD housing)",
+  "qty": 1
+ },
+ {
+  "name": "E56_FCF_fuse",
+  "file": "E56_FCF_fuse.stl",
+  "group": "base",
+  "category": "purchased",
+  "material": "purchased",
+  "process": "purchased DIN module (amr/electrical/din_layout.md, netlist_amr.yaml)",
+  "color": [
+   0.25,
+   0.25,
+   0.28
+  ],
+  "explode": [
+   0.0,
+   0.0,
+   520.0
+  ],
+  "mass_kg": 0.1,
+  "com_mm": [
+   55.8,
+   -88.5,
+   120.0
+  ],
+  "bbox_mm": [
+   47.0,
+   64.5,
+   -123.5,
+   -53.5,
+   79.0,
+   161.0
+  ],
+  "src": "",
+  "notes": "",
+  "qty": 1
+ },
+ {
+  "name": "E57_FAL_FAR_fuses",
+  "file": "E57_FAL_FAR_fuses.stl",
+  "group": "base",
+  "category": "purchased",
+  "material": "purchased",
+  "process": "purchased DIN module (amr/electrical/din_layout.md, netlist_amr.yaml)",
+  "color": [
+   0.25,
+   0.25,
+   0.28
+  ],
+  "explode": [
+   0.0,
+   0.0,
+   520.0
+  ],
+  "mass_kg": 0.15,
+  "com_mm": [
+   -58.5,
+   88.5,
+   274.0
+  ],
+  "bbox_mm": [
+   -76.0,
+   -41.0,
+   53.5,
+   123.5,
+   233.0,
+   315.0
+  ],
+  "src": "",
+  "notes": "",
+  "qty": 1
+ },
+ {
+  "name": "E59_JR1_relays",
+  "file": "E59_JR1_relays.stl",
+  "group": "base",
+  "category": "purchased",
+  "material": "purchased",
+  "process": "purchased DIN module (amr/electrical/din_layout.md, netlist_amr.yaml)",
+  "color": [
+   0.25,
+   0.25,
+   0.28
+  ],
+  "explode": [
+   0.0,
+   0.0,
+   520.0
+  ],
+  "mass_kg": 0.15,
+  "com_mm": [
+   -32.8,
+   83.5,
+   274.0
+  ],
+  "bbox_mm": [
+   -39.0,
+   -26.6,
+   43.5,
+   123.5,
+   229.0,
+   319.0
+  ],
+  "src": "",
+  "notes": "",
+  "qty": 1
+ },
+ {
+  "name": "E5A_XC_deck_terminals",
+  "file": "E5A_XC_deck_terminals.stl",
+  "group": "base",
+  "category": "purchased",
+  "material": "purchased",
+  "process": "purchased DIN module (amr/electrical/din_layout.md, netlist_amr.yaml)",
+  "color": [
+   0.25,
+   0.25,
+   0.28
+  ],
+  "explode": [
+   0.0,
+   0.0,
+   520.0
+  ],
+  "mass_kg": 0.15,
+  "com_mm": [
+   -9.6,
+   98.5,
+   274.0
+  ],
+  "bbox_mm": [
+   -24.6,
+   5.4,
+   73.5,
+   123.5,
+   244.0,
+   304.0
+  ],
+  "src": "",
+  "notes": "",
+  "qty": 1
+ },
+ {
+  "name": "E36_CAN1_PCAN-Ethernet_gw",
+  "file": "E36_CAN1_PCAN-Ethernet_gw.stl",
+  "group": "base",
+  "category": "purchased",
+  "material": "purchased",
+  "process": "purchased DIN module (amr/electrical/din_layout.md, netlist_amr.yaml)",
+  "color": [
+   0.25,
+   0.25,
+   0.28
+  ],
+  "explode": [
+   0.0,
+   0.0,
+   520.0
+  ],
+  "mass_kg": 0.15,
+  "com_mm": [
+   29.9,
+   78.5,
+   274.0
+  ],
+  "bbox_mm": [
+   7.4,
+   52.4,
+   33.5,
+   123.5,
+   224.0,
+   324.0
+  ],
+  "src": "",
+  "notes": "",
+  "qty": 1
+ },
+ {
+  "name": "E55_K4_Finder22",
+  "file": "E55_K4_Finder22.stl",
+  "group": "base",
+  "category": "purchased",
+  "material": "purchased",
+  "process": "purchased DIN module (amr/electrical/din_layout.md, netlist_amr.yaml)",
+  "color": [
+   0.25,
+   0.25,
+   0.28
+  ],
+  "explode": [
+   0.0,
+   0.0,
+   520.0
+  ],
+  "mass_kg": 0.15,
+  "com_mm": [
+   -67.2,
+   -88.5,
+   274.0
+  ],
+  "bbox_mm": [
+   -76.0,
+   -58.5,
+   -123.5,
+   -53.5,
+   229.0,
+   319.0
+  ],
+  "src": "",
+  "notes": "",
+  "qty": 1
+ },
+ {
+  "name": "E5B_arm_clamp_L_DSR50-5",
+  "file": "E5B_arm_clamp_L_DSR50-5.stl",
+  "group": "base",
+  "category": "purchased",
+  "material": "purchased",
+  "process": "purchased maxon DSR 50/5 (309687) 27 V on its plate, M4 to the deck underside above the pack (outside the slide path z <= 300)",
+  "color": [
+   0.25,
+   0.25,
+   0.28
+  ],
+  "explode": [
+   0.0,
+   0.0,
+   300.0
+  ],
+  "mass_kg": 0.25,
+  "com_mm": [
+   170.5,
+   49.0,
+   320.5
+  ],
+  "bbox_mm": [
+   150.0,
+   191.0,
+   2.0,
+   96.0,
+   303.0,
+   338.0
+  ],
+  "src": "maxongroup.com 309687 (SOURCED 94 x 41 x 35 mm)",
+  "notes": "",
+  "qty": 1
+ },
+ {
+  "name": "E5B_arm_clamp_R_DSR50-5",
+  "file": "E5B_arm_clamp_R_DSR50-5.stl",
+  "group": "base",
+  "category": "purchased",
+  "material": "purchased",
+  "process": "purchased maxon DSR 50/5 (309687) 27 V on its plate, M4 to the deck underside above the pack (outside the slide path z <= 300)",
+  "color": [
+   0.25,
+   0.25,
+   0.28
+  ],
+  "explode": [
+   0.0,
+   0.0,
+   300.0
+  ],
+  "mass_kg": 0.25,
+  "com_mm": [
+   170.5,
+   -49.0,
+   320.5
+  ],
+  "bbox_mm": [
+   150.0,
+   191.0,
+   -96.0,
+   -2.0,
+   303.0,
+   338.0
+  ],
+  "src": "maxongroup.com 309687 (SOURCED 94 x 41 x 35 mm)",
+  "notes": "",
+  "qty": 1
+ },
+ {
+  "name": "E16_R1a_traction_clamp_DSR50-5",
+  "file": "E16_R1a_traction_clamp_DSR50-5.stl",
+  "group": "base",
+  "category": "purchased",
+  "material": "purchased",
+  "process": "purchased maxon DSR 50/5 (309687) 27 V on its plate, M4 to the deck underside above the pack (outside the slide path z <= 300)",
+  "color": [
+   0.25,
+   0.25,
+   0.28
+  ],
+  "explode": [
+   0.0,
+   0.0,
+   300.0
+  ],
+  "mass_kg": 0.25,
+  "com_mm": [
+   -170.5,
+   49.0,
+   320.5
+  ],
+  "bbox_mm": [
+   -191.0,
+   -150.0,
+   2.0,
+   96.0,
+   303.0,
+   338.0
+  ],
+  "src": "maxongroup.com 309687 (SOURCED 94 x 41 x 35 mm)",
+  "notes": "",
+  "qty": 1
+ },
+ {
+  "name": "E16_R1b_traction_clamp_DSR50-5",
+  "file": "E16_R1b_traction_clamp_DSR50-5.stl",
+  "group": "base",
+  "category": "purchased",
+  "material": "purchased",
+  "process": "purchased maxon DSR 50/5 (309687) 27 V on its plate, M4 to the deck underside above the pack (outside the slide path z <= 300)",
+  "color": [
+   0.25,
+   0.25,
+   0.28
+  ],
+  "explode": [
+   0.0,
+   0.0,
+   300.0
+  ],
+  "mass_kg": 0.25,
+  "com_mm": [
+   -170.5,
+   -49.0,
+   320.5
+  ],
+  "bbox_mm": [
+   -191.0,
+   -150.0,
+   -96.0,
+   -2.0,
+   303.0,
+   338.0
+  ],
+  "src": "maxongroup.com 309687 (SOURCED 94 x 41 x 35 mm)",
+  "notes": "",
+  "qty": 1
+ },
+ {
+  "name": "E42_gap_fan_L",
+  "file": "E42_gap_fan_L.stl",
+  "group": "base",
+  "category": "purchased",
+  "material": "purchased",
+  "process": "purchased 40x40x20 mm 24 V fan (IP54 class) + finger guard, blows side bay -> front gap -> centre bay",
+  "color": [
+   0.1,
+   0.1,
+   0.11
+  ],
+  "explode": [
+   0.0,
+   120.0,
+   300.0
+  ],
+  "mass_kg": 0.03,
+  "com_mm": [
+   140.0,
+   121.0,
+   205.0
+  ],
+  "bbox_mm": [
+   120.0,
+   160.0,
+   111.0,
+   131.0,
+   185.0,
+   225.0
+  ],
+  "src": "",
+  "notes": "",
+  "qty": 1
+ },
+ {
+  "name": "E42_gap_fan_R",
+  "file": "E42_gap_fan_R.stl",
+  "group": "base",
+  "category": "purchased",
+  "material": "purchased",
+  "process": "purchased 40x40x20 mm 24 V fan (IP54 class) + finger guard, blows side bay -> front gap -> centre bay",
+  "color": [
+   0.1,
+   0.1,
+   0.11
+  ],
+  "explode": [
+   0.0,
+   -120.0,
+   300.0
+  ],
+  "mass_kg": 0.03,
+  "com_mm": [
+   140.0,
+   -121.0,
+   205.0
+  ],
+  "bbox_mm": [
+   120.0,
+   160.0,
+   -131.0,
+   -111.0,
+   185.0,
+   225.0
+  ],
+  "src": "",
+  "notes": "",
+  "qty": 1
+ },
+ {
+  "name": "E53_deck_grommet",
+  "file": "E53_deck_grommet.stl",
+  "group": "base",
+  "category": "purchased",
+  "material": "purchased",
+  "process": "purchased split cable-entry frame, >= 10 entries (icotek KEL-DPZ class, IP54)",
+  "color": [
+   0.08,
+   0.08,
+   0.09
+  ],
+  "explode": [
+   0.0,
+   0.0,
+   300.0
+  ],
+  "mass_kg": 0.1,
+  "com_mm": [
+   62.0,
+   -0.0,
+   356.0
+  ],
+  "bbox_mm": [
+   32.0,
+   92.0,
+   -55.0,
+   55.0,
+   353.0,
+   359.0
+  ],
+  "src": "",
+  "notes": "",
+  "qty": 1
+ },
+ {
+  "name": "E51_jetson_orin_nx_carrier",
+  "file": "E51_jetson_orin_nx_carrier.stl",
+  "group": "base",
+  "category": "purchased",
+  "material": "purchased",
+  "process": "purchased NVIDIA Jetson Orin NX 16 GB on fanned carrier (12 V), on 4 M4 standoffs on the deck",
+  "color": [
+   0.12,
+   0.12,
+   0.13
+  ],
+  "explode": [
+   0.0,
+   0.0,
+   420.0
+  ],
+  "mass_kg": 0.7,
+  "com_mm": [
+   -263.0,
+   -23.0,
+   383.0
+  ],
+  "bbox_mm": [
+   -318.0,
+   -208.0,
+   -78.0,
+   32.0,
+   353.0,
+   413.0
+  ],
+  "src": "ESTIMATE",
+  "notes": "",
+  "qty": 1
+ },
+ {
+  "name": "K06_jetson_cover",
+  "file": "K06_jetson_cover.stl",
+  "group": "base",
+  "category": "custom",
+  "material": "EN AW-5754-H22",
+  "process": "laser cut + bent 2 mm 5754, slotted louvres, powder coat RAL 9016; M4 x4 to the deck",
+  "color": [
+   0.92,
+   0.92,
+   0.9
+  ],
+  "explode": [
+   0.0,
+   0.0,
+   480.0
+  ],
+  "mass_kg": 0.224,
+  "com_mm": [
+   -263.1,
+   -23.0,
+   397.5
+  ],
+  "bbox_mm": [
+   -323.0,
+   -203.0,
+   -83.0,
+   37.0,
+   353.0,
+   421.0
+  ],
+  "src": "",
+  "notes": "clearance: P22 coffee upright 15 mm (y), column foot P29 63 mm (x), coffee housing SH06 53 mm (z)",
+  "qty": 1
+ },
+ {
+  "name": "S01_nanoScan3_ProIO_0",
+  "file": "S01_nanoScan3_ProIO_0.stl",
+  "group": "base",
+  "category": "purchased",
+  "material": "purchased",
+  "process": "purchased SICK nanoScan3 Pro I/O NANS3-CAAZ30AN1 (PL d, 128 field sets; no encoder inputs per datasheet)",
+  "color": [
+   0.95,
+   0.8,
+   0.1
+  ],
+  "explode": [
+   160.0,
+   -160.0,
+   0.0
+  ],
+  "mass_kg": 0.67,
+  "com_mm": [
+   290.0,
+   -208.0,
+   174.1
+  ],
+  "bbox_mm": [
+   218.2,
+   361.8,
+   -279.8,
+   -136.2,
+   134.0,
+   214.2
+  ],
+  "src": "sick.com (SOURCED)",
+  "notes": "",
+  "qty": 1
+ },
+ {
+  "name": "S01_nanoScan3_ProIO_1",
+  "file": "S01_nanoScan3_ProIO_1.stl",
+  "group": "base",
+  "category": "purchased",
+  "material": "purchased",
+  "process": "purchased SICK nanoScan3 Pro I/O NANS3-CAAZ30AN1 (PL d, 128 field sets; no encoder inputs per datasheet)",
+  "color": [
+   0.95,
+   0.8,
+   0.1
+  ],
+  "explode": [
+   -160.0,
+   160.0,
+   0.0
+  ],
+  "mass_kg": 0.67,
+  "com_mm": [
+   -290.0,
+   208.0,
+   174.1
+  ],
+  "bbox_mm": [
+   -361.8,
+   -218.2,
+   136.2,
+   279.8,
+   134.0,
+   214.2
+  ],
+  "src": "sick.com (SOURCED)",
+  "notes": "",
+  "qty": 1
+ },
+ {
+  "name": "E01_robopad_collector_RPCOL90",
+  "file": "E01_robopad_collector_RPCOL90.stl",
+  "group": "base",
+  "category": "purchased",
+  "material": "purchased",
+  "process": "purchased Roboteq RoboPad collector RPCOL90-100 (60 A cont., Hall docked sensor)",
+  "color": [
+   0.85,
+   0.45,
+   0.1
+  ],
+  "explode": [
+   -200.0,
+   0.0,
+   0.0
+  ],
+  "mass_kg": 0.3,
+  "com_mm": [
+   -367.0,
+   -137.0,
+   120.0
+  ],
+  "bbox_mm": [
+   -388.0,
+   -346.0,
+   -182.0,
+   -92.0,
+   92.0,
+   148.0
+  ],
+  "src": "Roboteq datasheet v1.3 (SOURCED)",
+  "notes": "",
+  "qty": 1
+ },
+ {
+  "name": "E02_estop_R",
+  "file": "E02_estop_R.stl",
+  "group": "base",
+  "category": "purchased",
+  "material": "purchased",
+  "process": "purchased Siemens 3SU1 E-stop + holder + 2x 3SU1400-1AA10-1CA0 NC (positive opening) + yellow enclosure plate; contact block envelope 30 x 40 x 40 behind the cover",
+  "color": [
+   0.85,
+   0.1,
+   0.1
+  ],
+  "explode": [
+   0.0,
+   -120.0,
+   0.0
+  ],
+  "mass_kg": 0.12,
+  "com_mm": [
+   60.0,
+   -277.4,
+   268.0
+  ],
+  "bbox_mm": [
+   40.0,
+   80.0,
+   -316.0,
+   -238.0,
+   248.0,
+   288.0
+  ],
+  "src": "",
+  "notes": "",
+  "qty": 1
+ },
+ {
+  "name": "E02_estop_L",
+  "file": "E02_estop_L.stl",
+  "group": "base",
+  "category": "purchased",
+  "material": "purchased",
+  "process": "purchased Siemens 3SU1 E-stop + holder + 2x 3SU1400-1AA10-1CA0 NC (positive opening) + yellow enclosure plate; contact block envelope 30 x 40 x 40 behind the cover",
+  "color": [
+   0.85,
+   0.1,
+   0.1
+  ],
+  "explode": [
+   0.0,
+   120.0,
+   0.0
+  ],
+  "mass_kg": 0.12,
+  "com_mm": [
+   60.0,
+   277.4,
+   268.0
+  ],
+  "bbox_mm": [
+   40.0,
+   80.0,
+   238.0,
+   316.0,
+   248.0,
+   288.0
+  ],
+  "src": "",
+  "notes": "",
+  "qty": 1
+ },
+ {
+  "name": "E03_service_disconnect_ED250B",
+  "file": "E03_service_disconnect_ED250B.stl",
+  "group": "base",
+  "category": "purchased",
+  "material": "purchased",
+  "process": "purchased Albright ED250B-L (with blowouts, 58 V) key-lockable service disconnect, key extension through the rear cover",
+  "color": [
+   0.85,
+   0.1,
+   0.1
+  ],
+  "explode": [
+   0.0,
+   160.0,
+   0.0
+  ],
+  "mass_kg": 0.6,
+  "com_mm": [
+   -305.0,
+   -175.0,
+   190.0
+  ],
+  "bbox_mm": [
+   -340.0,
+   -270.0,
+   -210.0,
+   -140.0,
+   145.0,
+   235.0
+  ],
+  "src": "albrightinternational.com (SOURCED)",
+  "notes": "",
+  "qty": 1
+ },
+ {
+  "name": "E0L_din_rail_lower_F",
+  "file": "E0L_din_rail_lower_F.stl",
+  "group": "base",
+  "category": "purchased",
+  "material": "purchased",
+  "process": "DIN rail TS35x7.5 EN 60715, M5 to the spine",
+  "color": [
+   0.7,
+   0.7,
+   0.72
+  ],
+  "explode": [
+   0.0,
+   260.0,
+   0.0
+  ],
+  "mass_kg": 0.046,
+  "com_mm": [
+   147.5,
+   140.8,
+   120.0
+  ],
+  "bbox_mm": [
+   100.0,
+   195.0,
+   137.0,
+   144.5,
+   102.5,
+   137.5
+  ],
+  "src": "",
+  "notes": "",
+  "qty": 1
+ },
+ {
+  "name": "E0L_din_rail_lower_R",
+  "file": "E0L_din_rail_lower_R.stl",
+  "group": "base",
+  "category": "purchased",
+  "material": "purchased",
+  "process": "DIN rail TS35x7.5 EN 60715, M5 to the spine",
+  "color": [
+   0.7,
+   0.7,
+   0.72
+  ],
+  "explode": [
+   0.0,
+   260.0,
+   0.0
+  ],
+  "mass_kg": 0.046,
+  "com_mm": [
+   -147.5,
+   140.8,
+   120.0
+  ],
+  "bbox_mm": [
+   -195.0,
+   -100.0,
+   137.0,
+   144.5,
+   102.5,
+   137.5
+  ],
+  "src": "",
+  "notes": "",
+  "qty": 1
+ },
+ {
+  "name": "E0L_din_rail_mid",
+  "file": "E0L_din_rail_mid.stl",
+  "group": "base",
+  "category": "purchased",
+  "material": "purchased",
+  "process": "DIN rail TS35x7.5 EN 60715, M5 to the spine",
+  "color": [
+   0.7,
+   0.7,
+   0.72
+  ],
+  "explode": [
+   0.0,
+   260.0,
+   0.0
+  ],
+  "mass_kg": 0.092,
+  "com_mm": [
+   0.0,
+   140.8,
+   245.0
+  ],
+  "bbox_mm": [
+   -95.0,
+   95.0,
+   137.0,
+   144.5,
+   227.5,
+   262.5
+  ],
+  "src": "",
+  "notes": "",
+  "qty": 1
+ },
+ {
+  "name": "E0L_din_rail_upper_F",
+  "file": "E0L_din_rail_upper_F.stl",
+  "group": "base",
+  "category": "purchased",
+  "material": "purchased",
+  "process": "DIN rail TS35x7.5 EN 60715, M5 to the spine",
+  "color": [
+   0.7,
+   0.7,
+   0.72
+  ],
+  "explode": [
+   0.0,
+   260.0,
+   0.0
+  ],
+  "mass_kg": 0.046,
+  "com_mm": [
+   147.5,
+   140.8,
+   275.0
+  ],
+  "bbox_mm": [
+   100.0,
+   195.0,
+   137.0,
+   144.5,
+   257.5,
+   292.5
+  ],
+  "src": "",
+  "notes": "",
+  "qty": 1
+ },
+ {
+  "name": "E0L_din_rail_upper_R",
+  "file": "E0L_din_rail_upper_R.stl",
+  "group": "base",
+  "category": "purchased",
+  "material": "purchased",
+  "process": "DIN rail TS35x7.5, M5 to the spine + bracket A08",
+  "color": [
+   0.7,
+   0.7,
+   0.72
+  ],
+  "explode": [
+   0.0,
+   260.0,
+   0.0
+  ],
+  "mass_kg": 0.097,
+  "com_mm": [
+   -197.5,
+   140.8,
+   275.0
+  ],
+  "bbox_mm": [
+   -298.0,
+   -97.0,
+   137.0,
+   144.5,
+   257.5,
+   292.5
+  ],
+  "src": "",
+  "notes": "",
+  "qty": 1
+ },
+ {
+  "name": "E0L_din_rail_corner_FL",
+  "file": "E0L_din_rail_corner_FL.stl",
+  "group": "base",
+  "category": "purchased",
+  "material": "purchased",
+  "process": "DIN rail TS35x7.5, M5 to the spine end + A06",
+  "color": [
+   0.7,
+   0.7,
+   0.72
+  ],
+  "explode": [
+   60.0,
+   260.0,
+   0.0
+  ],
+  "mass_kg": 0.047,
+  "com_mm": [
+   250.0,
+   140.8,
+   217.0
+  ],
+  "bbox_mm": [
+   202.0,
+   298.0,
+   137.0,
+   144.5,
+   199.5,
+   234.5
+  ],
+  "src": "",
+  "notes": "",
+  "qty": 1
+ },
+ {
+  "name": "E0R_din_rail_lower_F",
+  "file": "E0R_din_rail_lower_F.stl",
+  "group": "base",
+  "category": "purchased",
+  "material": "purchased",
+  "process": "DIN rail TS35x7.5 EN 60715, M5 to the spine",
+  "color": [
+   0.7,
+   0.7,
+   0.72
+  ],
+  "explode": [
+   0.0,
+   -260.0,
+   0.0
+  ],
+  "mass_kg": 0.046,
+  "com_mm": [
+   147.5,
+   -140.8,
+   120.0
+  ],
+  "bbox_mm": [
+   100.0,
+   195.0,
+   -144.5,
+   -137.0,
+   102.5,
+   137.5
+  ],
+  "src": "",
+  "notes": "",
+  "qty": 1
+ },
+ {
+  "name": "E0R_din_rail_lower_R",
+  "file": "E0R_din_rail_lower_R.stl",
+  "group": "base",
+  "category": "purchased",
+  "material": "purchased",
+  "process": "DIN rail TS35x7.5 EN 60715, M5 to the spine",
+  "color": [
+   0.7,
+   0.7,
+   0.72
+  ],
+  "explode": [
+   0.0,
+   -260.0,
+   0.0
+  ],
+  "mass_kg": 0.046,
+  "com_mm": [
+   -145.5,
+   -140.8,
+   120.0
+  ],
+  "bbox_mm": [
+   -193.0,
+   -98.0,
+   -144.5,
+   -137.0,
+   102.5,
+   137.5
+  ],
+  "src": "",
+  "notes": "",
+  "qty": 1
+ },
+ {
+  "name": "E0R_din_rail_upper",
+  "file": "E0R_din_rail_upper.stl",
+  "group": "base",
+  "category": "purchased",
+  "material": "purchased",
+  "process": "DIN rail TS35x7.5 EN 60715, M5 to the spine",
+  "color": [
+   0.7,
+   0.7,
+   0.72
+  ],
+  "explode": [
+   0.0,
+   -260.0,
+   0.0
+  ],
+  "mass_kg": 0.224,
+  "com_mm": [
+   29.5,
+   -140.8,
+   275.0
+  ],
+  "bbox_mm": [
+   -202.0,
+   261.0,
+   -144.5,
+   -137.0,
+   257.5,
+   292.5
+  ],
+  "src": "",
+  "notes": "",
+  "qty": 1
+ },
+ {
+  "name": "E0R_din_rail_corner_RR",
+  "file": "E0R_din_rail_corner_RR.stl",
+  "group": "base",
+  "category": "purchased",
+  "material": "purchased",
+  "process": "DIN rail TS35x7.5, M5 to the spine end + A07",
+  "color": [
+   0.7,
+   0.7,
+   0.72
+  ],
+  "explode": [
+   -60.0,
+   -260.0,
+   0.0
+  ],
+  "mass_kg": 0.03,
+  "com_mm": [
+   -234.0,
+   -140.8,
+   220.0
+  ],
+  "bbox_mm": [
+   -265.0,
+   -203.0,
+   -144.5,
+   -137.0,
+   202.5,
+   237.5
+  ],
+  "src": "",
+  "notes": "",
+  "qty": 1
+ },
+ {
+  "name": "E13_U1_dcdc_DDR480C24",
+  "file": "E13_U1_dcdc_DDR480C24.stl",
+  "group": "base",
+  "category": "purchased",
+  "material": "purchased",
+  "process": "purchased DIN module (amr/electrical/din_layout.md, netlist_amr.yaml)",
+  "color": [
+   0.78,
+   0.78,
+   0.8
+  ],
+  "explode": [
+   0.0,
+   260.0,
+   0.0
+  ],
+  "mass_kg": 1.375,
+  "com_mm": [
+   147.8,
+   209.1,
+   120.0
+  ],
+  "bbox_mm": [
+   105.0,
+   190.5,
+   144.5,
+   273.7,
+   57.4,
+   182.6
+  ],
+  "src": "",
+  "notes": "",
+  "qty": 1
+ },
+ {
+  "name": "E14_U2_dcdc_DDR480C24",
+  "file": "E14_U2_dcdc_DDR480C24.stl",
+  "group": "base",
+  "category": "purchased",
+  "material": "purchased",
+  "process": "purchased DIN module (amr/electrical/din_layout.md, netlist_amr.yaml)",
+  "color": [
+   0.78,
+   0.78,
+   0.8
+  ],
+  "explode": [
+   0.0,
+   260.0,
+   0.0
+  ],
+  "mass_kg": 1.375,
+  "com_mm": [
+   -147.8,
+   209.1,
+   120.0
+  ],
+  "bbox_mm": [
+   -190.5,
+   -105.0,
+   144.5,
+   273.7,
+   57.4,
+   182.6
+  ],
+  "src": "",
+  "notes": "",
+  "qty": 1
+ },
+ {
+  "name": "E12_K0P_precharge_relay",
+  "file": "E12_K0P_precharge_relay.stl",
+  "group": "base",
+  "category": "purchased",
+  "material": "purchased",
+  "process": "purchased DIN module (amr/electrical/din_layout.md, netlist_amr.yaml)",
+  "color": [
+   0.25,
+   0.25,
+   0.28
+  ],
+  "explode": [
+   0.0,
+   260.0,
+   0.0
+  ],
+  "mass_kg": 0.1,
+  "com_mm": [
+   -85.2,
+   179.5,
+   245.0
+  ],
+  "bbox_mm": [
+   -94.0,
+   -76.5,
+   144.5,
+   214.5,
+   200.0,
+   290.0
+  ],
+  "src": "",
+  "notes": "Finder 22.32 + Arcol HS50 47R on the spine below the rail",
+  "qty": 1
+ },
+ {
+  "name": "E11_K0_contactor_SW80B_on_plate",
+  "file": "E11_K0_contactor_SW80B_on_plate.stl",
+  "group": "base",
+  "category": "purchased",
+  "material": "purchased",
+  "process": "purchased DIN module (amr/electrical/din_layout.md, netlist_amr.yaml)",
+  "color": [
+   0.85,
+   0.12,
+   0.1
+  ],
+  "explode": [
+   0.0,
+   260.0,
+   0.0
+  ],
+  "mass_kg": 0.9,
+  "com_mm": [
+   -39.5,
+   192.0,
+   245.0
+  ],
+  "bbox_mm": [
+   -74.5,
+   -4.5,
+   144.5,
+   239.5,
+   190.0,
+   300.0
+  ],
+  "src": "",
+  "notes": "D0 freewheel diode on the coil spades",
+  "qty": 1
+ },
+ {
+  "name": "E10_F0_fuse_NH00_100A",
+  "file": "E10_F0_fuse_NH00_100A.stl",
+  "group": "base",
+  "category": "purchased",
+  "material": "purchased",
+  "process": "purchased DIN module (amr/electrical/din_layout.md, netlist_amr.yaml)",
+  "color": [
+   0.25,
+   0.25,
+   0.28
+  ],
+  "explode": [
+   0.0,
+   260.0,
+   0.0
+  ],
+  "mass_kg": 0.4,
+  "com_mm": [
+   17.5,
+   189.5,
+   245.0
+  ],
+  "bbox_mm": [
+   -2.5,
+   37.5,
+   144.5,
+   234.5,
+   182.5,
+   307.5
+  ],
+  "src": "",
+  "notes": "central: H01 = H02 in length (805-0027 s.9.7)",
+  "qty": 1
+ },
+ {
+  "name": "E58_U6_DDR60L5",
+  "file": "E58_U6_DDR60L5.stl",
+  "group": "base",
+  "category": "purchased",
+  "material": "purchased",
+  "process": "purchased Mean Well DDR-60L-5 (head 5 V), vertical, input terminals down",
+  "color": [
+   0.78,
+   0.78,
+   0.8
+  ],
+  "explode": [
+   0.0,
+   260.0,
+   0.0
+  ],
+  "mass_kg": 0.3,
+  "com_mm": [
+   68.8,
+   171.8,
+   245.0
+  ],
+  "bbox_mm": [
+   42.5,
+   95.0,
+   144.5,
+   199.0,
+   200.0,
+   290.0
+  ],
+  "src": "DDR-60 spec (SOURCED 52.5 x 90 x 54.5)",
+  "notes": "rev B3: from the centre bay; keep-out 180..330 = SWD housing top .. 8 mm under the deck",
+  "qty": 1
+ },
+ {
+  "name": "E31_F8LR_SWD_fuses",
+  "file": "E31_F8LR_SWD_fuses.stl",
+  "group": "base",
+  "category": "purchased",
+  "material": "purchased",
+  "process": "purchased DIN module (amr/electrical/din_layout.md, netlist_amr.yaml)",
+  "color": [
+   0.25,
+   0.25,
+   0.28
+  ],
+  "explode": [
+   0.0,
+   260.0,
+   0.0
+  ],
+  "mass_kg": 0.1,
+  "com_mm": [
+   118.5,
+   179.5,
+   275.0
+  ],
+  "bbox_mm": [
+   101.0,
+   136.0,
+   144.5,
+   214.5,
+   234.0,
+   316.0
+  ],
+  "src": "",
+  "notes": "",
+  "qty": 1
+ },
+ {
+  "name": "E32_T24_terminals",
+  "file": "E32_T24_terminals.stl",
+  "group": "base",
+  "category": "purchased",
+  "material": "purchased",
+  "process": "purchased DIN module (amr/electrical/din_layout.md, netlist_amr.yaml)",
+  "color": [
+   0.25,
+   0.25,
+   0.28
+  ],
+  "explode": [
+   0.0,
+   260.0,
+   0.0
+  ],
+  "mass_kg": 0.1,
+  "com_mm": [
+   150.0,
+   169.5,
+   275.0
+  ],
+  "bbox_mm": [
+   138.0,
+   162.0,
+   144.5,
+   194.5,
+   245.0,
+   305.0
+  ],
+  "src": "",
+  "notes": "",
+  "qty": 1
+ },
+ {
+  "name": "E19_0V_block",
+  "file": "E19_0V_block.stl",
+  "group": "base",
+  "category": "purchased",
+  "material": "purchased",
+  "process": "purchased DIN module (amr/electrical/din_layout.md, netlist_amr.yaml)",
+  "color": [
+   0.25,
+   0.25,
+   0.28
+  ],
+  "explode": [
+   0.0,
+   260.0,
+   0.0
+  ],
+  "mass_kg": 0.1,
+  "com_mm": [
+   177.5,
+   169.5,
+   275.0
+  ],
+  "bbox_mm": [
+   164.0,
+   191.0,
+   144.5,
+   194.5,
+   245.0,
+   305.0
+  ],
+  "src": "",
+  "notes": "",
+  "qty": 1
+ },
+ {
+  "name": "E2F_WF1-3_AUX48_fuses",
+  "file": "E2F_WF1-3_AUX48_fuses.stl",
+  "group": "base",
+  "category": "purchased",
+  "material": "purchased",
+  "process": "purchased DIN module (amr/electrical/din_layout.md, netlist_amr.yaml)",
+  "color": [
+   0.25,
+   0.25,
+   0.28
+  ],
+  "explode": [
+   0.0,
+   260.0,
+   0.0
+  ],
+  "mass_kg": 0.15,
+  "com_mm": [
+   -269.8,
+   179.5,
+   275.0
+  ],
+  "bbox_mm": [
+   -296.0,
+   -243.5,
+   144.5,
+   214.5,
+   234.0,
+   316.0
+  ],
+  "src": "",
+  "notes": "rev B3: on the left upper rail next to F2/E18 (din_layout.md s.0 item 2)",
+  "qty": 1
+ },
+ {
+  "name": "E18_branch_fuses_10x38_x6",
+  "file": "E18_branch_fuses_10x38_x6.stl",
+  "group": "base",
+  "category": "purchased",
+  "material": "purchased",
+  "process": "purchased DIN module (amr/electrical/din_layout.md, netlist_amr.yaml)",
+  "color": [
+   0.25,
+   0.25,
+   0.28
+  ],
+  "explode": [
+   0.0,
+   260.0,
+   0.0
+  ],
+  "mass_kg": 0.3,
+  "com_mm": [
+   -186.5,
+   179.5,
+   275.0
+  ],
+  "bbox_mm": [
+   -241.5,
+   -131.5,
+   144.5,
+   214.5,
+   234.0,
+   316.0
+  ],
+  "src": "",
+  "notes": "",
+  "qty": 1
+ },
+ {
+  "name": "E17_K0T_timer_Finder80",
+  "file": "E17_K0T_timer_Finder80.stl",
+  "group": "base",
+  "category": "purchased",
+  "material": "purchased",
+  "process": "purchased DIN module (amr/electrical/din_layout.md, netlist_amr.yaml)",
+  "color": [
+   0.25,
+   0.25,
+   0.28
+  ],
+  "explode": [
+   0.0,
+   260.0,
+   0.0
+  ],
+  "mass_kg": 0.1,
+  "com_mm": [
+   -120.8,
+   179.5,
+   275.0
+  ],
+  "bbox_mm": [
+   -129.5,
+   -112.0,
+   144.5,
+   214.5,
+   230.0,
+   320.0
+  ],
+  "src": "",
+  "notes": "",
+  "qty": 1
+ },
+ {
+  "name": "E54_U7_DDR480C24_coffee",
+  "file": "E54_U7_DDR480C24_coffee.stl",
+  "group": "base",
+  "category": "purchased",
+  "material": "purchased",
+  "process": "purchased DIN module (amr/electrical/din_layout.md, netlist_amr.yaml)",
+  "color": [
+   0.78,
+   0.78,
+   0.8
+  ],
+  "explode": [
+   60.0,
+   260.0,
+   0.0
+  ],
+  "mass_kg": 1.375,
+  "com_mm": [
+   247.7,
+   209.1,
+   217.0
+  ],
+  "bbox_mm": [
+   205.0,
+   290.5,
+   144.5,
+   273.7,
+   154.4,
+   279.6
+  ],
+  "src": "",
+  "notes": "front-left corner above the castor tower (no scanner here); keep-out below = tower roof top z 134",
+  "qty": 1
+ },
+ {
+  "name": "E2G_U5_DDR120C12",
+  "file": "E2G_U5_DDR120C12.stl",
+  "group": "base",
+  "category": "purchased",
+  "material": "purchased",
+  "process": "purchased DIN module (amr/electrical/din_layout.md, netlist_amr.yaml)",
+  "color": [
+   0.78,
+   0.78,
+   0.8
+  ],
+  "explode": [
+   0.0,
+   -260.0,
+   0.0
+  ],
+  "mass_kg": 0.5,
+  "com_mm": [
+   -174.0,
+   -195.5,
+   120.0
+  ],
+  "bbox_mm": [
+   -190.0,
+   -158.0,
+   -246.5,
+   -144.5,
+   57.4,
+   182.6
+  ],
+  "src": "",
+  "notes": "rev B3: right LOW rear (x >= -190.6 = RR swivel keep-out at the module bottom z 57.4)",
+  "qty": 1
+ },
+ {
+  "name": "E15_U4_dcdc_DDR240C24_S24",
+  "file": "E15_U4_dcdc_DDR240C24_S24.stl",
+  "group": "base",
+  "category": "purchased",
+  "material": "purchased",
+  "process": "purchased DIN module (amr/electrical/din_layout.md, netlist_amr.yaml)",
+  "color": [
+   0.78,
+   0.78,
+   0.8
+  ],
+  "explode": [
+   0.0,
+   -260.0,
+   0.0
+  ],
+  "mass_kg": 0.6,
+  "com_mm": [
+   -133.0,
+   -201.2,
+   120.0
+  ],
+  "bbox_mm": [
+   -153.0,
+   -113.0,
+   -258.0,
+   -144.5,
+   57.4,
+   182.6
+  ],
+  "src": "",
+  "notes": "",
+  "qty": 1
+ },
+ {
+  "name": "E37_KS_signature_relay",
+  "file": "E37_KS_signature_relay.stl",
+  "group": "base",
+  "category": "purchased",
+  "material": "purchased",
+  "process": "purchased DIN module (amr/electrical/din_layout.md, netlist_amr.yaml)",
+  "color": [
+   0.25,
+   0.25,
+   0.28
+  ],
+  "explode": [
+   0.0,
+   -260.0,
+   0.0
+  ],
+  "mass_kg": 0.04,
+  "com_mm": [
+   -102.9,
+   -179.5,
+   120.0
+  ],
+  "bbox_mm": [
+   -106.0,
+   -99.8,
+   -214.5,
+   -144.5,
+   75.0,
+   165.0
+  ],
+  "src": "",
+  "notes": "",
+  "qty": 1
+ },
+ {
+  "name": "E50_dcdc_arm_R_DDR480C24",
+  "file": "E50_dcdc_arm_R_DDR480C24.stl",
+  "group": "base",
+  "category": "purchased",
+  "material": "purchased",
+  "process": "purchased Mean Well DDR-480C-24 (arm R 24 V bus, OpenArm variant), vertical, input terminals down",
+  "color": [
+   0.78,
+   0.78,
+   0.8
+  ],
+  "explode": [
+   0.0,
+   -260.0,
+   0.0
+  ],
+  "mass_kg": 1.375,
+  "com_mm": [
+   147.8,
+   -209.1,
+   120.0
+  ],
+  "bbox_mm": [
+   105.0,
+   190.5,
+   -273.7,
+   -144.5,
+   57.4,
+   182.6
+  ],
+  "src": "",
+  "notes": "moved out of the centre bay (only one DDR-480 fits there under the Mean Well rule)",
+  "qty": 1
+ },
+ {
+  "name": "E34_U8_ideal_diode_DRDN40-48",
+  "file": "E34_U8_ideal_diode_DRDN40-48.stl",
+  "group": "base",
+  "category": "purchased",
+  "material": "purchased",
+  "process": "purchased DIN module (amr/electrical/din_layout.md, netlist_amr.yaml)",
+  "color": [
+   0.78,
+   0.78,
+   0.8
+  ],
+  "explode": [
+   -60.0,
+   -260.0,
+   0.0
+  ],
+  "mass_kg": 0.3,
+  "com_mm": [
+   -234.5,
+   -194.5,
+   220.0
+  ],
+  "bbox_mm": [
+   -262.0,
+   -207.0,
+   -244.5,
+   -144.5,
+   157.4,
+   282.6
+  ],
+  "src": "",
+  "notes": "rev B3: rear-right corner above the tower roof (was inside the RR swivel keep-out); H06a from E01 < 0.5 m",
+  "qty": 1
+ },
+ {
+  "name": "E2C_K1_contactor_3RT2026",
+  "file": "E2C_K1_contactor_3RT2026.stl",
+  "group": "base",
+  "category": "purchased",
+  "material": "purchased",
+  "process": "purchased DIN module (amr/electrical/din_layout.md, netlist_amr.yaml)",
+  "color": [
+   0.85,
+   0.12,
+   0.1
+  ],
+  "explode": [
+   0.0,
+   -260.0,
+   0.0
+  ],
+  "mass_kg": 0.4,
+  "com_mm": [
+   -177.5,
+   -198.0,
+   275.0
+  ],
+  "bbox_mm": [
+   -200.0,
+   -155.0,
+   -251.5,
+   -144.5,
+   232.5,
+   317.5
+  ],
+  "src": "",
+  "notes": "",
+  "qty": 1
+ },
+ {
+  "name": "E2D_K2_contactor_3RT2026",
+  "file": "E2D_K2_contactor_3RT2026.stl",
+  "group": "base",
+  "category": "purchased",
+  "material": "purchased",
+  "process": "purchased DIN module (amr/electrical/din_layout.md, netlist_amr.yaml)",
+  "color": [
+   0.85,
+   0.12,
+   0.1
+  ],
+  "explode": [
+   0.0,
+   -260.0,
+   0.0
+  ],
+  "mass_kg": 0.4,
+  "com_mm": [
+   -130.5,
+   -198.0,
+   275.0
+  ],
+  "bbox_mm": [
+   -153.0,
+   -108.0,
+   -251.5,
+   -144.5,
+   232.5,
+   317.5
+  ],
+  "src": "",
+  "notes": "",
+  "qty": 1
+ },
+ {
+  "name": "E2L_FJ_fuse_Jetson12V",
+  "file": "E2L_FJ_fuse_Jetson12V.stl",
+  "group": "base",
+  "category": "purchased",
+  "material": "purchased",
+  "process": "purchased DIN module (amr/electrical/din_layout.md, netlist_amr.yaml)",
+  "color": [
+   0.25,
+   0.25,
+   0.28
+  ],
+  "explode": [
+   0.0,
+   -260.0,
+   0.0
+  ],
+  "mass_kg": 0.15,
+  "com_mm": [
+   -97.3,
+   -179.5,
+   275.0
+  ],
+  "bbox_mm": [
+   -106.0,
+   -88.5,
+   -214.5,
+   -144.5,
+   234.0,
+   316.0
+  ],
+  "src": "",
+  "notes": "",
+  "qty": 1
+ },
+ {
+  "name": "E33_F7_charge_fuse",
+  "file": "E33_F7_charge_fuse.stl",
+  "group": "base",
+  "category": "purchased",
+  "material": "purchased",
+  "process": "purchased DIN module (amr/electrical/din_layout.md, netlist_amr.yaml)",
+  "color": [
+   0.25,
+   0.25,
+   0.28
+  ],
+  "explode": [
+   0.0,
+   -260.0,
+   0.0
+  ],
+  "mass_kg": 0.15,
+  "com_mm": [
+   -77.8,
+   -179.5,
+   275.0
+  ],
+  "bbox_mm": [
+   -86.5,
+   -69.0,
+   -214.5,
+   -144.5,
+   234.0,
+   316.0
+  ],
+  "src": "",
+  "notes": "",
+  "qty": 1
+ },
+ {
+  "name": "E35_RSIG_X0R",
+  "file": "E35_RSIG_X0R.stl",
+  "group": "base",
+  "category": "purchased",
+  "material": "purchased",
+  "process": "purchased DIN module (amr/electrical/din_layout.md, netlist_amr.yaml)",
+  "color": [
+   0.25,
+   0.25,
+   0.28
+  ],
+  "explode": [
+   0.0,
+   -260.0,
+   0.0
+  ],
+  "mass_kg": 0.15,
+  "com_mm": [
+   -56.0,
+   -169.5,
+   275.0
+  ],
+  "bbox_mm": [
+   -67.0,
+   -45.0,
+   -194.5,
+   -144.5,
+   245.0,
+   305.0
+  ],
+  "src": "",
+  "notes": "",
+  "qty": 1
+ },
+ {
+  "name": "E27_XS24_terminals_RB1-7",
+  "file": "E27_XS24_terminals_RB1-7.stl",
+  "group": "base",
+  "category": "purchased",
+  "material": "purchased",
+  "process": "purchased DIN module (amr/electrical/din_layout.md, netlist_amr.yaml)",
+  "color": [
+   0.25,
+   0.25,
+   0.28
+  ],
+  "explode": [
+   0.0,
+   -260.0,
+   0.0
+  ],
+  "mass_kg": 0.15,
+  "com_mm": [
+   -3.0,
+   -169.5,
+   275.0
+  ],
+  "bbox_mm": [
+   -43.0,
+   37.0,
+   -194.5,
+   -144.5,
+   245.0,
+   305.0
+  ],
+  "src": "",
+  "notes": "",
+  "qty": 1
+ },
+ {
+  "name": "E2J_KI4_interposing_relay",
+  "file": "E2J_KI4_interposing_relay.stl",
+  "group": "base",
+  "category": "purchased",
+  "material": "purchased",
+  "process": "purchased DIN module (amr/electrical/din_layout.md, netlist_amr.yaml)",
+  "color": [
+   0.25,
+   0.25,
+   0.28
+  ],
+  "explode": [
+   0.0,
+   -260.0,
+   0.0
+  ],
+  "mass_kg": 0.15,
+  "com_mm": [
+   42.1,
+   -184.5,
+   275.0
+  ],
+  "bbox_mm": [
+   39.0,
+   45.2,
+   -224.5,
+   -144.5,
+   230.0,
+   320.0
+  ],
+  "src": "",
+  "notes": "Phoenix PLC-RSC-24DC/21 6.2 mm: K4 coil 92 mA > 75 mA PNOZ auxiliary output",
+  "qty": 1
+ },
+ {
+  "name": "E25_NET1_switch_FL1008N",
+  "file": "E25_NET1_switch_FL1008N.stl",
+  "group": "base",
+  "category": "purchased",
+  "material": "purchased",
+  "process": "purchased DIN module (amr/electrical/din_layout.md, netlist_amr.yaml)",
+  "color": [
+   0.25,
+   0.25,
+   0.28
+  ],
+  "explode": [
+   0.0,
+   -260.0,
+   0.0
+  ],
+  "mass_kg": 0.3,
+  "com_mm": [
+   67.2,
+   -189.5,
+   275.0
+  ],
+  "bbox_mm": [
+   47.2,
+   87.2,
+   -234.5,
+   -144.5,
+   220.0,
+   330.0
+  ],
+  "src": "",
+  "notes": "",
+  "qty": 1
+ },
+ {
+  "name": "E2K_K0V_LVCO_relay_DUB01CD48500V",
+  "file": "E2K_K0V_LVCO_relay_DUB01CD48500V.stl",
+  "group": "base",
+  "category": "purchased",
+  "material": "purchased",
+  "process": "purchased DIN module (amr/electrical/din_layout.md, netlist_amr.yaml)",
+  "color": [
+   0.25,
+   0.25,
+   0.28
+  ],
+  "explode": [
+   0.0,
+   -260.0,
+   0.0
+  ],
+  "mass_kg": 0.15,
+  "com_mm": [
+   100.5,
+   -194.2,
+   275.0
+  ],
+  "bbox_mm": [
+   89.2,
+   111.7,
+   -244.0,
+   -144.5,
+   235.0,
+   315.0
+  ],
+  "src": "",
+  "notes": "Carlo Gavazzi DUB01CD48500V, 22.5 x 80 x 99.5 mm (SOURCED datasheet 2025-03-03)",
+  "qty": 1
+ },
+ {
+  "name": "E20_SC1_PNOZ_m_ES_ETH",
+  "file": "E20_SC1_PNOZ_m_ES_ETH.stl",
+  "group": "base",
+  "category": "purchased",
+  "material": "purchased",
+  "process": "purchased DIN module (amr/electrical/din_layout.md, netlist_amr.yaml)",
+  "color": [
+   0.95,
+   0.8,
+   0.1
+  ],
+  "explode": [
+   0.0,
+   -260.0,
+   0.0
+  ],
+  "mass_kg": 0.2,
+  "com_mm": [
+   125.0,
+   -204.5,
+   275.0
+  ],
+  "bbox_mm": [
+   113.7,
+   136.2,
+   -264.5,
+   -144.5,
+   224.3,
+   325.7
+  ],
+  "src": "",
+  "notes": "",
+  "qty": 1
+ },
+ {
+  "name": "E21_SC0_PNOZ_m_B0",
+  "file": "E21_SC0_PNOZ_m_B0.stl",
+  "group": "base",
+  "category": "purchased",
+  "material": "purchased",
+  "process": "purchased DIN module (amr/electrical/din_layout.md, netlist_amr.yaml)",
+  "color": [
+   0.95,
+   0.8,
+   0.1
+  ],
+  "explode": [
+   0.0,
+   -260.0,
+   0.0
+  ],
+  "mass_kg": 0.235,
+  "com_mm": [
+   158.7,
+   -204.5,
+   275.0
+  ],
+  "bbox_mm": [
+   136.2,
+   181.2,
+   -264.5,
+   -144.5,
+   224.3,
+   325.7
+  ],
+  "src": "",
+  "notes": "",
+  "qty": 1
+ },
+ {
+  "name": "E2H_SR1_PNOZ_m_EF_4DI4DOR",
+  "file": "E2H_SR1_PNOZ_m_EF_4DI4DOR.stl",
+  "group": "base",
+  "category": "purchased",
+  "material": "purchased",
+  "process": "purchased DIN module (amr/electrical/din_layout.md, netlist_amr.yaml)",
+  "color": [
+   0.95,
+   0.8,
+   0.1
+  ],
+  "explode": [
+   0.0,
+   -260.0,
+   0.0
+  ],
+  "mass_kg": 0.2,
+  "com_mm": [
+   192.5,
+   -204.5,
+   275.0
+  ],
+  "bbox_mm": [
+   181.2,
+   203.7,
+   -264.5,
+   -144.5,
+   224.3,
+   325.7
+  ],
+  "src": "",
+  "notes": "SR1: SWD STO_1/2 + INSafe_1/2 relay contacts",
+  "qty": 1
+ },
+ {
+  "name": "E2I_SR2_PNOZ_m_EF_4DI4DOR",
+  "file": "E2I_SR2_PNOZ_m_EF_4DI4DOR.stl",
+  "group": "base",
+  "category": "purchased",
+  "material": "purchased",
+  "process": "purchased DIN module (amr/electrical/din_layout.md, netlist_amr.yaml)",
+  "color": [
+   0.95,
+   0.8,
+   0.1
+  ],
+  "explode": [
+   0.0,
+   -260.0,
+   0.0
+  ],
+  "mass_kg": 0.2,
+  "com_mm": [
+   214.9,
+   -204.5,
+   275.0
+  ],
+  "bbox_mm": [
+   203.7,
+   226.2,
+   -264.5,
+   -144.5,
+   224.3,
+   325.7
+  ],
+  "src": "",
+  "notes": "SR2: scanner CI1-CI3 relay contacts",
+  "qty": 1
+ },
+ {
+  "name": "E38b_LYNK_bracket",
+  "file": "E38b_LYNK_bracket.stl",
+  "group": "base",
+  "category": "custom",
+  "material": "EN AW-5754-H22",
+  "process": "laser cut + bent 2 mm 5754, M4 x4 to the deck underside, 4 x M4 for the gateway",
+  "color": [
+   0.8,
+   0.81,
+   0.83
+  ],
+  "explode": [
+   0.0,
+   -320.0,
+   0.0
+  ],
+  "mass_kg": 0.129,
+  "com_mm": [
+   -25.0,
+   -236.9,
+   290.1
+  ],
+  "bbox_mm": [
+   -95.0,
+   45.0,
+   -276.0,
+   -230.0,
+   210.0,
+   338.0
+  ],
+  "src": "",
+  "notes": "",
+  "qty": 1
+ },
+ {
+  "name": "E38_G01_LYNK_II_gateway",
+  "file": "E38_G01_LYNK_II_gateway.stl",
+  "group": "base",
+  "category": "purchased",
+  "material": "purchased",
+  "process": "purchased Discover LYNK II Communication Gateway 950-0025, 120 x 135 x 44 mm (sell sheet 885-0035 p.2), on bracket E38b",
+  "color": [
+   0.15,
+   0.15,
+   0.17
+  ],
+  "explode": [
+   0.0,
+   -340.0,
+   0.0
+  ],
+  "mass_kg": 0.4,
+  "com_mm": [
+   -25.0,
+   -254.0,
+   274.0
+  ],
+  "bbox_mm": [
+   -92.5,
+   42.5,
+   -276.0,
+   -232.0,
+   214.0,
+   334.0
+  ],
+  "src": "Discover 885-0035 (SOURCED size; mass ESTIMATE)",
+  "notes": "",
+  "qty": 1
+ },
+ {
+  "name": "E40_fan_Lin",
+  "file": "E40_fan_Lin.stl",
+  "group": "base",
+  "category": "purchased",
+  "material": "purchased",
+  "process": "purchased 60x60x25 mm 24 V IP54 fan + filter grille, intake (side cover, above the wheel arch)",
+  "color": [
+   0.1,
+   0.1,
+   0.11
+  ],
+  "explode": [
+   0.0,
+   200.0,
+   0.0
+  ],
+  "mass_kg": 0.12,
+  "com_mm": [
+   -0.0,
+   265.5,
+   180.0
+  ],
+  "bbox_mm": [
+   -30.0,
+   30.0,
+   253.0,
+   278.0,
+   150.0,
+   210.0
+  ],
+  "src": "",
+  "notes": "",
+  "qty": 1
+ },
+ {
+  "name": "E40_fan_Lout",
+  "file": "E40_fan_Lout.stl",
+  "group": "base",
+  "category": "purchased",
+  "material": "purchased",
+  "process": "purchased 60x60x25 mm 24 V IP54 fan + filter grille, exhaust high (rear cover)",
+  "color": [
+   0.1,
+   0.1,
+   0.11
+  ],
+  "explode": [
+   -200.0,
+   0.0,
+   0.0
+  ],
+  "mass_kg": 0.12,
+  "com_mm": [
+   -375.5,
+   152.0,
+   265.0
+  ],
+  "bbox_mm": [
+   -388.0,
+   -363.0,
+   122.0,
+   182.0,
+   235.0,
+   295.0
+  ],
+  "src": "",
+  "notes": "",
+  "qty": 1
+ },
+ {
+  "name": "E40_fan_Rin",
+  "file": "E40_fan_Rin.stl",
+  "group": "base",
+  "category": "purchased",
+  "material": "purchased",
+  "process": "purchased 60x60x25 mm 24 V IP54 fan + filter grille, intake (side cover, above the wheel arch)",
+  "color": [
+   0.1,
+   0.1,
+   0.11
+  ],
+  "explode": [
+   0.0,
+   -200.0,
+   0.0
+  ],
+  "mass_kg": 0.12,
+  "com_mm": [
+   -0.0,
+   -265.5,
+   180.0
+  ],
+  "bbox_mm": [
+   -30.0,
+   30.0,
+   -278.0,
+   -253.0,
+   150.0,
+   210.0
+  ],
+  "src": "",
+  "notes": "",
+  "qty": 1
+ },
+ {
+  "name": "E40_fan_Rout",
+  "file": "E40_fan_Rout.stl",
+  "group": "base",
+  "category": "purchased",
+  "material": "purchased",
+  "process": "purchased 60x60x25 mm 24 V IP54 fan + filter grille, exhaust high (rear cover)",
+  "color": [
+   0.1,
+   0.1,
+   0.11
+  ],
+  "explode": [
+   -200.0,
+   0.0,
+   0.0
+  ],
+  "mass_kg": 0.12,
+  "com_mm": [
+   -375.5,
+   -152.0,
+   265.0
+  ],
+  "bbox_mm": [
+   -388.0,
+   -363.0,
+   -182.0,
+   -122.0,
+   235.0,
+   295.0
+  ],
+  "src": "",
+  "notes": "",
+  "qty": 1
+ },
+ {
+  "name": "E41_SB1_reset_blue",
+  "file": "E41_SB1_reset_blue.stl",
+  "group": "base",
+  "category": "purchased",
+  "material": "purchased",
+  "process": "purchased Siemens 3SU1 / M12 panel device",
+  "color": [
+   0.15,
+   0.3,
+   0.8
+  ],
+  "explode": [
+   -180.0,
+   0.0,
+   0.0
+  ],
+  "mass_kg": 0.05,
+  "com_mm": [
+   -369.0,
+   -50.0,
+   318.0
+  ],
+  "bbox_mm": [
+   -389.0,
+   -349.0,
+   -65.0,
+   -35.0,
+   303.0,
+   333.0
+  ],
+  "src": "",
+  "notes": "",
+  "qty": 1
+ },
+ {
+  "name": "E41_SK1_key_selector",
+  "file": "E41_SK1_key_selector.stl",
+  "group": "base",
+  "category": "purchased",
+  "material": "purchased",
+  "process": "purchased Siemens 3SU1 / M12 panel device",
+  "color": [
+   0.2,
+   0.2,
+   0.22
+  ],
+  "explode": [
+   -180.0,
+   0.0,
+   0.0
+  ],
+  "mass_kg": 0.05,
+  "com_mm": [
+   -369.0,
+   0.0,
+   318.0
+  ],
+  "bbox_mm": [
+   -389.0,
+   -349.0,
+   -15.0,
+   15.0,
+   303.0,
+   333.0
+  ],
+  "src": "",
+  "notes": "",
+  "qty": 1
+ },
+ {
+  "name": "E41_SE1_M12_pendant_socket",
+  "file": "E41_SE1_M12_pendant_socket.stl",
+  "group": "base",
+  "category": "purchased",
+  "material": "purchased",
+  "process": "purchased Siemens 3SU1 / M12 panel device",
+  "color": [
+   0.2,
+   0.2,
+   0.22
+  ],
+  "explode": [
+   -180.0,
+   0.0,
+   0.0
+  ],
+  "mass_kg": 0.05,
+  "com_mm": [
+   -369.0,
+   50.0,
+   318.0
+  ],
+  "bbox_mm": [
+   -389.0,
+   -349.0,
+   35.0,
+   65.0,
+   303.0,
+   333.0
+  ],
+  "src": "",
+  "notes": "",
+  "qty": 1
+ },
+ {
+  "name": "K01_cover_F",
+  "file": "K01_cover_F.stl",
+  "group": "base",
+  "category": "custom",
+  "material": "EN AW-5754-H22",
+  "process": "laser cut + bent 2 mm 5754, powder coat RAL 9016 + tricolour band; 1/4-turn fasteners (tool-free = NO: Torx, EN ISO 14120)",
+  "color": [
+   0.92,
+   0.92,
+   0.9
+  ],
+  "explode": [
+   220.0,
+   0.0,
+   0.0
+  ],
+  "mass_kg": 0.873,
+  "com_mm": [
+   361.7,
+   14.1,
+   204.8
+  ],
+  "bbox_mm": [
+   260.0,
+   390.0,
+   -280.0,
+   280.0,
+   62.0,
+   337.0
+  ],
+  "src": "",
+  "notes": "",
+  "qty": 1
+ },
+ {
+  "name": "K02_cover_R",
+  "file": "K02_cover_R.stl",
+  "group": "base",
+  "category": "custom",
+  "material": "EN AW-5754-H22",
+  "process": "laser cut + bent 2 mm 5754, powder coat RAL 9016 + tricolour band; 1/4-turn fasteners (tool-free = NO: Torx, EN ISO 14120)",
+  "color": [
+   0.92,
+   0.92,
+   0.9
+  ],
+  "explode": [
+   -220.0,
+   0.0,
+   0.0
+  ],
+  "mass_kg": 0.795,
+  "com_mm": [
+   -359.0,
+   -8.9,
+   205.0
+  ],
+  "bbox_mm": [
+   -390.0,
+   -260.0,
+   -280.0,
+   280.0,
+   62.0,
+   337.0
+  ],
+  "src": "",
+  "notes": "",
+  "qty": 1
+ },
+ {
+  "name": "K03_cover_L",
+  "file": "K03_cover_L.stl",
+  "group": "base",
+  "category": "custom",
+  "material": "EN AW-5754-H22",
+  "process": "laser cut + bent 2 mm 5754, powder coat RAL 9016 + tricolour band; 1/4-turn fasteners (tool-free = NO: Torx, EN ISO 14120)",
+  "color": [
+   0.92,
+   0.92,
+   0.9
+  ],
+  "explode": [
+   0.0,
+   220.0,
+   0.0
+  ],
+  "mass_kg": 0.576,
+  "com_mm": [
+   0.2,
+   279.0,
+   212.7
+  ],
+  "bbox_mm": [
+   -260.0,
+   260.0,
+   277.9,
+   280.1,
+   62.0,
+   337.0
+  ],
+  "src": "",
+  "notes": "",
+  "qty": 1
+ },
+ {
+  "name": "K04_cover_Rt",
+  "file": "K04_cover_Rt.stl",
+  "group": "base",
+  "category": "custom",
+  "material": "EN AW-5754-H22",
+  "process": "laser cut + bent 2 mm 5754, powder coat RAL 9016 + tricolour band; 1/4-turn fasteners (tool-free = NO: Torx, EN ISO 14120)",
+  "color": [
+   0.92,
+   0.92,
+   0.9
+  ],
+  "explode": [
+   0.0,
+   -220.0,
+   0.0
+  ],
+  "mass_kg": 0.576,
+  "com_mm": [
+   -1.7,
+   -279.0,
+   212.7
+  ],
+  "bbox_mm": [
+   -260.0,
+   260.0,
+   -280.1,
+   -277.9,
+   62.0,
+   337.0
+  ],
+  "src": "",
+  "notes": "",
+  "qty": 1
+ },
+ {
+  "name": "K05_rubber_edge",
+  "file": "K05_rubber_edge.stl",
+  "group": "base",
+  "category": "custom",
+  "material": "EPDM",
+  "process": "extruded EPDM edge profile 22 mm, clipped on the cover skirts: the front/rear lengths come off with K01/K02 (battery slide-out path)",
+  "color": [
+   0.07,
+   0.07,
+   0.08
+  ],
+  "explode": [
+   0.0,
+   0.0,
+   -40.0
+  ],
+  "mass_kg": 0.268,
+  "com_mm": [
+   0.0,
+   -0.0,
+   51.0
+  ],
+  "bbox_mm": [
+   -394.0,
+   394.0,
+   -284.0,
+   284.0,
+   40.0,
+   62.0
+  ],
+  "src": "",
+  "notes": "",
+  "qty": 1
+ },
+ {
+  "name": "H01_batt_F_to_fuse",
+  "file": "H01_batt_F_to_fuse.stl",
+  "group": "base",
+  "category": "harness",
+  "material": "harness",
+  "process": "harness (see cable_schedule.csv)",
+  "color": [
+   0.8,
+   0.1,
+   0.1
+  ],
+  "explode": [
+   0.0,
+   0.0,
+   0.0
+  ],
+  "mass_kg": 0.0,
+  "com_mm": [
+   194.1,
+   150.2,
+   276.0
+  ],
+  "bbox_mm": [
+   16.6,
+   351.6,
+   57.5,
+   207.1,
+   231.9,
+   312.0
+  ],
+  "src": "",
+  "notes": "",
+  "qty": 1
+ },
+ {
+  "name": "H02_batt_R_to_fuse",
+  "file": "H02_batt_R_to_fuse.stl",
+  "group": "base",
+  "category": "harness",
+  "material": "harness",
+  "process": "harness (see cable_schedule.csv)",
+  "color": [
+   0.8,
+   0.1,
+   0.1
+  ],
+  "explode": [
+   0.0,
+   0.0,
+   0.0
+  ],
+  "mass_kg": 0.0,
+  "com_mm": [
+   -179.0,
+   154.1,
+   278.1
+  ],
+  "bbox_mm": [
+   -351.6,
+   17.3,
+   57.5,
+   207.1,
+   231.9,
+   312.0
+  ],
+  "src": "",
+  "notes": "",
+  "qty": 1
+ },
+ {
+  "name": "H03_bus48_to_centre_and_deck",
+  "file": "H03_bus48_to_centre_and_deck.stl",
+  "group": "base",
+  "category": "harness",
+  "material": "harness",
+  "process": "harness (see cable_schedule.csv)",
+  "color": [
+   0.8,
+   0.1,
+   0.1
+  ],
+  "explode": [
+   0.0,
+   0.0,
+   0.0
+  ],
+  "mass_kg": 0.0,
+  "com_mm": [
+   -73.0,
+   106.1,
+   296.2
+  ],
+  "bbox_mm": [
+   -165.9,
+   68.1,
+   14.3,
+   205.4,
+   230.9,
+   357.0
+  ],
+  "src": "",
+  "notes": "",
+  "qty": 1
+ },
+ {
+  "name": "H04_traction_24V_L",
+  "file": "H04_traction_24V_L.stl",
+  "group": "base",
+  "category": "harness",
+  "material": "harness",
+  "process": "harness (see cable_schedule.csv)",
+  "color": [
+   0.9,
+   0.5,
+   0.1
+  ],
+  "explode": [
+   0.0,
+   0.0,
+   0.0
+  ],
+  "mass_kg": 0.0,
+  "com_mm": [
+   52.7,
+   187.9,
+   190.7
+  ],
+  "bbox_mm": [
+   -1.3,
+   106.5,
+   170.1,
+   204.9,
+   180.0,
+   204.9
+  ],
+  "src": "",
+  "notes": "",
+  "qty": 1
+ },
+ {
+  "name": "H05_traction_24V_R",
+  "file": "H05_traction_24V_R.stl",
+  "group": "base",
+  "category": "harness",
+  "material": "harness",
+  "process": "harness (see cable_schedule.csv)",
+  "color": [
+   0.9,
+   0.5,
+   0.1
+  ],
+  "explode": [
+   0.0,
+   0.0,
+   0.0
+  ],
+  "mass_kg": 0.0,
+  "com_mm": [
+   -114.9,
+   -21.8,
+   257.1
+  ],
+  "bbox_mm": [
+   -145.1,
+   1.8,
+   -180.1,
+   204.5,
+   180.3,
+   325.1
+  ],
+  "src": "",
+  "notes": "",
+  "qty": 1
+ },
+ {
+  "name": "H06_dock_to_charge_path",
+  "file": "H06_dock_to_charge_path.stl",
+  "group": "base",
+  "category": "harness",
+  "material": "harness",
+  "process": "harness (see cable_schedule.csv)",
+  "color": [
+   0.8,
+   0.1,
+   0.1
+  ],
+  "explode": [
+   0.0,
+   0.0,
+   0.0
+  ],
+  "mass_kg": 0.0,
+  "com_mm": [
+   -292.0,
+   -148.0,
+   142.7
+  ],
+  "bbox_mm": [
+   -349.9,
+   -232.1,
+   -175.4,
+   -131.0,
+   115.4,
+   156.1
+  ],
+  "src": "",
+  "notes": "",
+  "qty": 1
+ },
+ {
+  "name": "H07_safety_bus_scanner_F",
+  "file": "H07_safety_bus_scanner_F.stl",
+  "group": "base",
+  "category": "harness",
+  "material": "harness",
+  "process": "harness (see cable_schedule.csv)",
+  "color": [
+   0.95,
+   0.8,
+   0.1
+  ],
+  "explode": [
+   0.0,
+   0.0,
+   0.0
+  ],
+  "mass_kg": 0.0,
+  "com_mm": [
+   101.7,
+   -200.6,
+   317.2
+  ],
+  "bbox_mm": [
+   -150.0,
+   303.2,
+   -208.5,
+   -196.5,
+   218.5,
+   333.6
+  ],
+  "src": "",
+  "notes": "",
+  "qty": 1
+ },
+ {
+  "name": "H08_safety_bus_scanner_R",
+  "file": "H08_safety_bus_scanner_R.stl",
+  "group": "base",
+  "category": "harness",
+  "material": "harness",
+  "process": "harness (see cable_schedule.csv)",
+  "color": [
+   0.95,
+   0.8,
+   0.1
+  ],
+  "explode": [
+   0.0,
+   0.0,
+   0.0
+  ],
+  "mass_kg": 0.0,
+  "com_mm": [
+   -264.9,
+   -2.8,
+   315.4
+  ],
+  "bbox_mm": [
+   -313.5,
+   -148.4,
+   -203.1,
+   198.2,
+   223.5,
+   333.5
+  ],
+  "src": "",
+  "notes": "",
+  "qty": 1
+ },
+ {
+  "name": "H09_safety_estops",
+  "file": "H09_safety_estops.stl",
+  "group": "base",
+  "category": "harness",
+  "material": "harness",
+  "process": "harness (see cable_schedule.csv)",
+  "color": [
+   0.95,
+   0.8,
+   0.1
+  ],
+  "explode": [
+   0.0,
+   0.0,
+   0.0
+  ],
+  "mass_kg": 0.0,
+  "com_mm": [
+   -8.2,
+   -220.3,
+   310.1
+  ],
+  "bbox_mm": [
+   -100.8,
+   63.0,
+   -241.0,
+   -197.1,
+   267.7,
+   333.0
+  ],
+  "src": "",
+  "notes": "",
+  "qty": 1
+ },
+ {
+  "name": "H10_ethernet_safety_to_deck",
+  "file": "H10_ethernet_safety_to_deck.stl",
+  "group": "base",
+  "category": "harness",
+  "material": "harness",
+  "process": "harness (see cable_schedule.csv)",
+  "color": [
+   0.2,
+   0.5,
+   0.9
+  ],
+  "explode": [
+   0.0,
+   0.0,
+   0.0
+  ],
+  "mass_kg": 0.0,
+  "com_mm": [
+   -56.3,
+   -107.8,
+   273.5
+  ],
+  "bbox_mm": [
+   -143.0,
+   65.0,
+   -202.9,
+   -17.2,
+   212.0,
+   356.0
+  ],
+  "src": "",
+  "notes": "",
+  "qty": 1
+ },
+ {
+  "name": "X01_dock_frame",
+  "file": "X01_dock_frame.stl",
+  "group": "dock",
+  "category": "custom",
+  "material": "S355MC",
+  "process": "laser cut + bent 4 mm S355MC, welded, powder coat; floor anchors M10 x6, wall M8 x2",
+  "color": [
+   0.25,
+   0.26,
+   0.28
+  ],
+  "explode": [
+   -200.0,
+   0.0,
+   0.0
+  ],
+  "mass_kg": 21.207,
+  "com_mm": [
+   -593.3,
+   0.0,
+   125.6
+  ],
+  "bbox_mm": [
+   -698.0,
+   -208.0,
+   -362.0,
+   362.0,
+   -0.0,
+   520.0
+  ],
+  "src": "",
+  "notes": "",
+  "qty": 1
+ },
+ {
+  "name": "X02_robopad_base_RPBAS90",
+  "file": "X02_robopad_base_RPBAS90.stl",
+  "group": "dock",
+  "category": "purchased",
+  "material": "purchased",
+  "process": "purchased Roboteq RoboPad base RPBAS90-100 (contacts, Hall sensor)",
+  "color": [
+   0.85,
+   0.45,
+   0.1
+  ],
+  "explode": [
+   -260.0,
+   0.0,
+   0.0
+  ],
+  "mass_kg": 0.4,
+  "com_mm": [
+   -415.0,
+   -137.0,
+   120.0
+  ],
+  "bbox_mm": [
+   -432.0,
+   -398.0,
+   -182.0,
+   -92.0,
+   92.0,
+   148.0
+  ],
+  "src": "",
+  "notes": "",
+  "qty": 1
+ },
+ {
+  "name": "X03_pad_mount",
+  "file": "X03_pad_mount.stl",
+  "group": "dock",
+  "category": "custom",
+  "material": "S355MC",
+  "process": "bent 3 mm bracket",
+  "color": [
+   0.3,
+   0.31,
+   0.33
+  ],
+  "explode": [
+   -230.0,
+   0.0,
+   0.0
+  ],
+  "mass_kg": 2.075,
+  "com_mm": [
+   -506.1,
+   -137.0,
+   84.5
+  ],
+  "bbox_mm": [
+   -694.0,
+   -432.0,
+   -207.0,
+   -67.0,
+   6.0,
+   150.0
+  ],
+  "src": "",
+  "notes": "",
+  "qty": 1
+ },
+ {
+  "name": "X04_charger_NPB1700_48",
+  "file": "X04_charger_NPB1700_48.stl",
+  "group": "dock",
+  "category": "purchased",
+  "material": "purchased",
+  "process": "purchased Mean Well NPB-1700-48 (25 A, CANbus, IEC 60335-2-29, DIP preset 'flooded' 56.8/53.6 V) in IP20 housing",
+  "color": [
+   0.7,
+   0.7,
+   0.72
+  ],
+  "explode": [
+   -300.0,
+   0.0,
+   120.0
+  ],
+  "mass_kg": 3.3,
+  "com_mm": [
+   -578.0,
+   -100.0,
+   270.0
+  ],
+  "bbox_mm": [
+   -653.0,
+   -503.0,
+   -150.0,
+   -50.0,
+   180.0,
+   360.0
+  ],
+  "src": "",
+  "notes": "",
+  "qty": 1
+ },
+ {
+  "name": "X05_dock_controller_relay",
+  "file": "X05_dock_controller_relay.stl",
+  "group": "dock",
+  "category": "purchased",
+  "material": "purchased",
+  "process": "purchased DIN box: controller + DC contactor with blowouts (output OFF unless Hall + handshake over Wi-Fi/Ethernet)",
+  "color": [
+   0.25,
+   0.25,
+   0.28
+  ],
+  "explode": [
+   -300.0,
+   0.0,
+   120.0
+  ],
+  "mass_kg": 0.8,
+  "com_mm": [
+   -613.0,
+   100.0,
+   275.0
+  ],
+  "bbox_mm": [
+   -653.0,
+   -573.0,
+   50.0,
+   150.0,
+   220.0,
+   330.0
+  ],
+  "src": "",
+  "notes": "",
+  "qty": 1
+ },
+ {
+  "name": "X08_dock_OV_relay_DUB01",
+  "file": "X08_dock_OV_relay_DUB01.stl",
+  "group": "dock",
+  "category": "purchased",
+  "material": "purchased",
+  "process": "purchased Carlo Gavazzi DUB01CD48500V (22.5 x 80 x 99.5 mm), 20-200 V range, over-voltage, normally energised, bench-set 58.5 V: its NO contact in the dock contactor coil opens > 58.5 V (VERIFICATION M12, RoboPad <= 60 V under fault)",
+  "color": [
+   0.25,
+   0.25,
+   0.28
+  ],
+  "explode": [
+   -300.0,
+   0.0,
+   120.0
+  ],
+  "mass_kg": 0.15,
+  "com_mm": [
+   -556.8,
+   100.0,
+   279.8
+  ],
+  "bbox_mm": [
+   -568.0,
+   -545.5,
+   60.0,
+   140.0,
+   230.0,
+   329.5
+  ],
+  "src": "Carlo Gavazzi DUB01 datasheet 2025-03-03 (SOURCED, docs/fonti)",
+  "notes": "",
+  "qty": 1
+ },
+ {
+  "name": "X06_apriltag_reflector_plate",
+  "file": "X06_apriltag_reflector_plate.stl",
+  "group": "dock",
+  "category": "purchased",
+  "material": "purchased",
+  "process": "AprilTag 36h11 + retro-reflective strip (lidar profile), on the robot centre line (z 380..500: out of the scan plane)",
+  "color": [
+   0.95,
+   0.95,
+   0.95
+  ],
+  "explode": [
+   -320.0,
+   0.0,
+   0.0
+  ],
+  "mass_kg": 0.2,
+  "com_mm": [
+   -658.0,
+   -0.0,
+   440.0
+  ],
+  "bbox_mm": [
+   -660.0,
+   -656.0,
+   -120.0,
+   120.0,
+   380.0,
+   500.0
+  ],
+  "src": "",
+  "notes": "",
+  "qty": 1
+ },
+ {
+  "name": "X07_dock_cover",
+  "file": "X07_dock_cover.stl",
+  "group": "dock",
+  "category": "custom",
+  "material": "EN AW-5754-H22",
+  "process": "bent 2 mm, powder coat, vent slots",
+  "color": [
+   0.92,
+   0.92,
+   0.9
+  ],
+  "explode": [
+   -260.0,
+   0.0,
+   200.0
+  ],
+  "mass_kg": 3.197,
+  "com_mm": [
+   -543.0,
+   0.0,
+   299.7
+  ],
+  "bbox_mm": [
+   -658.0,
+   -428.0,
+   -255.0,
+   255.0,
+   175.0,
+   370.0
+  ],
+  "src": "",
+  "notes": "",
+  "qty": 1
+ }
+]

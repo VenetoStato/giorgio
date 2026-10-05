@@ -1,0 +1,11 @@
+{
+ "interferences": [],
+ "keepout_violations": [],
+ "keepout_pairs_checked": 3086,
+ "dock_interferences": [],
+ "battery_slide_path_obstacles": {
+  "F": [],
+  "R": []
+ },
+ "castor_travel_overlaps": []
+}

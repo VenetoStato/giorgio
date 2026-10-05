@@ -37,3 +37,8 @@ cad/data/
 cad/__pycache__/
 giorgio_os/.venv/
 rl_openarm/runs/
+
+# manufacturer documents (copyright of their owners): kept locally, linked from the docs
+docs/fonti/
+# rev archives of generated renders
+amr/archive/**/*.png

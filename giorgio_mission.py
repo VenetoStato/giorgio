@@ -18,7 +18,7 @@ from scipy import ndimage
 from scipy.spatial.transform import Rotation as Rot
 
 from giorgio_ik import ArmIK
-from giorgio_model import GROUP_ENV, GROUP_HUMAN, LOOKS, SCANNERS, build
+from giorgio_model import DRIVE_HALF_TRACK, DRIVE_WHEEL_R, GROUP_ENV, GROUP_HUMAN, LOOKS, SCANNERS, build
 
 ap = argparse.ArgumentParser()
 ap.add_argument("--look", default="gb", choices=list(LOOKS))
@@ -523,7 +523,7 @@ def on_event(a, ev, part):
 
 # ---------------------------------------------------------------- guida AMR: primitive (retro, rotazione, vai, aggancio)
 WL, WR = m.actuator("drive_left_vel").id, m.actuator("drive_right_vel").id
-B_HALF, WHEEL_R = 0.61 / 2 - 0.04, 0.085
+B_HALF, WHEEL_R = DRIVE_HALF_TRACK, DRIVE_WHEEL_R     # base attiva (giorgio_model.BASE)
 drive = {"v": 0.0, "w": 0.0}
 
 

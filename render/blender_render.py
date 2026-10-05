@@ -13,7 +13,7 @@ import sys
 import bmesh
 import bpy
 import numpy as np
-from mathutils import Euler, Quaternion, Vector
+from mathutils import Euler, Matrix, Quaternion, Vector
 
 argv = sys.argv[sys.argv.index("--") + 1:] if "--" in sys.argv else []
 ap = argparse.ArgumentParser()
@@ -48,6 +48,10 @@ ap.add_argument("--hat", default="bustina", choices=["coppola", "bustina", "snap
 ap.add_argument("--face_seq", default="", help="sequenza di espressioni LED 'codice:secondi,...' che sostituisce quella registrata")
 ap.add_argument("--no_ledface", action="store_true", help="volto con gli occhi/baffi 3D invece della matrice LED")
 ap.add_argument("--solo", action="store_true", help="solo il robot (niente banco, flaconi, persone): foto prodotto")
+ap.add_argument("--newbase", action="store_true", help="base AMR nostra (amr/out/stl, CAD) al posto della base registrata")
+ap.add_argument("--waist_spin", type=float, nargs="*", default=None,
+                help="con --newbase: busto che ruota sul giunto di vita, angoli in gradi ai tempi 0..1 (es. 0 90 -90 0)")
+ap.add_argument("--newdock", action="store_true", help="con --newbase: il nostro dock dove il robot e' agganciato all'ultimo fotogramma")
 args = ap.parse_args(argv)
 HERE = os.path.dirname(os.path.abspath(__file__))
 A = np.load(os.path.join(HERE, f"{args.data}.npz"))
@@ -797,6 +801,82 @@ for o_ in [o for o in bpy.data.objects if o.name.startswith("logo_")]:     # log
     nt_.links.new(im_.outputs["Color"], bs_.inputs["Base Color"]); nt_.links.new(im_.outputs["Alpha"], bs_.inputs["Alpha"])
     mt_.blend_method = "BLEND" if hasattr(mt_, "blend_method") else None
     o_.data.materials.clear(); o_.data.materials.append(mt_)
+
+if args.newbase:                                      # nuova base: nasconde la base registrata e monta i pezzi CAD sul corpo amr
+    import json as _json
+    _AMR = os.path.join(os.path.dirname(HERE), "amr", "out")
+    _meta = _json.load(open(os.path.join(_AMR, "parts.json")))
+    _OLD = ("amr_chassis", "base_rail", "base_cover", "tricolore", "charge_brush", "pw_", "status_led", "scanner0_", "scanner1_",
+            "caster_", "drive_left", "drive_right", "amr_wheel", "charger_post", "charger_plate", "charger_lamella", "charger_led")
+    for o_ in list(bpy.data.objects):
+        if o_.name.startswith(_OLD):
+            o_.animation_data_clear(); o_.hide_render = True
+    _ia = J["body_names"].index("amr")
+    _amr_e = body_empty(_ia)
+    _M = {"cover": SHELL, "alu": ALU, "steel": GRAPH,
+          "yellow": principled("nb_scanner", (0.95, 0.72, 0.05), 0.35, coat=0.3),
+          "orange": principled("nb_wheel", (0.9, 0.42, 0.06), 0.45),
+          "black": principled("nb_black", (0.03, 0.03, 0.035), 0.5),
+          "red": principled("nb_red", (0.75, 0.04, 0.03), 0.3, coat=0.5),
+          "blue": principled("nb_batt", (0.05, 0.16, 0.42), 0.4)}
+
+    def _nbmat(p_):
+        n_, mt_ = p_["name"], p_["material"]
+        if n_.startswith(("K0", "W10", "A02")) and "rubber" not in n_:
+            return _M["cover"]
+        if n_.startswith("S01"):
+            return _M["yellow"]
+        if n_.startswith("D01"):
+            return _M["orange"]
+        if n_.startswith(("E02", "E03")):
+            return _M["red"]
+        if n_.startswith("B01"):
+            return _M["blue"]
+        if "EN AW" in mt_ or "steel" in mt_:
+            return _M["alu"]
+        if mt_ in ("S355MC", "EPDM") or n_.startswith(("C01", "W05", "W01")):
+            return _M["black"]
+        if mt_ in ("POM-C", "PA12 (MJF)"):
+            return _M["cover"]
+        return _M["steel"]
+    _dock_M = None
+    if args.newdock:
+        _f = F[-1]
+        _dock_M = Matrix.Translation(Vector(XP[_f, _ia].tolist())) @ Quaternion(XQ[_f, _ia].tolist()).to_matrix().to_4x4()
+    for p_ in _meta:
+        if p_["category"] == "harness" or (p_["group"] == "dock" and not args.newdock):
+            continue
+        bpy.ops.wm.stl_import(filepath=os.path.join(_AMR, "stl", p_["file"]))
+        o_ = bpy.context.selected_objects[0]
+        o_.name = "nb_" + p_["name"]
+        o_.data.materials.clear(); o_.data.materials.append(_nbmat(p_) if p_["group"] != "dock" else (_M["cover"] if p_["name"].startswith("X07") else _M["steel"] if p_["name"].startswith("X0") else _M["black"]))
+        if p_["group"] == "dock":
+            o_.matrix_world = _dock_M @ Matrix.Diagonal((0.001, 0.001, 0.001, 1.0))
+        else:
+            o_.parent = _amr_e
+            o_.rotation_mode = "QUATERNION"; o_.location = (0, 0, 0); o_.rotation_quaternion = (1, 0, 0, 0)
+            o_.scale = (0.001, 0.001, 0.001)
+
+if args.newbase and args.waist_spin:                  # rotazione del busto: tutto cio' che sta sopra la flangia gira attorno all'asse amr
+    _ia = J["body_names"].index("amr")
+    _amr_e = body_empty(_ia)
+    _piv = bpy.data.objects.new("waist_pivot", None); bpy.context.collection.objects.link(_piv)
+    _piv.parent = _amr_e; _piv.rotation_mode = "XYZ"
+    bpy.context.view_layer.update()
+    _skip = {"amr", "world"}
+    for _bid, _e in list(bodies.items()):
+        _bn = J["body_names"][_bid]
+        if _bn in _skip or _bn.startswith(("h0_", "h1_", "h2_", "h3_", "drive_", "tote", "part_", "bench")):
+            continue
+        _mw = _e.matrix_world.copy(); _e.animation_data_clear(); _e.parent = _piv; _e.matrix_world = _mw
+    for _o in list(bpy.data.objects):                    # pezzi CAD che girano col busto (piastra, gonna, elettronica)
+        if _o.name.startswith(("nb_W06", "nb_W08", "nb_W09", "nb_W10", "nb_W03")):
+            _o.parent = _piv
+    _n = sc.frame_end + 1
+    _ang = args.waist_spin
+    for _k, _a in enumerate(_ang):
+        _f = int(round(_k * (_n - 1) / max(1, len(_ang) - 1)))
+        _piv.rotation_euler = (0, 0, math.radians(_a)); _piv.keyframe_insert("rotation_euler", frame=_f)
 
 if args.hide:
     for o_ in list(bpy.data.objects):

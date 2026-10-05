@@ -10,13 +10,16 @@ import math
 import mujoco
 import numpy as np
 
-from giorgio_model import AMR_L, AMR_W, FOOT_X, FOOT_Y, build
+from giorgio_model import BASE as AMR_BASE, FOOT_X, FOOT_Y, SUPPORT_X, SUPPORT_Y, build
 from giorgio_ik import ArmIK
 
 G = 9.81
 import sys as _s
-BASE = _s.argv[1] if len(_s.argv) > 1 else "cart"
-sp = build("gb", hands="gripper", fixed_base=False, base=BASE)
+BASE = _s.argv[1] if len(_s.argv) > 1 else "cart"       # cart | amr (la base scelta in giorgio_model.BASE)
+QUICK = "quick" in _s.argv[2:]                           # solo il caso di lavoro
+if BASE == "amr" and AMR_BASE != "amr_revB":
+    raise SystemExit("stability_test: base 'amr' supportata solo con giorgio_model.BASE = 'amr_revB' (il Ranger segue un bersaglio cinematico)")
+sp = build("gb", hands="gripper", fixed_base=False, base=BASE, **({"support": True} if BASE == "amr" else {}))
 sp.worldbody.add_site(name="dummy", pos=[0, 0, 0])
 m = sp.compile()
 # niente gravcomp "magica" (con base libera sarebbe una forza esterna): la compensazione la fanno i motori,
@@ -31,7 +34,7 @@ def step(d):
     mujoco.mj_step(m, d)
 
 
-WHEELS = [m.geom(f"wheel_{sx}_{sy}").id for sx in (-1, 1) for sy in (-1, 1)]
+WHEELS = [i for i in range(m.ngeom) if (m.geom(i).name or "").startswith("wheel_")]   # appoggi a terra (rev B: 4 piroette + 2 ruote)
 ACT = {s: [m.actuator(f"{s}_joint{k}_ctrl").id for k in range(1, 8)] for s in ("right", "left")}
 
 
@@ -62,7 +65,7 @@ BASE_EE = {s: float(m.body_mass[m.body(f"openarm_{s}_ee_base_link").id]) for s i
 
 
 def wheel_loads(d):
-    f = np.zeros(4)
+    f = np.zeros(len(WHEELS))
     for i in range(d.ncon):
         c = d.contact[i]
         for k, w in enumerate(WHEELS):
@@ -99,10 +102,10 @@ def com_info(lift, reach, payload):
 
 
 if __name__ == "__main__":
-    sx, sy = (FOOT_X, FOOT_Y) if BASE == "cart" else (AMR_L / 2 - 0.07, AMR_W / 2 - 0.05)
+    sx, sy = (FOOT_X, FOOT_Y) if BASE == "cart" else (SUPPORT_X, SUPPORT_Y)
     print(f"base {BASE}: poligono di appoggio x +-{sx:.3f} m, y +-{sy:.3f} m")
     cases = [("lavoro: colonna giu', mani sul banco, 0.35 kg", 0.0, "pronto", 0.35),
-             ("peggiore: colonna +0.40 m, braccia distese, 4.1 kg per braccio", 0.40, "distese", 4.1)]
+             ("peggiore: colonna +0.40 m, braccia distese, 4.1 kg per braccio", 0.40, "distese", 4.1)][:1 if QUICK else 2]
     for name, lift, reach, pay in cases:
         M, com, hands = com_info(lift, reach, pay)
         a_fw = G * (sx - com[0]) / com[2]

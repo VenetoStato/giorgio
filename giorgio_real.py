@@ -18,7 +18,7 @@ import numpy as np
 from scipy.spatial.transform import Rotation as Rot
 
 from giorgio_ik import ArmIK
-from giorgio_model import GROUP_ENV, GROUP_HUMAN, LOOKS, SCAN_Z, SCANNERS, build
+from giorgio_model import DRIVE_HALF_TRACK, DRIVE_WHEEL_R, GROUP_ENV, GROUP_HUMAN, LOOKS, SCAN_Z, SCANNERS, build
 
 ap = argparse.ArgumentParser()
 ap.add_argument("--look", default="gb", choices=list(LOOKS))
@@ -480,7 +480,7 @@ state = {"k": 1.0, "k_cmd": 1.0, "zone": 0, "clear_t": 0.0, "hits": [], "scan_t"
 
 
 WL, WR = (m.actuator("drive_left_vel").id, m.actuator("drive_right_vel").id) if MOBILE else (None, None)
-B_HALF, WHEEL_R_ = 0.61 / 2 - 0.04, 0.085
+B_HALF, WHEEL_R_ = DRIVE_HALF_TRACK, DRIVE_WHEEL_R    # base attiva (giorgio_model.BASE)
 drive = {"v": 0.0, "w": 0.0}
 
 

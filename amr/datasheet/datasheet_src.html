@@ -1,0 +1,170 @@
+<title>Giorgio AMR rev B4</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Source+Sans+3:wght@400;600&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* layout: technical datasheet - one narrow reading column, spec tables in two columns on wide screens, figures full width */
+:root{
+  --bg:#f3f3f1; --paper:#fbfbfa; --ink:#1b1d21; --muted:#5d626b; --rule:#d5d6d3;
+  --accent:#e8701a; --ok:#2f7d4f; --calc:#2d5f9a; --est:#9a6a12; --chip:#ecece8;
+  --display:"Barlow Condensed","Arial Narrow",Arial,sans-serif;
+  --body:"Source Sans 3","Segoe UI",Helvetica,Arial,sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#15171a; --paper:#1c1f23; --ink:#e9e9e6; --muted:#a2a7ae; --rule:#33373d;
+  --accent:#ff8a33; --ok:#5fbf86; --calc:#7fb0ea; --est:#e0b25a; --chip:#262a30; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#15171a; --paper:#1c1f23; --ink:#e9e9e6; --muted:#a2a7ae; --rule:#33373d;
+  --accent:#ff8a33; --ok:#5fbf86; --calc:#7fb0ea; --est:#e0b25a; --chip:#262a30; color-scheme:dark}
+body{background:var(--bg);color:var(--ink);font:16px/1.55 var(--body)}
+.wrap{max-width:1080px;margin:0 auto;padding-inline:16px;padding-block:28px 64px;display:grid;gap:40px}
+header{display:grid;gap:10px;border-bottom:3px solid var(--ink);padding-bottom:18px}
+.eyebrow{font:600 13px/1 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--accent)}
+h1{font:700 clamp(44px,8vw,84px)/.92 var(--display);letter-spacing:-.01em;margin:0;text-wrap:balance}
+h1 span{color:var(--muted);font-weight:500}
+.lede{max-width:66ch;color:var(--muted);margin:0}
+.meta{display:flex;flex-wrap:wrap;gap:8px 18px;font:13px/1.4 var(--mono);color:var(--muted)}
+.draft{border:1px solid var(--est);color:var(--est);padding:2px 8px;border-radius:3px}
+figure{margin:0;display:grid;gap:8px}
+figure img{width:100%;height:auto;display:block;border-radius:4px;background:var(--paper)}
+figcaption{font-size:14px;color:var(--muted)}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1px;background:var(--rule);border:1px solid var(--rule)}
+.kpi{background:var(--paper);padding:16px 18px;display:grid;gap:4px;align-content:start}
+.kpi b{font:700 38px/1 var(--display);font-variant-numeric:tabular-nums}
+.kpi span{font-size:14px;color:var(--muted)}
+h2{font:600 30px/1.05 var(--display);margin:0 0 10px;text-wrap:balance;letter-spacing:.01em}
+h2 small{font:600 12px var(--mono);color:var(--accent);letter-spacing:.12em;text-transform:uppercase;display:block;margin-bottom:6px}
+.specs{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:28px 40px}
+.specs section{min-width:0}
+table{width:100%;border-collapse:collapse;font-size:15px}
+th,td{text-align:left;vertical-align:top;padding:7px 8px 7px 0;border-bottom:1px solid var(--rule)}
+th{font-weight:400;color:var(--muted);width:44%}
+td{font-variant-numeric:tabular-nums}
+.t{display:inline-block;font:600 10.5px/1 var(--mono);letter-spacing:.06em;padding:3px 5px;border-radius:2px;margin-left:6px;vertical-align:2px;white-space:nowrap}
+.t.s{color:var(--ok);border:1px solid var(--ok)}
+.t.c{color:var(--calc);border:1px solid var(--calc)}
+.t.e{color:var(--est);border:1px solid var(--est)}
+.legend{display:flex;flex-wrap:wrap;gap:10px 22px;font-size:14px;color:var(--muted)}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px}
+.scroll{overflow-x:auto}
+.cost td,.cost th{white-space:nowrap}
+.cost th{width:auto}
+.cost td{text-align:right}
+.cost td:first-child{text-align:left}
+ol,ul{margin:0;padding-left:20px;display:grid;gap:6px;max-width:72ch}
+.note{font-size:14px;color:var(--muted);max-width:72ch}
+footer{border-top:1px solid var(--rule);padding-top:14px;font-size:13px;color:var(--muted)}
+code{font:13px var(--mono);background:var(--chip);padding:1px 4px;border-radius:2px}
+</style>
+
+<div class="wrap">
+<header>
+  <div class="eyebrow">Datasheet · mobile base · rev B4</div>
+  <h1>Giorgio AMR <span>/ autonomous base for a bimanual service robot</span></h1>
+  <p class="lede">Differential-drive base designed for Giorgio. It turns on the spot, carries and powers the whole robot, and docks to charge by itself. Certified safety modules plus laser-cut, bent and bolted parts. The 15 mm top deck is the torso flange, so the robot above it is unchanged.</p>
+  <div class="meta"><span class="draft">Design, not yet built</span><span>2026-10-05</span><span>CAD 170 parts · 0 interferences · 24 keep-outs clear</span><span>Calculations 53 PASS · 7 WARN · 1 FAIL</span><span>Electrical 242 PASS · 0 FAIL</span></div>
+</header>
+
+<figure><img src="{{amr_hero.jpg}}" alt="Render of the Giorgio AMR: white covers, continuous scanner slot, flat white top deck"><figcaption>Render from the CAD model (CadQuery → Blender). The continuous 40 mm slot sits at the scan plane; the flat deck is the torso flange.</figcaption></figure>
+
+<div class="kpis">
+  <div class="kpi"><b>172 kg</b><span>complete robot, fully loaded; drive wheels rated 250 kg each</span></div>
+  <div class="kpi"><b>3.07 kWh</b><span>two 51.2 V LFP packs, one battery system for the whole robot</span></div>
+  <div class="kpi"><b>6.6–14.8 h</b><span>estimated runtime with OpenArm (barista / logistics)</span></div>
+  <div class="kpi"><b>PL d</b><span>safety chain built from certified scanners, drives and controller</span></div>
+</div>
+
+<div class="legend"><span><span class="t s">MAKER</span> from the official datasheet</span><span><span class="t c">CALC</span> from the CAD and calculations (CALC.md)</span><span><span class="t e">EST</span> to be confirmed</span></div>
+
+<div class="specs">
+<section><h2><small>Size</small>Dimensions and mass</h2><table>
+<tr><th>Footprint</th><td>780 × 560 mm, 45° corners (95 mm)<span class="t c">CALC</span></td></tr>
+<tr><th>Deck / torso flange height</th><td>353 mm, 15 mm 6082-T6 deck<span class="t c">CALC</span></td></tr>
+<tr><th>Ground clearance</th><td>32 mm under the pan, 3.5 mm under the coaxial drive bodies (thresholds ≤ 20 mm)<span class="t c">CALC</span></td></tr>
+<tr><th>Base mass</th><td>117.1 kg incl. 28 kg batteries (120 kg with harness)<span class="t c">CALC</span></td></tr>
+<tr><th>Payload on the deck</th><td>Giorgio superstructure 44 kg + coffee module + tray; ≥ 30 kg margin<span class="t c">CALC</span></td></tr>
+<tr><th>Swept radius on the spot</th><td>440 mm (whole robot, arms parked)<span class="t c">CALC</span></td></tr>
+</table></section>
+
+<section><h2><small>Motion</small>Drive</h2><table>
+<tr><th>Kinematics</th><td>differential, 2 centre drive wheels (track 464 mm) + 4 sprung castors Blickle L-ALST 80K (D80)</td></tr>
+<tr><th>Drives</th><td>2 × ez-Wheel SWD 125, 4:1, brake (7 kg, 196 mm long, each in its own ventilated tunnel)<span class="t s">MAKER</span></td></tr>
+<tr><th>Torque per wheel</th><td>7.9 Nm nominal · 13 Nm peak<span class="t s">MAKER</span></td></tr>
+<tr><th>Speed</th><td>safe bands 0.3 / 0.7 / 1.1 m/s (top speed = castor rating speed 4 km/h); reverse ≤ 0.3 m/s<span class="t c">CALC</span></td></tr>
+<tr><th>Accel / decel</th><td>1.36/0.79 · 1.15/0.69 · 0.97/0.61 m/s² per speed band (scan plane ≤ 200 mm); lateral tip-over 4.65 m/s²<span class="t c">CALC</span></td></tr>
+<tr><th>Rotation on the spot</th><td>up to 105 °/s with arms parked<span class="t c">CALC</span></td></tr>
+<tr><th>Slope / thresholds</th><td>6 % continuous, 8 % short; sharp steps ≤ 10 mm (10–20 mm bevelled, ≤ 0.3 m/s)<span class="t c">CALC</span></td></tr>
+</table></section>
+
+<section><h2><small>Power</small>Energy</h2><table>
+<tr><th>Batteries</th><td>2 × Discover AES PRO DLP-GC2-48V in parallel, LFP 51.2 V 30 Ah, IP67<span class="t s">MAKER</span></td></tr>
+<tr><th>Battery certificates</th><td>IEC 62619, UN 38.3, CE, UL 2271<span class="t s">MAKER</span></td></tr>
+<tr><th>Current</th><td>per pack 15 A continuous, 58 A for 1 h, 90 A peak; robot duty RMS ≤ 17.8 A for the pair<span class="t s">MAKER</span></td></tr>
+<tr><th>Buses</th><td>48 V (40–58.4 V); 24 V traction; 24 V safety supply, always on</td></tr>
+<tr><th>Protection</th><td>100 A NH000 fuse, SW80B contactor with precharge, 48 V cut-off relay, key disconnect<span class="t s">MAKER</span></td></tr>
+<tr><th>EU Battery Regulation</th><td>each pack &lt; 2 kWh: no battery passport needed</td></tr>
+</table></section>
+
+<section><h2><small>Dock</small>Automatic charging</h2><table>
+<tr><th>Contacts</th><td>Roboteq RoboPad RPCOL90-100, 60 A continuous, ±5 mm tolerance, docked sensor<span class="t s">MAKER</span></td></tr>
+<tr><th>Charger in the dock</th><td>Mean Well NPB-750-48 (EMC Class B), DIP preset 56.8 / 53.6 V, plus a 58.5 V over-voltage relay<span class="t s">MAKER</span></td></tr>
+<tr><th>20 → 90 %</th><td>4.9 h (overnight); 1.9 h with the NPB-1700 option<span class="t c">CALC</span></td></tr>
+<tr><th>Contact safety</th><td>pads stay dead until the Hall sensor, the signature resistor and the network handshake confirm docking</td></tr>
+<tr><th>Finding the dock</th><td>AprilTag + reflective profile, Nav2 Docking Server (Apache-2.0)</td></tr>
+</table></section>
+
+<section><h2><small>Safety</small>Protection of people</h2><table>
+<tr><th>Laser scanners</th><td>2 × SICK nanoScan3 Pro I/O, PL d, scan plane 184.5 mm<span class="t s">MAKER</span></td></tr>
+<tr><th>Protective field</th><td>401 / 613 / 943 mm at 0.3 / 0.7 / 1.1 m/s, incl. the 150 mm ground-clearance supplement; 357–457 mm beside the robot<span class="t c">CALC</span></td></tr>
+<tr><th>Safety controller</th><td>Pilz PNOZmulti 2: PNOZ m B0 + 3 × EF 4DI4DOR relay modules + ES ETH, PL e<span class="t s">MAKER</span></td></tr>
+<tr><th>Safe drive functions</th><td>STO SIL3/PL e; SBC, SLS, SDI SIL2/PL d in each wheel<span class="t s">MAKER</span></td></tr>
+<tr><th>Stops</th><td>3 Siemens 3SU1 E-stops, key disconnect, SS1-t: controlled ramp, STO after 1.2 s</td></tr>
+<tr><th>AI</th><td>no safety function relies on a learned model</td></tr>
+<tr><th>Standards</th><td>EN ISO 3691-4, EN ISO 10218-1/-2:2025, EN ISO 13849-1, EN 60204-1, EN ISO 13482 (public use)</td></tr>
+</table></section>
+
+<section><h2><small>Interfaces</small>Robot side</h2><table>
+<tr><th>Torso flange</th><td>deck, column-foot M6 pattern ±62 mm, coffee-upright holes</td></tr>
+<tr><th>Cables to the robot</th><td>IP54 split grommet: 2 × 24 V arm buses, Ethernet, safety loop</td></tr>
+<tr><th>Compute</th><td>Jetson Orin NX 16 GB (Seeed reComputer J4012) under a cover on the rear deck; Ethernet switch; CAN gateway</td></tr>
+<tr><th>Cooling</th><td>IP68 fans: 2 per side bay, 2 transfer fans for the centre bay, 1 per drive tunnel; bays ≤ 39 °C, drive air ≤ 38 °C at 35 °C room<span class="t c">CALC</span></td></tr>
+<tr><th>Environment</th><td>indoor, flat floors, 0–35 °C</td></tr>
+</table></section>
+</div>
+
+<section><h2><small>Views</small>Inside the base</h2>
+<div class="grid2">
+<figure><img src="{{amr_open.jpg}}" alt="Base without covers: blue batteries front and rear, centre electronics bay, DIN modules on both spines"><figcaption>Covers and deck removed: batteries lying on their side front and rear (50 mm free in front of each top cover; they slide out for service), converters mounted vertically as Mean Well requires, DIN rails on the spines (power left, safety right).</figcaption></figure>
+<figure><img src="{{amr_exploded.jpg}}" alt="Exploded view of the base"><figcaption>Exploded view: 5 mm S355MC floor pan (also ballast), 6082-T6 spines and deck, bent 5754 covers.</figcaption></figure>
+<figure><img src="{{amr_cables.jpg}}" alt="Top view with the main cable routes in colour"><figcaption>Main cable routes: 48 V red, 24 V traction orange, safety yellow, Ethernet blue.</figcaption></figure>
+<figure><img src="{{amr_dock.jpg}}" alt="Base docked on its charging dock"><figcaption>Dock: RoboPad contacts at the rear right, 120 mm above the floor, flared lead-in rails, charger and controller under the cover.</figcaption></figure>
+</div></section>
+
+<figure><img src="{{giorgio_on_amr.jpg}}" alt="Giorgio, the white bimanual robot with an LED face and barista cap, standing on the new base"><figcaption>Giorgio on its base. The deck sits at the same height as the old adapter plate, so the robot above it did not change.</figcaption></figure>
+
+<section><h2><small>Electrical</small>Single-line diagram</h2>
+<figure><img src="{{single_line.jpg}}" alt="Power single-line diagram from the batteries through fuse, disconnect and contactor to the traction, safety, arm and dock branches"><figcaption>Certified DIN modules only, no custom electronics. Full package in <code>amr/electrical/</code>: netlist, cable schedule, DIN layout, safety functions, automatic checks.</figcaption></figure>
+</section>
+
+<section><h2><small>Cost</small>Built in Italy</h2>
+<div class="scroll"><table class="cost">
+<tr><th>Variant (materials + assembly)</th><th>1 unit</th><th>10 units</th><th>50 units</th></tr>
+<tr><td>AMR alone, incl. dock</td><td>€ 25.0k</td><td>€ 21.1k</td><td>€ 18.6k</td></tr>
+<tr><td>Giorgio R&amp;D (AMR + OpenArm)</td><td>€ 37.2k</td><td>€ 32.1k</td><td>€ 28.5k</td></tr>
+</table></div>
+<p class="note">Estimates; most prices still need quotes. The certified parts dominate the cost: 2 scanners at €2,395 each excl. VAT from a German distributor (€4.0k at DigiKey), the Pilz safety station (€1.8k), and 2 safety wheel drives at €2.3k each. Castor and guide prices still need a quote. The custom parts cost about €1.9k for one unit and €0.6k at 50; they are made locally (laser cutting, bending, CNC from Weerg in Scorzè, powder coating). One-off CE and engineering costs come on top. Details are in <code>amr/INDUSTRIALIZATION.md</code> and <code>amr/bom_amr.csv</code>.</p>
+</section>
+
+<figure><img src="{{amr_parts_sheet.jpg}}" alt="Sheet with the parts to manufacture, each with material, mass, size and process"><figcaption>The parts to manufacture, with material, mass, size and process. STEP and DXF files are in <code>amr/out/</code>.</figcaption></figure>
+
+<section><h2><small>Status</small>What is left before pre-production</h2>
+<ol>
+<li>Every purchased-part value used in the design is taken from an official manual or datasheet (93 items checked, sources saved). Nothing depends on a supplier answer.</li>
+<li>Price quotes: castors (Blickle) and linear guides (HIWIN), plus the estimated fabricated parts.</li>
+<li>Type tests on the prototype, as the standards require: stopping distances and times, field validation with the test objects, scan-plane height, stability and slope holding, threshold climbing, castor preload, EMC and radio.</li>
+<li>Arms: OpenArm has no brakes, and Machinery Regulation Annex III 1.2.6 (d) does not allow parts that fall on power loss. Add brakes or spring balancing on the shoulder and elbow, or choose certified DC arms.</li>
+<li>Vendor STEP files in place of the datasheet envelopes, then a final interference check.</li>
+</ol></section>
+
+<footer>Giorgio is a design concept shown in simulation. Product names are trademarks of their respective owners; Giorgio is not affiliated with or endorsed by them. Sources: <code>github.com/VenetoStato/giorgio</code> (private), folder <code>amr/</code>.</footer>
+</div>

@@ -1,3 +1,4 @@
 Giorgio is an unbuilt design concept, shown in simulation. OpenArm 2.0 models © Enactic, Inc. (Apache-2.0).
 ORCA Hand by ORCA Dexterity, Inc. (CC BY 4.0). AmazingHand by Pollen Robotics (CC BY 4.0).
+Ferrari is a trademark of Ferrari S.p.A. Fiat and Panda are trademarks of FCA Italy S.p.A. (Stellantis), used only for comparison.
 All product names are trademarks of their respective owners. Giorgio is not affiliated with or endorsed by them.

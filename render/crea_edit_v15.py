@@ -54,10 +54,10 @@ S.append(shot("h_expl", kick(0.4, 2.9, "WHAT IT'S MADE OF"), T(0.4, 2.9, "Every 
               names={"testa": ["HEAD", "LED face · 2× 180° fisheye"], "braccio_sx": ["ARMS", "Enactic OpenArm 2.0 · 7+7 DOF"],
                      "braccio_dx": ["HANDS", "grippers · ORCA · AmazingHand"], "busto": ["TORSO + VISION", "Orbbec Gemini 336L stereo depth"],
                      "vassoio": ["KITTING TRAY", "swappable chest module"], "caffe": ["COFFEE MODULE", "24 V capsule machine"],
-                     "scanner": ["SAFETY", "2× SICK nanoScan3 · PL d"], "base": ["BASE", "AgileX Ranger Mini 3.0 · 4WD/4WS"]}))
+                     "scanner": ["SAFETY", "2× SICK nanoScan3 · PL d"], "base": ["BASE", "Slamtec Poseidon · omnidirectional"]}))
 # --- anatomia leggibile: un gruppo alla volta con i dati del componente
-ANAT = {"base": ("MOBILE BASE", "AgileX Ranger Mini 3.0", "4-wheel drive & steer · 120 kg payload\ndocks and charges itself"),
-        "power": ("BATTERY", "48 V LiFePO4, 1.44 kWh", "6–7 h of work\nrecharged by the base on the dock"),
+ANAT = {"base": ("MOBILE BASE", "Slamtec Poseidon", "4-wheel steering · 150 kg rated payload\ndocks and charges itself"),
+        "power": ("BATTERY", "48 V LiFePO4, 1.44 kWh", "6–7 h of work\ncharged from the base's 48 V output"),
         "electronics": ("BRAIN", "NVIDIA Jetson\nOrin NX 16 GB", "vision, planning and learned\nskills, all on board"),
         "scanners": ("SAFETY", "2× SICK nanoScan3", "laser scanners · 360° protective\nfields · certified PL d stop"),
         "structure": ("STRUCTURE", "Aluminium column and frame", "laser-cut sheet + 80×80 profile"),
@@ -92,7 +92,7 @@ S.append(shot("l_cross", kick(0.3, 6.5, "SAFETY"), T(0.3, 6.5, "Slows down for y
 S.append(shot("l_oper", kick(0.4, 7.5, "COLLABORATION"), T(0.4, 7.5, "Next to people.\nNot instead of them.")))
 S.append(shot("s_smista", kick(0.4, 7.5, "SORTING"), T(0.4, 7.5, "Sorts by colour."), sub(1.0, 7.5, "6 of 6, without disturbing what's already sorted.")))
 S.append(shot("r_wide", kick(0.5, 7.0, "AUTONOMY"), T(0.5, 3.6, "Battery low?"), T(4.0, 7.0, "It goes home on its own."), step=2))
-S.append(shot("r_close", kick(0.4, 7.5, "AUTO-DOCKING"), T(0.4, 7.5, "Backs onto the AgileX dock."), sub(1.0, 7.5, "10 of 10 dockings · within 2 mm and 0.3°.")))
+S.append(shot("r_close", kick(0.4, 7.5, "AUTO-DOCKING"), T(0.4, 7.5, "Backs onto its charging dock."), sub(1.0, 7.5, "10 of 10 simulated dockings · within 2 mm and 0.3°.")))
 if os.path.exists("tray_v15.py"):                    # vassoi davanti/dietro, scatole: segmenti definiti in tray_v15.py
     exec(open("tray_v15.py").read())
 # --- impara: solo abilita' dove l'apprendimento serve davvero
