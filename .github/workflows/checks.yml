@@ -1,0 +1,49 @@
+name: checks
+
+on:
+  pull_request:
+  push:
+    branches: [master]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  fast-checks:
+    name: Fast checks (syntax, electrical, links)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install PyYAML (the only dependency of these checks)
+        run: python -m pip install --quiet pyyaml
+
+      - name: Python syntax check (all tracked .py files)
+        run: git ls-files -z '*.py' | xargs -0 python -m py_compile
+
+      - name: AMR electrical + safety checks (amr/electrical/check_amr.py)
+        run: |
+          python amr/electrical/check_amr.py
+          git diff --exit-code -- amr/electrical/CHECKS_AMR.md || {
+            echo "::error::amr/electrical/CHECKS_AMR.md is out of date: run 'python amr/electrical/check_amr.py' and commit the result"; exit 1; }
+
+      - name: Superstructure electrical checks (electrical/calc.py)
+        # calc.py exits 1 when a check FAILs; the Tracer reference design keeps 2 documented FAILs on purpose
+        # (see electrical/README.md). The gate is: the script runs and the committed CHECKS.md is up to date.
+        run: |
+          set +e
+          python electrical/calc.py | tee /tmp/calc.log
+          rc=${PIPESTATUS[0]}
+          set -e
+          grep -Eq '^[0-9]+ checks: [0-9]+ PASS, [0-9]+ FAIL' /tmp/calc.log || { echo "::error::calc.py did not complete (exit $rc)"; exit 1; }
+          git diff --exit-code -- electrical/CHECKS.md || {
+            echo "::error::electrical/CHECKS.md is out of date: run 'python electrical/calc.py' and commit the result"; exit 1; }
+
+      - name: Markdown relative links
+        run: python .github/scripts/check_links.py

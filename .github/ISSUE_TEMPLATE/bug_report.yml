@@ -1,0 +1,57 @@
+name: Bug report
+description: Something does not run, gives a wrong result, or a check fails unexpectedly.
+title: "[bug] "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting! Giorgio is a design + simulation project (nothing is built yet), so "bug" also covers
+        wrong numbers in a calculation, a broken check, or a model that does not load.
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      description: Which part of the repository does this touch?
+      multiple: true
+      options:
+        - amr (own mobile base)
+        - cad (superstructure CAD)
+        - electrical
+        - simulation (MuJoCo)
+        - giorgio_os (software)
+        - training (rl_*)
+        - render / video
+        - docs
+        - other
+    validations:
+      required: true
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened?
+      description: What did you expect, and what happened instead?
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: How to reproduce
+      description: Exact commands (from the repository root) and, if relevant, the commit you are on.
+      placeholder: |
+        git rev-parse --short HEAD
+        python giorgio_v5.py ...
+      render: shell
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Output / traceback
+      render: text
+  - type: input
+    id: env
+    attributes:
+      label: Environment
+      description: OS, Python version, MuJoCo version, GPU (if relevant).
+      placeholder: Ubuntu 24.04, Python 3.12, mujoco 3.8.0

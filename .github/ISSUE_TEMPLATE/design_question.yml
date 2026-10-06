@@ -1,0 +1,58 @@
+name: Design question / technical data
+description: Question or correction about a design choice, a calculation, a part or a datasheet value.
+title: "[design] "
+labels: ["question"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Every purchased-part value in Giorgio must come from an official manufacturer document and carry a tag
+        (see [CONTRIBUTING.md](https://github.com/VenetoStato/giorgio/blob/master/CONTRIBUTING.md)):
+        **SOURCED** (manufacturer document) / **SECONDARY** (dealer, third party) / **ESTIMATE** / **ASSUMED**.
+        Please link documents; do not attach manufacturer PDFs (copyright).
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      description: Which part of the repository does this touch?
+      multiple: true
+      options:
+        - amr (own mobile base)
+        - cad (superstructure CAD)
+        - electrical
+        - simulation (MuJoCo)
+        - giorgio_os (software)
+        - training (rl_*)
+        - render / video
+        - docs
+        - other
+    validations:
+      required: true
+  - type: textarea
+    id: question
+    attributes:
+      label: Question or proposed correction
+      description: Which file / part / value (e.g. amr/CALC.md section, BOM row id, netlist entry)?
+    validations:
+      required: true
+  - type: textarea
+    id: sources
+    attributes:
+      label: Sources
+      description: URL and page of datasheets, manuals, certificates or standards that support your point.
+      placeholder: https://... (p. 12)
+  - type: dropdown
+    id: tag
+    attributes:
+      label: Evidence level of the value you propose
+      options:
+        - SOURCED (official manufacturer document)
+        - SECONDARY (dealer page, third party)
+        - ESTIMATE
+        - ASSUMED
+        - not applicable
+  - type: textarea
+    id: impact
+    attributes:
+      label: Impact
+      description: Which checks or decisions would change (safety, tipping, power budget, BOM...)?

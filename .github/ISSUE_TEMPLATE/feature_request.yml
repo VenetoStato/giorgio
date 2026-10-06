@@ -1,0 +1,51 @@
+name: Feature request / idea
+description: Propose a new capability, module, configuration or improvement.
+title: "[idea] "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Ideas are welcome. For anything bigger than a small fix, discussing it here first saves everyone time.
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      description: Which part of the repository does this touch?
+      multiple: true
+      options:
+        - amr (own mobile base)
+        - cad (superstructure CAD)
+        - electrical
+        - simulation (MuJoCo)
+        - giorgio_os (software)
+        - training (rl_*)
+        - render / video
+        - docs
+        - other
+    validations:
+      required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem or motivation
+      description: What would this make possible or better?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+      description: How could it work? Sketches, links and references are welcome.
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+  - type: checkboxes
+    id: help
+    attributes:
+      label: Contribution
+      options:
+        - label: I would like to work on this myself (a maintainer can assign it to you).
