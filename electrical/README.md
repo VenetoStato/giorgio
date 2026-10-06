@@ -19,7 +19,7 @@
 
 > **ACTIVE (owner decision, latest): Ranger Air, base-powered 24 V. See ARCHITECTURE.md §15.**
 > - Files: `netlist_rangerair.yaml`, `CHECKS_RANGERAIR.md` (122 PASS / 4 FAIL), `diagram_24v.py`, `power_safety_architecture_rangerair.png/.svg`.
-> - Run: `python3 calc.py netlist_rangerair.yaml CHECKS_RANGERAIR.md` and `~/IsaacLab/env_isaaclab/bin/python diagram_24v.py`.
+> - Run: `python3 calc.py netlist_rangerair.yaml CHECKS_RANGERAIR.md` and `python diagram_24v.py` (needs matplotlib).
 > - The 4 FAILs are real:
 >   - autonomy P1 / P2 / P3 = 3.0 / 2.8 / 7.9 h against 4 / 6 / 8 h (base battery 0.65 kWh usable + 1.9 kg buffer 0.12 kWh);
 >   - SF3, the base stop: no external safety input on AgileX bases.
@@ -39,7 +39,7 @@
 | `CHECKS.md` | Tracer prototype: **172 PASS, 2 FAIL, 11 INFO** (SF3 base stop; P2 barista autonomy 5.6 h vs 6 h) |
 | `variants.py` | Generates `netlist_mir250.yaml` (the MiR250 product base, per `cad/BASE_DECISION.md`) and runs calc into `CHECKS_MIR250.md`: **157 PASS, 2 FAIL** (SF2: MiR safe output not documented; P2 barista autonomy 4.4 h vs 6 h) |
 | `make_bom.py`, `base_choice.yaml` | Consolidated whole-robot BOM: writes `../docs/BOM.md` and `../docs/bom.csv` |
-| `diagram.py` | Draws `power_safety_architecture.svg/.png` (Tracer) or, with `--mir250`, `power_safety_architecture_mir250.svg/.png`, at 1920×1080. Run `~/IsaacLab/env_isaaclab/bin/python diagram.py`, which needs matplotlib. |
+| `diagram.py` | Draws `power_safety_architecture.svg/.png` (Tracer) or, with `--mir250`, `power_safety_architecture_mir250.svg/.png`, at 1920×1080. Run `python diagram.py`, which needs matplotlib. |
 
 **Both FAILs are real and kept on purpose.**
 - **SF3 (base stop)** has no rated element: the AgileX Tracer 2.0 documents no external safety input. See ARCHITECTURE §8.6.

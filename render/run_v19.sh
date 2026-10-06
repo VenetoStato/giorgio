@@ -1,8 +1,9 @@
 #!/bin/bash
 # v19 (rev B, no waist joint): every shot that shows the base, re-rendered with OUR AMR (--newbase, amr/out/stl) + AMR section.
 # Ordine per priorita': prima scene del teaser e della sezione AMR. Fotogrammi in v19/<scena>; il montaggio usa v15 se manca v19.
-B=~/tools/blender-4.5.9-linux-x64/blender
-cd ~/giorgio_sim/render
+# BLENDER env var overrides the Blender 4.5 binary (default: the author's path if present, else `blender` on PATH)
+B=${BLENDER:-$( [ -x ~/tools/blender-4.5.9-linux-x64/blender ] && echo ~/tools/blender-4.5.9-linux-x64/blender || echo blender )}
+cd "$(dirname "$0")"
 R="--res 1920 1080 --samples 24 --fast --jpg --newbase"
 r() { local out=$1; shift; rm -rf v19/$out; mkdir -p v19/$out; $B -b -P blender_render.py -- "$@" --out v19/$out/f_#### $R > v19_$out.log 2>&1; echo "fatto $out $(ls v19/$out | wc -l) $(date +%H:%M)"; }
 s() { local out=$1; shift; $B -b -P blender_render.py -- "$@" --out stills_v19/$out.png --res 1920 1080 --samples 96 --fast --newbase > v19s_$out.log 2>&1; echo "fatto $out"; }

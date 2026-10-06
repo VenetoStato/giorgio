@@ -119,10 +119,11 @@ switch to certified DC arms. The other gaps are listed in `ce/GAPS.md`.
 
 Run everything:
 ```bash
-cd ~/giorgio_sim/amr
-../cad/.env/bin/python amr_cad.py && ../cad/.env/bin/python integrate.py && ../cad/.env/bin/python amr_calc.py
-python3 electrical/check_amr.py && (cd electrical && ../../cad/.env/bin/python make_diagrams.py)
-~/tools/blender-4.5.9-linux-x64/blender -b -P render_amr.py -- --view hero --out renders/amr_hero.png
+# from the repository root; CAD env = cad/.env (cad/requirements.txt), BLENDER = Blender 4.5 binary
+make amr-check                 # check_amr.py (PyYAML only) + amr_calc.py, seconds
+make amr-cad                   # amr_cad.py + integrate.py + amr_calc.py in the CAD env (integrate needs cad/out: run make cad-validate once)
+(cd amr/electrical && ../../cad/.env/bin/python make_diagrams.py)
+make render-amr                # = $BLENDER -b -P amr/render_amr.py -- --view hero --out amr/renders/amr_hero.png
 ```
 
 ## Before pre-production (rev B4)

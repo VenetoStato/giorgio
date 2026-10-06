@@ -2,7 +2,7 @@
 
 One Python package runs Giorgio in two places:
 
-* **sim**: against the existing MuJoCo simulation (`~/giorgio_sim/giorgio_v5.py`), headless or with the web console;
+* **sim**: against the existing MuJoCo simulation (`../giorgio_v5.py`), headless or with the web console;
 * **real**: on the Jetson AGX Orin with ROS 2 (Humble now, Jazzy later), through drivers that wrap the vendor SDKs.
 
 Everything above the HAL is the same code in both cases.

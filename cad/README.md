@@ -1,5 +1,10 @@
 # Giorgio — mechanical CAD (parametric, validated)
 
+> **Note (2026-10-06):** the current base is our own AMR rev B4 (`../amr/`). The superstructure parts above the deck
+> (column, torso, head, tray, coffee module, shells) are unchanged and are re-checked on the new base by `amr/integrate.py`.
+> The base-adapter, battery and scanner-bracket parts in this folder (P01, P03–P11, SH01) and the results below belong to
+> the earlier AgileX base variants and are kept for reference. Environment: `cad/requirements.txt`.
+
 Parametric CadQuery model of every part we must manufacture for Giorgio (mobile bimanual service robot), with the
 purchased parts as datasheet envelopes (or the official mesh), every bolted joint specified, and a headless validator that
 checks interference, clearances, fits, fasteners, mass and tipping. Results are in **[VALIDATION.md](VALIDATION.md)**
@@ -12,15 +17,15 @@ x forward, y left, z up), coffee shuttle retracted ("out"). **Current design: Ag
 ## How to run
 
 ```bash
-cd ~/giorgio_sim
-# one-off environment (≈2 GB, already created): conda create -p cad/.env python=3.11 &&
-#   cad/.env/bin/pip install --no-cache-dir cadquery trimesh manifold3d scipy rtree python-fcl networkx shapely mujoco==3.8.0
+# from the repository root
+# one-off environment (≈2 GB): python3.11 -m venv cad/.env && cad/.env/bin/pip install -r cad/requirements.txt
+#   (or: conda create -p cad/.env python=3.11 && cad/.env/bin/pip install -r cad/requirements.txt)
 # coffee poses at the 0.69 m shelf (re-record if the sim changes; ~42 MB, git-ignored):
-MUJOCO_GL=egl PYTHONPATH=~/giorgio_sim ~/IsaacLab/env_isaaclab/bin/python giorgio_v5.py --agent "1:Giorgio, fammi un caffe e portalo a Marco" --seconds 100 --record cad/data/rec_caffe_sh069.pkl
+MUJOCO_GL=egl PYTHONPATH=. python giorgio_v5.py --agent "1:Giorgio, fammi un caffe e portalo a Marco" --seconds 100 --record cad/data/rec_caffe_sh069.pkl
 cad/.env/bin/python cad/sim_export.py          # read-only: arm meshes + recorded poses (render/logistica_v9 + cad/data/rec_caffe_sh069.pkl) -> cad/data/
 cd cad && .env/bin/python validate.py          # build + all checks + exports, ~2.5 min (--no-export, --skip-sweep, --poses N)
 .env/bin/python model.py                        # just build and list parts/masses (11 s)
-~/tools/blender-4.5.9-linux-x64/blender -b -P render_blender.py -- both   # preview PNGs (Workbench)
+$BLENDER -b -P render_blender.py -- both   # preview PNGs (Workbench)
 ```
 
 Outputs (git-ignored, regenerated): `out/step/<part>.step` (one per custom/purchased B-rep part), `out/stl/<part>.stl`,

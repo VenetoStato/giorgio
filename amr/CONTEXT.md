@@ -46,7 +46,7 @@ tag values SOURCED (manufacturer URL) / SECONDARY (distributor) / ESTIMATE / ASS
   RED (Wi-Fi) incl. EN 18031-1; EMC; Battery Reg.
 
 ## Files
-- amr/amr_params.py (all dimensions), amr/amr_cad.py (CadQuery; run: cd ~/giorgio_sim/amr && ../cad/.env/bin/python amr_cad.py),
+- amr/amr_params.py (all dimensions), amr/amr_cad.py (CadQuery; run: cd amr && ../cad/.env/bin/python amr_cad.py),
   amr/integrate.py, amr/out/parts.json (every part: mass, CoG, bbox, material, process), amr/out/integration.json,
   amr/out/{step,stl,dxf,exploded}/.
 - Existing (reference, do not break): cad/ (superstructure CAD, validated), electrical/ (old power design: ARCHITECTURE.md,

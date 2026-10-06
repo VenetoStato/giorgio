@@ -14,7 +14,7 @@ with no custom PCB, at minimum cost**. Rev B follows the owner decision of 2026-
 | `din_layout.md` | rev B3: ONE position table generated from the CAD (`../out/parts.json`), rules, heat per bay |
 | `SAFETY_FUNCTIONS.md` | SF1–SF16 (renumbered, no waist functions) with PLr reasoning, architecture, PL estimate |
 | `check_amr.py` → `CHECKS_AMR.md` | **242 PASS, 0 FAIL** (rev B4), 11 OPEN rows (B48 branch fuses: Mersen HP10M IEC breaking capacity 10 kA DC vs the undocumented 20 kA Isc design bound → measure Isc in TP-14, CERTAINTY G-29) and INFO rows (BOM, options, passive cooling answered by fans, battery envelope, BMS without PL credit, regen with one DSR off, OpenArm regen) |
-| `make_diagrams.py` | regenerates both drawings (`~/giorgio_sim/cad/.env/bin/python make_diagrams.py`) |
+| `make_diagrams.py` | regenerates both drawings (`../../cad/.env/bin/python make_diagrams.py`) |
 
 Tags: **SOURCED** (manufacturer document), **SECONDARY** (distributor listing, fetched 2026-10-05, or a project file),
 **ASSUMED** (to verify). In rev B, 73 % of the package value is SOURCED/SECONDARY (rev A: 36 %).

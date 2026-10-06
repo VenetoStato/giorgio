@@ -3,14 +3,14 @@
 - polso bloccato (giunto e attuatore rimossi): 16 DOF dita attuati
 - collisioni: mesh originali solo visive, collisioni con primitive (capsule/box)
   stimate dalle mesh (PCA) -> veloce su mujoco_warp
-Uscita: orca_cubo_rl.xml (path mesh assoluti, riutilizzabile in Blender).
+Uscita: orca_cubo_rl.xml (meshdir relativo a rl_mani/: ../third_party/orcahand_description/v2/).
 """
 import os
 import numpy as np
 import mujoco
 
-ORCA = "/home/gpitton/giorgio_sim/third_party/orcahand_description/v2"
 QUI = os.path.dirname(os.path.abspath(__file__))
+ORCA = os.path.normpath(os.path.join(QUI, "..", "third_party", "orcahand_description", "v2"))
 OUT = os.path.join(QUI, "orca_cubo_rl.xml")
 CUBO = 0.0275  # semi-lato cubo nominale (5.5 cm)
 
@@ -132,6 +132,8 @@ def build():
     spec.visual.headlight.ambient = [0.35, 0.35, 0.35]
     m2 = spec.compile()
     xml = spec.to_xml()
+    # portable: meshdir relative to this folder (MuJoCo resolves it against the XML file)
+    xml = xml.replace(f'meshdir="{ORCA}/"', 'meshdir="../third_party/orcahand_description/v2/"')
     with open(OUT, "w") as f:
         f.write(xml)
     return m2

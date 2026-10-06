@@ -15,18 +15,15 @@ It covers the hardware layer (HAL), skills, the mission manager, the safety supe
 ## Run it
 
 ```bash
-cd ~/giorgio_sim/giorgio_os
-# one-time: a small venv on top of the MuJoCo env (adds only httpx, ~20 MB)
-~/IsaacLab/env_isaaclab/bin/python -m venv --system-site-packages .venv
-echo ~/IsaacLab/env_isaaclab/lib/python3.12/site-packages > .venv/lib/python3.12/site-packages/zz_isaaclab_env.pth
-.venv/bin/pip install --no-cache-dir httpx && .venv/bin/pip install --no-deps -e .
+# one-time, from the repository root: creates .venv with requirements.txt, installs giorgio_os, fetches third_party/
+make setup                     # = scripts/setup.sh
 
-# operator console + simulated Giorgio
-MUJOCO_GL=egl .venv/bin/python -m giorgio_os.sim_server            # http://127.0.0.1:8080
-#   --config barista|logistics|dexterous|lowcost   --speed 2 (sim speed)   --soc 0.25   --no-humans   --port 8080
+# operator console + simulated Giorgio (from the repository root)
+make console                   # = MUJOCO_GL=egl python -m giorgio_os.sim_server  -> http://127.0.0.1:8080
+#   options: --config barista|logistics|dexterous|lowcost   --speed 2 (sim speed)   --soc 0.25   --no-humans   --port 8080
 
 # tests (headless, ~40 s)
-MUJOCO_GL=egl .venv/bin/python -m pytest
+make test                      # = cd giorgio_os && MUJOCO_GL=egl python -m pytest
 ```
 
 Things to try in the console:

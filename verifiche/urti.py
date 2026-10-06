@@ -3,7 +3,8 @@ Non conta le dita sull'oggetto che stanno afferrando (entro 3 cm dal punto di pr
 uso: MUJOCO_GL=egl PYTHONPATH=. python verifiche/urti.py logistica [secondi] | smista | caffe [secondi]"""
 import sys
 mode = sys.argv[1]; T = float(sys.argv[2]) if len(sys.argv) > 2 else 175
-G = "/home/gpitton/giorgio_sim/"
+import os
+G = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "")  # repository root
 HOOK = '''
 import collections as _co
 _ARMB = {s_: {i for i in range(m.nbody) if m.body(i).name.startswith(f"openarm_{s_}")} for s_ in ("right", "left")}

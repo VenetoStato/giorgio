@@ -42,3 +42,7 @@ rl_openarm/runs/
 docs/fonti/
 # rev archives of generated renders
 amr/archive/**/*.png
+
+# local Python environments
+.venv/
+*.egg-info/

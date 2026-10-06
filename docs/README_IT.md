@@ -14,12 +14,12 @@ Simulazione MuJoCo 3.8 (stesso motore del SolverMuJoCo di Newton), modelli uffic
 ## Dipendenze esterne (non nel repository)
 - `third_party/openarm_mujoco/` = MJCF ufficiale Enactic OpenArm 2.0 (github.com/enactic/openarm_mujoco, Apache-2.0)
 - mani LEAP da mujoco_menagerie, Inspire da unitree_ros (solo opzioni)
-- Blender 4.5 in `~/tools/blender-4.5.9-linux-x64/` per i render
+- Blender 4.5 per i render (variabile d'ambiente `BLENDER`, altrimenti `blender` nel PATH)
 
 ## Comandi
 ```
-cd ~/giorgio_sim
-PY=~/IsaacLab/env_isaaclab/bin/python
+# dalla radice del repository, dopo `make setup` (vedi README)
+PY=.venv/bin/python
 $PY giorgio_real.py --look eva                  # GUI (eva | akira | gits | blame | cyber)
 $PY giorgio_real.py --look akira --video video/x.mp4 --seconds 90
 $PY giorgio_real.py --hands inspire             # mani Inspire (presa a script NON affidabile, vedi sotto)
@@ -64,7 +64,7 @@ $PY stability_test.py                           # analisi di ribaltamento
 ## Versione 5–7 (notte 2–3 ottobre 2026): Giorgio fa tutto da solo, caffè vero sulla schiena, persone articolate
 File principale: `giorgio_v5.py` (modello in `giorgio_model.py`). Comandi:
 ```
-PY=~/IsaacLab/env_isaaclab/bin/python
+PY=.venv/bin/python
 MUJOCO_GL=egl $PY giorgio_v5.py --video video/v8_logistica.mp4 --seconds 185          # ciclo logistico completo (loop)
 MUJOCO_GL=egl $PY giorgio_v5.py --agent "1:Giorgio, fammi un caffe e portalo a Marco" --video video/v8_caffe.mp4 --seconds 100
 $PY giorgio_v5.py --agent "1:..."                                                     # GUI MuJoCo

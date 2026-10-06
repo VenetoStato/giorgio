@@ -1,0 +1,19 @@
+# Giorgio: simulation, checks, GIORGIO-OS console and tests. Python 3.12 (3.10+ should work).
+# Versions are the ones the published results were produced with; MuJoCo is pinned because contact behaviour changes
+# between releases. Install:  python -m pip install -r requirements.txt   (or simply: make setup)
+mujoco==3.8.0
+numpy>=2.1
+scipy>=1.13
+opencv-python-headless>=4.10     # giorgio_v5.py: Gemini 336L vision overlay
+imageio>=2.35                    # videos from the sim
+imageio-ffmpeg>=0.5
+pillow>=10
+matplotlib>=3.9                  # electrical diagrams, learning curves
+PyYAML>=6.0                      # netlists, giorgio_os configs
+trimesh>=4.4                     # verifiche/ (shell and box checks)
+# GIORGIO-OS (giorgio_os/): operator console + REST API + tests
+fastapi>=0.110
+uvicorn>=0.29
+pydantic>=2.6
+httpx>=0.27
+pytest>=8

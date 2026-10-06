@@ -1,5 +1,5 @@
 <mujoco model="orca_cubo_rl">
-  <compiler angle="radian" meshdir="/home/gpitton/giorgio_sim/third_party/orcahand_description/v2/"/>
+  <compiler angle="radian" meshdir="../third_party/orcahand_description/v2/"/>
 
   <option timestep="0.005" impratio="2" cone="elliptic"/>
 

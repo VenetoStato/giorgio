@@ -6,7 +6,8 @@ import sys
 import numpy as np
 
 sys.argv = ["giorgio_scatole.py", "--headless"]
-__file__ = "/home/gpitton/giorgio_sim/giorgio_scatole.py"
+import os
+__file__ = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "giorgio_scatole.py")
 src = open(__file__).read().split("post = _sub(post")[0]
 exec(compile(src, "scatole", "exec"))
 F6 = np.zeros(6)

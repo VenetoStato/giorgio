@@ -4,7 +4,8 @@ import sys
 seed = int(sys.argv[1])
 sys.argv = ["x", "--seconds", "0", "--agent", "999:nulla", "--soc", "0.25"]
 import numpy as np, math
-src = open("/home/gpitton/giorgio_sim/giorgio_v5.py").read().split("# ---------------------------------------------------------------- uscite")[0]
+import os
+src = open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "giorgio_v5.py")).read().split("# ---------------------------------------------------------------- uscite")[0]
 exec(compile(src, "v5", "exec"))
 rng = np.random.default_rng(seed)
 # posa di partenza casuale in zona libera

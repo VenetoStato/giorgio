@@ -89,8 +89,8 @@ Deviazione standard iniziale 0,6.
 
 ## Come rieseguire
 ```bash
-PY=~/miniconda3/envs/unitree_rl_mjlab/bin/python   # mujoco 3.5, mujoco_warp 3.5, warp 1.12, torch cu130
-cd ~/giorgio_sim/rl_mani
+PY=${PYTHON:-python}   # ambiente di addestramento: requirements-train.txt (mujoco 3.5, mujoco_warp 3.5, warp 1.12, torch CUDA)
+cd rl_mani
 $PY build_model.py                                  # rigenera orca_cubo_rl.xml
 $PY env_orca.py 4096                                # benchmark (~125k passi di controllo/s)
 $PY train.py --envs 4096 --max_minutes 90 --out runs/r2

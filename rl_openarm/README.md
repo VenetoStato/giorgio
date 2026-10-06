@@ -285,8 +285,8 @@ visuomotor checkpoint (the Enactic ACT model above) is not "plug and play" on Gi
 ## 6. How to rerun
 
 ```bash
-PY=~/miniconda3/envs/unitree_rl_mjlab/bin/python          # mujoco 3.5, mujoco_warp, warp 1.12, torch cu130
-cd ~/giorgio_sim/rl_openarm
+PY=${PYTHON:-python}   # training env from requirements-train.txt (mujoco 3.5, mujoco_warp, warp 1.12, torch CUDA)
+cd rl_openarm
 $PY env_openarm.py 4096                                      # benchmark
 $PY train.py --envs 4096 --max_minutes 50 --out runs/rX     # current reward (v4/v5 coefficients); NOT tested from scratch: the delivered policy came from the staged runs r2→r5
 P_OBST=0.75 $PY train.py --envs 4096 --max_minutes 15 --out runs/rY --resume runs/rX/modello.pt   # as in v5
@@ -461,7 +461,7 @@ What the numbers say:
 
 How to rerun:
 ```bash
-PY=~/miniconda3/envs/unitree_rl_mjlab/bin/python
+PY=${PYTHON:-python}   # training env (requirements-train.txt)
 $PY train.py --task cabinet --envs 4096 --max_minutes 95 --out runs/cX
 $PY run_cabinet.py eval --robot openarm --n 100 --json valutazione/a.json                     # policy (default weights)
 $PY run_cabinet.py eval --robot giorgio --n 100 --json valutazione/b.json                     # add --no_buffer: no front tray

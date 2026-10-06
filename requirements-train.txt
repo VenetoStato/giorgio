@@ -1,0 +1,14 @@
+# Giorgio: GPU training (rl_mani/, rl_openarm/). Separate environment from requirements.txt, because the published
+# policies were trained with MuJoCo 3.5 + mujoco_warp 3.5. Python 3.11, NVIDIA GPU with a recent CUDA driver.
+# Install torch for your CUDA version first (https://pytorch.org/get-started/locally/), then:
+#   python -m pip install -r requirements-train.txt
+mujoco==3.5.0
+mujoco-warp==3.5.0
+warp-lang==1.12.1
+mjlab==1.2.0          # only for mjlab.sim.randomization.expand_model_fields
+torch>=2.6
+numpy>=2.1
+matplotlib>=3.9
+imageio>=2.35
+imageio-ffmpeg>=0.5
+pillow>=10
