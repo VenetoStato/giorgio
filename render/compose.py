@@ -79,7 +79,7 @@ def draw_texts(img, texts, t):
             x, y = pos
         if (pos == "ll" or tx.get("_ll")) and tx.get("band", True):        # sfumatura scura dal basso, solo a sinistra
             band = Image.new("L", (W, H), 0); bd = ImageDraw.Draw(band)
-            for yy in range(int(H * 0.45), H, 2):
+            for yy in range(int(H * 0.45), H):        # ogni riga: il passo 2 creava righe alternate (visibili su mobile)
                 k_ = (yy - H * 0.45) / (H * 0.55)
                 bd.line((0, yy, W, yy), fill=int(165 * a * k_ ** 1.4))
             blk = Image.new("RGBA", (W, H), (0, 0, 0, 255)); blk.putalpha(band)
@@ -360,7 +360,17 @@ def draw_chat(img, chat, t):
 
 tmp = OUT + ".noaudio.mp4"
 wr = imageio.get_writer(tmp, fps=FPS, quality=None, macro_block_size=8, codec="libx264", pixelformat="yuv420p",
-                        output_params=["-crf", "20", "-preset", "slow", "-movflags", "+faststart"])
+                        output_params=["-crf", "17", "-preset", "slow", "-tune", "grain", "-x264-params", "aq-mode=3",
+                                       "-movflags", "+faststart"])
+_RNG = np.random.default_rng(7)
+
+
+def _dither(a):
+    """anti-banding: rumore triangolare di ~1 livello (invisibile) che rompe i gradini dei gradienti scuri;
+    con -tune grain e aq-mode=3 il codificatore lo conserva invece di appiattire le zone scure"""
+    a = np.asarray(a, dtype=np.float32)
+    n = _RNG.random(a.shape[:2], dtype=np.float32) - _RNG.random(a.shape[:2], dtype=np.float32)
+    return np.clip(a + 1.6 * n[..., None] + 0.5, 0, 255).astype(np.uint8)
 def seg_len(sg):
     if sg["type"] == "card":
         return sg["dur"]
@@ -386,17 +396,17 @@ for si, sg in enumerate(E["segments"]):
             head.append(img)
             if len(head) == len(tail):
                 for j, (a_, b_) in enumerate(zip(tail, head)):
-                    wr.append_data(np.asarray(Image.blend(a_, b_, ease((j + 1) / (len(tail) + 1))))); nframes += 1
+                    wr.append_data(_dither(Image.blend(a_, b_, ease((j + 1) / (len(tail) + 1))))); nframes += 1
                 tail = []
             continue
         buf = sg.setdefault("_buf", [])
         buf.append(img)
         if len(buf) > xf_n:
-            wr.append_data(np.asarray(buf.pop(0))); nframes += 1
+            wr.append_data(_dither(buf.pop(0))); nframes += 1
     tail = sg.get("_buf", []) if si < len(E["segments"]) - 1 else []
     if si == len(E["segments"]) - 1:
         for img in sg.get("_buf", []):
-            wr.append_data(np.asarray(img)); nframes += 1
+            wr.append_data(_dither(img)); nframes += 1
     print(f"segmento {si} ({sg['type']}) ok, totale {nframes / FPS:.1f} s", flush=True)
 wr.close()
 dur = nframes / FPS
