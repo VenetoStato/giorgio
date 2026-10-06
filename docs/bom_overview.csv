@@ -1,0 +1,172 @@
+group,item,pn,qty,unit,total,source,status,origin
+"Base AMR (structure, drives, castors, covers)",A01 Floor pan,laser 5 mm S355MC + PEM M6 + powder coat,1.0,130.0,130.0,laser/sheet-metal shop TV/PD (quote) / LaserBoost,"estimate, quote needed",amr/bom_amr.csv
+"Base AMR (structure, drives, castors, covers)",A02 Top deck = superstructure flange (z 353),"waterjet 15 mm 6082-T6 + CNC (column-foot M6 through deck + doubler A09, coffee-upright holes as old P01)",1.0,400.0,400.0,CNC shop Veneto / Weerg (Scorze VE),"estimate, quote needed",amr/bom_amr.csv
+"Base AMR (structure, drives, castors, covers)","A03 Spine R (DIN bay, safety)",waterjet 6 mm 6082-T6 + tapped M5/M6 rows,1.0,110.0,110.0,CNC shop Veneto,"estimate, quote needed",amr/bom_amr.csv
+"Base AMR (structure, drives, castors, covers)","A03 Spine L (DIN bay, power)",waterjet 6 mm 6082-T6 + tapped M5/M6 rows,1.0,110.0,110.0,CNC shop Veneto,"estimate, quote needed",amr/bom_amr.csv
+"Base AMR (structure, drives, castors, covers)","A04 Post 30x30x3 (FL/FR/RL at (±360, ±106); RR replaced by bracket A07)","tube EN 755-2 6082, cut + drill",3.0,25.0,75.0,sheet-metal/CNC shop Veneto,"estimate, quote needed",amr/bom_amr.csv
+"Base AMR (structure, drives, castors, covers)","A05 Tower roof 6 mm S355MC, no legs (castor bump-stop landing + scanner seat FR/RL), bent flange to the spine stub",laser + bend 6 mm S355MC + machined scanner seat + paint,4.0,60.0,240.0,welding shop TV/PD,"estimate, quote needed",amr/bom_amr.csv
+"Base AMR (structure, drives, castors, covers)",A06 Corner bracket FL (spine extension: corner rail for U7 + roof support),waterjet 6 mm 6082-T6 + tap M5,1.0,35.0,35.0,CNC shop Veneto / Weerg,"estimate, quote needed",amr/bom_amr.csv
+"Base AMR (structure, drives, castors, covers)",A07 Corner bracket RR (corner rail for U8 + roof + deck corner; replaces the RR post),waterjet 6 mm 6082-T6 + tap M5,1.0,40.0,40.0,CNC shop Veneto / Weerg,"estimate, quote needed",amr/bom_amr.csv
+"Base AMR (structure, drives, castors, covers)",A08 Rail bracket RL (left HIGH rail extension above the RL scanner),waterjet 6 mm 6082-T6 + tap M5,1.0,25.0,25.0,CNC shop Veneto / Weerg,"estimate, quote needed",amr/bom_amr.csv
+"Base AMR (structure, drives, castors, covers)","A09 Deck doubler under the column foot (rev B4, G-19), x -160..34, |y| <= 131","waterjet 15 mm 6082-T6, 8 x M6 through holes on the foot grid + M5 to the spines",1.0,60.0,60.0,CNC shop Veneto / Weerg (Scorze VE),"estimate, quote needed",amr/bom_amr.csv
+"Base AMR (structure, drives, castors, covers)","A10 Rail bracket FR (right HIGH rail extension to x 298: SR3, CAN1; rev B4)",waterjet 6 mm 6082-T6 + tap M5,1.0,25.0,25.0,laser/sheet-metal shop TV/PD (quote),"estimate, quote needed",amr/bom_amr.csv
+"Base AMR (structure, drives, castors, covers)","D02 SWD cheek plates (2 per drive, on the gearbox fixing points M6 50 x 100; rev B4)",waterjet 8 mm 6082-T6 + drill/tap,4.0,18.0,72.0,Weerg / CNC shop,"estimate, quote needed",amr/bom_amr.csv
+"Base AMR (structure, drives, castors, covers)","E43 SWD tunnel L/R (rev B4, F3): 2 mm 5754 hood + end cap + baffle, EPDM lip seals and pan brush strip","laser + bend 2 mm 5754, riveted; EPDM lip + brush strip",2.0,70.0,140.0,laser/sheet-metal shop TV/PD (quote),"estimate, quote needed",amr/bom_amr.csv
+"Base AMR (structure, drives, castors, covers)",B02 Battery pad EPDM 3 mm (F/R),die-cut EPDM 3 mm,2.0,15.0,30.0,rubber die-cutter Veneto,"estimate, quote needed",amr/bom_amr.csv
+"Base AMR (structure, drives, castors, covers)",B03 Battery strap (F0/F1/R0/R1),laser 3 mm 5754 + 2 bends,4.0,20.0,80.0,Weerg (5754 cut) + local bending,"estimate, quote needed",amr/bom_amr.csv
+"Base AMR (structure, drives, castors, covers)",K01 Cover front,laser + bend 2 mm 5754 + powder RAL 9016 + tricolour band,1.0,110.0,110.0,sheet-metal + powder coater TV,"estimate, quote needed",amr/bom_amr.csv
+"Base AMR (structure, drives, castors, covers)",K02 Cover rear (fan exhaust + rear panel devices),laser + bend 2 mm 5754 + powder RAL 9016,1.0,110.0,110.0,sheet-metal + powder coater TV,"estimate, quote needed",amr/bom_amr.csv
+"Base AMR (structure, drives, castors, covers)",K03 Cover left (fan intake),laser + bend 2 mm 5754 + powder RAL 9016,1.0,110.0,110.0,sheet-metal + powder coater TV,"estimate, quote needed",amr/bom_amr.csv
+"Base AMR (structure, drives, castors, covers)",K04 Cover right (fan intake),laser + bend 2 mm 5754 + powder RAL 9016,1.0,110.0,110.0,sheet-metal + powder coater TV,"estimate, quote needed",amr/bom_amr.csv
+"Base AMR (structure, drives, castors, covers)",K06 Jetson cover on the rear deck (CAD K06; CERTAINTY M9),"laser + bend 2 mm 5754, slotted louvres, powder RAL 9016",1.0,45.0,45.0,laser/sheet-metal shop TV/PD (quote),"estimate, quote needed",amr/bom_amr.csv
+"Base AMR (structure, drives, castors, covers)",K05 Rubber edge EPDM 22 mm,"Angst+Pfister APSOseal 1025058803 EPDM profile 25 x 20 mm, 70 +-5 Shore A (product page, docs/fonti) by the metre + bonding",1.0,40.0,40.0,Angst+Pfister (apsoparts.com),quote needed,amr/bom_amr.csv
+"Base AMR (structure, drives, castors, covers)",D01 ez-Wheel SWD 125 (R/L),"EW2A-125HN04B (4:1 1-stage, brake, safety encoder): L 196 mm coaxial, 7.0 kg (manual v2.0.2 p.28); in tunnel E43",2.0,2333.0,4666.0,https://www.generationrobots.com/en/404239-swd-125-safety-wheel-drive.html,documented,amr/bom_amr.csv
+"Base AMR (structure, drives, castors, covers)","C01 Swivel castor Blickle L-ALST 80K (ID 754464): D80 x 30 Softhane 75 ShA, 200 kg @ 4 km/h, 500 kg static, H 102, offset 38",Blickle L-ALST 80K (754464): 200 kg at 4 km/h; rev B4 top speed 1.1 m/s <= 4 km/h (G-04),4.0,30.0,120.0,Blickle Italia,quote needed,amr/bom_amr.csv
+"Base AMR (structure, drives, castors, covers)","C02 Castor carriage weldment (carriage plate + tongue + mast + shelf), FL/RR and FR/RL mirror variants",laser 6/8 mm S355MC + weld + zinc flake,4.0,60.0,240.0,welding shop TV/PD,"estimate, quote needed",amr/bom_amr.csv
+"Base AMR (structure, drives, castors, covers)","C03 PU bump pad 30 x 30 x 3, 90 ShA, bonded","Angst+Pfister APSOplast PUR D15 90A sheet 3 mm (0125103030), die-cut 30 x 30",4.0,1.0,4.0,Angst+Pfister,quote needed,amr/bom_amr.csv
+"Base AMR (structure, drives, castors, covers)","C04 Compression spring Gutekunst D-313J-02 (d 3.6, De 31.6, L0 53.9, R 14.172 N/mm), 2 per castor",Gutekunst D-313J-02,8.0,12.37,98.96,Gutekunst Federn (federnshop.com),documented,amr/bom_amr.csv
+"Base AMR (structure, drives, castors, covers)","C05 Spring bracket (8 mm S355MC, bent, vertical M6 slots for the preload setting)",laser + bend 8 mm S355MC + zinc flake,4.0,12.0,48.0,sheet-metal shop TV/PD,"estimate, quote needed",amr/bom_amr.csv
+"Base AMR (structure, drives, castors, covers)",C06 Droop stop: rubber buffer Ganter GN 351-20-15-M6-SS-55 + 4 mm angle (angle 5 mm lower than for the d20x10 envelope),"Ganter GN 351-20-15-M6-SS-55 (NR 55 Shore, 480 N at 3.75 mm) + angle",4.0,4.0,16.0,Ganter / norelem dealers,quote needed,amr/bom_amr.csv
+"Base AMR (structure, drives, castors, covers)","C07 Linear guide rail HIWIN MGN15R, L 190 (15 + 4 x 40 + 15)",HIWIN MGN15R L190,4.0,25.0,100.0,HIWIN Italia / distributor,quote needed,amr/bom_amr.csv
+"Base AMR (structure, drives, castors, covers)","C08 Linear guide block HIWIN MGN15H (Z0, standard seals), 2 per castor",HIWIN MGN15H,8.0,30.0,240.0,HIWIN Italia / distributor,quote needed,amr/bom_amr.csv
+"Base AMR (structure, drives, castors, covers)","C09 Castor fasteners: 16 x M8x16 ISO 10642 10.9, 20 x M3x10, 32 x M3x8, 16 x M6, Loctite 243",ISO 10642 / ISO 4762,1.0,10.0,10.0,fastener distributor,"estimate, quote needed",amr/bom_amr.csv
+"Base AMR (structure, drives, castors, covers)","E40 Fan 60x60x25 24 V IP54 + filter grille, side bays (Lin/Lout/Rin/Rout)","San Ace 9WPA0624S4001 (60x60x25, 24 V, 59.4 m3/h, 151 Pa, IP68) + filter grille",4.0,25.0,100.0,Sanyo Denki / distributors,quote needed,amr/bom_amr.csv
+"Base AMR (structure, drives, castors, covers)","E44 Tunnel fan L/R on the SWD tunnels (rev B4, F3)","San Ace 9WPA0624S4001 (60x60x25, 24 V, IP68)",2.0,25.0,50.0,Sanyo Denki / distributors,quote needed,amr/bom_amr.csv
+"Base AMR (structure, drives, castors, covers)","E42 Fan 40x40x20 24 V (IP54 class) + finger guard, centre-bay supply in the spine cut-outs (L/R)","San Ace 9WPA0424H6001 (40x40x20, 24 V, 14.4 m3/h, 81 Pa, IP68) + finger guard",2.0,15.0,30.0,Sanyo Denki / distributors,quote needed,amr/bom_amr.csv
+"Base AMR (structure, drives, castors, covers)",E53 Deck cable-entry frame IP54 (base -> superstructure),icotek KEL-DPZ class,1.0,35.0,35.0,icotek / distributor,"estimate, quote needed",amr/bom_amr.csv
+"Base AMR (structure, drives, castors, covers)","Z01 Fasteners, PEM, inserts, ties, glands, labels, CE nameplate","ISO 4762/7380, PEM, Lapp Skintop",1.0,95.0,95.0,Wuerth Italia / Bossard,"estimate, quote needed",amr/bom_amr.csv
+"Base AMR (structure, drives, castors, covers)",E28 Second safety I/O expansion SX2 for certified-arm safety I/O (C48 only),Pilz PNOZ m EF 8DI4DO (772142),1.0,321.86,321.86,https://www.eibabo.de,documented,amr/bom_amr.csv
+"Base AMR (structure, drives, castors, covers)",K3 Arm-feed precharge K3 (Finder 22.32 + Vishay RH-50 12R; C48 only; rev B4 G-11),Finder 22.32.0.024.4340 + Vishay Dale RH050 12R0,1.0,45.0,45.0,Finder / RS,"estimate, quote needed",amr/bom_amr.csv
+Safety,S01 SICK nanoScan3 Pro I/O (0/1),NANS3-CAAZ30AN1 (1100334),2.0,2394.95,4789.9,https://vb-steuerungstechnik.de/Sick-NANS3-CAAZ30AN1-/-1100334-/-nanoScan3-Pro-/-Safety-Laser-Scanner_1,documented,amr/bom_amr.csv
+Safety,"S02 nanoScan3 system plug NANSX-AAACZZZZ1 (2105107), 300 mm, supply + I/O","NANSX-AAACZZZZ1 (scanner ships without plug, SICK data sheet)",2.0,265.73,531.46,eibabo.de / SICK Italia,documented,amr/bom_amr.csv
+Safety,E02 E-stop Siemens SIRIUS ACT 3SU1 (R/L): mushroom twist-release + holder + 2x 3SU1400-1AA10-1CA0 NC (positive opening),"Siemens 3SU1050-1HB20-0AA0 (40 mm, EN ISO 13850, B10 100 000) + holder 3SU1500-0AA10-0AA0 + 2x 3SU1400-1AA10-1CA0 NC (datasheets docs/fonti)",2.0,33.56,67.12,Siemens Italia / RS / DigiKey.it,documented,amr/bom_amr.csv
+Safety,E41 Reset pushbutton blue illuminated (rear panel),"Eaton M22-DL-B (216931) + M22-K10 (216376) (Eaton specification sheets, docs/fonti)",1.0,12.83,12.83,Eaton Italia / DigiKey.it,documented,amr/bom_amr.csv
+Safety,E41 Key selector AUTO/MANUAL/SERVICE (rear panel),"Eaton M22-WRS3 (216900) + 2x M22-K10 (216376) (Eaton specification sheets, docs/fonti)",1.0,52.64,52.64,Eaton Italia / DigiKey.it,documented,amr/bom_amr.csv
+Safety,"E41 M12 socket for the enabling pendant (rear panel), 5-pole A-coded","binder 76 0632 1011 00005-0200 (M12-A female, 5 pins, 60 V 4 A, IP68)",1.0,25.0,25.0,binder / distributors,quote needed,amr/bom_amr.csv
+Safety,"SE1 Handheld pendant, 3-position enabling switch + jog (manual mode)","Euchner ZSA2B4G02CC2322 (169871): EN 60947-5-8, 2 channels, B10D 3.9E5, IP67, M12 5-pole",1.0,500.0,500.0,Euchner Italia / distributors,quote needed,amr/bom_amr.csv
+Safety,HL1 Signal tower + buzzer 24 V (ISO 3691-4 warning),"Patlite WME-302DFB-RYG (24 V DC, 3 tiers + buzzer 93 dB, IP54)",1.0,120.0,120.0,Werma / Patlite distributor,quote needed,amr/bom_amr.csv
+Safety,E2C Arm-bus safety contactor K1 (mirror contact),Siemens 3RT2026-1BB40,1.0,202.1,202.1,Siemens / RS,documented,amr/bom_amr.csv
+Safety,E2D Arm-bus safety contactor K2 (mirror contact),Siemens 3RT2026-1BB40,1.0,202.1,202.1,Siemens / RS,documented,amr/bom_amr.csv
+Safety,E59 Jetson GPIO -> HL1 signal tower interface JR1: 2 solid-state modules (rev B4 G-22; right MID rail),"2x Phoenix EMG 17-OV-TTL/24DC/2 (2943259): TTL input '1' >= 2 V, 2.6 mA (Jetson 3.3 V GPIO), output 24 V DC 2 A (drives the HL1 tiers directly), 5 V aux from U6",1.0,60.0,60.0,Phoenix Contact Italia,"estimate, quote needed",amr/bom_amr.csv
+Safety,"E21 Safety controller base unit SC0 Pilz PNOZ m B0 (20 safe in, 4 safe SC out, 4 configurable out)",Pilz PNOZ m B0 (772100),1.0,784.12,784.12,https://www.eibabo.de/pilz/sicherheitssteuerung-pnoz-m-b0-eb16105018,documented,amr/bom_amr.csv
+Safety,E20 Safety controller Ethernet/Modbus TCP module SC1 Pilz PNOZ m ES ETH,Pilz PNOZ m ES ETH (772130),1.0,268.89,268.89,https://www.eibabo.de,documented,amr/bom_amr.csv
+Safety,E2H Safety relay expansion SR1 Pilz PNOZ m EF 4DI4DOR (SWD STO_1/2 + INSafe_1/2 relay contacts),Pilz PNOZ m EF 4DI4DOR (772143),1.0,379.72,379.72,Pilz Italia / eibabo.de,documented,amr/bom_amr.csv
+Safety,E2I Safety relay expansion SR2 Pilz PNOZ m EF 4DI4DOR (scanner CI1-CI4 relay contacts),Pilz PNOZ m EF 4DI4DOR (772143),1.0,379.72,379.72,Pilz Italia / eibabo.de,documented,amr/bom_amr.csv
+Safety,E2M Safety relay expansion SR3 Pilz PNOZ m EF 4DI4DOR (SWD INSafe_3/4 = SLS[2] 0.7 m/s; rev B4),Pilz PNOZ m EF 4DI4DOR (772143),1.0,379.72,379.72,https://www.eibabo.de,documented,amr/bom_amr.csv
+Safety,RB1-10 Bleed resistors Vishay PR01 2.2 kOhm 1 W in Phoenix double-level component terminals (one per relay contact; rev B4: 10),Vishay PR01 2.2 kOhm 1 W + component terminal,10.0,4.0,40.0,Phoenix Contact Italia / RS,"estimate, quote needed",amr/bom_amr.csv
+Safety,"E2J Interposing relay KI4 for the K4 coil (Phoenix PLC-RSC-24DC/21, 6.2 mm)","Phoenix PLC-RSC-24DC/21 (2966171), input 9 mA",1.0,8.69,8.69,Phoenix Contact Italia,documented,amr/bom_amr.csv
+Safety,SCT Pilz plug-in spring terminal sets for B0 + EF,Pilz 751008 (B0) + 3 x 751004 (SR1-SR3),1.0,115.23,115.23,Pilz Italia,documented,amr/bom_amr.csv
+Power,"B01 Discover AES PRO DLP-GC2-48V (F/R), lying on its side, >= 50 mm free at the top cover, hold-downs",DLP-GC2-48V LFP 51.2 V 30 Ah,2.0,930.0,1860.0,Discover EU distributor (to identify),"estimate, quote needed",amr/bom_amr.csv
+Power,"G01 Discover LYNK II gateway G01 (120 x 135 x 44 mm on bracket E38b, right bay; relay R1 NO energised = OK in the K0 coil chain; R3 -> PNOZ; CAN to PCAN)",950-0025,1.0,350.0,350.0,Discover EU distributor,"estimate, quote needed",amr/bom_amr.csv
+Power,"E38b LYNK II bracket (2 mm 5754, hung from the deck, against the right side cover)",laser + bend 2 mm 5754,1.0,25.0,25.0,sheet-metal shop TV/PD,"estimate, quote needed",amr/bom_amr.csv
+Power,"E03 Albright ED250B-L key-lockable service disconnect (blowouts; no-load isolator, switch with K0 open)",ED250B-L,1.0,150.0,150.0,Albright UK / forklift spares,"estimate, quote needed",amr/bom_amr.csv
+Power,"E10 Main fuse F0 Siemens 3NA3830 100 A gG size NH000 (250 V DC, 25 kA DC) in an NH00 base",Siemens 3NA3830 + 3NH3030,1.0,40.0,40.0,Siemens / RS / DigiKey.it,"estimate, quote needed",amr/bom_amr.csv
+Power,"E11 Main contactor K0 Albright SW80B...A (blowouts B, aux A, continuously rated 24 V DC coil) on DIN plate",SW80B...A 24 V DC continuous coil,1.0,130.0,130.0,Albright UK / forklift spares,"estimate, quote needed",amr/bom_amr.csv
+Power,E12 Precharge relay K0P + resistor 47R,Finder 22.32.0.024.4340 + Vishay Dale RH-50 (RH050) 47R0 (G-25: replaces Arcol HS50),1.0,45.0,45.0,Finder (Almese TO) / RS,"estimate, quote needed",amr/bom_amr.csv
+Power,E17 K0 on-delay timer K0T 0.6 s (hard-wired K0 sequence),Finder 80.01.0.240.0000,1.0,35.0,35.0,Finder (Almese TO) / RS,"estimate, quote needed",amr/bom_amr.csv
+Power,"E18 Branch fuse holders 10x38 gPV + links + comb (x6: F1-F4, F5L, F5R)","Mersen 10x38 DC holder CUS101HEL x6 + HP10M gPV: F1 HP10M6, F2 HP10M20, F3/F4 HP10M20, F5L/F5R HP10M15 (OA) / HP10M25 (C48) + comb",1.0,132.9,132.9,Mersen / DigiKey.it,documented,amr/bom_amr.csv
+Power,E31 SWD feed fuses F8L/F8R 20 A gPV (holder + link) x2,Mersen CUS101HEL + HP10M20 x2,1.0,39.3,39.3,Mersen / DigiKey.it,documented,amr/bom_amr.csv
+Power,E33 Charge-path fuse F7 (holder + link),Mersen CUS101HEL + HP10M32,1.0,19.65,19.65,Mersen / DigiKey.it,documented,amr/bom_amr.csv
+Power,E2F AUX48 branch fuses WF1 6 A / WF2 12 A / WF3 2 A + FJ 4 A on 12 V (CAD E2L) (holder + link) x4,Mersen CUS101HEL x4 + HP10M6 / HP10M12 / HP10M2 / HP10M4,1.0,78.6,78.6,Mersen / DigiKey.it,documented,amr/bom_amr.csv
+Power,E13 Traction DC-DC U1,Mean Well DDR-480C-24,1.0,165.0,165.0,https://www.digikey.it/it/products/result?keywords=DDR-480C-24,documented,amr/bom_amr.csv
+Power,E14 Traction DC-DC U2,Mean Well DDR-480C-24,1.0,165.0,165.0,https://www.digikey.it/it/products/result?keywords=DDR-480C-24,documented,amr/bom_amr.csv
+Power,E15 Auxiliary 24 V DC-DC U4 (S24),Mean Well DDR-240C-24,1.0,134.08,134.08,Melchioni / Gigatek / DigiKey.it,documented,amr/bom_amr.csv
+Power,E2G Jetson 12 V DC-DC U5 (right LOW rail rear),Mean Well DDR-120C-12,1.0,63.66,63.66,Melchioni / Gigatek / DigiKey.it,documented,amr/bom_amr.csv
+Power,E16 Shunt regulator T24 27 V R1a/R1b (deck underside above the rear pack),maxon DSR 50/5 (309687),2.0,145.15,290.3,https://www.maxongroup.com/maxon/view/product/309687,documented,amr/bom_amr.csv
+Power,E30 ORing module T24 (centre bay LOW right),Mean Well DRDN40-24,1.0,55.59,55.59,Melchioni / DigiKey.it,documented,amr/bom_amr.csv
+Power,E34 Charge-path ideal diode U8 (RR corner rail),Mean Well DRDN40-48,1.0,54.45,54.45,Melchioni / DigiKey.it,documented,amr/bom_amr.csv
+Power,E19 0 V distribution block + chassis strap,"Weidmueller WPD 100 2X25/6X10 GY (1561910000), 101 A",1.0,36.02,36.02,Weidmueller Italia,documented,amr/bom_amr.csv
+Power,E27 S24 fuse terminals + safety terminals + bridges,"Phoenix PT 2,5 / PT 4 / PT 4-HESI + FBS",1.0,90.0,90.0,Phoenix Contact Italia / DigiKey.it,"estimate, quote needed",amr/bom_amr.csv
+Power,E32 T24 power terminals (2),"Phoenix PT 16-N (3212138) feed-through 16 mm2, 76 A (datasheet docs/fonti)",1.0,20.0,20.0,Phoenix Contact Italia,"estimate, quote needed",amr/bom_amr.csv
+Power,"E0x DIN rails TS35 side bays (L: lower F/R, MID, upper F/R, corner FL; R: lower F/R, MID F/R + NET (rev B4), upper to x 298, corner RR), 13 pieces","Phoenix NS 35/7,5 (EN 60715), cut to length",1.0,30.0,30.0,Phoenix / Weidmueller Italia,"estimate, quote needed",amr/bom_amr.csv
+Power,"E0C Centre-bay DIN rails TS35 E0C_L / E0C_R at z 213 (spine inner faces), 154 mm each (rev B4: one per face)","EN 60715, 154 mm",2.0,4.0,8.0,Phoenix / Weidmueller Italia,"estimate, quote needed",amr/bom_amr.csv
+Power,"E58 Head 5 V DC-DC U6 (left MID rail above the SWD; 52.5 mm wide, vertical)",Mean Well DDR-60L-5,1.0,47.34,47.34,Melchioni / DigiKey.it,documented,amr/bom_amr.csv
+Power,"E5A Deck-interface terminals XC (ES3, PSEN, HL1, coffee 24 V, head 5 V), right MID rail",Phoenix PT 1.5 / PT 4,1.0,45.0,45.0,Phoenix Contact Italia,"estimate, quote needed",amr/bom_amr.csv
+Power,"E2K 48 V application low-voltage cut-off K0V: Carlo Gavazzi DUB01CD48500V (50 V range, under-voltage, normally energised, 48.0 V, 5 s), 22.5 mm",Carlo Gavazzi DUB01CD48500V,1.0,144.9,144.9,Carlo Gavazzi Italia / DigiKey.it,documented,amr/bom_amr.csv
+Power,D0 Freewheel diode on the K0 SW80 coil + Siemens diode/Zener suppressors on K1/K2,"Vishay 1N5408 (3 A, 1000 V, IFSM 200 A) across the SW80 coil spades + Siemens 3RT2926-1BB00 varistor (24-70 V DC, S0) on K1 and K2 (datasheets docs/fonti)",1.0,40.0,40.0,Phoenix / Siemens,"estimate, quote needed",amr/bom_amr.csv
+Power,"H01..H10 Harnesses H01-H10 (battery, B48, traction, dock, scanner M12, E-stops, Ethernet/safety to deck)",Lapp / H07Z-K cable + SICK M12 cordsets,1.0,560.0,560.0,harness subcontractor Veneto,"estimate, quote needed",amr/bom_amr.csv
+Dock,"E01 Roboteq RoboPad extendable collector RPCOL90-100 (60 A continuous; passive, no CAN; H06a <= 2 m)",RPCOL90-100,1.0,400.0,400.0,Roboteq/Nidec direct,"estimate, quote needed",amr/bom_amr.csv
+Dock,E35 Dock signature resistor 10 kOhm in component terminal,Phoenix component terminal block + Vishay PR02 10 kOhm 2 W,1.0,8.0,8.0,Phoenix Contact Italia,"estimate, quote needed",amr/bom_amr.csv
+Dock,E37 Dock signature relay KS (PNOZ standard output),Finder 38.51.7.024.0050,1.0,15.0,15.0,Finder / RS,"estimate, quote needed",amr/bom_amr.csv
+Dock,X01 Dock frame,laser + bend 4 mm S355MC welded + powder,1.0,445.0,445.0,sheet-metal shop TV/PD,"estimate, quote needed",amr/bom_amr.csv
+Dock,X02 Roboteq RoboPad base,RPBAS90-100,1.0,300.0,300.0,Roboteq/Nidec direct,"estimate, quote needed",amr/bom_amr.csv
+Dock,X03 Pad mount,bend 3 mm S355MC + powder,1.0,80.0,80.0,sheet-metal shop TV/PD,"estimate, quote needed",amr/bom_amr.csv
+Dock,"X04 Charger Mean Well NPB-750-48 (11.3 A, EMC Class B, DIP flooded 56.8/53.6 V)",NPB-750-48,1.0,171.72,171.72,Melchioni / Gigatek / DigiKey.it,documented,amr/bom_amr.csv
+Dock,"X05 Dock controller Finder OPTA (Wi-Fi/Ethernet handshake) + DC contactor Albright SW80B + 1N5408 in DIN box (rev B4, G-24)",Finder OPTA 8A.04.9.024.8320 + Albright SW80B...A 24 V + DIN box,1.0,396.0,396.0,in-house assembly,"estimate, quote needed",amr/bom_amr.csv
+Dock,X06 AprilTag + retro-reflective plate,UV print on aluminium + 3M tape,1.0,30.0,30.0,local printer,"estimate, quote needed",amr/bom_amr.csv
+Dock,X07 Dock cover,bend 2 mm 5754 + powder,1.0,120.0,120.0,sheet-metal shop TV/PD,"estimate, quote needed",amr/bom_amr.csv
+Dock,"X08 Dock harness (mains cable, switch, glands)",Lapp OELFLEX CLASSIC 110 3G1.5 (1119303) + Schurter DD11.0121.1110 inlet/switch/fuse module,1.0,60.0,60.0,Lapp / Schurter,"estimate, quote needed",amr/bom_amr.csv
+Dock,"X09 Dock over-voltage relay XD3: Carlo Gavazzi DUB01CD48500V (200 V range, over-voltage, bench-set 58.5 V; opens the dock DC contactor; RoboPad 60 V fault limit)",Carlo Gavazzi DUB01CD48500V,1.0,144.9,144.9,Carlo Gavazzi Italia / DigiKey.it,documented,amr/bom_amr.csv
+Arms & hands,E50 Arm 24 V DC-DC R/L (moved from waist plate; OpenArm variant only),Mean Well DDR-480C-24,2.0,165.0,330.0,https://www.digikey.it/it/products/result?keywords=DDR-480C-24,documented,amr/bom_amr.csv
+Arms & hands,E52 Arm-bus ORing + 27 V clamp: 2x DRDN40-24 (CAD E52_L/R) + 2x maxon DSR 50/5 (CAD E5B_L/R) (OpenArm only),DRDN40-24 x2 + DSR 50/5 x2,1.0,401.48,401.48,Melchioni / maxon,documented,amr/bom_amr.csv
+Arms & hands,"E57 Arm feed fuses FAL/FAR 25 A gPV (holder + link) x2, right MID rail (OpenArm only)",Mersen CUS101HEL + HP10M25 x2,1.0,39.3,39.3,Mersen / DigiKey.it,documented,amr/bom_amr.csv
+Arms & hands,"SP1 Arm-on-rest sensors Pilz PSEN cs3.1 + actuator cs3.11 (L/R, each on its own PNOZ input pair; OpenArm only; superstructure)","Pilz PSEN cs3.1 M12/8-0.15m (541009) + actuator PSEN cs3.1 (541080); TUV SUED cert, Cat 4 PL e PFHd 2.62E-9",2.0,119.34,238.68,Pilz Italia / eibabo.de,documented,amr/bom_amr.csv
+Arms & hands,"Enactic OpenArm 2.0 bimanual (2 arms, torso body_link0, 2 grippers, wrist cameras, 1 USB-CANFD) incl. shipping/duties",OpenArm 2.0 bimanual,1.0,5950.0,5950.0,https://docs.openarm.dev/purchase,documented,docs/bom.csv
+Vision & compute,"E36 CAN-Ethernet gateway (traction + energy CAN), 22.5 x 99 x 114.5 mm, right HIGH rail end",PEAK PCAN-Ethernet Gateway DR (IPEH-004010),1.0,294.0,294.0,PEAK-System / distributor,documented,amr/bom_amr.csv
+Vision & compute,E25 Ethernet switch 8 port DIN,"Phoenix FL SWITCH 1008N (1085256), 9-32 V DC, 22.5 x 140.4 x 92.4 mm",1.0,141.86,141.86,Phoenix Contact Italia,documented,amr/bom_amr.csv
+Vision & compute,"E51 Jetson Orin NX 16 GB box: Seeed reComputer J4012 (superstructure compute, on the rear deck under K06)","Seeed reComputer J4012 (110110145), 9-19 V input, 10-25 W",1.0,1287.0,1287.0,Seeed Studio,documented,amr/bom_amr.csv
+Vision & compute,Orbbec Gemini 336L stereo depth camera,Gemini 336L,1.0,340.0,340.0,https://store.orbbec.com/products/gemini-336l,documented,docs/bom.csv
+Vision & compute,"USB UVC fisheye camera ~180 deg 1080p (front + back), replaces Insta360 X4",Arducam/e-con class,2.0,50.0,100.0,estimate (FEASIBILITY.md section 3.7 option A),"estimate, quote needed",docs/bom.csv
+Vision & compute,"USB CAN-FD adapter, SocketCAN gs_usb class (CANable 2.0 / candleLight FD) for the 2nd arm bus (the OpenArm kit ships one)",CANable 2.0 class,1.0,40.0,40.0,estimate; mainline Linux gs_usb driver,"estimate, quote needed",docs/bom.csv
+Vision & compute,"Powered USB 3 hub, 7 port, 12 V input",,1.0,60.0,60.0,estimate (FEASIBILITY.md section 6: 9-11 USB devices),"estimate, quote needed",docs/bom.csv
+Vision & compute,HUB75 32x16 P4 RGB LED panel,,1.0,20.0,20.0,estimate,"estimate, quote needed",docs/bom.csv
+Vision & compute,ESP32-S3 HUB75 driver board (Matrix Portal S3 class),,1.0,25.0,25.0,estimate (FEASIBILITY.md section 3.10),"estimate, quote needed",docs/bom.csv
+Vision & compute,GC9A01 1.28 in round displays (eyes),,2.0,6.0,12.0,README v3/v7 (5-10 EUR each),"estimate, quote needed",docs/bom.csv
+Vision & compute,LED strips / mustache diffuser LEDs,,1.0,15.0,15.0,estimate (README v7 line 40 EUR incl. eyes),"estimate, quote needed",docs/bom.csv
+Structure & shells,"SH02_column_cover_fixed (PA12 (SLS/MJF), 0.061 kg)",,1.0,53.0,53.0,estimate: process cost model,"estimate, shop quote needed",docs/bom.csv
+Structure & shells,"SH03_waist_cover (PA12 (SLS/MJF), 0.522 kg)",,1.0,155.0,155.0,estimate: process cost model,"estimate, shop quote needed",docs/bom.csv
+Structure & shells,"SH04a_torso_shell_front (PA12 (SLS/MJF), 0.251 kg)",,1.0,95.0,95.0,estimate: process cost model,"estimate, shop quote needed",docs/bom.csv
+Structure & shells,"SH04b_torso_shell_rear (PA12 (SLS/MJF), 0.274 kg)",,1.0,100.0,100.0,estimate: process cost model,"estimate, shop quote needed",docs/bom.csv
+Structure & shells,"SH05_head_shell (PA12 (SLS/MJF), 0.149 kg)",,1.0,73.0,73.0,estimate: process cost model,"estimate, shop quote needed",docs/bom.csv
+Structure & shells,"P29_column_foot (EN AW-6082-T6, 1.248 kg)",,1.0,205.0,205.0,estimate: process cost model,"estimate, shop quote needed",docs/bom.csv
+Structure & shells,item Profil 8 80x80 leicht 0.0.265.80 cut 370 mm + machining,item 0.0.265.80,1.0,60.0,60.0,estimate (item price ~25 EUR/m + cut/drill/tap),"estimate, quote needed",docs/bom.csv
+Structure & shells,"P02_column_to_torso_bracket (EN AW-6082-T6, 1.823 kg)",,1.0,216.0,216.0,estimate: process cost model,"estimate, shop quote needed",docs/bom.csv
+Structure & shells,"P27_torso_shell_bracket_front (EN AW-5754-H22, 0.046 kg)",,1.0,22.0,22.0,estimate: process cost model,"estimate, shop quote needed",docs/bom.csv
+Structure & shells,"P28_torso_shell_bracket_rear (EN AW-5754-H22, 0.047 kg)",,1.0,22.0,22.0,estimate: process cost model,"estimate, shop quote needed",docs/bom.csv
+Structure & shells,"P16_head_neck_plate (EN AW-5754-H22, 0.100 kg)",,1.0,24.0,24.0,estimate: process cost model,"estimate, shop quote needed",docs/bom.csv
+Structure & shells,"P18_gemini_bracket (EN AW-5754-H22, 0.077 kg)",,1.0,23.0,23.0,estimate: process cost model,"estimate, shop quote needed",docs/bom.csv
+Structure & shells,"P19_tray_carrier (EN AW-5754-H22, 0.429 kg)",,1.0,35.0,35.0,estimate: process cost model,"estimate, shop quote needed",docs/bom.csv
+Structure & shells,"P20_tray_half_L (PA12 (SLS/MJF), 0.888 kg)",,1.0,143.0,143.0,estimate: process cost model,"estimate, shop quote needed",docs/bom.csv
+Structure & shells,"P20_tray_half_R (PA12 (SLS/MJF), 0.888 kg)",,1.0,143.0,143.0,estimate: process cost model,"estimate, shop quote needed",docs/bom.csv
+Structure & shells,T-slot nut slot 6 M5 (ASSUMED type),,16.0,0.9,14.4,estimate,"estimate, quote needed",docs/bom.csv
+Structure & shells,T-slot nut slot 8 M6 (ASSUMED Misumi post),,10.0,1.0,10.0,estimate,"estimate, quote needed",docs/bom.csv
+Structure & shells,ISO 7379 shoulder screw D8x8 M6 (locating pin; head relieved in the tray),,4.0,3.0,12.0,estimate,"estimate, quote needed",docs/bom.csv
+Structure & shells,DIN 7984 M12x30 8.8,,2.0,0.9,1.8,estimate (A2/8.8 catalogue price),"estimate, quote needed",docs/bom.csv
+Structure & shells,ISO 10642 M5x16 8.8,,16.0,0.13,2.08,estimate (A2/8.8 catalogue price),"estimate, quote needed",docs/bom.csv
+Structure & shells,ISO 4762 M3x16 8.8,,3.0,0.08,0.24,estimate (A2/8.8 catalogue price),"estimate, quote needed",docs/bom.csv
+Structure & shells,ISO 4762 M3x8 8.8,,4.0,0.08,0.32,estimate (A2/8.8 catalogue price),"estimate, quote needed",docs/bom.csv
+Structure & shells,ISO 4762 M4x10 8.8,,2.0,0.1,0.2,estimate (A2/8.8 catalogue price),"estimate, quote needed",docs/bom.csv
+Structure & shells,ISO 4762 M4x12 8.8,,6.0,0.1,0.6000000000000001,estimate (A2/8.8 catalogue price),"estimate, quote needed",docs/bom.csv
+Structure & shells,ISO 4762 M4x16 8.8,,10.0,0.1,1.0,estimate (A2/8.8 catalogue price),"estimate, quote needed",docs/bom.csv
+Structure & shells,ISO 4762 M4x18 8.8,,4.0,0.1,0.4,estimate (A2/8.8 catalogue price),"estimate, quote needed",docs/bom.csv
+Structure & shells,ISO 4762 M4x6 8.8,,2.0,0.1,0.2,estimate (A2/8.8 catalogue price),"estimate, quote needed",docs/bom.csv
+Structure & shells,ISO 4762 M4x8 8.8,,7.0,0.1,0.7000000000000001,estimate (A2/8.8 catalogue price),"estimate, quote needed",docs/bom.csv
+Structure & shells,ISO 4762 M5x10 8.8,,28.0,0.13,3.64,estimate (A2/8.8 catalogue price),"estimate, quote needed",docs/bom.csv
+Structure & shells,ISO 4762 M5x12 8.8,,4.0,0.13,0.52,estimate (A2/8.8 catalogue price),"estimate, quote needed",docs/bom.csv
+Structure & shells,ISO 4762 M6x10 8.8,,16.0,0.16,2.56,estimate (A2/8.8 catalogue price),"estimate, quote needed",docs/bom.csv
+Structure & shells,ISO 4762 M6x16 8.8,,8.0,0.16,1.28,estimate (A2/8.8 catalogue price),"estimate, quote needed",docs/bom.csv
+Structure & shells,ISO 4762 M6x30 8.8,,8.0,0.16,1.28,estimate (A2/8.8 catalogue price),"estimate, quote needed",docs/bom.csv
+Structure & shells,ISO 7380 M5x16 8.8,,4.0,0.13,0.52,estimate (A2/8.8 catalogue price),"estimate, quote needed",docs/bom.csv
+Structure & shells,ISO 7089 washers (all sizes),,75.0,0.03,2.25,estimate,"estimate, quote needed",docs/bom.csv
+Structure & shells,Kerb Konus 860 M4 threaded inserts,,9.0,1.2,10.799999999999999,estimate,"estimate, quote needed",docs/bom.csv
+Structure & shells,ISO 4032 M5 nuts,,4.0,0.05,0.2,estimate,"estimate, quote needed",docs/bom.csv
+Structure & shells,"Minimum-pack overhead, threadlocker, cable ties, glands",,1.0,40.0,40.0,estimate,"estimate, quote needed",docs/bom.csv
+Coffee module,E54 Coffee 24 V DC-DC U7 (FL corner rail; barista only),Mean Well DDR-480C-24,1.0,165.0,165.0,Melchioni / Gigatek / DigiKey.it,documented,amr/bom_amr.csv
+Coffee module,"E55 Coffee power relay K4 (via interposing relay KI4 on a PNOZ auxiliary output, Cat B; barista only)",Finder 22.32.0.024.4340,1.0,40.0,40.0,Finder / RS,"estimate, quote needed",amr/bom_amr.csv
+Coffee module,E56 Coffee fuse FCF 15 A gPV (holder + link; barista only),Mersen CUS101HEL + HP10M15,1.0,19.65,19.65,Mersen / DigiKey.it,documented,amr/bom_amr.csv
+Coffee module,"24 V DC capsule machine, Nespresso-compatible, 300 W (truck type)",,1.0,120.0,120.0,https://www.truckstyler-shop.de/Suitable-for-Nespresso-Truck-24V-coffee-capsule-machine?slotID=2,documented,docs/bom.csv
+Coffee module,Actuonix P16-150-64-12-P linear actuator (cup shuttle),P16-150-64-12-P,1.0,95.0,95.0,estimate (Actuonix list ~USD 100),"estimate, quote needed",docs/bom.csv
+Coffee module,HIWIN MGN12 rail L=190 + MGN12H carriage,MGN12-190 + MGN12H,1.0,45.0,45.0,estimate,"estimate, quote needed",docs/bom.csv
+Coffee module,Coffee MCU: RP2040 + DRV8871 H-bridge + relay + cup-present sensor + 12 V buck,,1.0,30.0,30.0,FEASIBILITY.md section 5 (+30),"estimate, quote needed",docs/bom.csv
+Coffee module,"SH06_coffee_housing (PA12 (SLS/MJF), 0.641 kg)",,1.0,181.0,181.0,estimate: process cost model,"estimate, shop quote needed",docs/bom.csv
+Coffee module,"P21_coffee_shelf (EN AW-6082-T6, 1.066 kg)",,1.0,112.0,112.0,estimate: process cost model,"estimate, shop quote needed",docs/bom.csv
+Coffee module,"P22_coffee_upright_0 (EN AW-5754-H22, 0.231 kg)",,1.0,28.0,28.0,estimate: process cost model,"estimate, shop quote needed",docs/bom.csv
+Coffee module,"P22_coffee_upright_1 (EN AW-5754-H22, 0.231 kg)",,1.0,28.0,28.0,estimate: process cost model,"estimate, shop quote needed",docs/bom.csv
+Coffee module,"P23_shuttle_rail_riser (EN AW-6082-T6, 0.041 kg)",,1.0,20.0,20.0,estimate: process cost model,"estimate, shop quote needed",docs/bom.csv
+Coffee module,"P24_shuttle_cup_carrier (PA12 (SLS/MJF), 0.089 kg)",,1.0,23.0,23.0,estimate: process cost model,"estimate, shop quote needed",docs/bom.csv
+Coffee module,"P25_actuator_rear_bracket (EN AW-5754-H22, 0.011 kg)",,1.0,20.0,20.0,estimate: process cost model,"estimate, shop quote needed",docs/bom.csv
+Coffee module,"P30_backpack_eplate (EN AW-5754-H22, 0.184 kg)",,1.0,26.0,26.0,estimate: process cost model,"estimate, shop quote needed",docs/bom.csv
+Coffee module,"P31_backpack_standoff_0 (EN AW-6082-T6, 0.019 kg)",,1.0,12.0,12.0,estimate: process cost model,"estimate, shop quote needed",docs/bom.csv
+Coffee module,"P31_backpack_standoff_1 (EN AW-6082-T6, 0.019 kg)",,1.0,12.0,12.0,estimate: process cost model,"estimate, shop quote needed",docs/bom.csv
+Coffee module,"P31_backpack_standoff_2 (EN AW-6082-T6, 0.019 kg)",,1.0,12.0,12.0,estimate: process cost model,"estimate, shop quote needed",docs/bom.csv
+Coffee module,"P26_cup_stack_holder (PA12 (SLS/MJF), 0.172 kg)",,1.0,36.0,36.0,estimate: process cost model,"estimate, shop quote needed",docs/bom.csv
